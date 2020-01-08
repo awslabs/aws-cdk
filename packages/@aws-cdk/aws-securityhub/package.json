@@ -84,16 +84,24 @@
     "@aws-cdk/assert": "1.19.0",
     "cdk-build-tools": "1.19.0",
     "cfn2ts": "1.19.0",
-    "pkglint": "1.19.0"
+    "pkglint": "1.19.0",
+    "jest": "^24.9.0"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.19.0"
+    "@aws-cdk/core": "1.19.0",
+    "@aws-cdk/aws-events": "1.19.0"
   },
   "peerDependencies": {
-    "@aws-cdk/core": "1.19.0"
+    "@aws-cdk/core": "1.19.0",
+    "@aws-cdk/aws-events": "1.19.0"
   },
   "engines": {
     "node": ">= 10.3.0"
+  },
+  "awslint": {
+    "exclude": [
+      "props-physical-name:@aws-cdk/aws-securityhub.HubProps"
+    ]
   },
   "stability": "experimental"
 }

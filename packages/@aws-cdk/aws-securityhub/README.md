@@ -21,3 +21,47 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
 ```ts
 import securityhub = require('@aws-cdk/aws-securityhub');
 ```
+
+## Hub
+
+To create a Hub within Security Hub:
+
+```js
+import securityhub = require('@aws-cdk/aws-securityhub');
+
+const hub = new securityhub.Hub(this, 'MyHub');
+```
+
+## Events
+
+SecurityHub publishes events to AWS CloudWatch which allows other resources to be triggered on those events. See also [Automating AWS Security Hub with CloudWatch Events](https://docs.aws.amazon.com/en_pv/securityhub/latest/userguide/securityhub-cloudwatch-events.html).
+
+### Imported Findings
+
+```js
+const targets = require('@aws-cdk/aws-events-targets');
+
+hub.onImportedFindings('OnImportedFindings', {
+    target: new targets.LambdaFunction(fn)
+});
+```
+
+### Custom Action
+
+```js
+const targets = require('@aws-cdk/aws-events-targets');
+
+hub.onCustomAction('OnCustomAction', {
+    target: new targets.LambdaFunction(fn)
+});
+```
+
+### Insight Results
+
+```js
+const targets = require('@aws-cdk/aws-events-targets');
+
+hub.onInsightResults('OnInsightResults', {
+    target: new targets.LambdaFunction(fn)
+});
+```
