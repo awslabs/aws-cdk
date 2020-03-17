@@ -1,0 +1,1365 @@
+{
+  "Parameters": {
+    "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3Bucket575C0F51": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916\""
+    },
+    "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3VersionKeyCBE9ABAF": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916\""
+    },
+    "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916ArtifactHashB0F74179": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916\""
+    }
+  },
+  "Resources": {
+    "VPCB9E5F0B4": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet1SubnetB4246D30": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1a",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet1"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet1RouteTableFEE4B781": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet1"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet1RouteTableAssociation0B0896DC": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet1RouteTableFEE4B781"
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet1SubnetB4246D30"
+        }
+      }
+    },
+    "VPCPublicSubnet1DefaultRoute91CEF279": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet1RouteTableFEE4B781"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VPCIGWB7E252D3"
+        }
+      },
+      "DependsOn": [
+        "VPCVPCGW99B986DC"
+      ]
+    },
+    "VPCPublicSubnet1EIP6AD938E8": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet1"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet1NATGatewayE0556630": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "VPCPublicSubnet1EIP6AD938E8",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet1SubnetB4246D30"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet1"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet2Subnet74179F39": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.32.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1b",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet2"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet2RouteTable6F1A15F1": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet2"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet2RouteTableAssociation5A808732": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet2RouteTable6F1A15F1"
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet2Subnet74179F39"
+        }
+      }
+    },
+    "VPCPublicSubnet2DefaultRouteB7481BBA": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet2RouteTable6F1A15F1"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VPCIGWB7E252D3"
+        }
+      },
+      "DependsOn": [
+        "VPCVPCGW99B986DC"
+      ]
+    },
+    "VPCPublicSubnet2EIP4947BC00": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet2"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet2NATGateway3C070193": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "VPCPublicSubnet2EIP4947BC00",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet2Subnet74179F39"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet2"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet3Subnet631C5E25": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.64.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1c",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet3"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet3RouteTable98AE0E14": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet3"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet3RouteTableAssociation427FE0C6": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet3RouteTable98AE0E14"
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet3Subnet631C5E25"
+        }
+      }
+    },
+    "VPCPublicSubnet3DefaultRouteA0D29D46": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPublicSubnet3RouteTable98AE0E14"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VPCIGWB7E252D3"
+        }
+      },
+      "DependsOn": [
+        "VPCVPCGW99B986DC"
+      ]
+    },
+    "VPCPublicSubnet3EIPAD4BC883": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet3"
+          }
+        ]
+      }
+    },
+    "VPCPublicSubnet3NATGatewayD3048F5C": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "VPCPublicSubnet3EIPAD4BC883",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet3Subnet631C5E25"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PublicSubnet3"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet1Subnet8BCA10E0": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.96.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1a",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet1"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet1RouteTableBE8A6027": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet1"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet1RouteTableAssociation347902D1": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet1RouteTableBE8A6027"
+        },
+        "SubnetId": {
+          "Ref": "VPCPrivateSubnet1Subnet8BCA10E0"
+        }
+      }
+    },
+    "VPCPrivateSubnet1DefaultRouteAE1D6490": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet1RouteTableBE8A6027"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "VPCPublicSubnet1NATGatewayE0556630"
+        }
+      }
+    },
+    "VPCPrivateSubnet2SubnetCFCDAA7A": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.128.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1b",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet2"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet2RouteTable0A19E10E": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet2"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet2RouteTableAssociation0C73D413": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet2RouteTable0A19E10E"
+        },
+        "SubnetId": {
+          "Ref": "VPCPrivateSubnet2SubnetCFCDAA7A"
+        }
+      }
+    },
+    "VPCPrivateSubnet2DefaultRouteF4F5CFD2": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet2RouteTable0A19E10E"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "VPCPublicSubnet2NATGateway3C070193"
+        }
+      }
+    },
+    "VPCPrivateSubnet3Subnet3EDCD457": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.160.0/19",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "AvailabilityZone": "test-region-1c",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet3"
+          },
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet3RouteTable192186F8": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC/PrivateSubnet3"
+          }
+        ]
+      }
+    },
+    "VPCPrivateSubnet3RouteTableAssociationC28D144E": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet3RouteTable192186F8"
+        },
+        "SubnetId": {
+          "Ref": "VPCPrivateSubnet3Subnet3EDCD457"
+        }
+      }
+    },
+    "VPCPrivateSubnet3DefaultRoute27F311AE": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VPCPrivateSubnet3RouteTable192186F8"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "VPCPublicSubnet3NATGatewayD3048F5C"
+        }
+      }
+    },
+    "VPCIGWB7E252D3": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/VPC"
+          }
+        ]
+      }
+    },
+    "VPCVPCGW99B986DC": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        },
+        "InternetGatewayId": {
+          "Ref": "VPCIGWB7E252D3"
+        }
+      }
+    },
+    "ModelWithArtifactAndVpcSecurityGroupB499C626": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "aws-cdk-sagemaker-endpoint/ModelWithArtifactAndVpc/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/ModelWithArtifactAndVpc"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4"
+        }
+      }
+    },
+    "ModelWithArtifactAndVpcRole6BA49FD3": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sagemaker.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonSageMakerFullAccess"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/ModelWithArtifactAndVpc"
+          }
+        ]
+      }
+    },
+    "ModelWithArtifactAndVpcRoleDefaultPolicyC77E2AFA": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":ecr:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":repository/aws-cdk/assets"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3Bucket575C0F51"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3Bucket575C0F51"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ModelWithArtifactAndVpcRoleDefaultPolicyC77E2AFA",
+        "Roles": [
+          {
+            "Ref": "ModelWithArtifactAndVpcRole6BA49FD3"
+          }
+        ]
+      }
+    },
+    "ModelWithArtifactAndVpcModel30604F15": {
+      "Type": "AWS::SageMaker::Model",
+      "Properties": {
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "ModelWithArtifactAndVpcRole6BA49FD3",
+            "Arn"
+          ]
+        },
+        "PrimaryContainer": {
+          "Image": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::AccountId"
+                },
+                ".dkr.ecr.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                },
+                "/aws-cdk/assets:26aab3505e4deba4c58890a2836f781a4fd172b59fdd74732a76d59860df5cc9"
+              ]
+            ]
+          },
+          "ModelDataUrl": {
+            "Fn::Join": [
+              "",
+              [
+                "https://s3.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                },
+                "/",
+                {
+                  "Ref": "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3Bucket575C0F51"
+                },
+                "/",
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3VersionKeyCBE9ABAF"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters126d48fa0e32fbef5078b9d88658b35ad29d4291eb86675a64c75fa4f1338916S3VersionKeyCBE9ABAF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/ModelWithArtifactAndVpc"
+          }
+        ],
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "ModelWithArtifactAndVpcSecurityGroupB499C626",
+                "GroupId"
+              ]
+            }
+          ],
+          "Subnets": [
+            {
+              "Ref": "VPCPrivateSubnet1Subnet8BCA10E0"
+            },
+            {
+              "Ref": "VPCPrivateSubnet2SubnetCFCDAA7A"
+            },
+            {
+              "Ref": "VPCPrivateSubnet3Subnet3EDCD457"
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "ModelWithArtifactAndVpcRoleDefaultPolicyC77E2AFA",
+        "ModelWithArtifactAndVpcRole6BA49FD3"
+      ]
+    },
+    "ModelWithoutArtifactAndVpcRole10D89F15": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sagemaker.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonSageMakerFullAccess"
+              ]
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/ModelWithoutArtifactAndVpc"
+          }
+        ]
+      }
+    },
+    "ModelWithoutArtifactAndVpcRoleDefaultPolicy88BAF094": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":ecr:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":repository/aws-cdk/assets"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ModelWithoutArtifactAndVpcRoleDefaultPolicy88BAF094",
+        "Roles": [
+          {
+            "Ref": "ModelWithoutArtifactAndVpcRole10D89F15"
+          }
+        ]
+      }
+    },
+    "ModelWithoutArtifactAndVpcModel9A8AD144": {
+      "Type": "AWS::SageMaker::Model",
+      "Properties": {
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "ModelWithoutArtifactAndVpcRole10D89F15",
+            "Arn"
+          ]
+        },
+        "PrimaryContainer": {
+          "Image": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::AccountId"
+                },
+                ".dkr.ecr.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                },
+                "/aws-cdk/assets:26aab3505e4deba4c58890a2836f781a4fd172b59fdd74732a76d59860df5cc9"
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/ModelWithoutArtifactAndVpc"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ModelWithoutArtifactAndVpcRoleDefaultPolicy88BAF094",
+        "ModelWithoutArtifactAndVpcRole10D89F15"
+      ]
+    },
+    "EndpointConfigFD7B6F91": {
+      "Type": "AWS::SageMaker::EndpointConfig",
+      "Properties": {
+        "ProductionVariants": [
+          {
+            "InitialInstanceCount": 1,
+            "InitialVariantWeight": 1,
+            "InstanceType": "ml.m5.large",
+            "ModelName": {
+              "Fn::GetAtt": [
+                "ModelWithArtifactAndVpcModel30604F15",
+                "ModelName"
+              ]
+            },
+            "VariantName": "firstVariant"
+          },
+          {
+            "InitialInstanceCount": 1,
+            "InitialVariantWeight": 1,
+            "InstanceType": "ml.t2.medium",
+            "ModelName": {
+              "Fn::GetAtt": [
+                "ModelWithArtifactAndVpcModel30604F15",
+                "ModelName"
+              ]
+            },
+            "VariantName": "secondVariant"
+          },
+          {
+            "InitialInstanceCount": 1,
+            "InitialVariantWeight": 2,
+            "InstanceType": "ml.t2.medium",
+            "ModelName": {
+              "Fn::GetAtt": [
+                "ModelWithoutArtifactAndVpcModel9A8AD144",
+                "ModelName"
+              ]
+            },
+            "VariantName": "thirdVariant"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/EndpointConfig"
+          }
+        ]
+      }
+    },
+    "Endpoint8024A810": {
+      "Type": "AWS::SageMaker::Endpoint",
+      "Properties": {
+        "EndpointConfigName": {
+          "Fn::GetAtt": [
+            "EndpointConfigFD7B6F91",
+            "EndpointConfigName"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "aws-cdk-sagemaker-endpoint/Endpoint"
+          }
+        ]
+      }
+    },
+    "EndpointInstanceCountTargetDA8C8EDB": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "Properties": {
+        "MaxCapacity": 3,
+        "MinCapacity": 1,
+        "ResourceId": {
+          "Fn::Join": [
+            "",
+            [
+              "endpoint/",
+              {
+                "Fn::GetAtt": [
+                  "Endpoint8024A810",
+                  "EndpointName"
+                ]
+              },
+              "/variant/firstVariant"
+            ]
+          ]
+        },
+        "RoleARN": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":iam::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":role/aws-service-role/sagemaker.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_SageMakerEndpoint"
+            ]
+          ]
+        },
+        "ScalableDimension": "sagemaker:variant:DesiredInstanceCount",
+        "ServiceNamespace": "sagemaker"
+      }
+    },
+    "EndpointInstanceCountTargetLimitRPSE1D92DB6": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyName": "awscdksagemakerendpointEndpointInstanceCountTargetLimitRPSCC857664",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "EndpointInstanceCountTargetDA8C8EDB"
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "SageMakerVariantInvocationsPerInstance"
+          },
+          "TargetValue": 900
+        }
+      }
+    },
+    "Invoker060A9026": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "InvokerDefaultPolicy3FF8208D": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sagemaker:InvokeEndpoint",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "Endpoint8024A810"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "InvokerDefaultPolicy3FF8208D",
+        "Roles": [
+          {
+            "Ref": "Invoker060A9026"
+          }
+        ]
+      }
+    },
+    "InvocationsAlarmBC3830BD": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 2,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "Invocations",
+        "Namespace": "AWS/SageMaker",
+        "Period": 300,
+        "Statistic": "Sum",
+        "Threshold": 1
+      }
+    },
+    "InvocationsPerInstanceAlarm82CBCF29": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 5,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "InvocationsPerInstance",
+        "Namespace": "AWS/SageMaker",
+        "Period": 300,
+        "Statistic": "Sum",
+        "Threshold": 4
+      }
+    },
+    "ModelLatencyAlarm96AC7D24": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 8,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "ModelLatency",
+        "Namespace": "AWS/SageMaker",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 7
+      }
+    },
+    "OverheadLatencyAlarm10D8981B": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 11,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "OverheadLatency",
+        "Namespace": "AWS/SageMaker",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 10
+      }
+    },
+    "Invocation5XXErrorsAlarmF9BAF026": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 14,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "Invocation5XXErrors",
+        "Namespace": "AWS/SageMaker",
+        "Period": 300,
+        "Statistic": "Sum",
+        "Threshold": 13
+      }
+    },
+    "DiskUtilizationAlarmE19E4184": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 17,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "DiskUtilization",
+        "Namespace": "/aws/sagemaker/Endpoints",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 16
+      }
+    },
+    "CPUUtilizationAlarm4D91B4D0": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 20,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "CPUUtilization",
+        "Namespace": "/aws/sagemaker/Endpoints",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 19
+      }
+    },
+    "MemoryUtilizationAlarm544270BF": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 23,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "MemoryUtilization",
+        "Namespace": "/aws/sagemaker/Endpoints",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 22
+      }
+    },
+    "GPUUtilizationAlarmEC9BEC6F": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 26,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "GPUUtilization",
+        "Namespace": "/aws/sagemaker/Endpoints",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 25
+      }
+    },
+    "GPUMemoryUtilizationAlarmD03813BC": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 29,
+        "Dimensions": [
+          {
+            "Name": "EndpointName",
+            "Value": {
+              "Fn::GetAtt": [
+                "Endpoint8024A810",
+                "EndpointName"
+              ]
+            }
+          },
+          {
+            "Name": "VariantName",
+            "Value": "firstVariant"
+          }
+        ],
+        "MetricName": "GPUMemoryUtilization",
+        "Namespace": "/aws/sagemaker/Endpoints",
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 28
+      }
+    }
+  }
+}
