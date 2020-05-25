@@ -37,6 +37,7 @@ async function parseCommandLineArguments() {
     .option('proxy', { type: 'string', desc: 'Use the indicated proxy. Will read from HTTPS_PROXY environment variable if not specified.', requiresArg: true })
     .option('ca-bundle-path', { type: 'string', desc: 'Path to CA certificate to use when validating HTTPS requests. Will read from AWS_CA_BUNDLE environment variable if not specified.', requiresArg: true })
     .option('ec2creds', { type: 'boolean', alias: 'i', default: undefined, desc: 'Force trying to fetch EC2 instance credentials. Default: guess EC2 instance status.' })
+    .option('localstack-endpoint', { type: 'string', requiresArg: true, desc: 'Specify service endpoints for service calls made with the AWS SDK. (i.e. http://localhost:4566).'})
     .option('version-reporting', { type: 'boolean', desc: 'Include the "AWS::CDK::Metadata" resource in synthesized templates (enabled by default)', default: undefined })
     .option('path-metadata', { type: 'boolean', desc: 'Include "aws:cdk:path" CloudFormation metadata for each resource (enabled by default)', default: true })
     .option('asset-metadata', { type: 'boolean', desc: 'Include "aws:asset:*" CloudFormation metadata for resources that user assets (enabled by default)', default: true })
@@ -123,6 +124,7 @@ async function initCommandLine() {
       proxyAddress: argv.proxy,
       caBundlePath: argv['ca-bundle-path'],
     },
+    localstackEndpoint: argv['localstack-endpoint'],
   });
 
   const cloudFormation = new CloudFormationDeployments({ sdkProvider });

@@ -41,6 +41,14 @@ export interface SdkProviderOptions {
    * HTTP options for SDK
    */
   readonly httpOptions?: SdkHttpOptions;
+
+  /**
+   * Custom endpoints for API calls
+   *
+   * @default - None. Standard AWS endpoints are built from the region you
+   * have configured
+   */
+  readonly localstackEndpoint?: string;
 }
 
 /**
@@ -89,11 +97,12 @@ export class SdkProvider {
    */
   public static async withAwsCliCompatibleDefaults(options: SdkProviderOptions = {}) {
     const sdkOptions = parseHttpOptions(options.httpOptions ?? {});
+    const localstackEndpoint = options.localstackEndpoint;
 
     const chain = await AwsCliCompatible.credentialChain(options.profile, options.ec2creds, options.containerCreds, sdkOptions.httpOptions);
     const region = await AwsCliCompatible.region(options.profile);
 
-    return new SdkProvider(chain, region, sdkOptions);
+    return new SdkProvider(chain, region, sdkOptions, localstackEndpoint);
   }
 
   private readonly plugins = new CredentialPlugins();
@@ -104,7 +113,8 @@ export class SdkProvider {
      * Default region
      */
     public readonly defaultRegion: string,
-    private readonly sdkOptions: ConfigurationOptions = {}) {
+    private readonly sdkOptions: ConfigurationOptions = {},
+    private readonly localstackEndpoint?: string) {
   }
 
   /**
@@ -115,7 +125,7 @@ export class SdkProvider {
   public async forEnvironment(environment: cxapi.Environment, mode: Mode): Promise<ISDK> {
     const env = await this.resolveEnvironment(environment);
     const creds = await this.obtainCredentials(env.account, mode);
-    return new SDK(creds, env.region, this.sdkOptions);
+    return new SDK(creds, env.region, this.sdkOptions, this.localstackEndpoint);
   }
 
   /**

@@ -41,6 +41,8 @@ export class SDK implements ISDK {
 
   private readonly config: ConfigurationOptions;
 
+  private readonly localstackEndpoint?: string;
+
   /**
    * Default retry options for SDK clients
    *
@@ -53,7 +55,8 @@ export class SDK implements ISDK {
    */
   private readonly retryOptions = { maxRetries: 6, retryDelayOptions: { base: 300 }};
 
-  constructor(private readonly credentials: AWS.Credentials, region: string, httpOptions: ConfigurationOptions = {}) {
+  // tslint:disable-next-line: max-line-length
+  constructor(private readonly credentials: AWS.Credentials, region: string, httpOptions: ConfigurationOptions = {}, localstackEndpoint?: string) {
     this.config = {
       ...httpOptions,
       ...this.retryOptions,
@@ -61,30 +64,49 @@ export class SDK implements ISDK {
       region,
     };
     this.currentRegion = region;
+    this.localstackEndpoint = localstackEndpoint;
   }
 
   public cloudFormation(): AWS.CloudFormation {
-    return new AWS.CloudFormation(this.config);
+    return new AWS.CloudFormation({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public ec2(): AWS.EC2 {
-    return new AWS.EC2(this.config);
+    return new AWS.EC2({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public ssm(): AWS.SSM {
-    return new AWS.SSM(this.config);
+    return new AWS.SSM({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public s3(): AWS.S3 {
-    return new AWS.S3(this.config);
+    return new AWS.S3({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public route53(): AWS.Route53 {
-    return new AWS.Route53(this.config);
+    return new AWS.Route53({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public ecr(): AWS.ECR {
-    return new AWS.ECR(this.config);
+    return new AWS.ECR({
+      ...this.config,
+      endpoint: this.localstackEndpoint,
+    });
   }
 
   public async currentAccount(): Promise<Account> {
