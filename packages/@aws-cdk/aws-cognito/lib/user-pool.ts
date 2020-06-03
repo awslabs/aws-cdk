@@ -323,6 +323,19 @@ export interface MfaSecondFactor {
 }
 
 /**
+ * The different ways in which a user pool's Advanced Security Mode can be configured.
+ * @see https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pool-settings-advanced-security.html
+ */
+export enum AdvancedSecurityMode {
+  /** Enable advanced security */
+  ENFORCED = 'ENFORCED',
+  /** Gather information, and send user pool data to Amazon CloudWatch */
+  AUDIT = 'AUDIT',
+  /** Disable advanced security */
+  OFF = 'OFF'
+}
+
+/**
  * Password policy for User Pools.
  */
 export interface PasswordPolicy {
@@ -473,6 +486,13 @@ export interface UserPoolProps {
    * @default Mfa.OFF
    */
   readonly mfa?: Mfa;
+
+  /**
+   * Configure for advanced security mode .
+   *
+   * @default AdvancedSecurityMode.OFF.
+   */
+  readonly advancedSecurity?: AdvancedSecurityMode;
 
   /**
    * Configure the MFA types that users can use in this user pool. Ignored if `mfa` is set to `OFF`.
@@ -658,6 +678,9 @@ export class UserPool extends UserPoolBase {
       schema: this.schemaConfiguration(props),
       mfaConfiguration: props.mfa,
       enabledMfas: this.mfaConfiguration(props),
+      userPoolAddOns: undefinedIfNoKeys({
+        advancedSecurityMode: props.advancedSecurity,
+      }),
       policies: passwordPolicy !== undefined ? { passwordPolicy } : undefined,
       emailConfiguration: undefinedIfNoKeys({
         from: props.emailSettings?.from,

@@ -1,6 +1,6 @@
 import { Code, Function, IFunction, Runtime } from '@aws-cdk/aws-lambda';
 import { App, CfnOutput, Duration, Stack } from '@aws-cdk/core';
-import { BooleanAttribute, DateTimeAttribute, Mfa, NumberAttribute, StringAttribute, UserPool } from '../lib';
+import { AdvancedSecurityMode, BooleanAttribute, DateTimeAttribute, Mfa, NumberAttribute, StringAttribute, UserPool } from '../lib';
 
 const app = new App();
 const stack = new Stack(app, 'integ-user-pool');
@@ -43,6 +43,7 @@ const userpool = new UserPool(stack, 'myuserpool', {
     sms: true,
     otp: true,
   },
+  advancedSecurity: AdvancedSecurityMode.ENFORCED,
   passwordPolicy: {
     tempPasswordValidity: Duration.days(10),
     minLength: 12,

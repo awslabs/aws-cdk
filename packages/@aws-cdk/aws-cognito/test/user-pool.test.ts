@@ -3,7 +3,15 @@ import { ABSENT } from '@aws-cdk/assert/lib/assertions/have-resource';
 import { Role } from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import { Construct, Duration, Stack, Tag } from '@aws-cdk/core';
-import { Mfa, NumberAttribute, StringAttribute, UserPool, UserPoolOperation, VerificationEmailStyle } from '../lib';
+import {
+  AdvancedSecurityMode,
+  Mfa,
+  NumberAttribute,
+  StringAttribute,
+  UserPool,
+  UserPoolOperation,
+  VerificationEmailStyle,
+} from '../lib';
 
 describe('User Pool', () => {
   test('default setup', () => {
@@ -680,6 +688,58 @@ describe('User Pool', () => {
     // THEN
     expect(stack).toHaveResourceLike('AWS::Cognito::UserPool', {
       EnabledMfas: [ 'SMS_MFA', 'SOFTWARE_TOKEN_MFA' ],
+    });
+  });
+
+  test('AdvancedSecurityMode is ignored when userPoolAddOns is undefined or set to OFF', () => {
+    // GIVEN
+    const stack = new Stack();
+
+    // WHEN
+    new UserPool(stack, 'Pool1', {
+      userPoolName: 'Pool1',
+    });
+    new UserPool(stack, 'Pool2', {
+      userPoolName: 'Pool2',
+      advancedSecurity: AdvancedSecurityMode.OFF,
+    });
+    // THEN
+    expect(stack).toHaveResourceLike('AWS::Cognito::UserPool', {
+      UserPoolName: 'Pool1',
+    });
+    expect(stack).toHaveResourceLike('AWS::Cognito::UserPool', {
+      UserPoolName: 'Pool2',
+      UserPoolAddOns: {
+        AdvancedSecurityMode: 'OFF',
+      },
+    });
+  });
+
+  test('AdvancedSecurityMode is correctly set when userPoolAddOns is ENFORCED or AUDIT', () => {
+    // GIVEN
+    const stack = new Stack();
+
+    // WHEN
+    new UserPool(stack, 'Pool1', {
+      userPoolName: 'Pool1',
+      advancedSecurity: AdvancedSecurityMode.ENFORCED,
+    });
+    new UserPool(stack, 'Pool2', {
+      userPoolName: 'Pool2',
+      advancedSecurity: AdvancedSecurityMode.AUDIT,
+    });
+    // THEN
+    expect(stack).toHaveResourceLike('AWS::Cognito::UserPool', {
+      UserPoolName: 'Pool1',
+      UserPoolAddOns: {
+        AdvancedSecurityMode: 'ENFORCED',
+      },
+    });
+    expect(stack).toHaveResourceLike('AWS::Cognito::UserPool', {
+      UserPoolName: 'Pool2',
+      UserPoolAddOns: {
+        AdvancedSecurityMode: 'AUDIT',
+      },
     });
   });
 

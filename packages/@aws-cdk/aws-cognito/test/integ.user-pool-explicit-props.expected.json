@@ -830,6 +830,9 @@
           }
         },
         "SmsVerificationMessage": "verification sms message from the integ test. Code is {####}.",
+        "UserPoolAddOns": {
+          "AdvancedSecurityMode":"ENFORCED"
+        },
         "UserPoolName": "MyUserPool",
         "VerificationMessageTemplate": {
           "DefaultEmailOption": "CONFIRM_WITH_CODE",
