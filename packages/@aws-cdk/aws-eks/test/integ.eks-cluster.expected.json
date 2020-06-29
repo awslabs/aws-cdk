@@ -2456,7 +2456,7 @@
         "Chart": "kubernetes-dashboard",
         "Wait": false,
         "Namespace": "default",
-        "Repository": "https://kubernetes-charts.storage.googleapis.com"
+        "Repository": "https://kubernetes.github.io/dashboard/"
       },
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete"
@@ -2687,7 +2687,7 @@
               },
               "/",
               {
-                "Ref": "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eS3Bucket5515EF97"
+                "Ref": "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042S3BucketAE64A22C"
               },
               "/",
               {
@@ -2697,7 +2697,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eS3VersionKeyF1C97F67"
+                        "Ref": "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042S3VersionKeyAFF70CF1"
                       }
                     ]
                   }
@@ -2710,7 +2710,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eS3VersionKeyF1C97F67"
+                        "Ref": "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042S3VersionKeyAFF70CF1"
                       }
                     ]
                   }
@@ -3073,17 +3073,17 @@
       "Type": "String",
       "Description": "Artifact hash for asset \"7255958d303a278986617e8d7ce027c96cd00a70fb8f1ca02c1e0da94a571896\""
     },
-    "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eS3Bucket5515EF97": {
+    "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042S3BucketAE64A22C": {
       "Type": "String",
-      "Description": "S3 bucket for asset \"c70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649e\""
+      "Description": "S3 bucket for asset \"5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042\""
     },
-    "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eS3VersionKeyF1C97F67": {
+    "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042S3VersionKeyAFF70CF1": {
       "Type": "String",
-      "Description": "S3 key for asset version \"c70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649e\""
+      "Description": "S3 key for asset version \"5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042\""
     },
-    "AssetParametersc70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649eArtifactHash88EDABBF": {
+    "AssetParameters5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042ArtifactHashD8735DDD": {
       "Type": "String",
-      "Description": "Artifact hash for asset \"c70286a3d87ecc95aea2ffe7d7723ba303222280fb87f0128b3e83dcdd1d649e\""
+      "Description": "Artifact hash for asset \"5b580ce3f53b1ee1551ac2e759433f10ef9a6a312bf7a501a0753fddcc8a3042\""
     },
     "SsmParameterValueawsserviceeksoptimizedami116amazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Type": "AWS::SSM::Parameter::Value<String>",

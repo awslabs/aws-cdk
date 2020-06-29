@@ -73,7 +73,11 @@ class EksClusterStack extends TestStack {
     cluster.addResource('HelloApp', ...hello.resources);
 
     // add two Helm charts to the cluster. This will be the Kubernetes dashboard and the Nginx Ingress Controller
-    cluster.addChart('dashboard', { chart: 'kubernetes-dashboard', repository: 'https://kubernetes-charts.storage.googleapis.com' });
+    cluster.addChart('dashboard', {
+      chart: 'kubernetes-dashboard',
+      repository: 'https://kubernetes.github.io/dashboard/',
+    });
+
     cluster.addChart('nginx-ingress', {
       chart: 'nginx-ingress',
       repository: 'https://helm.nginx.com/stable',

@@ -10,10 +10,8 @@ beforeEach(() => {
 
 test('Eval with Node.js', () => {
   // WHEN
-  const task = new sfn.Task(stack, 'Task', {
-    task: new tasks.EvaluateExpression({
-      expression: '$.a + $.b',
-    }),
+  const task = new tasks.EvaluateExpression(stack, 'Task', {
+    expression: '$.a + $.b',
   });
   new sfn.StateMachine(stack, 'SM', {
     definition: task,
@@ -25,14 +23,11 @@ test('Eval with Node.js', () => {
       'Fn::Join': [
         '',
         [
-          '{"StartAt":"Task","States":{"Task":{"End":true,"Parameters":{"expression":"$.a + $.b","expressionAttributeValues":{"$.a.$":"$.a","$.b.$":"$.b"}},"Type":"Task","Resource":"',
+          '{"StartAt":"Task","States":{"Task":{"End":true,"Type":"Task","Resource":"',
           {
-            'Fn::GetAtt': [
-              'Evala0d2ce44871b4e7487a1f5e63d7c3bdc4DAC06E1',
-              'Arn',
-            ],
+            'Fn::GetAtt': ['Evala0d2ce44871b4e7487a1f5e63d7c3bdc4DAC06E1', 'Arn'],
           },
-          '"}}}',
+          '","Parameters":{"expression":"$.a + $.b","expressionAttributeValues":{"$.a.$":"$.a","$.b.$":"$.b"}}}}}',
         ],
       ],
     },
@@ -45,10 +40,8 @@ test('Eval with Node.js', () => {
 
 test('expression does not contain paths', () => {
   // WHEN
-  const task = new sfn.Task(stack, 'Task', {
-    task: new tasks.EvaluateExpression({
-      expression: '2 + 2',
-    }),
+  const task = new tasks.EvaluateExpression(stack, 'Task', {
+    expression: '2 + 2',
   });
   new sfn.StateMachine(stack, 'SM', {
     definition: task,
@@ -59,14 +52,11 @@ test('expression does not contain paths', () => {
       'Fn::Join': [
         '',
         [
-          '{"StartAt":"Task","States":{"Task":{"End":true,"Parameters":{"expression":"2 + 2",\"expressionAttributeValues\":{}},"Type":"Task","Resource":"',
+          '{"StartAt":"Task","States":{"Task":{"End":true,"Type":"Task","Resource":"',
           {
-            'Fn::GetAtt': [
-              'Evala0d2ce44871b4e7487a1f5e63d7c3bdc4DAC06E1',
-              'Arn',
-            ],
+            'Fn::GetAtt': ['Evala0d2ce44871b4e7487a1f5e63d7c3bdc4DAC06E1', 'Arn'],
           },
-          '"}}}',
+          '","Parameters":{"expression":"2 + 2","expressionAttributeValues":{}}}}}',
         ],
       ],
     },

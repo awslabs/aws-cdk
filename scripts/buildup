@@ -19,7 +19,7 @@ else
   fi
 fi
 
-${scriptdir}/foreach.sh --up yarn build+test
+${scriptdir}/foreach.sh --up yarn build
 ${scriptdir}/foreach.sh --reset
 
 echo "************************************************************"

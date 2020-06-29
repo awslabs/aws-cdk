@@ -39,6 +39,11 @@ export interface IRestApi extends IResourceBase {
   readonly latestDeployment?: Deployment;
 
   /**
+   * API Gateway stage that points to the latest deployment (if defined).
+   */
+  deploymentStage: Stage;
+
+  /**
    * Represents the root resource ("/") of this API. Use it to define the API model:
    *
    *    api.root.addMethod('ANY', redirectToHomePage); // "ANY /"
@@ -46,6 +51,17 @@ export interface IRestApi extends IResourceBase {
    *
    */
   readonly root: IResource;
+
+  /**
+   * Gets the "execute-api" ARN
+   * @returns The "execute-api" ARN.
+   * @default "*" returns the execute API ARN for all methods/resources in
+   * this API.
+   * @param method The method (default `*`)
+   * @param path The resource path. Must start with '/' (default `*`)
+   * @param stage The stage (default `*`)
+   */
+  arnForExecuteApi(method?: string, path?: string, stage?: string): string;
 }
 
 /**
@@ -324,15 +340,6 @@ export abstract class RestApiBase extends Resource implements IRestApi {
     return new UsagePlan(this, id, props);
   }
 
-  /**
-   * Gets the "execute-api" ARN
-   * @returns The "execute-api" ARN.
-   * @default "*" returns the execute API ARN for all methods/resources in
-   * this API.
-   * @param method The method (default `*`)
-   * @param path The resource path. Must start with '/' (default `*`)
-   * @param stage The stage (default `*`)
-   */
   public arnForExecuteApi(method: string = '*', path: string = '/*', stage: string = '*') {
     if (!path.startsWith('/')) {
       throw new Error(`"path" must begin with a "/": '${path}'`);
@@ -496,7 +503,7 @@ export class RestApi extends RestApiBase {
    * Import an existing RestApi.
    */
   public static fromRestApiId(scope: Construct, id: string, restApiId: string): IRestApi {
-    class Import extends Resource implements IRestApi {
+    class Import extends RestApiBase {
       public readonly restApiId = restApiId;
 
       public get root(): IResource {

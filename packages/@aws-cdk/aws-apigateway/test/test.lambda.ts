@@ -191,4 +191,28 @@ export = {
 
     test.done();
   },
+
+  'works for imported RestApi'(test: Test) {
+    const stack = new cdk.Stack();
+    const api = apigateway.RestApi.fromRestApiAttributes(stack, 'RestApi', {
+      restApiId: 'imported-rest-api-id',
+      rootResourceId: 'imported-root-resource-id',
+    });
+
+    const handler = new lambda.Function(stack, 'MyFunc', {
+      runtime: lambda.Runtime.NODEJS_10_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromInline('loo'),
+    });
+
+    api.root.addMethod('ANY', new apigateway.LambdaIntegration(handler));
+
+    expect(stack).to(haveResource('AWS::ApiGateway::Method', {
+      RestApiId: 'imported-rest-api-id',
+      ResourceId: 'imported-root-resource-id',
+      HttpMethod: 'ANY',
+    }));
+
+    test.done();
+  },
 };

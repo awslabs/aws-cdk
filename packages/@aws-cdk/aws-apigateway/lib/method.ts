@@ -244,19 +244,14 @@ export class Method extends Resource {
    *   arn:aws:execute-api:{region}:{account}:{restApiId}/{stage}/{method}/{path}
    *
    * NOTE: {stage} will refer to the `restApi.deploymentStage`, which will
-   * automatically set if auto-deploy is enabled.
+   * automatically set if auto-deploy is enabled, or can be explicitly assigned.
+   * When not configured, {stage} will be set to '*', as a shorthand for 'all stages'.
    *
    * @attribute
    */
   public get methodArn(): string {
-    if (!this.restApi.deploymentStage) {
-      throw new Error(
-        `Unable to determine ARN for method "${this.node.id}" since there is no stage associated with this API.\n` +
-        'Either use the `deploy` prop or explicitly assign `deploymentStage` on the RestApi');
-    }
-
-    const stage = this.restApi.deploymentStage.stageName.toString();
-    return this.restApi.arnForExecuteApi(this.httpMethod, pathForArn(this.resource.path), stage);
+    const stage = this.api.deploymentStage?.stageName;
+    return this.api.arnForExecuteApi(this.httpMethod, pathForArn(this.resource.path), stage);
   }
 
   /**
@@ -264,7 +259,7 @@ export class Method extends Resource {
    * This stage is used by the AWS Console UI when testing the method.
    */
   public get testMethodArn(): string {
-    return this.restApi.arnForExecuteApi(this.httpMethod, pathForArn(this.resource.path), 'test-invoke-stage');
+    return this.api.arnForExecuteApi(this.httpMethod, pathForArn(this.resource.path), 'test-invoke-stage');
   }
 
   private renderIntegration(integration?: Integration): CfnMethod.IntegrationProperty {

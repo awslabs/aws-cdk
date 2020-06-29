@@ -164,25 +164,22 @@ Use the `EvaluateExpression` to perform simple operations referencing state path
 Example: convert a wait time from milliseconds to seconds, concat this in a message and wait:
 
 ```ts
-const convertToSeconds = new sfn.Task(this, 'Convert to seconds', {
-  task: new tasks.EvaluateExpression({ expression: '$.waitMilliseconds / 1000' }),
-  resultPath: '$.waitSeconds'
+const convertToSeconds = new tasks.EvaluateExpression(this, 'Convert to seconds', {
+  expression: '$.waitMilliseconds / 1000',
+  resultPath: '$.waitSeconds',
 });
 
-const createMessage = new sfn.Task(this, 'Create message', {
+const createMessage = new tasks.EvaluateExpression(this, 'Create message', {
   // Note: this is a string inside a string.
-  task: new tasks.EvaluateExpression({
     expression: '`Now waiting ${$.waitSeconds} seconds...`',
     runtime: lambda.Runtime.NODEJS_10_X,
-  }),
-  resultPath: '$.message'
+  resultPath: '$.message',
 });
 
-const publishMessage = new sfn.Task(this, 'Publish message', {
-  task: new tasks.PublishToTopic(topic, {
-    message: sfn.TaskInput.fromDataAt('$.message'),
-  }),
-  resultPath: '$.sns'
+const publishMessage = new tasks.SnsPublish(this, 'Publish message', {
+  topic,
+  message: sfn.TaskInput.fromDataAt('$.message'),
+  resultPath: '$.sns',
 });
 
 const wait = new sfn.Wait(this, 'Wait', {

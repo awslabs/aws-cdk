@@ -257,15 +257,31 @@ export = {
     test.done();
   },
 
-  '"methodArn" fails if the API does not have a deployment stage'(test: Test) {
+  '"methodArn" returns an arn with "*" as its stage when deploymentStage is not set'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
     const api = new apigw.RestApi(stack, 'test-api', { deploy: false });
+
+    // WHEN
     const method = new apigw.Method(stack, 'my-method', { httpMethod: 'POST', resource: api.root });
 
-    // WHEN + THEN
-    test.throws(() => method.methodArn,
-      /Unable to determine ARN for method "my-method" since there is no stage associated with this API./);
+    // THEN
+    test.deepEqual(stack.resolve(method.methodArn), {
+      'Fn::Join': [
+        '',
+        [
+          'arn:',
+          { Ref: 'AWS::Partition' },
+          ':execute-api:',
+          { Ref: 'AWS::Region' },
+          ':',
+          { Ref: 'AWS::AccountId' },
+          ':',
+          { Ref: 'testapiD6451F70' },
+          '/*/POST/',
+        ],
+      ],
+    });
 
     test.done();
   },

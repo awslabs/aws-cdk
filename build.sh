@@ -31,7 +31,7 @@ export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"
 
 echo "============================================================================================="
 echo "installing..."
-yarn install --frozen-lockfile
+yarn install --frozen-lockfile --network-timeout 1000000
 
 fail() {
   echo "❌  Last command failed. Scroll up to see errors in log (search for '!!!!!!!!')."

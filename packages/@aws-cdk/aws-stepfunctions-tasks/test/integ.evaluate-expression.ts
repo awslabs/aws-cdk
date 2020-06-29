@@ -12,33 +12,29 @@ import * as tasks from '../lib';
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'aws-stepfunctions-integ');
 
-const sum = new sfn.Task(stack, 'Sum', {
-  task: new tasks.EvaluateExpression({
-    expression: '$.a + $.b',
-  }),
+const sum = new tasks.EvaluateExpression(stack, 'Sum', {
+  expression: '$.a + $.b',
   resultPath: '$.c',
 });
 
-const multiply = new sfn.Task(stack, 'Multiply', {
-  task: new tasks.EvaluateExpression({
-    expression: '$.c * 2',
-  }),
+const multiply = new tasks.EvaluateExpression(stack, 'Multiply', {
+  expression: '$.c * 2',
   resultPath: '$.d',
 });
 
-const now = new sfn.Task(stack, 'Now', {
-  task: new tasks.EvaluateExpression({
-    expression: '(new Date()).toUTCString()',
-  }),
+const now = new tasks.EvaluateExpression(stack, 'Now', {
+  expression: '(new Date()).toUTCString()',
   resultPath: '$.now',
 });
 
 const statemachine = new sfn.StateMachine(stack, 'StateMachine', {
   definition: sum
     .next(multiply)
-    .next(new sfn.Wait(stack, 'Wait', {
-      time: sfn.WaitTime.secondsPath('$.d'),
-    }))
+    .next(
+      new sfn.Wait(stack, 'Wait', {
+        time: sfn.WaitTime.secondsPath('$.d'),
+      }),
+    )
     .next(now),
 });
 

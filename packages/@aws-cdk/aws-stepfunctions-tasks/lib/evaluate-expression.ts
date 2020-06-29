@@ -9,7 +9,7 @@ import * as path from 'path';
  *
  * @experimental
  */
-export interface EvaluateExpressionProps {
+export interface EvaluateExpressionProps extends sfn.TaskStateBaseProps {
   /**
    * The expression to evaluate. The expression may contain state paths.
    *
@@ -49,11 +49,29 @@ export interface Event {
  *
  * @experimental
  */
-export class EvaluateExpression implements sfn.IStepFunctionsTask {
-  constructor(private readonly props: EvaluateExpressionProps) {
+export class EvaluateExpression extends sfn.TaskStateBase {
+  protected readonly taskMetrics?: sfn.TaskMetricsConfig;
+  protected readonly taskPolicies?: iam.PolicyStatement[];
+
+  private readonly evalFn: lambda.SingletonFunction;
+
+  constructor(scope: cdk.Construct, id: string, private readonly props: EvaluateExpressionProps) {
+    super(scope, id, props);
+
+    this.evalFn = createEvalFn(this.props.runtime || lambda.Runtime.NODEJS_10_X, this);
+
+    this.taskPolicies = [
+      new iam.PolicyStatement({
+        resources: [this.evalFn.functionArn],
+        actions: ['lambda:InvokeFunction'],
+      }),
+    ];
   }
 
-  public bind(task: sfn.Task): sfn.StepFunctionsTaskConfig {
+  /**
+   * @internal
+   */
+  protected _renderTask(): any {
     const matches = this.props.expression.match(/\$[.\[][.a-zA-Z[\]0-9]+/g);
 
     let expressionAttributeValues = {};
@@ -67,19 +85,13 @@ export class EvaluateExpression implements sfn.IStepFunctionsTask {
       );
     }
 
-    const evalFn = createEvalFn(this.props.runtime || lambda.Runtime.NODEJS_10_X, task);
-
     const parameters: Event = {
       expression: this.props.expression,
       expressionAttributeValues,
     };
     return {
-      resourceArn: evalFn.functionArn,
-      policyStatements: [new iam.PolicyStatement({
-        resources: [evalFn.functionArn],
-        actions: ['lambda:InvokeFunction'],
-      })],
-      parameters,
+      Resource: this.evalFn.functionArn,
+      Parameters: sfn.FieldUtils.renderObject(parameters),
     };
   }
 }

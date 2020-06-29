@@ -24,7 +24,7 @@ export class KubectlProvider extends NestedStack {
       runtime: lambda.Runtime.PYTHON_3_7,
       handler: 'index.handler',
       timeout: Duration.minutes(15),
-      layers: [ KubectlLayer.getOrCreate(this, { version: '2.0.0-beta2' }) ],
+      layers: [ KubectlLayer.getOrCreate(this, { version: '2.0.0' }) ],
       memorySize: 256,
     });
 
