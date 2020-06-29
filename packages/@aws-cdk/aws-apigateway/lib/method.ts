@@ -177,10 +177,11 @@ export class Method extends Resource {
 
     const defaultMethodOptions = props.resource.defaultMethodOptions || {};
     const authorizer = options.authorizer || defaultMethodOptions.authorizer;
-    const authorizerId = authorizer?.authorizerId;
+    let authorizerId = authorizer?.authorizerId;
 
     const authorizationTypeOption = options.authorizationType || defaultMethodOptions.authorizationType;
-    const authorizationType = authorizer?.authorizationType || authorizationTypeOption || AuthorizationType.NONE;
+    let authorizationType = authorizer?.authorizationType || authorizationTypeOption || AuthorizationType.NONE;
+    let apiKeyRequired = options.apiKeyRequired || defaultMethodOptions.apiKeyRequired;
 
     // if the authorizer defines an authorization type and we also have an explicit option set, check that they are the same
     if (authorizer?.authorizationType && authorizationTypeOption && authorizer?.authorizationType !== authorizationTypeOption) {
@@ -192,12 +193,18 @@ export class Method extends Resource {
       authorizer._attachToApi(this.api);
     }
 
-    const methodProps: CfnMethodProps = {
+    if (this.httpMethod === 'OPTIONS') {
+      authorizerId = null;
+      authorizationType = AuthorizationType.NONE
+      apiKeyRequired = false
+    }
+
+     const methodProps: CfnMethodProps = {
       resourceId: props.resource.resourceId,
       restApiId: this.api.restApiId,
       httpMethod: this.httpMethod,
       operationName: options.operationName || defaultMethodOptions.operationName,
-      apiKeyRequired: options.apiKeyRequired || defaultMethodOptions.apiKeyRequired,
+      apiKeyRequired,
       authorizationType,
       authorizerId,
       requestParameters: options.requestParameters || defaultMethodOptions.requestParameters,
