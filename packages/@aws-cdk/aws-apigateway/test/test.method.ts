@@ -85,7 +85,7 @@ export = {
     test.done();
   },
 
-  'defaultMethodOptions do not override auth config on OPTIONS method'(test: Test) {
+  '"defaultMethodOptions" do not override auth config on OPTIONS method'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
     const api = new apigw.RestApi(stack, 'test-api', { cloudWatchRole: false, deploy: false, defaultMethodOptions: {
@@ -104,7 +104,7 @@ export = {
     expect(stack).to(haveResource('AWS::ApiGateway::Method', {
       ApiKeyRequired: false,
       AuthorizationType: 'NONE',
-      AuthorizerId: null,
+      AuthorizerId: '',
     }));
 
     test.done();

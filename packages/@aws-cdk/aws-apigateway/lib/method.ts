@@ -194,7 +194,7 @@ export class Method extends Resource {
     }
 
     if (this.httpMethod === 'OPTIONS') {
-      authorizerId = null;
+      authorizerId = '';
       authorizationType = AuthorizationType.NONE
       apiKeyRequired = false
     }
