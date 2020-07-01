@@ -6,6 +6,7 @@ import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import * as apigw from '../lib';
+import { AuthorizationType, Authorizer } from '../lib';
 
 const DUMMY_AUTHORIZER: apigw.IAuthorizer = {
   authorizerId: 'dummyauthorizer',
@@ -55,6 +56,55 @@ export = {
     expect(stack).to(haveResource('AWS::ApiGateway::Method', {
       ApiKeyRequired: true,
       OperationName: 'MyOperation',
+    }));
+
+    test.done();
+  },
+
+  'method options do not override auth config on OPTIONS method'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const api = new apigw.RestApi(stack, 'test-api', { cloudWatchRole: false, deploy: false });
+
+    // WHEN
+    new apigw.Method(stack, 'my-method', {
+      httpMethod: 'OPTIONS',
+      resource: api.root,
+      options: {
+        apiKeyRequired: true,
+        operationName: 'MyOperation',
+      },
+    });
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApiGateway::Method', {
+      ApiKeyRequired: false,
+      OperationName: 'MyOperation',
+    }));
+
+    test.done();
+  },
+
+  '"defaultMethodOptions" do not override auth config on OPTIONS method'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const api = new apigw.RestApi(stack, 'test-api', { cloudWatchRole: false, deploy: false, defaultMethodOptions: {
+      apiKeyRequired: true,
+      authorizationType: AuthorizationType.IAM,
+      authorizer: DUMMY_AUTHORIZER
+    } });
+
+    // WHEN
+    new apigw.Method(stack, 'my-method', {
+      httpMethod: 'OPTIONS',
+      resource: api.root,
+    });
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApiGateway::Method', {
+      ApiKeyRequired: false,
+      AuthorizationType: 'NONE',
+      AuthorizerId: '',
     }));
 
     test.done();
