@@ -847,3 +847,15 @@ const subnet = Subnet.fromSubnetAttributes(this, 'SubnetFromAttributes', {
 // Supply only subnet id
 const subnet = Subnet.fromSubnetId(this, 'SubnetFromId', 's-1234');
 ```
+
+## VPC Peering Connections
+
+Requests a VPC peering connection between two VPCs: a requester VPC that you own and an accepter VPC with which to create the connection. The accepter VPC can belong to another AWS account and can be in a different Region to the requester VPC. The requester VPC and accepter VPC cannot have overlapping CIDR blocks.
+
+To import an existing VPC peering connection:
+
+```ts
+VpcPeeringConnection.fromVpcPeeringConnectionAttributes(this, 'vpcPeeringConnection', {
+  vpcPeeringConnectionId: 'pcx-019847b3359e77fc6',
+});
+```

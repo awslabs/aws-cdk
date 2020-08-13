@@ -15,6 +15,7 @@ export * from './vpc-lookup';
 export * from './vpn';
 export * from './vpc-endpoint';
 export * from './vpc-endpoint-service';
+export * from './vpc-peering-connection';
 export * from './user-data';
 export * from './windows-versions';
 export * from './vpc-flow-logs';
