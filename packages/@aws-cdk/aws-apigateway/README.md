@@ -1016,6 +1016,20 @@ const api = new apigateway.SpecRestApi(this, 'ExampleRestApi', {
 [`x-amazon-apigateway-endpoint-configuration`](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-endpoint-configuration.html) 
 in your openApi file. 
 
+### Permissions
+
+A resource policy can be passed as the prop or will be automatically created for the API upon the first call to
+`addToPolicy(statement)`:
+
+```ts
+const api = new RestApi(this, 'RestApi');
+api.addToPolicy(new PolicyStatement({
+  actions: ['execute-api:Invoke'],
+  principals: [new AnyPrincipal()],
+  resources: [api.arnForExecuteApi()],
+}));
+```
+
 ## APIGateway v2
 
 APIGateway v2 APIs are now moved to its own package named `aws-apigatewayv2`. For backwards compatibility, existing

@@ -1,5 +1,6 @@
 import { ABSENT, expect, haveResource, haveResourceLike, ResourcePart, SynthUtils } from '@aws-cdk/assert';
 import { GatewayVpcEndpoint } from '@aws-cdk/aws-ec2';
+import { PolicyStatement, AnyPrincipal } from '@aws-cdk/aws-iam';
 import { App, CfnElement, CfnResource, Stack } from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import * as apigw from '../lib';
@@ -1050,5 +1051,58 @@ export = {
       }));
       test.done();
     },
+  },
+
+  '"addToPolicy" adds new policy statement'(test: Test) {
+    // GIVEN
+    const stack = new Stack();
+
+    // WHEN
+    const api = new apigw.RestApi(stack, 'api');
+    api.root.addMethod('GET');
+    api.addToPolicy(new PolicyStatement({
+      actions: ['execute-api:Invoke'],
+      principals: [new AnyPrincipal()],
+      resources: [api.arnForExecuteApi()],
+    }));
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApiGateway::RestApi', {
+      Policy: {
+        Statement: [
+          {
+            Action: 'execute-api:Invoke',
+            Effect: 'Allow',
+            Principal: '*',
+            Resource: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':execute-api:',
+                  {
+                    Ref: 'AWS::Region',
+                  },
+                  ':',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':',
+                  {
+                    Ref: 'apiC8550315',
+                  },
+                  '/*/*/*',
+                ],
+              ],
+            },
+          },
+        ],
+        Version: '2012-10-17',
+      },
+    }));
+    test.done();
   },
 };
