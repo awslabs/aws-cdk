@@ -93,6 +93,10 @@ export class ScalableTarget extends Resource implements IScalableTarget {
 
   private readonly actions = new Array<CfnScalableTarget.ScheduledActionProperty>();
 
+  private suspendDynamicIn = false;
+  private suspendDynamicOut = false;
+  private suspendSchedule = false;
+
   constructor(scope: Construct, id: string, props: ScalableTargetProps) {
     super(scope, id);
 
@@ -126,6 +130,11 @@ export class ScalableTarget extends Resource implements IScalableTarget {
       scalableDimension: props.scalableDimension,
       scheduledActions: Lazy.anyValue({ produce: () => this.actions }, { omitEmptyArray: true }),
       serviceNamespace: props.serviceNamespace,
+      suspendedState: {
+        dynamicScalingInSuspended: Lazy.anyValue({ produce: () => this.suspendDynamicIn}),
+        dynamicScalingOutSuspended: Lazy.anyValue({ produce: () => this.suspendDynamicOut}),
+        scheduledScalingSuspended: Lazy.anyValue({ produce: () => this.suspendSchedule}),
+      },
     });
 
     this.scalableTargetId = resource.ref;
@@ -170,6 +179,49 @@ export class ScalableTarget extends Resource implements IScalableTarget {
   public scaleToTrackMetric(id: string, props: BasicTargetTrackingScalingPolicyProps) {
     return new TargetTrackingScalingPolicy(this, id, { ...props, scalingTarget: this });
   }
+
+  /**
+   * Suspend scaling in our out based on time. Useful when you are making a change
+   * or investigating a configuration issue and you want to retain your scheduled actions.
+   * Scheduled actions can be resumed by removing this method.
+   */
+  public suspendSchedules() {
+    this.suspendSchedule = true;
+  }
+
+  /**
+   * Suspend scaling policies, both step scaling and target tracking policies. Useful
+   * when you are making a change or investigating a configuration issue and you want to
+   * retain your scaling policies. Scaling policies can be resumed by removing this method.
+   *
+   * @param direction Suspend scaling in this direction
+   *
+   * @default - scaling is suspended in both directions
+   */
+  public suspendDynamic(direction?: Scale) {
+    if (direction === Scale.IN){
+      this.suspendDynamicIn = true;
+    } else if (direction === Scale.OUT){
+      this.suspendDynamicOut = true;
+    } else {
+      this.suspendDynamicIn = true;
+      this.suspendDynamicOut = true;
+    }
+  }
+}
+
+/**
+ * Refer to a specific direction for dynamic scaling
+ */
+export enum Scale {
+  /**
+   * Scale In
+   */
+  IN,
+  /**
+   * Scale Out
+   */
+  OUT
 }
 
 /**

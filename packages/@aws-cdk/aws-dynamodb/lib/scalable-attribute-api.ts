@@ -13,6 +13,20 @@ export interface IScalableTableAttribute {
    * Scale out or in to keep utilization at a given level
    */
   scaleOnUtilization(props: UtilizationScalingProps): void;
+
+  /**
+   * Suspend all scheduled scaling for this scaling attribute
+   */
+  turnOffScheduledScaling(): void;
+
+  /**
+   * Suspend scaling on utilization
+   *
+   * @param direction - suspend scaling in this direction
+   *
+   * @default - suspend scaling in both directions
+   */
+  turnOffUtilizationScaling(direction?: appscaling.Scale): void;
 }
 
 /**

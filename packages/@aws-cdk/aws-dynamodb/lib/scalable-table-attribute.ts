@@ -33,6 +33,14 @@ export class ScalableTableAttribute extends appscaling.BaseScalableAttribute {
       predefinedMetric,
     });
   }
+
+  public turnOffUtilizationScaling(direction?: appscaling.Scale) {
+    super.turnOffDynamicScaling(direction);
+  }
+
+  public turnOffScheduledScaling() {
+    super.turnOffScheduledScaling();
+  }
 }
 
 /**

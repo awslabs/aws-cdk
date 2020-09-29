@@ -1,6 +1,6 @@
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
-import { ScalableTarget, ScalingSchedule, ServiceNamespace } from './scalable-target';
+import { ScalableTarget, Scale, ScalingSchedule, ServiceNamespace } from './scalable-target';
 import { BasicStepScalingPolicyProps } from './step-scaling-policy';
 import { BasicTargetTrackingScalingPolicyProps } from './target-tracking-scaling-policy';
 
@@ -57,6 +57,28 @@ export abstract class BaseScalableAttribute extends cdk.Construct {
       minCapacity: props.minCapacity !== undefined ? props.minCapacity : 1,
       maxCapacity: props.maxCapacity,
     });
+  }
+
+  /**
+   * Suspend scaling in our out based on time. Useful when you are making a change
+   * or investigating a configuration issue and you want to retain your scheduled actions.
+   * Scheduled actions can be resumed by removing this method.
+   */
+  protected turnOffScheduledScaling(){
+    this.target.suspendSchedules();
+  }
+
+  /**
+   * Suspend scaling policies, both step scaling and target tracking policies. Useful
+   * when you are making a change or investigating a configuration issue and you want to
+   * retain your scaling policies. Scaling policies can be resumed by removing this method.
+   *
+   * @param direction Suspend scaling in this direction
+   *
+   * @default - scaling is suspended in both directions
+   */
+  protected turnOffDynamicScaling(direction?: Scale){
+    this.target.suspendDynamic(direction);
   }
 
   /**

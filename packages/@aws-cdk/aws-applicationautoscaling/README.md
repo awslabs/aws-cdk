@@ -159,6 +159,42 @@ capacity.scaleOnSchedule('AllowDownscalingAtNight', {
 });
 ```
 
+### Suspending and Resuming Scalable Target
+
+Suspending autoscaling on the resource temporarily pauses scaling activities triggered by scaling policies and scheduled actions.
+This can be useful when you are making a change or investigating a configuration issue. The following example demonstrates the APIs
+that will temporarily suspend autoscaling:
+
+```ts
+const capacity = resource.autoScaleCapacity({
+  minCapacity: 1,
+  maxCapacity: 50,
+});
+
+capacity.scaleOnSchedule('PrescaleInTheMorning', {
+  schedule: autoscaling.Schedule.cron({ hour: '8', minute: '0' }),
+  minCapacity: 20,
+});
+
+capacity.scaleOnMetric('ScaleToCPU', {
+  metric: service.metricCpuUtilization(),
+  scalingSteps: [
+    { upper: 10, change: -1 },
+    { lower: 50, change: +1 },
+    { lower: 70, change: +3 },
+  ],
+});
+
+// If you want to temporarily turn off your scheduled actions, you can add in this line.
+capacity.suspendSchedules();
+
+// If you want to temporarily turn off scaling out only, you can add in this line.
+capacity.suspendDynamic(appscaling.Scale.OUT);
+
+```
+
+To resume your original autoscaling plans, you can remove the method call and redeploy.
+
 ## Examples
 
 ### Lambda Provisioned Concurrency Auto Scaling

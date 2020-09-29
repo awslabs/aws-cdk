@@ -1,4 +1,4 @@
-import { expect, haveResource } from '@aws-cdk/assert';
+import { expect, haveResource, objectLike } from '@aws-cdk/assert';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
@@ -136,6 +136,113 @@ export = {
         },
       ],
       Threshold: 49,
+    }));
+
+    test.done();
+  },
+
+  'turn off scheduled scaling'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const target = createScalableTarget(stack);
+
+    // WHEN
+    target.scaleOnSchedule('ScaleUp', {
+      schedule: appscaling.Schedule.rate(cdk.Duration.minutes(1)),
+      maxCapacity: 50,
+      minCapacity: 1,
+    });
+
+    target.suspendSchedules();
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApplicationAutoScaling::ScalableTarget', {
+      ScheduledActions: [
+        {
+          ScalableTargetAction: {
+            MaxCapacity: 50,
+            MinCapacity: 1,
+          },
+          Schedule: 'rate(1 minute)',
+          ScheduledActionName: 'ScaleUp',
+        },
+      ],
+      SuspendedState: objectLike({ScheduledScalingSuspended: true}),
+    }));
+
+    test.done();
+  },
+
+  'turn off dynamic scaling'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const target = createScalableTarget(stack);
+
+    // WHEN
+    target.scaleToTrackMetric('Metric', {
+      targetValue: 50,
+      predefinedMetric: appscaling.PredefinedMetric.LAMBDA_PROVISIONED_CONCURRENCY_UTILIZATION,
+    });
+
+    target.suspendDynamic();
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApplicationAutoScaling::ScalableTarget', {
+      SuspendedState: {
+        ScheduledScalingSuspended: false,
+        DynamicScalingOutSuspended: true,
+        DynamicScalingInSuspended: true,
+      },
+    }));
+
+    test.done();
+  },
+
+  'turn off dynamic scaling in'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const target = createScalableTarget(stack);
+
+    // WHEN
+    target.scaleToTrackMetric('Metric', {
+      targetValue: 50,
+      predefinedMetric: appscaling.PredefinedMetric.LAMBDA_PROVISIONED_CONCURRENCY_UTILIZATION,
+    });
+
+    target.suspendDynamic(appscaling.Scale.IN);
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApplicationAutoScaling::ScalableTarget', {
+      SuspendedState: {
+        ScheduledScalingSuspended: false,
+        DynamicScalingOutSuspended: false,
+        DynamicScalingInSuspended: true,
+      },
+    }));
+
+    test.done();
+  },
+
+  'turn off dynamic scaling out'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const target = createScalableTarget(stack);
+
+    // WHEN
+    target.scaleToTrackMetric('Metric', {
+      targetValue: 50,
+      predefinedMetric: appscaling.PredefinedMetric.LAMBDA_PROVISIONED_CONCURRENCY_UTILIZATION,
+    });
+
+    target.suspendDynamic(appscaling.Scale.OUT);
+
+    // THEN
+    expect(stack).to(haveResource('AWS::ApplicationAutoScaling::ScalableTarget', {
+      SuspendedState: {
+        ScheduledScalingSuspended: false,
+        DynamicScalingOutSuspended: true,
+        DynamicScalingInSuspended: false,
+      },
     }));
 
     test.done();

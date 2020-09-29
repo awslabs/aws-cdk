@@ -536,7 +536,12 @@
           ]
         },
         "ScalableDimension": "ecs:service:DesiredCount",
-        "ServiceNamespace": "ecs"
+        "ServiceNamespace": "ecs",
+        "SuspendedState": {
+          "DynamicScalingInSuspended": false,
+          "DynamicScalingOutSuspended": false,
+          "ScheduledScalingSuspended": false
+        }
       }
     },
     "ServiceTaskCountTargetReasonableCpu4174EFCE": {
