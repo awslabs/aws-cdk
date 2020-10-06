@@ -177,7 +177,10 @@ export class CfnResource extends CfnRefElement {
    * @param value - The value. Could be primitive or complex.
    */
   public addOverride(path: string, value: any) {
-    const parts = path.split('.');
+    const parts = path.match(/([^\\\][^.]|\\.)+/g) || [""];
+    for(var i=0; i < parts.length; i++) {
+     parts[i] = parts[i].replace(/\\/g, '');
+    }
     let curr: any = this.rawOverrides;
 
     while (parts.length > 1) {
