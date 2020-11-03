@@ -55,26 +55,30 @@ export class CfnReference extends Reference {
    */
   public static for(target: CfnElement, attribute: string, refRender?: ReferenceRendering) {
     return CfnReference.singletonReference(target, attribute, refRender, () => {
-      const cfnIntrinsic = refRender === ReferenceRendering.FN_SUB
-        ? ('${' + target.logicalId + (attribute === 'Ref' ? '' : `.${attribute}`) + '}')
-        : (attribute === 'Ref'
-          ? { Ref: target.logicalId }
-          : {
-            'Fn::GetAtt': refRender === ReferenceRendering.GET_ATT_STRING
-              ? `${target.logicalId}.${attribute}`
-              : [target.logicalId, attribute],
-          }
-        );
+      let cfnIntrinsic: any;
+      switch (refRender) {
+        // The first 2 are only used by cfn-parse, so it's fine if they're round-tripped exactly.
+        // They could never reference a cross-stack construct anyway.
+        case ReferenceRendering.FN_SUB:
+          cfnIntrinsic = '${' + target.logicalId + (attribute === 'Ref' ? '' : `.${attribute}`) + '}';
+          break;
+        case ReferenceRendering.GET_ATT_STRING:
+          cfnIntrinsic = { 'Fn::GetAtt': `${target.logicalId}.${attribute}` };
+          break;
+        default:
+          cfnIntrinsic = { '$Cdk::Ref': [target.node.path, attribute] };
+          break;
+      }
       return new CfnReference(cfnIntrinsic, attribute, target);
     });
   }
 
   /**
-   * Return a CfnReference that references a pseudo referencd
+   * Return a CfnReference that references a scoped pseudo
    */
   public static forPseudo(pseudoName: string, scope: Construct) {
     return CfnReference.singletonReference(scope, `Pseudo:${pseudoName}`, undefined, () => {
-      const cfnIntrinsic = { Ref: pseudoName };
+      const cfnIntrinsic = { '$Cdk::Ref': [scope.node.path, pseudoName] };
       return new CfnReference(cfnIntrinsic, pseudoName, scope);
     });
   }
@@ -111,59 +115,13 @@ export class CfnReference extends Reference {
     return ref;
   }
 
-  /**
-   * The Tokens that should be returned for each consuming stack (as decided by the producing Stack)
-   */
-  private readonly replacementTokens: Map<Stack, IResolvable>;
-  private readonly targetStack: Stack;
-
   protected constructor(value: any, displayName: string, target: IConstruct) {
     // prepend scope path to display name
     super(value, target, displayName);
 
-    this.replacementTokens = new Map<Stack, IResolvable>();
-    this.targetStack = Stack.of(target);
-
     Object.defineProperty(this, CFN_REFERENCE_SYMBOL, { value: true });
   }
 
-  public resolve(context: IResolveContext): any {
-    // If we have a special token for this consuming stack, resolve that. Otherwise resolve as if
-    // we are in the same stack.
-    const consumingStack = Stack.of(context.scope);
-    const token = this.replacementTokens.get(consumingStack);
-
-    // if (!token && this.isCrossStackReference(consumingStack) && !context.preparing) {
-    // eslint-disable-next-line max-len
-    //   throw new Error(`Cross-stack reference (${context.scope.node.path} -> ${this.target.node.path}) has not been assigned a value--call prepare() first`);
-    // }
-
-    if (token) {
-      return token.resolve(context);
-    } else {
-      return super.resolve(context);
-    }
-  }
-
-  public hasValueForStack(stack: Stack) {
-    if (stack === this.targetStack) {
-      return true;
-    }
-
-    return this.replacementTokens.has(stack);
-  }
-
-  public assignValueForStack(stack: Stack, value: IResolvable) {
-    if (stack === this.targetStack) {
-      throw new Error('cannot assign a value for the same stack');
-    }
-
-    if (this.hasValueForStack(stack)) {
-      throw new Error('Cannot assign a reference value twice to the same stack. Use hasValueForStack to check first');
-    }
-
-    this.replacementTokens.set(stack, value);
-  }
   /**
    * Implementation of toString() that will use the display name
    */
@@ -176,6 +134,5 @@ export class CfnReference extends Reference {
 
 import { CfnElement } from '../cfn-element';
 import { Construct, IConstruct } from '../construct-compat';
-import { IResolvable, IResolveContext } from '../resolvable';
-import { Stack } from '../stack';
+import { IResolvable } from '../resolvable';
 import { Token } from '../token';

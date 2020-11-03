@@ -382,7 +382,7 @@ function isCloudFormationIntrinsic(x: any) {
   const keys = Object.keys(x);
   if (keys.length !== 1) { return false; }
 
-  return keys[0] === 'Ref' || keys[0].substr(0, 4) === 'Fn::';
+  return keys[0] === 'Ref' || keys[0].substr(0, 4) === 'Fn::' || keys[0].startsWith('$Cdk::');
 }
 
 // Cannot be public because JSII gets confused about es5.d.ts

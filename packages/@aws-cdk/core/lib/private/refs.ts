@@ -8,53 +8,70 @@ import { CfnOutput } from '../cfn-output';
 import { CfnParameter } from '../cfn-parameter';
 import { Construct, IConstruct } from '../construct-compat';
 import { FeatureFlags } from '../feature-flags';
-import { Reference } from '../reference';
-import { IResolvable } from '../resolvable';
 import { Stack } from '../stack';
 import { Token } from '../token';
-import { CfnReference } from './cfn-reference';
+import { CLOUDFORMATION_TOKEN_RESOLVER } from './cloudformation-lang';
 import { Intrinsic } from './intrinsic';
-import { findTokens } from './resolve';
+import { resolve } from './resolve';
 import { makeUniqueId } from './uniqueid';
 
 /**
- * This is called from the App level to resolve all references defined. Each
- * reference is resolved based on it's consumption context.
+ * This is called from the App level to prepare all references
  */
-export function resolveReferences(scope: IConstruct): void {
-  const edges = findAllReferences(scope);
+export function resolveReferences(root: IConstruct): void {
+  const edges = findAllReferences(root);
 
-  for (const { source, value } of edges) {
-    const consumer = Stack.of(source);
-
-    // resolve the value in the context of the consumer
-    if (!value.hasValueForStack(consumer)) {
-      const resolved = resolveValue(consumer, value);
-      value.assignValueForStack(consumer, resolved);
-    }
+  for (const edge of edges) {
+    resolveCfnRef(edge);
   }
+}
+
+/**
+ * This is called from the App level to replace all references in a template.
+ *
+ * FIXME: Should error out if new references are detected at this point.
+ */
+export function replaceReferences(stack: Stack, template: any): any {
+  if (Array.isArray(template)) {
+    return template.map(x => replaceReferences(stack, x));
+  }
+  if (template instanceof Date) { return template; }
+  if (typeof template === 'object' && template !== null) {
+    const keys = Object.keys(template);
+
+    if (keys.length === 1 && keys[0] === '$Cdk::Ref') {
+      return resolveCfnRef(cdkReferenceFromIntrinsic(stack, template));
+    }
+
+    const ret: any = {};
+    for (const [key, value] of Object.entries(template)) {
+      ret[key] = replaceReferences(stack, value);
+    }
+    return ret;
+  }
+  return template;
 }
 
 /**
  * Resolves the value for `reference` in the context of `consumer`.
  */
-function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
+function resolveCfnRef(reference: CfnElementRef): any {
   const producer = Stack.of(reference.target);
 
   // produce and consumer stacks are the same, we can just return the value itself.
-  if (producer === consumer) {
-    return reference;
+  if (producer === reference.consumingStack) {
+    return renderRefGetAtt(logicalIdOf(reference.target), reference.attribute);
   }
 
   // unsupported: stacks from different apps
-  if (producer.node.root !== consumer.node.root) {
+  if (producer.node.root !== reference.consumingStack.node.root) {
     throw new Error('Cannot reference across apps. Consuming and producing stacks must be defined within the same CDK app.');
   }
 
   // unsupported: stacks are not in the same environment
-  if (producer.environment !== consumer.environment) {
+  if (producer.environment !== reference.consumingStack.environment) {
     throw new Error(
-      `Stack "${consumer.node.path}" cannot consume a cross reference from stack "${producer.node.path}". ` +
+      `Stack "${reference.consumingStack.node.path}" cannot consume a cross reference from stack "${producer.node.path}". ` +
       'Cross stack references are only supported for stacks deployed to the same environment or between nested stacks and their parent stack');
   }
 
@@ -65,9 +82,9 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
   // if the consumer is nested within the producer (directly or indirectly),
   // wire through a CloudFormation parameter and then resolve the reference with
   // the parent stack as the consumer.
-  if (consumer.nestedStackParent && isNested(consumer, producer)) {
-    const parameterValue = resolveValue(consumer.nestedStackParent, reference);
-    return createNestedStackParameter(consumer, reference, parameterValue);
+  if (reference.consumingStack.nestedStackParent && isNested(reference.consumingStack, producer)) {
+    const parameterValue = resolveCfnRef({ ...reference, consumingStack: reference.consumingStack.nestedStackParent });
+    return createNestedStackParameter(reference.consumingStack, reference, parameterValue);
   }
 
   // ----------------------------------------------------------------------
@@ -86,7 +103,7 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
   // therefore, we can only export from a top-level stack.
   if (producer.nested) {
     const outputValue = createNestedStackOutput(producer, reference);
-    return resolveValue(consumer, outputValue);
+    return resolveCfnRef({ ...outputValue, consumingStack: reference.consumingStack });
   }
 
   // ----------------------------------------------------------------------
@@ -99,8 +116,8 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
   // add a dependency between the producer and the consumer. dependency logic
   // will take care of applying the dependency at the right level (e.g. the
   // top-level stacks).
-  consumer.addDependency(producer,
-    `${consumer.node.path} -> ${reference.target.node.path}.${reference.displayName}`);
+  reference.consumingStack.addDependency(producer,
+    `${reference.consumingStack.node.path} -> ${reference.target.node.path}.${reference.attribute}`);
 
   return createImportValue(reference);
 }
@@ -109,30 +126,24 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
  * Finds all the CloudFormation references in a construct tree.
  */
 function findAllReferences(root: IConstruct) {
-  const result = new Array<{ source: CfnElement, value: CfnReference }>();
-  for (const consumer of root.node.findAll()) {
+  const result = new Array<CfnElementRef>();
+  for (const source of root.node.findAll()) {
 
     // include only CfnElements (i.e. resources)
-    if (!CfnElement.isCfnElement(consumer)) {
+    if (!CfnElement.isCfnElement(source)) {
       continue;
     }
 
     try {
-      const tokens = findTokens(consumer, () => consumer._toCloudFormation());
+      const cfnOutput = resolve(source._toCloudFormation(), {
+        scope: source,
+        prefix: [],
+        resolver: CLOUDFORMATION_TOKEN_RESOLVER,
+        preparing: true,
+      });
 
-      // iterate over all the tokens (e.g. intrinsic functions, lazies, etc) that
-      // were found in the cloudformation representation of this resource.
-      for (const token of tokens) {
-
-        // include only CfnReferences (i.e. "Ref" and "Fn::GetAtt")
-        if (!CfnReference.isCfnReference(token)) {
-          continue;
-        }
-
-        result.push({
-          source: consumer,
-          value: token,
-        });
+      for (const intrinsic of findCdkRefIntrinsics(cfnOutput)) {
+        result.push(cdkReferenceFromIntrinsic(Stack.of(source), intrinsic));
       }
     } catch (e) {
       // Note: it might be that the properties of the CFN object aren't valid.
@@ -163,7 +174,7 @@ function findAllReferences(root: IConstruct) {
  * Imports a value from another stack by creating an "Output" with an "ExportName"
  * and returning an "Fn::ImportValue" token.
  */
-function createImportValue(reference: Reference): Intrinsic {
+function createImportValue(reference: CfnElementRef): Intrinsic {
   const exportingStack = Stack.of(reference.target);
 
   // Ensure a singleton "Exports" scoping Construct
@@ -173,7 +184,10 @@ function createImportValue(reference: Reference): Intrinsic {
   const exportsScope = getCreateExportsScope(exportingStack);
 
   // Ensure a singleton CfnOutput for this value
-  const resolved = exportingStack.resolve(reference);
+  const resolved = resolveCfnRef({ ...reference, consumingStack: exportingStack });
+  if ('Ref' in resolved && resolved.Ref === undefined) {
+    throw new Error('oh no');
+  }
   const id = 'Output' + JSON.stringify(resolved);
   const exportName = generateExportName(exportsScope, id);
 
@@ -183,7 +197,7 @@ function createImportValue(reference: Reference): Intrinsic {
 
   const output = exportsScope.node.tryFindChild(id) as CfnOutput;
   if (!output) {
-    new CfnOutput(exportsScope, id, { value: Token.asString(reference), exportName });
+    new CfnOutput(exportsScope, id, { value: Token.asString(resolved), exportName });
   }
 
   // We want to return an actual FnImportValue Token here, but Fn.importValue() returns a 'string',
@@ -224,9 +238,9 @@ function generateExportName(stackExports: Construct, id: string) {
  * Adds a CloudFormation parameter to a nested stack and assigns it with the
  * value of the reference.
  */
-function createNestedStackParameter(nested: Stack, reference: CfnReference, value: IResolvable) {
+function createNestedStackParameter(nested: Stack, reference: CfnElementRef, value: any) {
   // we call "this.resolve" to ensure that tokens do not creep in (for example, if the reference display name includes tokens)
-  const paramId = nested.resolve(`reference-to-${reference.target.node.uniqueId}.${reference.displayName}`);
+  const paramId = nested.resolve(`reference-to-${reference.target.node.uniqueId}.${reference.attribute}`);
   let param = nested.node.tryFindChild(paramId) as CfnParameter;
   if (!param) {
     param = new CfnParameter(nested, paramId, { type: 'String' });
@@ -239,25 +253,28 @@ function createNestedStackParameter(nested: Stack, reference: CfnReference, valu
     (nested as any).setParameter(param.logicalId, Token.asString(value));
   }
 
-  return param.value as CfnReference;
+  return { Ref: logicalIdOf(param) };
 }
 
 /**
  * Adds a CloudFormation output to a nested stack and returns an "Fn::GetAtt"
  * intrinsic that can be used to reference this output in the parent stack.
  */
-function createNestedStackOutput(producer: Stack, reference: Reference): CfnReference {
-  const outputId = `${reference.target.node.uniqueId}${reference.displayName}`;
+function createNestedStackOutput(producer: Stack, reference: CfnElementRef) {
+  const outputId = `${reference.target.node.uniqueId}${reference.attribute}`;
   let output = producer.node.tryFindChild(outputId) as CfnOutput;
   if (!output) {
-    output = new CfnOutput(producer, outputId, { value: Token.asString(reference) });
+    output = new CfnOutput(producer, outputId, { value: Token.asString({ '$Cdk::Ref': [reference.target.node.path, reference.attribute] }) });
   }
 
   if (!producer.nestedStackResource) {
     throw new Error('assertion failed');
   }
 
-  return producer.nestedStackResource.getAtt(`Outputs.${output.logicalId}`) as CfnReference;
+  return {
+    target: producer.nestedStackResource,
+    attribute: `Outputs.${logicalIdOf(output)}`,
+  };
 }
 
 /**
@@ -280,4 +297,89 @@ function isNested(nested: Stack, parent: Stack): boolean {
 
   // recurse with the child's direct parent
   return isNested(nested.nestedStackParent, parent);
+}
+
+interface CdkReferenceIntrinsic {
+  readonly ['$Cdk::Ref']: [string, string];
+}
+
+interface CfnElementRef {
+  readonly consumingStack: Stack;
+  readonly target: CfnElement;
+  readonly attribute: string;
+}
+
+function cdkReferenceFromIntrinsic(consumingStack: Stack, ref: CdkReferenceIntrinsic) {
+  const [path, attribute] = ref['$Cdk::Ref'];
+  if (typeof path !== 'string' || typeof path !== 'string') {
+    throw new Error(`Invalid $Cdk::Reference: ${JSON.stringify(ref)}`);
+  }
+
+  const target = childByPath(consumingStack.node.root, path) as CfnElement;
+  return { consumingStack, target, attribute };
+}
+
+function findCdkRefIntrinsics(template: any): CdkReferenceIntrinsic[] {
+  const ret: CdkReferenceIntrinsic[] = [];
+  recurse(template);
+  return ret;
+
+  function recurse(obj: any) {
+    if (Array.isArray(obj)) {
+      obj.forEach(recurse);
+      return;
+    }
+    if (typeof obj === 'object' && obj !== null) {
+      const keys = Object.keys(obj);
+
+      if (keys.length === 1 && keys[0] === '$Cdk::Ref') {
+        // Found one!
+        ret.push(obj);
+        return;
+      }
+
+      for (const key of keys) {
+        recurse(obj[key]);
+      }
+      return;
+    }
+  }
+}
+
+function childByPath(root: IConstruct, path: string): IConstruct {
+  const parts = (path.startsWith('/') ? path.substr(1) : path).split('/');
+
+  let next = parts.shift();
+  while (next !== undefined) {
+    const child = root.node.tryFindChild(next);
+    if (!child) {
+      throw new Error(`Cannot find node with path: '${path}'`);
+    }
+    next = parts.shift();
+    root = child;
+  }
+
+  return root;
+}
+
+function renderRefGetAtt(logicalId: string, attribute: string) {
+  if (attribute.startsWith('AWS::')) {
+    // Pseudo
+    return { Ref: attribute };
+  } else if (attribute === 'Ref') {
+    return { Ref: logicalId };
+  } else {
+    return { 'Fn::GetAtt': [logicalId, attribute] };
+  }
+}
+
+/**
+ * We need to do additional resolving to get the logical ID, because by default it will return a Token
+ */
+function logicalIdOf(el: CfnElement) {
+  return resolve(el.logicalId, {
+    preparing: false,
+    scope: el,
+    resolver: CLOUDFORMATION_TOKEN_RESOLVER,
+  });
 }

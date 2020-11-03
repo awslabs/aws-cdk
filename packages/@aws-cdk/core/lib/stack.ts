@@ -405,12 +405,13 @@ export class Stack extends CoreConstruct implements ITaggable {
    * Resolve a tokenized value in the context of the current stack.
    */
   public resolve(obj: any): any {
-    return resolve(obj, {
+    let ret = resolve(obj, {
       scope: this,
       prefix: [],
       resolver: CLOUDFORMATION_TOKEN_RESOLVER,
       preparing: false,
     });
+    return replaceReferences(this, ret);
   }
 
   /**
@@ -1125,6 +1126,7 @@ import { Stage } from './stage';
 import { ITaggable, TagManager } from './tag-manager';
 import { Token } from './token';
 import { FileSystem } from './fs';
+import { replaceReferences } from './private/refs';
 
 interface StackDependency {
   stack: Stack;
