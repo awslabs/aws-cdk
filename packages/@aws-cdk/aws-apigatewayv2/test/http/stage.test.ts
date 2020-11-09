@@ -1,5 +1,6 @@
 import '@aws-cdk/assert/jest';
 import { Metric } from '@aws-cdk/aws-cloudwatch';
+import { LogGroup } from '@aws-cdk/aws-logs';
 import { Stack } from '@aws-cdk/core';
 import { HttpApi, HttpStage } from '../../lib';
 
@@ -110,5 +111,31 @@ describe('HttpStage', () => {
       });
       expect(metric.color).toEqual(color);
     }
+  });
+
+  test('Access logging', () => {
+    // GIVEN
+    const stack = new Stack();
+    const api = new HttpApi(stack, 'Api');
+    const logGroup = new LogGroup(stack, 'log-group');
+
+
+    // WHEN
+    new HttpStage(stack, 'Stage', {
+      httpApi: api,
+      accessLogSettings: {
+        destination: logGroup,
+        format: '$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId',
+      },
+    });
+
+    // EXPECT
+    expect(stack).toHaveResource('AWS::ApiGatewayV2::Stage', {
+      ApiId: stack.resolve(api.httpApiId),
+      AccessLogSettings: {
+        DestinationArn: stack.resolve(logGroup.logGroupArn),
+        Format: '$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId',
+      },
+    });
   });
 });

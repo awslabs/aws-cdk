@@ -1,4 +1,5 @@
 import { Metric, MetricOptions } from '@aws-cdk/aws-cloudwatch';
+import { ILogGroup } from '@aws-cdk/aws-logs';
 import { Resource, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnStage } from '../apigatewayv2.generated';
@@ -25,6 +26,13 @@ export interface HttpStageOptions extends CommonStageOptions {
    * @default - no custom domain and api mapping configuration
    */
   readonly domainMapping?: DomainMappingOptions;
+
+  /**
+   * Settings for logging access in this stage.
+   *
+   * @default - No access logging
+   */
+  readonly accessLogSettings?: AccessLogSettings;
 }
 
 /**
@@ -35,6 +43,21 @@ export interface HttpStageProps extends HttpStageOptions {
    * The HTTP API to which this stage is associated.
    */
   readonly httpApi: IHttpApi;
+}
+
+/**
+ * Access logging configuration
+ */
+export interface AccessLogSettings {
+  /**
+   * CloudWatch Logs log group to receive access logs
+   */
+  readonly destination: ILogGroup;
+
+  /**
+   * A single line format of the access logs of data, as specified by selected $context variables. The format must include at least $context.requestId.
+   */
+  readonly format: string;
 }
 
 /**
@@ -93,6 +116,12 @@ export class HttpStage extends Resource implements IStage {
       apiId: props.httpApi.httpApiId,
       stageName: this.physicalName,
       autoDeploy: props.autoDeploy,
+      ...props.accessLogSettings ? {
+        accessLogSettings: {
+          destinationArn: props.accessLogSettings.destination.logGroupArn,
+          format: props.accessLogSettings.format,
+        },
+      }: {},
     });
 
     this.stageName = this.physicalName;

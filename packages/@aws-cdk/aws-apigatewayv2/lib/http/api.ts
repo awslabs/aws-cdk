@@ -2,7 +2,7 @@ import { Metric, MetricOptions } from '@aws-cdk/aws-cloudwatch';
 import { Duration, IResource, Resource } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnApi, CfnApiProps } from '../apigatewayv2.generated';
-import { DefaultDomainMappingOptions } from '../http/stage';
+import { AccessLogSettings, DefaultDomainMappingOptions } from '../http/stage';
 import { IHttpRouteIntegration } from './integration';
 import { BatchHttpRouteOptions, HttpMethod, HttpRoute, HttpRouteKey } from './route';
 import { HttpStage, HttpStageOptions } from './stage';
@@ -108,6 +108,14 @@ export interface HttpApiProps {
    * @default true
    */
   readonly createDefaultStage?: boolean;
+
+  /**
+   * Initiates access logging for the default stage
+   *
+   * Needs createDefaultStage
+   * @default - No access logging
+   */
+  readonly accessLogSettings?: AccessLogSettings;
 
   /**
    * Specifies a CORS configuration for an API.
@@ -319,6 +327,7 @@ export class HttpApi extends HttpApiBase {
         httpApi: this,
         autoDeploy: true,
         domainMapping: props?.defaultDomainMapping,
+        accessLogSettings: props?.accessLogSettings,
       });
 
       // to ensure the domain is ready before creating the default stage

@@ -26,6 +26,7 @@
   - [Metrics](#metrics)
   - [VPC Link](#vpc-link)
   - [Private Integration](#private-integration)
+  - [Access Logging](#access-logging)
 
 ## Introduction
 
@@ -252,3 +253,35 @@ Amazon ECS container-based applications.  Using private integrations, resources 
 clients outside of the VPC.
 
 These integrations can be found in the [APIGatewayV2-Integrations](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-apigatewayv2-integrations-readme.html) constructs library.
+
+## Access Logging
+
+Access logging creates logs everytime an API method is accessed. Access logs can have information on who has accessed the API, how the caller accessed the API and what responses were generated. Access logs are configured on a Stage of the Http Api. 
+
+Access logs can be expressed in a format of your choosing using `$context` variables.. The format must include at least $context.requestId.
+
+You can enable logging on the default stage by configuring it on the Http Api.
+
+```ts
+const logGroup = new LogGroup(stack, 'LogGroup');
+
+const httpApi = new HttpApi(stack, 'HttpApi', {
+  accessLogSettings: {
+    destination: logGroup,
+    format: '$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId',
+  }
+});
+```
+
+Or specifically on a stage you add:
+
+```ts
+api.addStage('beta', {
+  stageName: 'beta',
+  autoDeploy: true,
+  accessLogSettings: {
+    destination: logGroup,
+    format: '$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId',
+  }
+});
+```
