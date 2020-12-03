@@ -7,6 +7,8 @@ const child_process = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 
+const monolithicPackages = ['monocdk', 'aws-cdk-lib'];
+
 if (process.argv.length < 4) {
   process.stderr.write('Usage: list-packages <jsii file> <nonjsii file>\n');
   process.exit(1);
@@ -21,16 +23,21 @@ child_process.exec('lerna ls --toposort --json', { shell: true }, (error, stdout
 
   const jsiiDirectories = [];
   const nonJsiiNames = [];
+  const monolithicPackagesDirs = [];
 
   for (const module of modules) {
     const pkgJson = require(path.join(module.location, 'package.json'));
+    if (monolithicPackages.includes(pkgJson.name)) {
+      monolithicPackagesDirs.push(module.location);
+      continue;
+    }
     if (pkgJson.jsii) {
       jsiiDirectories.push(module.location);
     } else {
       nonJsiiNames.push(pkgJson.name);
     }
   }
-
   fs.writeFileSync(process.argv[2], jsiiDirectories.join('\n'));
   fs.writeFileSync(process.argv[3], nonJsiiNames.join('\n'));
+  fs.writeFileSync(process.argv[4], monolithicPackagesDirs.join('\n'));
 });

@@ -3,6 +3,7 @@
 # Then, calls pack-collect.sh to merge all outputs into a root ./pack directory, which is
 # later read by bundle-beta.sh.
 set -eu
+set -x
 export PATH=$PWD/node_modules/.bin:$PATH
 export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"
 root=$PWD
@@ -19,10 +20,11 @@ distdir="$PWD/dist"
 rm -fr ${distdir}
 mkdir -p ${distdir}
 
-# Split out jsii and non-jsii packages. Jsii packages will be built all at once.
+# Split out jsii, non-jsii and monolothic packages. Jsii packages will be built all at once.
+# The jsii monolithic packages will be run in parallel to the jsii packages 
 # Non-jsii packages will be run individually.
 echo "Collecting package list..." >&2
-scripts/list-packages $TMPDIR/jsii.txt $TMPDIR/nonjsii.txt
+scripts/list-packages $TMPDIR/jsii.txt $TMPDIR/nonjsii.txt $TMPDIR/jsii-monolithic.txt
 
 # Return lerna scopes from a package list
 function lerna_scopes() {
@@ -42,11 +44,20 @@ node --experimental-worker $(which $ROSETTA) \
   $(cat $TMPDIR/jsii.txt)
 
 # Jsii packaging (all at once using jsii-pacmak)
+# execute monocdk packaging in parallel
 echo "Packaging jsii modules" >&2
 $PACMAK \
   --verbose \
   --rosetta-tablet samples.tabl.json \
-  $(cat $TMPDIR/jsii.txt)
+  $(cat $TMPDIR/jsii.txt) &
+
+
+echo "Packaging mono jsii modules" >&2
+$PACMAK \
+  --verbose \
+  $(cat $TMPDIR/jsii-monolithic.txt) &
+
+wait
 
 # Non-jsii packaging, which means running 'package' in every individual
 # module
