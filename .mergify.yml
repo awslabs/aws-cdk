@@ -102,26 +102,6 @@ pull_request_rules:
       - status-failure=Semantic Pull Request
       - -merged
       - -closed
-  - name: automatic merge of Dependabot PRs
-    actions:
-      comment:
-        message: Thanks Dependabot!
-      merge:
-        # 'strict: false' disables Mergify keeping the branch up-to-date from master.
-        # It's not necessary: Dependabot will do that itself.
-        # It's not dangerous: GitHub branch protection settings prevent merging stale branches.
-        strict: false
-        method: squash
-    conditions:
-      - -title~=(WIP|wip)
-      - -label~=(blocked|do-not-merge)
-      - -merged
-      - -closed
-      - author~=dependabot
-      - "#approved-reviews-by>=1"
-      - "#changes-requested-reviews-by=0"
-      - status-success~=AWS CodeBuild us-east-1
-      - status-success=validate-pr
   - name: automatic merge of v2 forward merges
     actions:
       comment:
