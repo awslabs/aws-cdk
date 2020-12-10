@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-networkfirewall",
         "module": "aws_cdk.aws_networkfirewall"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

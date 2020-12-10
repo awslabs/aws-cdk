@@ -11,7 +11,6 @@
 
 <!--END STABILITY BANNER-->
 
-
 ```ts
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 ```

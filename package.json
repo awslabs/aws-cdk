@@ -22,6 +22,7 @@
     "jsii-pacmak": "^1.15.0",
     "jsii-rosetta": "^1.15.0",
     "lerna": "^3.22.1",
+    "listr": "^0.14.3",
     "standard-version": "^9.0.0",
     "typescript": "~3.9.7"
   },

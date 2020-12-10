@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-codeartifact",
         "module": "aws_cdk.aws_codeartifact"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

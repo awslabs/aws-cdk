@@ -30,6 +30,13 @@
           "Framework :: AWS CDK :: 1"
         ]
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

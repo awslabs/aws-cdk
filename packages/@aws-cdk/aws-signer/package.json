@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-signer",
         "module": "aws_cdk.aws_signer"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

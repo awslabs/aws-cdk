@@ -11,7 +11,6 @@
 
 <!--END STABILITY BANNER-->
 
-
 AWS Certificate Manager (ACM) handles the complexity of creating, storing, and renewing public and private SSL/TLS X.509 certificates and keys that
 protect your AWS websites and applications. ACM certificates can secure singular domain names, multiple specific domain names, wildcard domains, or
 combinations of these. ACM wildcard certificates can protect an unlimited number of subdomains.

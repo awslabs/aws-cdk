@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-timestream",
         "module": "aws_cdk.aws_timestream"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

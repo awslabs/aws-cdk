@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-iotsitewise",
         "module": "aws_cdk.aws_iotsitewise"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

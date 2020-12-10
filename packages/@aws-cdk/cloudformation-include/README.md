@@ -1,5 +1,4 @@
 # Include CloudFormation templates in the CDK
-
 <!--BEGIN STABILITY BANNER-->
 
 ---

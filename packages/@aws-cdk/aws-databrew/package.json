@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-databrew",
         "module": "aws_cdk.aws_databrew"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {

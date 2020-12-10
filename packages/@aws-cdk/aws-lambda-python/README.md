@@ -1,5 +1,4 @@
 # Amazon Lambda Python Library
-
 <!--BEGIN STABILITY BANNER-->
 
 ---

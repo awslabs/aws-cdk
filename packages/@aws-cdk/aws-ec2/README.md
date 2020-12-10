@@ -11,7 +11,6 @@
 
 <!--END STABILITY BANNER-->
 
-
 The `@aws-cdk/aws-ec2` package contains primitives for setting up networking and
 instances.
 

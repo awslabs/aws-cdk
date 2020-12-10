@@ -11,7 +11,6 @@
 
 <!--END STABILITY BANNER-->
 
-
 The `@aws-cdk/aws-elasticloadbalancingv2` package provides constructs for
 configuring application and network load balancers.
 

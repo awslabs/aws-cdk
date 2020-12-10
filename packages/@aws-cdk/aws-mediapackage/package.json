@@ -30,6 +30,13 @@
         "distName": "aws-cdk.aws-mediapackage",
         "module": "aws_cdk.aws_mediapackage"
       }
+    },
+    "metadata": {
+      "jsii": {
+        "rosetta": {
+          "strict": true
+        }
+      }
     }
   },
   "repository": {
