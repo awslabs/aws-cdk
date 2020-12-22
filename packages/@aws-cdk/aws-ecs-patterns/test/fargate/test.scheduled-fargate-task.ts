@@ -2,6 +2,7 @@ import { expect, haveResource, haveResourceLike } from '@aws-cdk/assert';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as events from '@aws-cdk/aws-events';
+import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import { ScheduledFargateTask } from '../../lib';
@@ -87,6 +88,13 @@ export = {
     const stack = new cdk.Stack();
     const vpc = new ec2.Vpc(stack, 'Vpc', { maxAzs: 1 });
     const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+    const role = new iam.Role(stack, 'UserRole', {
+      path: '/',
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal('ecs.amazonaws.com'),
+        new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      ),
+    });
 
     new ScheduledFargateTask(stack, 'ScheduledFargateTask', {
       cluster,
@@ -96,6 +104,7 @@ export = {
         cpu: 2,
         environment: { TRIGGER: 'CloudWatch Events' },
       },
+      eventRole: role,
       desiredTaskCount: 2,
       schedule: events.Schedule.expression('rate(1 minute)'),
     });

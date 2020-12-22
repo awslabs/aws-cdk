@@ -3,6 +3,7 @@ import { IVpc, SubnetSelection, SubnetType } from '@aws-cdk/aws-ec2';
 import { AwsLogDriver, Cluster, ContainerImage, ICluster, LogDriver, Secret, TaskDefinition } from '@aws-cdk/aws-ecs';
 import { Rule } from '@aws-cdk/aws-events';
 import { EcsTask } from '@aws-cdk/aws-events-targets';
+import { IRole } from '@aws-cdk/aws-iam';
 import { Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 
@@ -37,6 +38,13 @@ export interface ScheduledTaskBaseProps {
    * in the Amazon CloudWatch User Guide.
    */
   readonly schedule: Schedule;
+
+  /**
+   * Existing IAM role to run the ECS task
+   *
+   * @default A new IAM role is created
+   */
+  readonly eventRole?: IRole;
 
   /**
    * The desired number of instantiations of the task definition to keep running on the service.
@@ -119,6 +127,11 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
   public readonly subnetSelection: SubnetSelection;
 
   /**
+   * The IAM Role to use for CloudWatch Event invocation.
+   */
+  public readonly eventRole: IRole | undefined;
+
+  /**
    * The CloudWatch Events rule for the service.
    */
   public readonly eventRule: Rule;
@@ -135,6 +148,8 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
     }
     this.desiredTaskCount = props.desiredTaskCount || 1;
     this.subnetSelection = props.subnetSelection || { subnetType: SubnetType.PRIVATE };
+    // Allow eventRole to remain undefined as it will be defaulted by events-targets/ecs-task.
+    this.eventRole = props.eventRole || undefined;
 
     // An EventRule that describes the event trigger (in this case a scheduled run)
     this.eventRule = new Rule(this, 'ScheduledEventRule', {
@@ -154,6 +169,7 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
       taskDefinition,
       taskCount: this.desiredTaskCount,
       subnetSelection: this.subnetSelection,
+      role: this.eventRole,
     });
 
     this.eventRule.addTarget(eventRuleTarget);
