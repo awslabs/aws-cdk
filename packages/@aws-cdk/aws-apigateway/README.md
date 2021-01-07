@@ -69,6 +69,18 @@ book.addMethod('GET');
 book.addMethod('DELETE');
 ```
 
+### Breaking up Methods and Resources across Stacks
+
+It is fairly common for REST APIs with a large number of Resources and Methods to create a very large number
+(more than 200 in some cases) of resources per stack. These stacks can encounter various AWS [CloudFormation
+limits](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html), such as stack size or resource count.
+
+To help with this, Resources and Methods for the same REST API can be re-organized across multiple stacks. A common
+way to do this is to have a stack per Resource or groups of Resources, but this is not the only possible way.
+The following example uses sets up two Resources '/pets' and '/books' in separate stacks using nested stacks:
+
+[Resources grouped into nested stacks](test/integ.restapi-import.lit.ts)
+
 ## AWS Lambda-backed APIs
 
 A very common practice is to use Amazon API Gateway with AWS Lambda as the
@@ -105,18 +117,6 @@ item.addMethod('GET');   // GET /items/{item}
 // customize this behavior per method or even a sub path.
 item.addMethod('DELETE', new apigateway.HttpIntegration('http://amazon.com'));
 ```
-
-### Breaking up Methods and Resources across Stacks
-
-It is fairly common for REST APIs with a large number of Resources and Methods to hit the [CloudFormation
-limit](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html) of 200 resources per
-stack.
-
-To help with this, Resources and Methods for the same REST API can be re-organized across multiple stacks. A common
-way to do this is to have a stack per Resource or groups of Resources, but this is not the only possible way.
-The following example uses sets up two Resources '/pets' and '/books' in separate stacks using nested stacks:
-
-[Resources grouped into nested stacks](test/integ.restapi-import.lit.ts)
 
 ## Integration Targets
 
