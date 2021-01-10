@@ -71,6 +71,7 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
+    "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/assert": "0.0.0",
     "@types/nodeunit": "^0.0.31",
     "cdk-build-tools": "0.0.0",
