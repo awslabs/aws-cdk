@@ -7,7 +7,6 @@ import { CfnJob } from './glue.generated';
 
 /**
  * TODO Consider adding the following
- * - cloudwatch metrics helpers/methods
  * - helper constants class with known glue special params for use in default arguments https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html
  */
 
@@ -156,6 +155,23 @@ export enum JobEventState {
    * State indicating job stopped
    */
   STOPPED = 'STOPPED',
+}
+
+/**
+ * The Glue CloudWatch metric type.
+ *
+ * @see https://docs.aws.amazon.com/glue/latest/dg/monitoring-awsglue-with-cloudwatch-metrics.html
+ */
+export enum MetricType {
+  /**
+   * A value at a point in time.
+   */
+  GAUGE = 'gauge',
+
+  /**
+   * An aggregate number.
+   */
+  COUNT = 'count',
 }
 
 /**
@@ -435,7 +451,7 @@ export class Job extends cdk.Resource implements IJob {
       dimensions: { RuleName: rule.ruleName },
       statistic: cloudwatch.Statistic.SUM,
       ...props,
-    });
+    }).attachTo(rule);
   }
 
   private static buildJobArn(scope: constructs.Construct, jobName: string) : string {
@@ -583,7 +599,29 @@ export class Job extends cdk.Resource implements IJob {
   }
 
   /**
-   * Create a Rule with the given props and caches the results. Subsequent calls ignore props
+   * Create a CloudWatch metric.
+   *
+   * @param metricName name of the metric typically prefixed with `glue.driver.`, `glue.<executorId>.` or `glue.ALL.`.
+   * @param jobRunId a dimension that filters for metrics of a specific JobRun ID, or `ALL`.
+   * @param type the metric type.
+   *
+   * @see https://docs.aws.amazon.com/glue/latest/dg/monitoring-awsglue-with-cloudwatch-metrics.html
+   */
+  public metric(metricName: string, jobRunId: string, type: MetricType, props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    return new cloudwatch.Metric({
+      metricName,
+      namespace: 'Glue',
+      dimensions: {
+        JobName: this.jobName,
+        JobRunId: jobRunId,
+        Type: type,
+      },
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
+   * Create a Rule with the given props and caches the resulting rule. Subsequent returns cached value and ignores props
    *
    * @param state used in matching the CloudWatch Event
    * @param props rule properties

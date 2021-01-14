@@ -149,7 +149,7 @@ describe('Job', () => {
     });
   });
 
-  describe('new instance', () => {
+  describe('new', () => {
     let scriptLocation: string;
     let job: glue.Job;
 
@@ -316,7 +316,7 @@ describe('Job', () => {
       test('.rule() creates the expected event rule', () => {
         job.rule(glue.JobEventState.STOPPING);
 
-        cdkassert.expect(stack).to(cdkassert.haveResourceLike('AWS::Events::Rule', {
+        cdkassert.expect(stack).to(cdkassert.haveResource('AWS::Events::Rule', {
           Description: {
             'Fn::Join': [
               '',
@@ -595,7 +595,7 @@ describe('Job', () => {
           statistic: 'Sum',
         }));
 
-        cdkassert.expect(stack).to(cdkassert.haveResourceLike('AWS::Events::Rule', {
+        cdkassert.expect(stack).to(cdkassert.haveResource('AWS::Events::Rule', {
           Description: {
             'Fn::Join': [
               '',
@@ -643,7 +643,7 @@ describe('Job', () => {
           statistic: 'Sum',
         }));
 
-        cdkassert.expect(stack).to(cdkassert.haveResourceLike('AWS::Events::Rule', {
+        cdkassert.expect(stack).to(cdkassert.haveResource('AWS::Events::Rule', {
           Description: {
             'Fn::Join': [
               '',
@@ -691,7 +691,7 @@ describe('Job', () => {
           statistic: 'Sum',
         }));
 
-        cdkassert.expect(stack).to(cdkassert.haveResourceLike('AWS::Events::Rule', {
+        cdkassert.expect(stack).to(cdkassert.haveResource('AWS::Events::Rule', {
           Description: {
             'Fn::Join': [
               '',
@@ -724,6 +724,41 @@ describe('Job', () => {
             },
           },
           State: 'ENABLED',
+        }));
+      });
+    });
+
+    describe('.metric()', () => {
+
+      test('to create a count sum metric', () => {
+        const metricName = 'glue.driver.aggregate.bytesRead';
+        const props = { statistic: cloudwatch.Statistic.SUM };
+
+        expect(job.metric(metricName, 'ALL', glue.MetricType.COUNT, props)).toEqual(new cloudwatch.Metric({
+          metricName,
+          statistic: 'Sum',
+          namespace: 'Glue',
+          dimensions: {
+            JobName: job.jobName,
+            JobRunId: 'ALL',
+            Type: 'count',
+          },
+        }));
+      });
+
+      test('to create a gauge average metric', () => {
+        const metricName = 'glue.driver.BlockManager.disk.diskSpaceUsed_MB';
+        const props = { statistic: cloudwatch.Statistic.AVERAGE };
+
+        expect(job.metric(metricName, 'ALL', glue.MetricType.GAUGE, props)).toEqual(new cloudwatch.Metric({
+          metricName,
+          statistic: 'Average',
+          namespace: 'Glue',
+          dimensions: {
+            JobName: job.jobName,
+            JobRunId: 'ALL',
+            Type: 'gauge',
+          },
         }));
       });
     });
