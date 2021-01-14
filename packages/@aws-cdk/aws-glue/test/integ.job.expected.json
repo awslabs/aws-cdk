@@ -591,6 +591,43 @@
         "Timeout": 5,
         "WorkerType": "G.2X"
       }
+    },
+    "JobSUCCEEDEDRule682F039B": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Event triggered when Glue job ",
+              {
+                "Ref": "JobB9D00F9F"
+              },
+              " is in SUCCEEDED state"
+            ]
+          ]
+        },
+        "EventPattern": {
+          "source": [
+            "aws.glue"
+          ],
+          "detail-type": [
+            "Glue Job State Change",
+            "Glue Job Run Status"
+          ],
+          "detail": {
+            "state": [
+              "SUCCEEDED"
+            ],
+            "jobName": [
+              {
+                "Ref": "JobB9D00F9F"
+              }
+            ]
+          }
+        },
+        "State": "ENABLED"
+      }
     }
   }
 }

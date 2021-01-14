@@ -45,4 +45,6 @@ const etlJob = new glue.Job(stack, 'Job', {
 });
 script.bucket.grantRead(etlJob.role);
 
+etlJob.successRuleMetric();
+
 app.synth();

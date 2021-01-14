@@ -1,3 +1,5 @@
+import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
+import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
 import * as constructs from 'constructs';
@@ -5,8 +7,8 @@ import { CfnJob } from './glue.generated';
 
 /**
  * TODO Consider adding the following
- * - metrics/events methods
- * - helper constans class with known glue special params for use in default arguments https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html
+ * - cloudwatch metrics helpers/methods
+ * - helper constants class with known glue special params for use in default arguments https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html
  */
 
 /**
@@ -112,6 +114,48 @@ export enum PythonVersion {
    * Python 3 (the exact version depends on GlueVersion and JobCommand used)
    */
   THREE = '3',
+}
+
+/**
+ * Job states emitted by Glue to CloudWatch Events.
+ *
+ * @see https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#glue-event-types for more information.
+ */
+export enum JobEventState {
+  /**
+   * State indicating job run succeeded
+   */
+  SUCCEEDED = 'SUCCEEDED',
+
+  /**
+   * State indicating job run failed
+   */
+  FAILED = 'FAILED',
+
+  /**
+   * State indicating job run timed out
+   */
+  TIMEOUT = 'TIMEOUT',
+
+  /**
+   * State indicating job is starting
+   */
+  STARTING = 'STARTING',
+
+  /**
+   * State indicating job is running
+   */
+  RUNNING = 'RUNNING',
+
+  /**
+   * State indicating job is stopping
+   */
+  STOPPING = 'STOPPING',
+
+  /**
+   * State indicating job stopped
+   */
+  STOPPED = 'STOPPED',
 }
 
 /**
@@ -377,6 +421,23 @@ export class Job extends cdk.Resource implements IJob {
     return new Import(scope, id);
   }
 
+  /**
+   * Create a CloudWatch Metric with namespace = 'AWS/Events', metricName = 'TriggeredRules' and RuleName = rule.ruleName dimension.
+   * This is used by ruleXXXMetric methods.
+   *
+   * @param rule for use in setting RuleName dimension value
+   * @param props metric properties
+   */
+  public static ruleMetric(rule: events.IRule, props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    return new cloudwatch.Metric({
+      namespace: 'AWS/Events',
+      metricName: 'TriggeredRules',
+      dimensions: { RuleName: rule.ruleName },
+      statistic: cloudwatch.Statistic.SUM,
+      ...props,
+    });
+  }
+
   private static buildJobArn(scope: constructs.Construct, jobName: string) : string {
     return cdk.Stack.of(scope).formatArn({
       service: 'glue',
@@ -399,6 +460,12 @@ export class Job extends cdk.Resource implements IJob {
    * The IAM role associated with this job.
    */
   public readonly role: iam.IRole;
+
+  /**
+   * Used to cache results of ._rule calls.
+   * @private
+   */
+  private _rules: Record<string, events.Rule> = {};
 
   constructor(scope: constructs.Construct, id: string, props: JobProps) {
     super(scope, id, {
@@ -438,5 +505,94 @@ export class Job extends cdk.Resource implements IJob {
     const resourceName = this.getResourceNameAttribute(jobResource.ref);
     this.jobArn = Job.buildJobArn(this, resourceName);
     this.jobName = resourceName;
+  }
+
+
+  /**
+   * Create a CloudWatch Event Rule matching transition into the given `JobEventState`s
+   *
+   * @param state used in matching the CloudWatch Event
+   *
+   * @see https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#glue-event-types
+   */
+  public rule(state: JobEventState, props?: events.RuleProps): events.Rule {
+    const ruleId = `${state}Rule`;
+    return new events.Rule(this, ruleId, {
+      description: `Event triggered when Glue job ${this.jobName} is in ${state} state`,
+      eventPattern: {
+        source: ['aws.glue'],
+        detailType: ['Glue Job State Change', 'Glue Job Run Status'],
+        detail: {
+          state: [state],
+          jobName: [this.jobName],
+        },
+      },
+      ...props,
+    });
+  }
+
+  /**
+   * Return a CloudWatch Event Rule matching JobEventState.SUCCEEDED.
+   * The rule is cached for later usage.
+   *
+   * @param props rule props for first invocation. If props are passed again they are ignored.
+   */
+  public successRule(props?: events.RuleProps): events.Rule {
+    return this._rule(JobEventState.SUCCEEDED, props);
+  }
+
+  /**
+   * Return a CloudWatch Event Rule matching JobEventState.FAILED.
+   * The rule is cached for later usage.
+   *
+   * @param props rule props for first invocation. If props are passed again they are ignored.
+   */
+  public failureRule(props?: events.RuleProps): events.Rule {
+    return this._rule(JobEventState.FAILED, props);
+  }
+
+  /**
+   * Return a CloudWatch Event Rule matching JobEventState.TIMEOUT.
+   * The rule is cached for later usage.
+   *
+   * @param props rule props for first invocation. If props are passed again they are ignored.
+   */
+  public timeoutRule(props?: events.RuleProps): events.Rule {
+    return this._rule(JobEventState.TIMEOUT, props);
+  }
+
+  /**
+   * Return a CloudWatch Metric indicating job success that's based on successRule()
+   */
+  public successRuleMetric(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    return Job.ruleMetric(this.successRule(), props);
+  }
+
+  /**
+   * Return a CloudWatch Metric indicating job success that's based on failureRule()
+   */
+  public failureRuleMetric(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    return Job.ruleMetric(this.failureRule(), props);
+  }
+
+  /**
+   * Return a CloudWatch Metric indicating job success that's based on timeoutRule()
+   */
+  public timeoutRuleMetric(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    return Job.ruleMetric(this.timeoutRule(), props);
+  }
+
+  /**
+   * Create a Rule with the given props and caches the results. Subsequent calls ignore props
+   *
+   * @param state used in matching the CloudWatch Event
+   * @param props rule properties
+   * @private
+   */
+  private _rule(state: JobEventState, props?: events.RuleProps) {
+    if (!this._rules[state]) {
+      this._rules[state] = this.rule(state, props);
+    }
+    return this._rules[state];
   }
 }
