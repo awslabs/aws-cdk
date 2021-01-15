@@ -6,11 +6,6 @@ import * as constructs from 'constructs';
 import { CfnJob } from './glue.generated';
 
 /**
- * TODO Consider adding the following
- * - helper constants class with known glue special params for use in default arguments https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html
- */
-
-/**
  * AWS Glue version determines the versions of Apache Spark and Python that are available to the job.
  *
  * @see https://docs.aws.amazon.com/glue/latest/dg/add-job.html.
@@ -275,6 +270,128 @@ export class JobCommand {
 }
 
 /**
+ * Constants for some of the special parameters used by {@link Job}.
+ *
+ * These constants can be used as argument names in {@link JobProps.defaultArguments}.
+ *
+ * @see https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html
+ * @see https://docs.aws.amazon.com/glue/latest/dg/monitor-spark-ui-jobs.html
+ */
+export enum JobSpecialArgumentNames {
+  /**
+   * The script programming language. This value must be either `scala` or `python`. If this parameter is not present, the default is `python`.
+   */
+  JOB_LANGUAGE = '--job-language',
+
+  /**
+   * The Scala class that serves as the entry point for your Scala script. This applies only if your `--job-language` is set to `scala`.
+   */
+  CLASS = '--class',
+
+  /**
+   * The Amazon Simple Storage Service (Amazon S3) location where your ETL script is located (in the form `s3://path/to/my/script.py`).
+   * This parameter overrides a script location set in the JobCommand object.
+   */
+  SCRIPT_LOCATION = '--scriptLocation',
+
+  /**
+   * The Amazon S3 paths to additional Python modules that AWS Glue adds to the Python path before executing your script.
+   * Multiple values must be complete paths separated by a comma (`,`).
+   */
+  EXTRA_PY_FILES = '--extra-py-files',
+
+  /**
+   * The Amazon S3 paths to additional Java `.jar` files that AWS Glue adds to the Java classpath before executing your script.
+   * Multiple values must be complete paths separated by a comma (`,`).
+   */
+  EXTRA_JARS = '--extra-jars',
+
+  /**
+   * Setting this value to true prioritizes the customer's extra JAR files in the classpath.
+   * This option is only available in AWS Glue version 2.0.
+   */
+  USER_JARS_FIRST = '--user-jars-first',
+
+  /**
+   * The Amazon S3 paths to additional files, such as configuration files that AWS Glue copies to the working directory of your script before executing it.
+   * Multiple values must be complete paths separated by a comma (`,`).
+   */
+  EXTRA_FILES = '--extra-files',
+
+  /**
+   * Controls the behavior of a job bookmark. The following option values can be set.
+   */
+  JOB_BOOKMARK_OPTION = '--job-bookmark-option',
+
+  /**
+   * Specifies an Amazon S3 path to a bucket that can be used as a temporary directory for the job.
+   */
+  TEMP_DIR = '--TempDir',
+
+  /**
+   * Enables the EMRFS S3-optimized committer for writing Parquet data into Amazon S3.
+   * Setting the value to `true` enables the committer. By default the flag is turned off.
+   */
+  ENABLE_S3_PARQUET_OPTIMIZED_COMMITTER = '--enable-s3-parquet-optimized-committer',
+
+  /**
+   * Sets the EMRFS rename algorithm version to version 2.
+   * This option is only available on AWS Glue version 1.0.
+   */
+  ENABLE_RENAME_ALGORITHM_V2 = '--enable-rename-algorithm-v2',
+
+  /**
+   * Enables using the AWS Glue Data Catalog as an Apache Spark Hive metastore.
+   */
+  ENABLE_GLUE_DATA_CATALOG = '--enable-glue-datacatalog',
+
+  /**
+   * Enables the collection of metrics for job profiling for this job run.
+   * To enable metrics, only specify the key; no value is needed.
+   */
+  ENABLE_METRICS = '--enable-metrics',
+
+  /**
+   * Enables real-time continuous logging for AWS Glue jobs to view real-time Apache Spark job logs in CloudWatch.
+   */
+  ENABLE_CONTINUOUS_LOGGING = '--enable-continuous-cloudwatch-log',
+
+  /**
+   * Specifies a standard filter (true) or no filter (false) for continuous logging.
+   * Choosing the standard filter prunes out non-useful Apache Spark driver/executor and Apache Hadoop YARN heartbeat log messages.
+   * Choosing no filter gives all the log messages.
+   */
+  ENABLE_CONTINUOUS_LOG_FILTER = '--enable-continuous-log-filter',
+
+  /**
+   * Specifies a custom Amazon CloudWatch log group name for a job enabled for continuous logging.
+   */
+  LOG_GROUP = '--continuous-log-logGroup',
+
+  /**
+   * Specifies a custom CloudWatch log stream prefix for a job enabled for continuous logging.
+   */
+  LOG_STREAM_PREFIX = '--continuous-log-logStreamPrefix',
+
+  /**
+   * Specifies a custom conversion log pattern for a job enabled for continuous logging.
+   */
+  LOG_CONVERSION_PATTERN = '--continuous-log-conversionPattern',
+
+  /**
+   * Enables Apache Spark web UI.
+   * @see https://docs.aws.amazon.com/glue/latest/dg/monitor-spark-ui-jobs.html
+   */
+  ENABLE_SPARK_UI = '--enable-spark-ui',
+
+  /**
+   * Specifies the Amazon S3 path for storing the Spark event logs for the job.
+   * @see https://docs.aws.amazon.com/glue/latest/dg/monitor-spark-ui-jobs.html
+   */
+  SPARK_UI_LOGS_PATH = '--spark-event-logs-path',
+}
+
+/**
  * Interface representing a created or an imported {@link Job}.
  */
 export interface IJob extends cdk.IResource {
@@ -393,7 +510,8 @@ export interface JobProps {
   /**
    * The default arguments for this job, specified as name-value pairs.
    *
-   * @see https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html for a list of Special Parameters Used by AWS Glue
+   * {@link JobSpecialArgumentNames} defines some of the Special Parameters used by AWS Glue.
+   * @see https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html A list of Special Parameters Used by AWS Glue
    * @default no arguments
    */
   readonly defaultArguments?: { [key: string]: string };
