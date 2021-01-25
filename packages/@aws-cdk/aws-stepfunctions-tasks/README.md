@@ -54,6 +54,9 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
   - [Cancel Step](#cancel-step)
   - [Modify Instance Fleet](#modify-instance-fleet)
   - [Modify Instance Group](#modify-instance-group)
+- [EKS](#eks)
+  - [Create Cluster](#eks-create-cluster)
+  - [Delete Cluster](#delete-cluster)
 - [Glue](#glue)
 - [Lambda](#lambda)
 - [SageMaker](#sagemaker)
@@ -660,6 +663,41 @@ new tasks.EmrModifyInstanceGroupByName(stack, 'Task', {
   instanceGroup: {
     instanceCount: 1,
   },
+});
+```
+
+## EKS
+
+Step Functions supports Amazon EKS through the service integration pattern.
+The service integration APIs correspond to Amazon EKS APIs.
+
+[Read more](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eks.html) about the differences when using these service integrations.
+
+### EKS Create Cluster
+
+Creates and starts running a cluster.
+Corresponds to the [`createCluster`](https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateCluster.html) API in EKS.
+
+```ts
+new tasks.EksCreateCluster(this, 'Create an EKS Cluster', {
+  name: 'clusterName',
+  role: NodeInstanceRole,
+  resourcesVpcConfig: {
+    subnetIds: ['<PUBSUBNET_AZ_1>', '<PUBSUBNET_AZ_2>'],
+    endpointPublicAccess: true,
+    endpointPrivateAccess: false,
+  },
+});
+```
+
+### Delete Cluster
+
+Deletes a running cluster.
+Corresponds to the [`deleteCluster`](https://docs.aws.amazon.com/eks/latest/APIReference/API_DeleteCluster.html) API in EKS.
+
+```ts
+new tasks.EksDeleteCluster(this, 'Deletes an EKS Cluster', {
+  cluster: cluster,
 });
 ```
 

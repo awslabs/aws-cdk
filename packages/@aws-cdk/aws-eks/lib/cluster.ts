@@ -643,7 +643,7 @@ export class KubernetesVersion {
    *
    * @param version cluster version number
    */
-  private constructor(public readonly version: string) { }
+  public constructor(public readonly version: string) { }
 }
 
 abstract class ClusterBase extends Resource implements ICluster {
