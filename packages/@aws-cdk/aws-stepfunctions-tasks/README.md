@@ -54,6 +54,9 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
   - [Cancel Step](#cancel-step)
   - [Modify Instance Fleet](#modify-instance-fleet)
   - [Modify Instance Group](#modify-instance-group)
+- [EKS](#eks)
+  - [Create Fargate Profile](#create-fargate-profile)
+  - [Delete Fargate Profile](#delete-fargate-profile)
 - [Glue](#glue)
 - [Lambda](#lambda)
 - [SageMaker](#sagemaker)
@@ -660,6 +663,42 @@ new tasks.EmrModifyInstanceGroupByName(stack, 'Task', {
   instanceGroup: {
     instanceCount: 1,
   },
+});
+```
+
+## EKS
+
+Step Functions supports Amazon EKS through the service integration pattern.
+The service integration APIs correspond to Amazon EKS APIs.
+
+[Read more](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eks.html) about the differences when using these service integrations.
+
+### Create Fargate Profile
+
+Add a new Fargate Profile to a cluster.
+Corresponds to the [`createFargateProfile`](https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateFargateProfile.html) API in EKS.
+
+```ts
+new tasks.EksCreateFargateProfile(stack, 'Create a Fargate Profile', {
+  fargateProfileName: 'fargateprofilename',
+  clusterName: 'clustername',
+  podExecutionRole: '*',
+  selectors: [{
+    Namespace: 'namespace',
+    Labels: { 'my-label': 'my-value' },
+  }],
+});
+```
+
+### Delete Fargate Profile
+
+Deletes a fargate profile.
+Corresponds to the [`deleteFargateProfile`](https://docs.aws.amazon.com/eks/latest/APIReference/API_DeleteFargateProfile.html) API in EKS.
+
+```ts
+new tasks.EksDeleteFargateProfile(stack, 'Delete a Fargate Profile', {
+  clusterName: 'clustername',
+  fargateProfileName: 'fargateprofilename',
 });
 ```
 
