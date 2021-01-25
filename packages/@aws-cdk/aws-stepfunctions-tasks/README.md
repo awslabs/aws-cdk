@@ -54,6 +54,8 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
   - [Cancel Step](#cancel-step)
   - [Modify Instance Fleet](#modify-instance-fleet)
   - [Modify Instance Group](#modify-instance-group)
+- [EKS](#eks)
+  - [Run Job](#run-job)
 - [Glue](#glue)
 - [Lambda](#lambda)
 - [SageMaker](#sagemaker)
@@ -659,6 +661,61 @@ new tasks.EmrModifyInstanceGroupByName(stack, 'Task', {
   instanceGroupName: sfn.JsonPath.stringAt('$.InstanceGroupName'),
   instanceGroup: {
     instanceCount: 1,
+  },
+});
+```
+## EKS
+
+Step Functions supports Amazon EKS through the service integration pattern.
+The service integration APIs correspond to Amazon EKS APIs.
+
+[Read more](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eks.html) about the differences when using these service integrations.
+
+### Run Job
+
+Run a job on an EKS cluster.
+Corresponds to the [`runJob`](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eks.html) API in Step Functions Connector.
+
+```ts
+new tasks.EksRunJob(stack, 'Run a EKS Job', {
+  integrationPattern: sfn.IntegrationPattern.RUN_JOB,
+  clusterName: clusterName,
+  certificateAuthority: certificateAuthority,
+  endpoint: endpoint,
+  logOptions: {
+    retrieveLogs: true,
+  },
+  job: {
+    apiVersion: 'batch/v1',
+    kind: 'Job',
+    metadata: {
+      name: 'example-job',
+    },
+    spec: {
+      backoffLimit: 0,
+      template: {
+        metadata: {
+          name: 'example-job',
+        },
+        spec: {
+          containers: [
+            {
+              name: 'pi-20',
+              image: 'perl',
+              command: [
+                'perl',
+              ],
+              args: [
+                '-Mbignum=bpi',
+                '-wle',
+                "print '{ ' . '\"pi\": '. bpi(20) . ' }';",
+              ],
+            },
+          ],
+          restartPolicy: 'Never',
+        },
+      },
+    },
   },
 });
 ```
