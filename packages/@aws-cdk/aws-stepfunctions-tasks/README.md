@@ -54,6 +54,9 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
   - [Cancel Step](#cancel-step)
   - [Modify Instance Fleet](#modify-instance-fleet)
   - [Modify Instance Group](#modify-instance-group)
+- [EKS](#eks)
+  - [Create Nodegroup](#create-nodegroup)
+  - [Delete Nodegroup](#delete-nodegroup)
 - [Glue](#glue)
 - [Lambda](#lambda)
 - [SageMaker](#sagemaker)
@@ -660,6 +663,45 @@ new tasks.EmrModifyInstanceGroupByName(stack, 'Task', {
   instanceGroup: {
     instanceCount: 1,
   },
+});
+```
+
+## EKS
+
+Step Functions supports Amazon EKS through the service integration pattern.
+The service integration APIs correspond to Amazon EKS APIs.
+
+[Read more](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eks.html) about the differences when using these service integrations.
+
+### Create Nodegroup
+
+Add a new Nodegroup to a cluster.
+Corresponds to the [`createNodegroup`](https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateNodegroup.html) API in EKS.
+
+```ts
+new tasks.EksCreateNodegroup(stack, 'Create a Nodegroup', {
+  clusterName: 'clusterName',
+  nodegroupName: 'NodeGroupName',
+  subnets: ['<PUBSUBNET_AZ_1>', '<PUBSUBNET_AZ_2>'],
+  nodeRole: 'arn:aws:iam::ACCOUNTID:role/NodeInstanceRole',
+  launchTemplate: {
+    id: 'lt-ID',
+  },
+  scalingConfig: {
+    desiredSize: 2,
+  },
+});
+```
+
+### Delete Nodegroup
+
+Deletes a nodegroup.
+Corresponds to the [`deleteNodeGroup`](https://docs.aws.amazon.com/eks/latest/APIReference/API_DeleteNodegroup.html) API in EKS.
+
+```ts
+new tasks.EksDeleteNodegroup(stack, 'Delete a Nodegroup', {
+  clusterName: 'clusterName',
+  nodegroupName: 'NodeGroupName',
 });
 ```
 
