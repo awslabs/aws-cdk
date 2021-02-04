@@ -70,10 +70,11 @@ export = {
       const stack = new cdk.Stack();
       const key = new kms.Key(stack, 'CustomKey');
 
-      new sns.Topic(stack, 'MyTopic', {
+      const topic = new sns.Topic(stack, 'MyTopic', {
         masterKey: key,
       });
 
+      test.equals(topic.masterKey, key);
       expect(stack).to(haveResource('AWS::SNS::Topic', {
         'KmsMasterKeyId': { 'Fn::GetAtt': ['CustomKey1E6D0D07', 'Arn'] },
       }));

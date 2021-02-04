@@ -1,4 +1,5 @@
 import * as iam from '@aws-cdk/aws-iam';
+import { IKey } from '@aws-cdk/aws-kms';
 import { Construct, IResource, Resource, Token } from '@aws-cdk/core';
 import { TopicPolicy } from './policy';
 import { ITopicSubscription } from './subscriber';
@@ -21,6 +22,11 @@ export interface ITopic extends IResource {
    * @attribute
    */
   readonly topicName: string;
+
+  /**
+   * If this topic is encrypted, this is the KMS encryption key.
+   */
+  readonly masterKey?: IKey;
 
   /**
    * Subscribe some endpoint to this topic
