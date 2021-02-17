@@ -3,7 +3,9 @@ import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
 import * as constructs from 'constructs';
+import { IConnection } from './connection';
 import { CfnJob } from './glue.generated';
+import { ISecurityConfiguration } from './security-configuration';
 
 /**
  * AWS Glue version determines the versions of Apache Spark and Python that are available to the job.
@@ -14,11 +16,6 @@ import { CfnJob } from './glue.generated';
  * can instantiate a `GlueVersion` object, e.g: `new GlueVersion('1.5')`.
  */
 export class GlueVersion {
-  /**
-   * A list of all known `GlueVersion`s.
-   */
-  public static readonly ALL = new Array<GlueVersion>();
-
   /**
    * Glue version using Spark 2.2.1 and Python 2.7
    */
@@ -41,7 +38,6 @@ export class GlueVersion {
 
   constructor(name: string) {
     this.name = name;
-    GlueVersion.ALL.push(this);
   }
 
   /**
@@ -59,9 +55,6 @@ export class GlueVersion {
  * can instantiate a `WorkerType` object, e.g: `new WorkerType('other type')`.
  */
 export class WorkerType {
-  /** A list of all known `WorkerType`s. */
-  public static readonly ALL = new Array<WorkerType>();
-
   /**
    * Each worker provides 4 vCPU, 16 GB of memory and a 50GB disk, and 2 executors per worker.
    */
@@ -84,7 +77,6 @@ export class WorkerType {
 
   constructor(name: string) {
     this.name = name;
-    WorkerType.ALL.push(this);
   }
 
   /**
@@ -176,9 +168,6 @@ export enum MetricType {
  * can instantiate a `WorkerType` object, e.g: `new JobCommandName('other name')`.
  */
 export class JobCommandName {
-  /** A list of all known `JobCommandName`s. */
-  public static readonly ALL = new Array<JobCommandName>();
-
   /**
    * Command for running a Glue ETL job.
    */
@@ -201,7 +190,6 @@ export class JobCommandName {
 
   constructor(name: string) {
     this.name = name;
-    JobCommandName.ALL.push(this);
   }
 
   /**
@@ -496,16 +484,16 @@ export interface JobProps {
   /**
    * The {@link Connection}s used for this job.
    *
-   * TODO Enable after https://github.com/aws/aws-cdk/issues/12442 is merged.
+   * @default no connection.
    */
-  // readonly connections?: IConnection [];
+  readonly connections?: IConnection [];
 
   /**
    * The {@link SecurityConfiguration} to use for this job.
    *
-   * TODO Enable after https://github.com/aws/aws-cdk/issues/12449 is merged.
+   * @default no security configuration.
    */
-  // readonly securityConfiguration?: ISecurityConfiguration;
+  readonly securityConfiguration?: ISecurityConfiguration;
 
   /**
    * The default arguments for this job, specified as name-value pairs.
@@ -630,8 +618,8 @@ export class Job extends cdk.Resource implements IJob {
       executionProperty: props.maxConcurrentRuns ? { maxConcurrentRuns: props.maxConcurrentRuns } : undefined,
       notificationProperty: props.notifyDelayAfter ? { notifyDelayAfter: props.notifyDelayAfter.toMinutes() } : undefined,
       timeout: props.timeout ? props.timeout.toMinutes() : undefined,
-      // connections: props.connections ? { connections: props.connections.map((connection) => connection.connectionName) } : undefined,
-      // securityConfiguration: props.securityConfiguration ? props.securityConfiguration.securityConfigurationName : undefined,
+      connections: props.connections ? { connections: props.connections.map((connection) => connection.connectionName) } : undefined,
+      securityConfiguration: props.securityConfiguration ? props.securityConfiguration.securityConfigurationName : undefined,
       defaultArguments: props.defaultArguments,
       tags: props.tags,
     });

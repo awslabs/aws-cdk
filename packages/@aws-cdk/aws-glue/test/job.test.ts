@@ -47,7 +47,8 @@ describe('JobCommand', () => {
     let jobCommandName: glue.JobCommandName;
 
     // known command names + custom one
-    glue.JobCommandName.ALL.concat(new glue.JobCommandName('CustomName')).forEach((name) => {
+    [glue.JobCommandName.GLUE_STREAMING, glue.JobCommandName.PYTHON_SHELL, glue.JobCommandName.GLUE_ETL,
+      new glue.JobCommandName('CustomName')].forEach((name) => {
       describe(`with ${name} JobCommandName`, () => {
 
         beforeEach(() => {
@@ -264,6 +265,8 @@ describe('Job', () => {
             arg1: 'value1',
             arg2: 'value2',
           },
+          connections: [glue.Connection.fromConnectionName(stack, 'ImportedConnection', 'ConnectionName')],
+          securityConfiguration: glue.SecurityConfiguration.fromSecurityConfigurationName(stack, 'ImportedSecurityConfiguration', 'SecurityConfigurationName'),
           tags: {
             key: 'value',
           },
@@ -302,6 +305,12 @@ describe('Job', () => {
           },
           Timeout: 5,
           WorkerType: 'G.2X',
+          Connections: {
+            Connections: [
+              'ConnectionName',
+            ],
+          },
+          SecurityConfiguration: 'SecurityConfigurationName',
         }));
       });
     });
