@@ -1176,6 +1176,39 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
+          ]
+        },
         "Manifest": {
           "Fn::Join": [
             "",
@@ -1273,15 +1306,6 @@
               },
               "\\\",\\\"username\\\":\\\"system:node:{{EC2PrivateDNSName}}\\\",\\\"groups\\\":[\\\"system:bootstrappers\\\",\\\"system:nodes\\\"]}]\",\"mapUsers\":\"[]\",\"mapAccounts\":\"[]\"}}]"
             ]
-          ]
-        },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
           ]
         },
         "PruneLabel": "aws.cdk.eks/prune-c842be348c45337cd97b8759de76d5a68b4910d487",
@@ -2727,13 +2751,37 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
         "Release": "ksclustertestclusterchartspotinterrupthandlerf41ba997",
@@ -3070,16 +3118,40 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "Manifest": "[{\"apiVersion\":\"apps/v1\",\"kind\":\"DaemonSet\",\"metadata\":{\"name\":\"neuron-device-plugin-daemonset\",\"namespace\":\"kube-system\",\"labels\":{\"aws.cdk.eks/prune-c88223d575036bcf663303b6778373ae4854f1fe3b\":\"\"}},\"spec\":{\"selector\":{\"matchLabels\":{\"name\":\"neuron-device-plugin-ds\"}},\"updateStrategy\":{\"type\":\"RollingUpdate\"},\"template\":{\"metadata\":{\"annotations\":{\"scheduler.alpha.kubernetes.io/critical-pod\":\"\"},\"labels\":{\"name\":\"neuron-device-plugin-ds\"}},\"spec\":{\"tolerations\":[{\"key\":\"CriticalAddonsOnly\",\"operator\":\"Exists\"},{\"key\":\"aws.amazon.com/neuron\",\"operator\":\"Exists\",\"effect\":\"NoSchedule\"}],\"priorityClassName\":\"system-node-critical\",\"affinity\":{\"nodeAffinity\":{\"requiredDuringSchedulingIgnoredDuringExecution\":{\"nodeSelectorTerms\":[{\"matchExpressions\":[{\"key\":\"beta.kubernetes.io/instance-type\",\"operator\":\"In\",\"values\":[\"inf1.xlarge\",\"inf1.2xlarge\",\"inf1.6xlarge\",\"inf1.4xlarge\"]}]},{\"matchExpressions\":[{\"key\":\"node.kubernetes.io/instance-type\",\"operator\":\"In\",\"values\":[\"inf1.xlarge\",\"inf1.2xlarge\",\"inf1.6xlarge\",\"inf1.24xlarge\"]}]}]}}},\"containers\":[{\"image\":\"790709498068.dkr.ecr.us-west-2.amazonaws.com/neuron-device-plugin:1.0.9043.0\",\"imagePullPolicy\":\"Always\",\"name\":\"k8s-neuron-device-plugin-ctr\",\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"volumeMounts\":[{\"name\":\"device-plugin\",\"mountPath\":\"/var/lib/kubelet/device-plugins\"}]}],\"volumes\":[{\"name\":\"device-plugin\",\"hostPath\":{\"path\":\"/var/lib/kubelet/device-plugins\"}}]}}}}]",
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
+        "Manifest": "[{\"apiVersion\":\"apps/v1\",\"kind\":\"DaemonSet\",\"metadata\":{\"name\":\"neuron-device-plugin-daemonset\",\"namespace\":\"kube-system\",\"labels\":{\"aws.cdk.eks/prune-c88223d575036bcf663303b6778373ae4854f1fe3b\":\"\"}},\"spec\":{\"selector\":{\"matchLabels\":{\"name\":\"neuron-device-plugin-ds\"}},\"updateStrategy\":{\"type\":\"RollingUpdate\"},\"template\":{\"metadata\":{\"annotations\":{\"scheduler.alpha.kubernetes.io/critical-pod\":\"\"},\"labels\":{\"name\":\"neuron-device-plugin-ds\"}},\"spec\":{\"tolerations\":[{\"key\":\"CriticalAddonsOnly\",\"operator\":\"Exists\"},{\"key\":\"aws.amazon.com/neuron\",\"operator\":\"Exists\",\"effect\":\"NoSchedule\"}],\"priorityClassName\":\"system-node-critical\",\"affinity\":{\"nodeAffinity\":{\"requiredDuringSchedulingIgnoredDuringExecution\":{\"nodeSelectorTerms\":[{\"matchExpressions\":[{\"key\":\"beta.kubernetes.io/instance-type\",\"operator\":\"In\",\"values\":[\"inf1.xlarge\",\"inf1.2xlarge\",\"inf1.6xlarge\",\"inf1.4xlarge\"]}]},{\"matchExpressions\":[{\"key\":\"node.kubernetes.io/instance-type\",\"operator\":\"In\",\"values\":[\"inf1.xlarge\",\"inf1.2xlarge\",\"inf1.6xlarge\",\"inf1.24xlarge\"]}]}]}}},\"containers\":[{\"image\":\"790709498068.dkr.ecr.us-west-2.amazonaws.com/neuron-device-plugin:1.0.9043.0\",\"imagePullPolicy\":\"Always\",\"name\":\"k8s-neuron-device-plugin-ctr\",\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"volumeMounts\":[{\"name\":\"device-plugin\",\"mountPath\":\"/var/lib/kubelet/device-plugins\"}]}],\"volumes\":[{\"name\":\"device-plugin\",\"hostPath\":{\"path\":\"/var/lib/kubelet/device-plugins\"}}]}}}}]",
         "PruneLabel": "aws.cdk.eks/prune-c88223d575036bcf663303b6778373ae4854f1fe3b"
       },
       "DependsOn": [
@@ -3277,6 +3349,7 @@
           }
         ],
         "AmiType": "AL2_x86_64",
+        "CapacityType": "SPOT",
         "ForceUpdateEnabled": true,
         "InstanceTypes": [
           "c5.large",
@@ -3287,8 +3360,7 @@
           "DesiredSize": 3,
           "MaxSize": 3,
           "MinSize": 3
-        },
-        "CapacityType": "SPOT"
+        }
       }
     },
     "ClusterNodegroupextrangarmNodeGroupRoleADF5749F": {
@@ -3442,16 +3514,40 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"name\":\"hello-kubernetes\",\"labels\":{\"aws.cdk.eks/prune-c8f0f7140f7358e29b7f58e81b507dcf744a3908f4\":\"\"}},\"spec\":{\"type\":\"LoadBalancer\",\"ports\":[{\"port\":80,\"targetPort\":8080}],\"selector\":{\"app\":\"hello-kubernetes\"}}},{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"name\":\"hello-kubernetes\",\"labels\":{\"aws.cdk.eks/prune-c8f0f7140f7358e29b7f58e81b507dcf744a3908f4\":\"\"}},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"hello-kubernetes\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"hello-kubernetes\"}},\"spec\":{\"containers\":[{\"name\":\"hello-kubernetes\",\"image\":\"paulbouwer/hello-kubernetes:1.5\",\"ports\":[{\"containerPort\":8080}]}]}}}}]",
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
+        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"name\":\"hello-kubernetes\",\"labels\":{\"aws.cdk.eks/prune-c8f0f7140f7358e29b7f58e81b507dcf744a3908f4\":\"\"}},\"spec\":{\"type\":\"LoadBalancer\",\"ports\":[{\"port\":80,\"targetPort\":8080}],\"selector\":{\"app\":\"hello-kubernetes\"}}},{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"name\":\"hello-kubernetes\",\"labels\":{\"aws.cdk.eks/prune-c8f0f7140f7358e29b7f58e81b507dcf744a3908f4\":\"\"}},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"hello-kubernetes\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"hello-kubernetes\"}},\"spec\":{\"containers\":[{\"name\":\"hello-kubernetes\",\"image\":\"paulbouwer/hello-kubernetes:1.5\",\"ports\":[{\"containerPort\":8080}]}]}}}}]",
         "PruneLabel": "aws.cdk.eks/prune-c8f0f7140f7358e29b7f58e81b507dcf744a3908f4"
       },
       "DependsOn": [
@@ -3469,13 +3565,37 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
         "Release": "awscdkeksclustertestclusterchartdashboard1f3d83fe",
@@ -3499,6 +3619,39 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
+          ]
+        },
         "Manifest": {
           "Fn::Join": [
             "",
@@ -3509,15 +3662,6 @@
               },
               "\"},\"kind\":\"ConfigMap\",\"metadata\":{\"name\":\"chart-config-map-configmap-cccf3117\",\"labels\":{\"aws.cdk.eks/prune-c8cd9cb2e127e0b0375ebc544f18d8513721895a27\":\"\"}}}]"
             ]
-          ]
-        },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
           ]
         },
         "PruneLabel": "aws.cdk.eks/prune-c8cd9cb2e127e0b0375ebc544f18d8513721895a27"
@@ -3537,16 +3681,40 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"name\":\"nginx\",\"labels\":{\"aws.cdk.eks/prune-c84fd26f70b01a84daa5d3646e813820af6fde0970\":\"\"}}}]",
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
+        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"name\":\"nginx\",\"labels\":{\"aws.cdk.eks/prune-c84fd26f70b01a84daa5d3646e813820af6fde0970\":\"\"}}}]",
         "PruneLabel": "aws.cdk.eks/prune-c84fd26f70b01a84daa5d3646e813820af6fde0970"
       },
       "DependsOn": [
@@ -3564,13 +3732,37 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
         "Release": "awscdkeksclustertestclusterchartnginxingressa7f70129",
@@ -3672,6 +3864,39 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
+          ]
+        },
         "Manifest": {
           "Fn::Join": [
             "",
@@ -3685,15 +3910,6 @@
               },
               "\"}}}]"
             ]
-          ]
-        },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
           ]
         },
         "PruneLabel": "aws.cdk.eks/prune-c8f8dbf23319159cc2fef46283f7450b814e818252"
@@ -3738,16 +3954,40 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "Manifest": "[{\"kind\":\"Pod\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"webpod\",\"labels\":{\"aws.cdk.eks/prune-c8b6a5b3e6f9f4f1aa9dc400a13c96633da4822b2d\":\"\",\"app\":\"simple-web\"}},\"spec\":{\"containers\":[{\"name\":\"simplewebcontainer\",\"image\":\"nginx\",\"ports\":[{\"containerPort\":80}]}]}}]",
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
+        "Manifest": "[{\"kind\":\"Pod\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"webpod\",\"labels\":{\"aws.cdk.eks/prune-c8b6a5b3e6f9f4f1aa9dc400a13c96633da4822b2d\":\"\",\"app\":\"simple-web\"}},\"spec\":{\"containers\":[{\"name\":\"simplewebcontainer\",\"image\":\"nginx\",\"ports\":[{\"containerPort\":80}]}]}}]",
         "PruneLabel": "aws.cdk.eks/prune-c8b6a5b3e6f9f4f1aa9dc400a13c96633da4822b2d"
       },
       "DependsOn": [
@@ -3765,6 +4005,39 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
+          ]
+        },
         "Manifest": {
           "Fn::Join": [
             "",
@@ -3778,15 +4051,6 @@
               },
               "\"},\"labels\":{\"aws.cdk.eks/prune-c84c09bc8d75d4cc4d672e0d3872dcdb35f628dc2c\":\"\"}},\"spec\":{\"type\":\"LoadBalancer\",\"ports\":[{\"port\":9000,\"targetPort\":80}],\"selector\":{\"app\":\"simple-web\"}}}]"
             ]
-          ]
-        },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
           ]
         },
         "PruneLabel": "aws.cdk.eks/prune-c84c09bc8d75d4cc4d672e0d3872dcdb35f628dc2c"
@@ -3806,13 +4070,37 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
         "ObjectType": "service",
@@ -3840,7 +4128,7 @@
               },
               "/",
               {
-                "Ref": "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cS3Bucket1CB7A187"
+                "Ref": "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaS3Bucket862E8D6F"
               },
               "/",
               {
@@ -3850,7 +4138,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cS3VersionKey7C13F243"
+                        "Ref": "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaS3VersionKey9466BE3D"
                       }
                     ]
                   }
@@ -3863,7 +4151,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cS3VersionKey7C13F243"
+                        "Ref": "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaS3VersionKey9466BE3D"
                       }
                     ]
                   }
@@ -3907,7 +4195,7 @@
               },
               "/",
               {
-                "Ref": "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8S3Bucket0B8E3806"
+                "Ref": "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dS3Bucket8EF5C175"
               },
               "/",
               {
@@ -3917,7 +4205,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8S3VersionKey862F0970"
+                        "Ref": "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dS3VersionKey6EF5E0CB"
                       }
                     ]
                   }
@@ -3930,7 +4218,7 @@
                     "Fn::Split": [
                       "||",
                       {
-                        "Ref": "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8S3VersionKey862F0970"
+                        "Ref": "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dS3VersionKey6EF5E0CB"
                       }
                     ]
                   }
@@ -3952,11 +4240,11 @@
               "Arn"
             ]
           },
-          "referencetoawscdkeksclustertestAssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3Bucket174F3576Ref": {
-            "Ref": "AssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3Bucket008DBB35"
+          "referencetoawscdkeksclustertestAssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3BucketFDB02346Ref": {
+            "Ref": "AssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3Bucket99EB0FA5"
           },
-          "referencetoawscdkeksclustertestAssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3VersionKeyE8595856Ref": {
-            "Ref": "AssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3VersionKey97C3E1A0"
+          "referencetoawscdkeksclustertestAssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3VersionKey9D4F3015Ref": {
+            "Ref": "AssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3VersionKeyF83FBC17"
           },
           "referencetoawscdkeksclustertestVpcPrivateSubnet1Subnet32A4EC2ARef": {
             "Ref": "VpcPrivateSubnet1Subnet536B997A"
@@ -4030,16 +4318,40 @@
             "Outputs.awscdkeksclustertestawscdkawseksKubectlProviderframeworkonEventC681B49AArn"
           ]
         },
-        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"data\":{\"hello\":\"world\"},\"metadata\":{\"name\":\"config-map\",\"labels\":{\"aws.cdk.eks/prune-c89cbcc5d9bdd35cfc69c0334c0a9af21d1e0e372e\":\"\"}},\"unknown\":{\"key\":\"value\"}}]",
-        "ClusterName": {
-          "Ref": "Cluster9EE0221C"
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "ClusterCreationRole360249B6",
-            "Arn"
+        "KubeConfig": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"apiVersion\":\"v1\",\"kind\":\"Config\",\"clusters\":[{\"name\":\"default\",\"cluster\":{\"certificate-authority-data\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "CertificateAuthorityData"
+                ]
+              },
+              "\",\"server\":\"",
+              {
+                "Fn::GetAtt": [
+                  "Cluster9EE0221C",
+                  "Endpoint"
+                ]
+              },
+              "\"}}],\"users\":[{\"name\":\"default\",\"user\":{\"exec\":{\"apiVersion\":\"client.authentication.k8s.io/v1alpha1\",\"command\":\"aws\",\"args\":[\"--region\",\"test-region\",\"eks\",\"get-token\",\"--cluster-name\",\"",
+              {
+                "Ref": "Cluster9EE0221C"
+              },
+              "\",\"--role\",\"",
+              {
+                "Fn::GetAtt": [
+                  "ClusterCreationRole360249B6",
+                  "Arn"
+                ]
+              },
+              "\"]}}}],\"contexts\":[{\"name\":\"default\",\"context\":{\"cluster\":\"default\",\"user\":\"default\"}}],\"current-context\":\"default\"}"
+            ]
           ]
         },
+        "Manifest": "[{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"data\":{\"hello\":\"world\"},\"metadata\":{\"name\":\"config-map\",\"labels\":{\"aws.cdk.eks/prune-c89cbcc5d9bdd35cfc69c0334c0a9af21d1e0e372e\":\"\"}},\"unknown\":{\"key\":\"value\"}}]",
         "PruneLabel": "aws.cdk.eks/prune-c89cbcc5d9bdd35cfc69c0334c0a9af21d1e0e372e",
         "SkipValidation": true
       },
@@ -4347,13 +4659,13 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "ServicePingerFunctionServiceRole3120191B",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "python3.6",
         "Timeout": 600,
         "VpcConfig": {
@@ -4480,14 +4792,12 @@
             ]
           }
         },
-        "Handler": "framework.onEvent",
         "Role": {
           "Fn::GetAtt": [
             "ServicePingerProviderframeworkonEventServiceRole3DB083B7",
             "Arn"
           ]
         },
-        "Runtime": "nodejs10.x",
         "Description": "AWS CDK resource provider framework - onEvent (aws-cdk-eks-cluster-test/ServicePinger/Provider)",
         "Environment": {
           "Variables": {
@@ -4499,6 +4809,8 @@
             }
           }
         },
+        "Handler": "framework.onEvent",
+        "Runtime": "nodejs10.x",
         "Timeout": 900
       },
       "DependsOn": [
@@ -4655,17 +4967,17 @@
       "Type": "String",
       "Description": "Artifact hash for asset \"daeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1\""
     },
-    "AssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3Bucket008DBB35": {
+    "AssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3Bucket99EB0FA5": {
       "Type": "String",
-      "Description": "S3 bucket for asset \"bafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757\""
+      "Description": "S3 bucket for asset \"a04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291\""
     },
-    "AssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757S3VersionKey97C3E1A0": {
+    "AssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291S3VersionKeyF83FBC17": {
       "Type": "String",
-      "Description": "S3 key for asset version \"bafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757\""
+      "Description": "S3 key for asset version \"a04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291\""
     },
-    "AssetParametersbafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757ArtifactHashF584A7D8": {
+    "AssetParametersa04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291ArtifactHash8635BD40": {
       "Type": "String",
-      "Description": "Artifact hash for asset \"bafd50ae9f214e496ff8c72c6425f93dca3ccd590e20963706d5d610d9c75757\""
+      "Description": "Artifact hash for asset \"a04cc7650776910cfb3ae908f8cfe2a06e5b95231af8356d0b588fa6cb5e3291\""
     },
     "AssetParameterse9882ab123687399f934da0d45effe675ecc8ce13b40cb946f3e1d6141fe8d68S3BucketAEADE8C7": {
       "Type": "String",
@@ -4727,29 +5039,29 @@
       "Type": "String",
       "Description": "Artifact hash for asset \"5f49893093e1ad14831626016699156d48da5f0890f19eb930bc3c46cf5f636d\""
     },
-    "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cS3Bucket1CB7A187": {
+    "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaS3Bucket862E8D6F": {
       "Type": "String",
-      "Description": "S3 bucket for asset \"a69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0c\""
+      "Description": "S3 bucket for asset \"264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daa\""
     },
-    "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cS3VersionKey7C13F243": {
+    "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaS3VersionKey9466BE3D": {
       "Type": "String",
-      "Description": "S3 key for asset version \"a69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0c\""
+      "Description": "S3 key for asset version \"264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daa\""
     },
-    "AssetParametersa69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0cArtifactHashBADE945D": {
+    "AssetParameters264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daaArtifactHashC5F5158C": {
       "Type": "String",
-      "Description": "Artifact hash for asset \"a69aadbed84d554dd9f2eb7987ffe5d8f76b53a86f1909059df07050e57bef0c\""
+      "Description": "Artifact hash for asset \"264acf17cbf0c643f47bec1f4dbaed805e3bd1bad3f018c093d16fb936227daa\""
     },
-    "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8S3Bucket0B8E3806": {
+    "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dS3Bucket8EF5C175": {
       "Type": "String",
-      "Description": "S3 bucket for asset \"6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8\""
+      "Description": "S3 bucket for asset \"58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595d\""
     },
-    "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8S3VersionKey862F0970": {
+    "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dS3VersionKey6EF5E0CB": {
       "Type": "String",
-      "Description": "S3 key for asset version \"6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8\""
+      "Description": "S3 key for asset version \"58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595d\""
     },
-    "AssetParameters6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8ArtifactHashAAFBAA4D": {
+    "AssetParameters58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595dArtifactHashD5FC8F3E": {
       "Type": "String",
-      "Description": "Artifact hash for asset \"6b9ad3782e5bfd49d7a58fc915b6151dbed2e24d824730d7720bc8237ba252c8\""
+      "Description": "Artifact hash for asset \"58028cf9d9598958480e109cdb9b346abd16c45ccf5307ecd84335953c61595d\""
     },
     "SsmParameterValueawsserviceeksoptimizedami118amazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Type": "AWS::SSM::Parameter::Value<String>",

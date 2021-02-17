@@ -19,8 +19,7 @@ def helm_handler(event, context):
     props = event['ResourceProperties']
 
     # resource properties
-    cluster_name = props['ClusterName']
-    role_arn     = props['RoleArn']
+    kubeconfig_contents = props['KubeConfig']
     release      = props['Release']
     chart        = props['Chart']
     version      = props.get('Version', None)
@@ -31,12 +30,8 @@ def helm_handler(event, context):
     repository   = props.get('Repository', None)
     values_text  = props.get('Values', None)
 
-    # "log in" to the cluster
-    subprocess.check_call([ 'aws', 'eks', 'update-kubeconfig',
-        '--role-arn', role_arn,
-        '--name', cluster_name,
-        '--kubeconfig', kubeconfig
-    ])
+    with open(kubeconfig, 'w') as f:
+        f.write(kubeconfig_contents)
 
     # Write out the values to a file and include them with the install and upgrade
     values_file = None

@@ -84,6 +84,8 @@ export = {
     const cluster = Cluster.fromClusterAttributes(stack, 'MyCluster', {
       clusterName: 'my-cluster-name',
       kubectlRoleArn: 'arn:aws:iam::1111111:role/iam-role-that-has-masters-access',
+      clusterEndpoint: 'https://mycluster',
+      clusterCertificateAuthorityData: 'CADATA',
     });
 
     // WHEN
@@ -93,17 +95,37 @@ export = {
     // THEN
     expect(stack).to(haveResource(KubernetesManifest.RESOURCE_TYPE, {
       Manifest: '[{"bar":2334}]',
-      ClusterName: 'my-cluster-name',
-      RoleArn: 'arn:aws:iam::1111111:role/iam-role-that-has-masters-access',
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"CADATA","server":"https://mycluster"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","',
+            {
+              Ref: 'AWS::Region',
+            },
+            '","eks","get-token","--cluster-name","my-cluster-name","--role","arn:aws:iam::1111111:role/iam-role-that-has-masters-access"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
+        ],
+      },
     }));
 
     expect(stack).to(haveResource(HelmChart.RESOURCE_TYPE, {
-      ClusterName: 'my-cluster-name',
-      RoleArn: 'arn:aws:iam::1111111:role/iam-role-that-has-masters-access',
       Release: 'myclustercharthelm78d2c26a',
       Chart: 'hello-world',
       Namespace: 'default',
       CreateNamespace: true,
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"CADATA","server":"https://mycluster"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","',
+            {
+              Ref: 'AWS::Region',
+            },
+            '","eks","get-token","--cluster-name","my-cluster-name","--role","arn:aws:iam::1111111:role/iam-role-that-has-masters-access"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
+        ],
+      },
     }));
 
     test.done();

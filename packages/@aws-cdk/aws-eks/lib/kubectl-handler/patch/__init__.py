@@ -19,15 +19,10 @@ def patch_handler(event, context):
     props = event['ResourceProperties']
 
     # resource properties (all required)
-    cluster_name  = props['ClusterName']
-    role_arn      = props['RoleArn']
+    kubeconfig_contents = props['KubeConfig']
 
-    # "log in" to the cluster
-    subprocess.check_call([ 'aws', 'eks', 'update-kubeconfig',
-        '--role-arn', role_arn,
-        '--name', cluster_name,
-        '--kubeconfig', kubeconfig
-    ])
+    with open(kubeconfig, 'w') as f:
+        f.write(kubeconfig_contents)
 
     resource_name = props['ResourceName']
     resource_namespace = props['ResourceNamespace']

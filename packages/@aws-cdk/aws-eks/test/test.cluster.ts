@@ -1070,9 +1070,23 @@ export = {
             ServiceToken: {
               'Fn::ImportValue': 'Stack:ExportsOutputFnGetAttawscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6BOutputsStackawscdkawseksKubectlProviderframeworkonEvent8897FD9BArn49BEF20C',
             },
+            KubeConfig: {
+              'Fn::Join': [
+                '',
+                [
+                  '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+                  { 'Fn::ImportValue': 'Stack:ExportsOutputFnGetAttclusterC5B25D0DCertificateAuthorityData1DAC1FEA' },
+                  '","server":"',
+                  { 'Fn::ImportValue': 'Stack:ExportsOutputFnGetAttclusterC5B25D0DEndpointBD367E55' },
+                  '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","us-east-1","eks","get-token","--cluster-name","',
+                  { 'Fn::ImportValue': 'Stack:ExportsOutputRefclusterC5B25D0D98D553F5' },
+                  '","--role","',
+                  { 'Fn::ImportValue': 'Stack:ExportsOutputFnGetAttclusterCreationRole2B3B5002ArnF05122FC' },
+                  '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+                ],
+              ],
+            },
             Manifest: '[{\"foo\":\"bar\"}]',
-            ClusterName: { 'Fn::ImportValue': 'Stack:ExportsOutputRefclusterC5B25D0D98D553F5' },
-            RoleArn: { 'Fn::ImportValue': 'Stack:ExportsOutputFnGetAttclusterCreationRole2B3B5002ArnF05122FC' },
           },
           UpdateReplacePolicy: 'Delete',
           DeletionPolicy: 'Delete',
@@ -1968,13 +1982,41 @@ export = {
         ResourceNamespace: 'kube-system',
         ApplyPatchJson: '{"spec":{"template":{"metadata":{"annotations":{"eks.amazonaws.com/compute-type":"fargate"}}}}}',
         RestorePatchJson: '{"spec":{"template":{"metadata":{"annotations":{"eks.amazonaws.com/compute-type":"ec2"}}}}}',
-        ClusterName: {
-          Ref: 'MyCluster8AD82BF8',
-        },
-        RoleArn: {
-          'Fn::GetAtt': [
-            'MyClusterCreationRoleB5FA4FF3',
-            'Arn',
+        KubeConfig: {
+          'Fn::Join': [
+            '',
+            [
+              '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+              {
+                'Fn::GetAtt': [
+                  'MyCluster8AD82BF8',
+                  'CertificateAuthorityData',
+                ],
+              },
+              '","server":"',
+              {
+                'Fn::GetAtt': [
+                  'MyCluster8AD82BF8',
+                  'Endpoint',
+                ],
+              },
+              '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","',
+              {
+                Ref: 'AWS::Region',
+              },
+              '","eks","get-token","--cluster-name","',
+              {
+                Ref: 'MyCluster8AD82BF8',
+              },
+              '","--role","',
+              {
+                'Fn::GetAtt': [
+                  'MyClusterCreationRoleB5FA4FF3',
+                  'Arn',
+                ],
+              },
+              '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+            ],
           ],
         },
       }));
@@ -2763,13 +2805,22 @@ export = {
           'Outputs.StackawscdkawseksKubectlProviderframeworkonEvent8897FD9BArn',
         ],
       },
-      ClusterName: {
-        Ref: 'Cluster1B02DD5A2',
-      },
-      RoleArn: {
-        'Fn::GetAtt': [
-          'Cluster1CreationRoleA231BE8D',
-          'Arn',
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+            {
+              'Fn::GetAtt': ['Cluster1B02DD5A2', 'CertificateAuthorityData'],
+            },
+            '","server":"',
+            { 'Fn::GetAtt': ['Cluster1B02DD5A2', 'Endpoint'] },
+            '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","us-east-1","eks","get-token","--cluster-name","',
+            { Ref: 'Cluster1B02DD5A2' },
+            '","--role","',
+            { 'Fn::GetAtt': ['Cluster1CreationRoleA231BE8D', 'Arn'] },
+            '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
         ],
       },
       ObjectType: 'service',
@@ -2861,6 +2912,8 @@ export = {
     // WHEN
     const cluster = eks.Cluster.fromClusterAttributes(stack, 'Imported', {
       clusterName: 'my-cluster',
+      clusterCertificateAuthorityData: 'CADATA',
+      clusterEndpoint: 'https://mycluster',
       kubectlRoleArn: 'arn:aws:iam::123456789012:role/MyRole',
       kubectlMemory: cdk.Size.gibibytes(4),
     });

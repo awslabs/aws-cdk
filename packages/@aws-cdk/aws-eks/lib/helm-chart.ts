@@ -111,8 +111,7 @@ export class HelmChart extends CoreConstruct {
       serviceToken: provider.serviceToken,
       resourceType: HelmChart.RESOURCE_TYPE,
       properties: {
-        ClusterName: props.cluster.clusterName,
-        RoleArn: provider.roleArn, // TODO: bake into the provider's environment
+        KubeConfig: provider.kubeConfig,
         Release: props.release ?? Names.uniqueId(this).slice(-53).toLowerCase(), // Helm has a 53 character limit for the name
         Chart: props.chart,
         Version: props.version,

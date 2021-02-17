@@ -119,6 +119,8 @@ export = {
         clusterName: 'Cluster',
         openIdConnectProvider: oidcProvider,
         kubectlRoleArn: 'arn:aws:iam::123456:role/service-role/k8sservicerole',
+        clusterCertificateAuthorityData: 'CADATA',
+        clusterEndpoint: 'https://mycluster',
       });
 
       cluster.addServiceAccount('MyServiceAccount');

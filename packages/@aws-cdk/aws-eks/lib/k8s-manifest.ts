@@ -121,12 +121,11 @@ export class KubernetesManifest extends CoreConstruct {
       serviceToken: provider.serviceToken,
       resourceType: KubernetesManifest.RESOURCE_TYPE,
       properties: {
+        KubeConfig: provider.kubeConfig,
         // `toJsonString` enables embedding CDK tokens in the manifest and will
         // render a CloudFormation-compatible JSON string (similar to
         // StepFunctions, CloudWatch Dashboards etc).
         Manifest: stack.toJsonString(props.manifest),
-        ClusterName: props.cluster.clusterName,
-        RoleArn: provider.roleArn, // TODO: bake into provider's environment
         PruneLabel: pruneLabel,
         Overwrite: props.overwrite,
         SkipValidation: props.skipValidation,

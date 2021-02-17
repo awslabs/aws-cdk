@@ -32,13 +32,24 @@ export = {
       ResourceNamespace: 'default',
       ApplyPatchJson: '{"patch":{"to":"apply"}}',
       RestorePatchJson: '{"restore":{"patch":123}}',
-      ClusterName: {
-        Ref: 'MyCluster8AD82BF8',
-      },
-      RoleArn: {
-        'Fn::GetAtt': [
-          'MyClusterCreationRoleB5FA4FF3',
-          'Arn',
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+            {
+              'Fn::GetAtt': ['MyCluster8AD82BF8', 'CertificateAuthorityData'],
+            },
+            '","server":"',
+            { 'Fn::GetAtt': ['MyCluster8AD82BF8', 'Endpoint'] },
+            '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","',
+            { Ref: 'AWS::Region' },
+            '","eks","get-token","--cluster-name","',
+            { Ref: 'MyCluster8AD82BF8' },
+            '","--role","',
+            { 'Fn::GetAtt': ['MyClusterCreationRoleB5FA4FF3', 'Arn'] },
+            '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
         ],
       },
     }));

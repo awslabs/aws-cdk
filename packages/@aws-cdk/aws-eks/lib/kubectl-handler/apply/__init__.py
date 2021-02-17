@@ -19,21 +19,14 @@ def apply_handler(event, context):
     props = event['ResourceProperties']
 
     # resource properties (all required)
-    cluster_name  = props['ClusterName']
-    manifest_text = props['Manifest']
-    role_arn      = props['RoleArn']
-    prune_label   = props.get('PruneLabel', None)
-    overwrite     = props.get('Overwrite', 'false').lower() == 'true'
-    skip_validation = props.get('SkipValidation', 'false').lower() == 'true'
+    kubeconfig_contents = props['KubeConfig']
+    manifest_text       = props['Manifest']
+    prune_label         = props.get('PruneLabel', None)
+    overwrite           = props.get('Overwrite', 'false').lower() == 'true'
+    skip_validation     = props.get('SkipValidation', 'false').lower() == 'true'
 
-    # "log in" to the cluster
-    cmd = [ 'aws', 'eks', 'update-kubeconfig',
-        '--role-arn', role_arn,
-        '--name', cluster_name,
-        '--kubeconfig', kubeconfig
-    ]
-    logger.info(f'Running command: {cmd}')
-    subprocess.check_call(cmd)
+    with open(kubeconfig, 'w') as f:
+        f.write(kubeconfig_contents)
 
     # write resource manifests in sequence: { r1 }{ r2 }{ r3 } (this is how
     # a stream of JSON objects can be included in a k8s manifest).

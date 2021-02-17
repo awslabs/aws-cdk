@@ -150,7 +150,6 @@ export = {
     new eks.Nodegroup(stack, 'Nodegroup', { cluster });
 
     // THEN
-    // THEN
     expect(stack).to(haveResource(eks.KubernetesManifest.RESOURCE_TYPE, {
       Manifest: {
         'Fn::Join': [
@@ -181,13 +180,37 @@ export = {
           ],
         ],
       },
-      ClusterName: {
-        Ref: 'Cluster9EE0221C',
-      },
-      RoleArn: {
-        'Fn::GetAtt': [
-          'ClusterCreationRole360249B6',
-          'Arn',
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+            {
+              'Fn::GetAtt': [
+                'Cluster9EE0221C',
+                'CertificateAuthorityData',
+              ],
+            },
+            '","server":"',
+            {
+              'Fn::GetAtt': [
+                'Cluster9EE0221C',
+                'Endpoint',
+              ],
+            },
+            '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","us-east-1","eks","get-token","--cluster-name","',
+            {
+              Ref: 'Cluster9EE0221C',
+            },
+            '","--role","',
+            {
+              'Fn::GetAtt': [
+                'ClusterCreationRole360249B6',
+                'Arn',
+              ],
+            },
+            '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
         ],
       },
       PruneLabel: 'aws.cdk.eks/prune-c82ececabf77e03e3590f2ebe02adba8641d1b3e76',

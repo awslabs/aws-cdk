@@ -164,8 +164,42 @@ export = {
       ResourceNamespace: 'kube-system',
       ApplyPatchJson: '{"spec":{"template":{"metadata":{"annotations":{"eks.amazonaws.com/compute-type":"fargate"}}}}}',
       RestorePatchJson: '{"spec":{"template":{"metadata":{"annotations":{"eks.amazonaws.com/compute-type":"ec2"}}}}}',
-      ClusterName: {
-        Ref: 'FargateCluster019F03E8',
+      KubeConfig: {
+        'Fn::Join': [
+          '',
+          [
+            '{"apiVersion":"v1","kind":"Config","clusters":[{"name":"default","cluster":{"certificate-authority-data":"',
+            {
+              'Fn::GetAtt': [
+                'FargateCluster019F03E8',
+                'CertificateAuthorityData',
+              ],
+            },
+            '","server":"',
+            {
+              'Fn::GetAtt': [
+                'FargateCluster019F03E8',
+                'Endpoint',
+              ],
+            },
+            '"}}],"users":[{"name":"default","user":{"exec":{"apiVersion":"client.authentication.k8s.io/v1alpha1","command":"aws","args":["--region","',
+            {
+              Ref: 'AWS::Region',
+            },
+            '","eks","get-token","--cluster-name","',
+            {
+              Ref: 'FargateCluster019F03E8',
+            },
+            '","--role","',
+            {
+              'Fn::GetAtt': [
+                'FargateClusterCreationRole8C524AD8',
+                'Arn',
+              ],
+            },
+            '"]}}}],"contexts":[{"name":"default","context":{"cluster":"default","user":"default"}}],"current-context":"default"}',
+          ],
+        ],
       },
     }));
 

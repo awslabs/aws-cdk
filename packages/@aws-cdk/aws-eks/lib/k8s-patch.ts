@@ -82,12 +82,11 @@ export class KubernetesPatch extends CoreConstruct {
       serviceToken: provider.serviceToken,
       resourceType: 'Custom::AWSCDK-EKS-KubernetesPatch',
       properties: {
+        KubeConfig: provider.kubeConfig,
         ResourceName: props.resourceName,
         ResourceNamespace: props.resourceNamespace ?? 'default',
         ApplyPatchJson: stack.toJsonString(props.applyPatch),
         RestorePatchJson: stack.toJsonString(props.restorePatch),
-        ClusterName: props.cluster.clusterName,
-        RoleArn: provider.roleArn, // TODO: bake into provider's environment
         PatchType: props.patchType ?? PatchType.STRATEGIC,
       },
     });

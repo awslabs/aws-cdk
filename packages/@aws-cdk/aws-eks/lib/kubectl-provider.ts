@@ -45,14 +45,14 @@ export class KubectlProvider extends NestedStack {
   public readonly serviceToken: string;
 
   /**
-   * The IAM role to assume in order to perform kubectl operations against this cluster.
-   */
-  public readonly roleArn: string;
-
-  /**
    * The IAM execution role of the handler.
    */
   public readonly handlerRole: iam.IRole;
+
+  /**
+   * The kubeconfig configuration used to connect to the cluster.
+   */
+  public readonly kubeConfig: string;
 
   public constructor(scope: Construct, id: string, props: KubectlProviderProps) {
     super(scope as CoreConstruct, id);
@@ -109,7 +109,51 @@ export class KubectlProvider extends NestedStack {
     });
 
     this.serviceToken = provider.serviceToken;
-    this.roleArn = cluster.kubectlRole.roleArn;
+    this.kubeConfig = this.kubeConfigFor(cluster);
   }
 
+  kubeConfigFor(cluster: ICluster): string {
+    const stack = Stack.of(this);
+
+    // This duplicates the result of `aws eks update-kubeconfig`, but
+    // allows extension to non-EKS k8s clusters.
+    // See https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html#create-kubeconfig-manually
+    const kubeconfig = {
+      'apiVersion': 'v1',
+      'kind': 'Config',
+      'clusters': [{
+        name: 'default',
+        cluster: {
+          'certificate-authority-data': cluster.clusterCertificateAuthorityData,
+          'server': cluster.clusterEndpoint,
+        },
+      }],
+      'users': [{
+        name: 'default',
+        user: {
+          exec: {
+            apiVersion: 'client.authentication.k8s.io/v1alpha1',
+            command: 'aws',
+            args: [
+              '--region', stack.region,
+              'eks',
+              'get-token',
+              '--cluster-name', cluster.clusterName,
+              '--role', cluster.kubectlRole!.roleArn,
+            ],
+          },
+        },
+      }],
+      'contexts': [{
+        name: 'default',
+        context: {
+          cluster: 'default',
+          user: 'default',
+        },
+      }],
+      'current-context': 'default',
+    };
+
+    return stack.toJsonString(kubeconfig);
+  }
 }
