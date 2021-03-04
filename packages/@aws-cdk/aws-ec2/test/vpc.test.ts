@@ -4,7 +4,7 @@ import { nodeunitShim, Test } from 'nodeunit-shim';
 import {
   AclCidr, AclTraffic, BastionHostLinux, CfnSubnet, CfnVPC, SubnetFilter, DefaultInstanceTenancy, GenericLinuxImage,
   InstanceType, InterfaceVpcEndpoint, InterfaceVpcEndpointService, NatProvider, NetworkAcl, NetworkAclEntry, Peer, Port, PrivateSubnet,
-  PublicSubnet, RouterType, Subnet, SubnetType, TrafficDirection, Vpc,
+  PublicSubnet, RouterType, Subnet, SubnetType, TrafficDirection, Vpc, DefaultVpcResourceCreator,
 } from '../lib';
 
 nodeunitShim({
@@ -402,6 +402,13 @@ nodeunitShim({
         enableDnsHostnames: true,
         enableDnsSupport: false,
       }));
+      test.done();
+    },
+    'with enableDnsHostnames disabled but enableDnsSupport enabled, should throw no error'(test: Test) {
+      const stack = getTestStack();
+      new Vpc(stack, 'Vpc', {
+        enableDnsSupport: false,
+      });
       test.done();
     },
     'with public subnets MapPublicIpOnLaunch is true'(test: Test) {
@@ -1456,6 +1463,34 @@ nodeunitShim({
         subnets: [
           Subnet.fromSubnetId(stack, 'Subnet', 'sub-1'),
         ],
+      }));
+      test.done();
+    },
+
+    'can create secondary cidr blocks'(test: Test) {
+      // GIVEN
+      const stack = getTestStack();
+
+      // WHEN
+      new Vpc(stack, 'VPC', {
+        vpcResourceCreator: new DefaultVpcResourceCreator({
+          primaryCidrBlock: '10.0.0.0/16',
+          secondaryCidrBlocks: ['10.1.0.0/16', '10.2.0.0/16'],
+        }),
+      });
+
+      // THEN
+      cdkExpect(stack).to(haveResource('AWS::EC2::VPCCidrBlock', {
+        VpcId: {
+          Ref: 'VPCB9E5F0B4',
+        },
+        CidrBlock: '10.1.0.0/16',
+      }));
+      cdkExpect(stack).to(haveResource('AWS::EC2::VPCCidrBlock', {
+        VpcId: {
+          Ref: 'VPCB9E5F0B4',
+        },
+        CidrBlock: '10.2.0.0/16',
       }));
       test.done();
     },

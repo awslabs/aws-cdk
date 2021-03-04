@@ -16,6 +16,7 @@ import { SubnetFilter } from './subnet';
 import { allRouteTableIds, defaultSubnetName, flatten, ImportSubnetGroup, subnetGroupNameFromConstructId, subnetId } from './util';
 import { GatewayVpcEndpoint, GatewayVpcEndpointAwsService, GatewayVpcEndpointOptions, InterfaceVpcEndpoint, InterfaceVpcEndpointOptions } from './vpc-endpoint';
 import { FlowLog, FlowLogOptions, FlowLogResourceType } from './vpc-flow-logs';
+import { DefaultVpcResourceCreator, IVpcResourceCreator } from './vpc-functionality';
 import { VpcLookupOptions } from './vpc-lookup';
 import { EnableVpnGatewayOptions, VpnConnection, VpnConnectionOptions, VpnConnectionType, VpnGateway } from './vpn';
 
@@ -840,6 +841,12 @@ export interface VpcProps {
   readonly subnetConfiguration?: SubnetConfiguration[];
 
   /**
+   * The object which actually creates the low-level VPC resource
+   * @default - the default strategy for creating a VPC
+   */
+  readonly vpcResourceCreator?: IVpcResourceCreator;
+
+  /**
    * Indicates whether a VPN gateway should be created and attached to this VPC.
    *
    * @default - true when vpnGatewayAsn or vpnConnections is specified
@@ -1178,31 +1185,20 @@ export class Vpc extends VpcBase {
 
     const stack = Stack.of(this);
 
-    // Can't have enabledDnsHostnames without enableDnsSupport
-    if (props.enableDnsHostnames && !props.enableDnsSupport) {
-      throw new Error('To use DNS Hostnames, DNS Support must be enabled, however, it was explicitly disabled.');
-    }
-
-    const cidrBlock = ifUndefined(props.cidr, Vpc.DEFAULT_CIDR_RANGE);
-    if (Token.isUnresolved(cidrBlock)) {
-      throw new Error('\'cidr\' property must be a concrete CIDR string, got a Token (we need to parse it for automatic subdivision)');
-    }
-
-    this.networkBuilder = new NetworkBuilder(cidrBlock);
-
-    this.dnsHostnamesEnabled = props.enableDnsHostnames == null ? true : props.enableDnsHostnames;
-    this.dnsSupportEnabled = props.enableDnsSupport == null ? true : props.enableDnsSupport;
-    const instanceTenancy = props.defaultInstanceTenancy || 'default';
-    this.internetConnectivityEstablished = this._internetConnectivityEstablished;
-
-    // Define a VPC using the provided CIDR range
-    this.resource = new CfnVPC(this, 'Resource', {
-      cidrBlock,
-      enableDnsHostnames: this.dnsHostnamesEnabled,
-      enableDnsSupport: this.dnsSupportEnabled,
-      instanceTenancy,
+    // Define a VPC using the provided logic, or use the default logic
+    const vpcCreator = props.vpcResourceCreator ?? new DefaultVpcResourceCreator({
+      primaryCidrBlock: props.cidr,
+      enableDnsSupport: props.enableDnsSupport,
+      enableDnsHostnames: props.enableDnsHostnames,
+      defaultInstanceTenancy: props.defaultInstanceTenancy,
     });
+    this.resource = vpcCreator.create(this);
 
+    this.dnsHostnamesEnabled = vpcCreator.dnsHostnamesEnabled;
+    this.dnsSupportEnabled = vpcCreator.dnsSupportEnabled;
+
+    this.networkBuilder = new NetworkBuilder(vpcCreator.primaryCidrBlock);
+    this.internetConnectivityEstablished = this._internetConnectivityEstablished;
     this.vpcDefaultNetworkAcl = this.resource.attrDefaultNetworkAcl;
     this.vpcCidrBlockAssociations = this.resource.attrCidrBlockAssociations;
     this.vpcCidrBlock = this.resource.attrCidrBlock;
