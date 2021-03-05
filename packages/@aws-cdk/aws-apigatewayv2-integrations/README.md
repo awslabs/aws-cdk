@@ -18,13 +18,50 @@
 ## Table of Contents
 
 - [HTTP APIs](#http-apis)
+  - [Amazon EventBridge](#amazon-eventbridge)
   - [Lambda Integration](#lambda)
   - [HTTP Proxy Integration](#http-proxy)
   - [Private Integration](#private-integration)
 
 ## HTTP APIs
 
-Integrations connect a route to backend resources. HTTP APIs support Lambda proxy, AWS service, and HTTP proxy integrations. HTTP proxy integrations are also known as private integrations.
+Integrations connect a route to backend resources. HTTP APIs support Lambda proxy, AWS service, and HTTP proxy
+integrations. HTTP proxy integrations are also known as private integrations.
+
+### Amazon EventBridge
+
+You can directly integrate the EventBridge PutEvents API into a route of your HTTP API. The integration expects a set of
+`requestParameters` as part of the configuration, which can be referenced from the [Integration Subtype
+Reference](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-aws-services-reference.html#EventBridge-PutEvents).
+
+The following code configures a default HTTP API integration with the EventBridge service's PutEvents API call. Note you
+can map parameters from HTTP API first-class integrations like EventBridge PutEvents like `$request` and `$context` as
+demonstrated below. For further reference, see the list of [supported request
+parameters](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-aws-services.html).
+
+```ts
+import * as events from '@aws-cdk/aws-events';
+
+const eventBus = new events.EventBus(stack, 'EventBus');
+const eventBridgeIntegration = new EventBridgeIntegration({
+  eventBus,
+  requestParameters: {
+    source: 'test',
+    detail: '$request.body.result',
+    detailType: '$request.body.description',
+    time: '$context.requestTimeEpoch',
+  }
+});
+
+const httpApi = new HttpApi(stack, 'EventBridgeProxyApi');
+
+httpApi.addRoutes({
+  path: '/put-events-on-my-event-bus',
+  methods: [ HttpMethod.PUT ],
+  integration: eventBridgeIntegration,
+});
+```
+
 
 ### Lambda
 

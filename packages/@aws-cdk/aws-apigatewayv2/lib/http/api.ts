@@ -283,13 +283,16 @@ abstract class HttpApiBase extends Resource implements IHttpApi { // note that t
     }
 
     const integration = new HttpIntegration(scope, `HttpIntegration-${configHash}`, {
+      connectionId: config.connectionId,
+      connectionType: config.connectionType,
+      credentialsArn: config.credentialsArn,
       httpApi: this,
+      integrationSubtype: config.integrationSubtype,
       integrationType: config.type,
       integrationUri: config.uri,
       method: config.method,
-      connectionId: config.connectionId,
-      connectionType: config.connectionType,
       payloadFormatVersion: config.payloadFormatVersion,
+      requestParameters: config.requestParameters,
     });
     this.httpIntegrations[configHash] = integration;
 

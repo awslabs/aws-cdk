@@ -1,7 +1,7 @@
 import { Resource } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnIntegration } from '../apigatewayv2.generated';
-import { IIntegration } from '../common';
+import { IIntegration, AwsServiceIntegrationSubtype } from '../common';
 import { IHttpApi } from './api';
 import { HttpMethod, IHttpRoute } from './route';
 
@@ -31,6 +31,11 @@ export enum HttpIntegrationType {
    * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
    */
   HTTP_PROXY = 'HTTP_PROXY',
+  /**
+   * Integration type is an AWS service
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-aws-services.html
+   */
+  AWS_PROXY = 'AWS_PROXY',
 }
 
 /**
@@ -88,11 +93,21 @@ export interface HttpIntegrationProps {
   readonly integrationType: HttpIntegrationType;
 
   /**
+   * Integration subtype
+   */
+  readonly integrationSubtype?: AwsServiceIntegrationSubtype;
+
+  /**
+   * Request parameters for integration
+   */
+  readonly requestParameters?: { [key: string]: any };
+
+  /**
    * Integration URI.
    * This will be the function ARN in the case of `HttpIntegrationType.LAMBDA_PROXY`,
    * or HTTP URL in the case of `HttpIntegrationType.HTTP_PROXY`.
    */
-  readonly integrationUri: string;
+  readonly integrationUri?: string;
 
   /**
    * The HTTP method to use when calling the underlying HTTP proxy
@@ -115,6 +130,13 @@ export interface HttpIntegrationProps {
   readonly connectionType?: HttpConnectionType;
 
   /**
+   * `AWS::ApiGatewayV2::Api.CredentialsArn`
+   *
+   * @see http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigatewayv2-api.html#cfn-apigatewayv2-api-credentialsarn
+   */
+  readonly credentialsArn?: string;
+
+  /**
    * The version of the payload format
    * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
    * @default - defaults to latest in the case of HttpIntegrationType.LAMBDA_PROXY`, irrelevant otherwise.
@@ -133,17 +155,56 @@ export class HttpIntegration extends Resource implements IHttpIntegration {
 
   constructor(scope: Construct, id: string, props: HttpIntegrationProps) {
     super(scope, id);
+
+    const { integrationType, integrationSubtype, requestParameters } = props;
+
+    if (integrationType === HttpIntegrationType.AWS_PROXY && integrationSubtype && !requestParameters) {
+      throw new Error('Must define request parameters for AWS service integration');
+    }
+
     const integ = new CfnIntegration(this, 'Resource', {
       apiId: props.httpApi.httpApiId,
-      integrationType: props.integrationType,
-      integrationUri: props.integrationUri,
-      integrationMethod: props.method,
       connectionId: props.connectionId,
       connectionType: props.connectionType,
+      credentialsArn: props.credentialsArn,
+      integrationMethod: props.method,
+      integrationType: props.integrationType,
+      integrationSubtype: props.integrationSubtype,
+      integrationUri: props.integrationUri,
       payloadFormatVersion: props.payloadFormatVersion?.version,
+      requestParameters: this.renderRequestParameters(props.integrationSubtype, props.requestParameters),
     });
     this.integrationId = integ.ref;
     this.httpApi = props.httpApi;
+  }
+
+  private renderRequestParameters(
+    integrationSubtype?: AwsServiceIntegrationSubtype,
+    requestParameters?: { [key: string]: any },
+  ): { [key: string]: any } | undefined {
+    if (!integrationSubtype && !requestParameters) {
+      return undefined;
+    }
+    if (!integrationSubtype) {
+      throw new Error('Not rendering request parameters for non-existent AWS service integration');
+    }
+    if (integrationSubtype && !requestParameters) {
+      throw new Error('Must define request parameters for AWS service integration');
+    }
+    switch (integrationSubtype) {
+      case AwsServiceIntegrationSubtype.EVENT_BRIDGE_PUT_EVENTS:
+        return {
+          Detail: requestParameters?.detail,
+          DetailType: requestParameters?.detailType,
+          EventBusName: requestParameters?.eventBusName,
+          Resources: requestParameters?.resources,
+          Region: requestParameters?.region,
+          Source: requestParameters?.source,
+          Time: requestParameters?.time,
+        };
+      default:
+        throw new Error(`Unknown integration subtype: ${integrationSubtype}`);
+    }
   }
 }
 
@@ -186,7 +247,7 @@ export interface HttpRouteIntegrationConfig {
   /**
    * Integration URI
    */
-  readonly uri: string;
+  readonly uri?: string;
 
   /**
    * The HTTP method that must be used to invoke the underlying proxy.
@@ -210,9 +271,26 @@ export interface HttpRouteIntegrationConfig {
   readonly connectionType?: HttpConnectionType;
 
   /**
+   * The type of the network connection to the integration endpoint
+   *
+   * @default HttpConnectionType.INTERNET
+   */
+  readonly credentialsArn?: string;
+
+  /**
    * Payload format version in the case of lambda proxy integration
    * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
    * @default - undefined
    */
   readonly payloadFormatVersion: PayloadFormatVersion;
+
+  /**
+   * Integration subtype
+   */
+  readonly integrationSubtype?: AwsServiceIntegrationSubtype;
+
+  /**
+   * Request parameters for integration
+   */
+  readonly requestParameters?: Record<string, any>;
 }
