@@ -748,7 +748,7 @@ const myLambda = new lambda.Function(this, 'my sample lambda', {
       body: 'hello, world!'
     };
   };`),
-  runtime: Runtime.NODEJS_12_X,
+  runtime: Runtime.NODEJS_14_X,
   handler: 'index.handler',
 });
 

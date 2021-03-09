@@ -237,7 +237,7 @@ import * as targets from '@aws-cdk/aws-events-targets';
 const evalComplianceFn = new lambda.Function(this, 'CustomFunction', {
   code: lambda.AssetCode.fromInline('exports.handler = (event) => console.log(event);'),
   handler: 'index.handler',
-  runtime: lambda.Runtime.NODEJS_12_X,
+  runtime: lambda.Runtime.NODEJS_14_X,
 });
 
 // A custom rule that runs on configuration changes of EC2 instances

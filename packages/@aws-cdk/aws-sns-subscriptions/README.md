@@ -78,7 +78,7 @@ import * as subscriptions from '@aws-cdk/aws-sns-subscriptions';
 
 const myFunction = new lambda.Function(this, 'Echo', {
   handler: 'index.handler',
-  runtime: lambda.Runtime.NODEJS_12_X,
+  runtime: lambda.Runtime.NODEJS_14_X,
   code: lambda.Code.fromInline(`exports.handler = ${handler.toString()}`)
 });
 

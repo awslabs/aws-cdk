@@ -89,7 +89,7 @@ The following code filters events for S3 from a specific AWS account and trigger
 ```ts
 const myFunctionHandler = new lambda.Function(this, 'MyFunction', {
   code: lambda.Code.fromAsset('resource/myfunction');
-  runtime: lambda.Runtime.NODEJS_12_X,
+  runtime: lambda.Runtime.NODEJS_14_X,
   handler: 'index.handler',
 });
 
@@ -175,7 +175,7 @@ configures logging of Lambda data events for a specific Function.
 ```ts
 const trail = new cloudtrail.Trail(this, 'MyAmazingCloudTrail');
 const amazingFunction = new lambda.Function(stack, 'AnAmazingFunction', {
-  runtime: lambda.Runtime.NODEJS_12_X,
+  runtime: lambda.Runtime.NODEJS_14_X,
   handler: "hello.handler",
   code: lambda.Code.fromAsset("lambda"),
 });

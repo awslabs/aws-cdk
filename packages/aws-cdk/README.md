@@ -207,7 +207,7 @@ Usage of output in a CDK stack
 const fn = new lambda.Function(this, "fn", {
   handler: "index.handler",
   code: lambda.Code.fromInline(`exports.handler = \${handler.toString()}`),
-  runtime: lambda.Runtime.NODEJS_12_X
+  runtime: lambda.Runtime.NODEJS_14_X
 });
 
 new cdk.CfnOutput(this, 'FunctionArn', {
