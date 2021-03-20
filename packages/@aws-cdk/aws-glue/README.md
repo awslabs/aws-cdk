@@ -273,3 +273,88 @@ new glue.Table(stack, 'MyTable', {
 | array(itemType: Type)               	| Function 	| An array of some other type                                       	|
 | map(keyType: Type, valueType: Type) 	| Function 	| A map of some primitive key type to any value type                	|
 | struct(collumns: Column[])          	| Function 	| Nested structure containing individually named and typed collumns 	|
+
+## View
+
+A Glue view describes a view that consists of an SQL statement and a column definition as used by a Table. A minimal view definition looks like this:
+
+```ts
+new glue.View(stack, "MyView", {
+  database: myDatabase,
+  tableName: "my_view",
+  columns: [{
+    name: "x",
+    type: glue.Schema.INTEGER
+  }],
+  statement: "SELECT 1 x"
+});
+```
+
+### Placeholders in statements
+
+A view's SQL statement may refer to resources like tables which you want to replace at deploy time. Take the following view as an example:
+
+```ts
+new glue.View(stack, "MyView", {
+  database: myDatabase,
+  tableName: "my_view",
+  columns: [{
+    name: "x",
+    type: glue.Schema.INTEGER
+  }],
+  statement: "SELECT x from table_a UNION SELECT x from table_b"
+});
+```
+
+Now imagine that the table names can't be hardcoded. You replace value in a view's SQL statement with the optional `placeHolders` property:
+
+```ts
+new glue.View(stack, "MyView", {
+  database: myDatabase,
+  tableName: "my_view",
+  columns: [{
+    name: "x",
+    type: glue.Schema.INTEGER
+  }],
+  statement: "SELECT x from ${table1} UNION SELECT x from ${table2}",
+  placeHolders: {
+    table1: table1.tableName,
+    table2: table2.tableName
+  }
+});
+```
+
+### View statements in external files
+
+A view's SQL statement can get large and complex. Then it's hard to author and validate within the CDK script. You can pull the SQL statement from an external file.
+
+Take the following example in a file named `myView.sql`:
+
+```sql
+SELECT x from ${table1}
+UNION 
+SELECT x from ${table2}
+```
+
+You can include the statement and replace the placeholders like this:
+
+```ts
+import * as fs from 'fs';
+import * as path from 'path';
+
+new glue.View(stack, "MyView", {
+  database: myDatabase,
+  tableName: "my_view",
+  columns: [{
+    name: "x",
+    type: glue.Schema.INTEGER
+  }],
+  statement: fs
+    .readFileSync(path.join(__dirname, 'myView.sql'))
+    .toString(),
+  placeHolders: {
+    table1: table1.tableName,
+    table2: table2.tableName,
+  },
+});
+```
