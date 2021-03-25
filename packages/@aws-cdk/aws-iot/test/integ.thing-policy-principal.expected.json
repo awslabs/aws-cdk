@@ -1,0 +1,80 @@
+{
+  "Resources": {
+    "MyThingCertificateC4014F8E": {
+      "Type": "AWS::IoT::Certificate",
+      "Properties": {
+        "Status": "INACTIVE",
+        "CertificateMode": "DEFAULT",
+        "CertificateSigningRequest": "-----BEGIN CERTIFICATE REQUEST-----\nMIICrTCCAZUCAQAwaDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAklMMRAwDgYDVQQH\nDAdDaGljYWdvMRUwEwYDVQQDDAxkdW1teS1kZXZpY2UxIzAhBgkqhkiG9w0BCQEW\nFG1lQGRhcnJlbmhvbGxhbmQuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\nCgKCAQEAmjJYlBrXBg6fDZStT30J8j0iMaDSYc1+RUa12ECbKDVYtjVH2rvG4oDF\n9Mz89C37wzvaNmKZZRNS/pVAspZr6EII68ZSuPe52USNo48rUGwtS9gvk61CP3Fo\nIAhiWpbi0F2waP6g+XZ/qFxOdqTKkEAhJ087ozSGsf7ZoHqB63OaapK8SNOB5bMf\nmf3o3rn0xLpBq50ujevaiJVIiJ9fR2ZBDb2O7VSZn6YQOHZhef7lLgQhrzuIXR/d\nieXyo/38nnFt+pLtfN7RUauZX0J1EDfBDcgicjP+Z5Fwz/PN7cwq1ZllNkVXSGb7\nMg82MSTCBiLd4O1MFWZGdkhblN8/RQIDAQABoAAwDQYJKoZIhvcNAQELBQADggEB\nADy/BLvx+twEsIO8izl5jkf3oNoCSs8FaU3Q9iy8zgVYMxLrNzcYlGxFLAZhfgMh\ncbCm9l0XcZDig6MLxVdu04hcIfunDRNpfYpbQGbTGanivf4UYz0sokrXK12Vy5yS\n3etMX8Eakd7fwiCLly8ulRGYvSKIcK/XQzv3Kz/AnK0JxCXyFhDuBHKwAsdH0ipv\nxcoCaNawiGQs2vG1m9CE+NZZ9gcvMAFNTT5wC2D/RpqO0cBdDDBAOwec1nAub8Jb\nTzX8iklDwVoWn16qSfOxzcCpHEytlZRwVBsmqNhlRDA8+Q/LByLC9/mDlOxwiF4V\n//xfxL6/JkoTKIHNUP7Hl6E=\n-----END CERTIFICATE REQUEST-----"
+      },
+      "DependsOn": [
+        "MyThingPolicyABA3B7A8"
+      ]
+    },
+    "MyThingCertificatePrincipalPolicyAttachmentD23C5737": {
+      "Type": "AWS::IoT::PolicyPrincipalAttachment",
+      "Properties": {
+        "PolicyName": "MyThingPolicyABA3B7A8",
+        "Principal": {
+          "Fn::GetAtt": [
+            "MyThingCertificateC4014F8E",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "MyThingPolicyABA3B7A8"
+      ]
+    },
+    "MyThing0C5333DD": {
+      "Type": "AWS::IoT::Thing"
+    },
+    "MyThingPolicyABA3B7A8": {
+      "Type": "AWS::IoT::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iot:Connect",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "iot:Receive",
+                "iot:Subscribe",
+                "iot:Publish"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":iot:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":topic/MyThing0C5333DD"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "MyThingPolicyABA3B7A8"
+      },
+      "DependsOn": [
+        "MyThing0C5333DD"
+      ]
+    }
+  }
+}
