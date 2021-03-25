@@ -1,0 +1,84 @@
+{
+  "Resources": {
+    "MyQueueE6CA6235": {
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "MyQueuePolicy6BBEDDAC": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "MyQueueE6CA6235",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Queues": [
+          {
+            "Ref": "MyQueueE6CA6235"
+          }
+        ]
+      }
+    },
+    "My84E10354": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "TopicRulePayload": {
+          "Actions": [
+            {
+              "Sqs": {
+                "QueueUrl": {
+                  "Ref": "MyQueueE6CA6235"
+                },
+                "RoleArn": {
+                  "Fn::GetAtt": [
+                    "MyAllowIotE8084C57",
+                    "Arn"
+                  ]
+                },
+                "UseBase64": false
+              }
+            }
+          ],
+          "AwsIotSqlVersion": "2015-10-08",
+          "RuleDisabled": false,
+          "Sql": "SELECT * FROM 'topic/subtopic'"
+        }
+      }
+    },
+    "MyAllowIotE8084C57": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    }
+  }
+}

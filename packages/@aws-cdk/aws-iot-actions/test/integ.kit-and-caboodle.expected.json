@@ -1,0 +1,239 @@
+{
+  "Resources": {
+    "ErrorTopicA0904A23": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "ErrorTopicPolicyA43559E4": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              },
+              "Resource": {
+                "Ref": "ErrorTopicA0904A23"
+              },
+              "Sid": "0"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Topics": [
+          {
+            "Ref": "ErrorTopicA0904A23"
+          }
+        ]
+      }
+    },
+    "MyNotifierTopicAllowIot154F3A47": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "DependsOn": [
+        "FunctionAllowIotD2ECA9CD"
+      ]
+    },
+    "MyNotifierTopicC60F4F3C": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "TopicRulePayload": {
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "Function76856677",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ],
+          "AwsIotSqlVersion": "2015-10-08",
+          "ErrorAction": {
+            "Sns": {
+              "MessageFormat": "RAW",
+              "RoleArn": {
+                "Fn::GetAtt": [
+                  "MyNotifierTopicAllowIot154F3A47",
+                  "Arn"
+                ]
+              },
+              "TargetArn": {
+                "Ref": "ErrorTopicA0904A23"
+              }
+            }
+          },
+          "RuleDisabled": false,
+          "Sql": "SELECT teapots FROM 'coffee/shop'"
+        }
+      },
+      "DependsOn": [
+        "FunctionAllowIotD2ECA9CD"
+      ]
+    },
+    "FunctionServiceRole675BB04A": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "Function76856677": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "boom"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "FunctionServiceRole675BB04A",
+            "Arn"
+          ]
+        },
+        "Handler": "index.handler",
+        "Runtime": "nodejs12.x"
+      },
+      "DependsOn": [
+        "FunctionServiceRole675BB04A"
+      ]
+    },
+    "FunctionAllowIotD2ECA9CD": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "Function76856677",
+            "Arn"
+          ]
+        },
+        "Principal": "iot.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        }
+      }
+    },
+    "MyWorkTopicE967237A": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "TopicRulePayload": {
+          "Actions": [
+            {
+              "Republish": {
+                "Qos": 0,
+                "RoleArn": {
+                  "Fn::GetAtt": [
+                    "MyWorkTopicAllowIot06B368E4",
+                    "Arn"
+                  ]
+                },
+                "Topic": "coffee/shop"
+              }
+            }
+          ],
+          "AwsIotSqlVersion": "2015-10-08",
+          "RuleDisabled": false,
+          "Sql": "SELECT * FROM 'inventory'"
+        }
+      }
+    },
+    "MyWorkTopicAllowIot06B368E4": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "MyWorkTopicAllowIotDefaultPolicy13C30DF0": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iot:Publish",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":iot:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":topic/coffee/shop"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "MyWorkTopicAllowIotDefaultPolicy13C30DF0",
+        "Roles": [
+          {
+            "Ref": "MyWorkTopicAllowIot06B368E4"
+          }
+        ]
+      }
+    }
+  }
+}

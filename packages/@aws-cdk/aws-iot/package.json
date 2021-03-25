@@ -73,23 +73,54 @@
   "devDependencies": {
     "@aws-cdk/assert": "0.0.0",
     "cdk-build-tools": "0.0.0",
+    "cdk-integ-tools": "0.0.0",
     "cfn2ts": "0.0.0",
-    "pkglint": "0.0.0"
+    "pkglint": "0.0.0",
+    "nodeunit-shim": "0.0.0"
   },
   "dependencies": {
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/aws-iam": "0.0.0",
     "constructs": "^3.2.0"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/aws-iam": "0.0.0",
     "constructs": "^3.2.0"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
+  "awslint": {
+    "exclude": [
+      "docs-public-apis:@aws-cdk/aws-iot.TopicRule.fromReceiptRuleName",
+      "docs-public-apis:@aws-cdk/aws-iot.TopicRule.renderActions",
+      "no-unused-type:@aws-cdk/aws-iot.TopicRuleAttributes",
+      "props-physical-name:@aws-cdk/aws-iot.TopicRuleProps",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionProperty.cloudwatchAlarm",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleAttributes.ruleName",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleAttributes.topicRuleArn",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.cloudwatchAlarm",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.cloudwatchAlarmMetric",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.dynamoDB",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.dynamoDBv2",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.elasticsearch",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.firehose",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.http",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.iotAnalytics",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.iotSiteWise",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.kinesis",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.lambda",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.republish",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.s3",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.sns",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.sqs",
+      "props-default-doc:@aws-cdk/aws-iot.TopicRuleActionConfig.stepFunctions"
+    ]
+  },
   "stability": "experimental",
-  "maturity": "cfn-only",
+  "maturity": "experimental",
   "awscdkio": {
     "announce": false
   },

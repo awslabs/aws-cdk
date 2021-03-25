@@ -1,0 +1,76 @@
+{
+  "Resources": {
+    "MyTopic86869434": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "MyTopicPolicy12A5EC17": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              },
+              "Resource": {
+                "Ref": "MyTopic86869434"
+              },
+              "Sid": "0"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Topics": [
+          {
+            "Ref": "MyTopic86869434"
+          }
+        ]
+      }
+    },
+    "My84E10354": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "TopicRulePayload": {
+          "Actions": [
+            {
+              "Sns": {
+                "MessageFormat": "RAW",
+                "RoleArn": {
+                  "Fn::GetAtt": [
+                    "MyAllowIotE8084C57",
+                    "Arn"
+                  ]
+                },
+                "TargetArn": {
+                  "Ref": "MyTopic86869434"
+                }
+              }
+            }
+          ],
+          "AwsIotSqlVersion": "2015-10-08",
+          "RuleDisabled": false,
+          "Sql": "SELECT * FROM 'topic/subtopic'"
+        }
+      }
+    },
+    "MyAllowIotE8084C57": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "iot.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    }
+  }
+}

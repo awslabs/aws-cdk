@@ -21,4 +21,10 @@
 
 <!--END STABILITY BANNER-->
 
-This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aws-cdk) project.
+This module contains integration classes to add actions to IoT Topic Rules.
+Instances of these classes should be passed to the `rule.addAction()` method.
+
+Currently supported are:
+  [Lambda](https://docs.aws.amazon.com/iot/latest/developerguide/lambda-rule-action.html)
+
+See the README of `@aws-cdk/aws-iot` for more information.
