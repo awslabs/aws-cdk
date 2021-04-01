@@ -18,10 +18,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('tooshort'),
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -63,10 +61,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('tooshort'),
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -90,10 +86,8 @@ describe('DatabaseCluster', () => {
         masterUser: {
           username: 'admin',
         },
-        instanceProps: {
-          vpc,
-          instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
-        },
+        vpc,
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
       });
     }).toThrowError('At least one instance is required');
   });
@@ -112,12 +106,10 @@ describe('DatabaseCluster', () => {
         masterUser: {
           username: 'admin',
         },
-        instanceProps: {
-          vpc,
-          instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
-          vpcSubnets: {
-            subnetType: ec2.SubnetType.PRIVATE,
-          },
+        vpc,
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PRIVATE,
         },
       });
     }).toThrowError('Cluster requires at least 2 subnets, got 1');
@@ -134,10 +126,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -163,11 +153,9 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('tooshort'),
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-        securityGroup: sg,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
+      securityGroup: sg,
     });
 
     // THEN
@@ -197,10 +185,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('tooshort'),
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
       parameterGroup: group,
     });
 
@@ -223,10 +209,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('tooshort'),
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
       parameterGroup: group,
     });
 
@@ -246,10 +230,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -300,10 +282,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
       kmsKey: new kms.Key(stack, 'Key'),
     });
 
@@ -329,10 +309,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -352,10 +330,8 @@ describe('DatabaseCluster', () => {
         masterUser: {
           username: 'admin',
         },
-        instanceProps: {
-          instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-          vpc,
-        },
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpc,
         kmsKey: new kms.Key(stack, 'Key'),
         storageEncrypted: false,
       });
@@ -375,10 +351,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
     });
 
     // THEN
@@ -396,10 +370,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
       instanceIdentifierBase,
     });
 
@@ -420,10 +392,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
       dbClusterName: clusterIdentifier,
     });
 
@@ -494,10 +464,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
       backup: {
         retention: cdk.Duration.days(20),
       },
@@ -519,10 +487,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
       backup: {
         retention: cdk.Duration.days(20),
         preferredWindow: '07:34-08:04',
@@ -546,10 +512,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
       preferredMaintenanceWindow: '07:34-08:04',
     });
 
@@ -567,10 +531,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
     });
 
     // WHEN
@@ -630,10 +592,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('secret'),
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
     });
 
     // WHEN
@@ -653,10 +613,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
     });
 
     // WHEN
@@ -677,10 +635,8 @@ describe('DatabaseCluster', () => {
       masterUser: {
         username: 'admin',
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
     });
     const userSecret = new DatabaseSecret(stack, 'UserSecret', {
       username: 'seconduser',
@@ -749,10 +705,8 @@ describe('DatabaseCluster', () => {
         username: 'admin',
         password: cdk.SecretValue.plainText('secret'),
       },
-      instanceProps: {
-        vpc,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
-      },
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.SMALL),
     });
     const userSecret = new DatabaseSecret(stack, 'UserSecret', {
       username: 'seconduser',

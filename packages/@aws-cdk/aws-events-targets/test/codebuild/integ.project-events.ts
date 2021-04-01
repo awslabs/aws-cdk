@@ -42,6 +42,8 @@ project.onPhaseChange('PhaseChange', {
 const onCommitRule = repo.onCommit('OnCommit', {
   target: new targets.CodeBuildProject(project, {
     deadLetterQueue: deadLetterQueue,
+    maxEventAge: cdk.Duration.hours(2),
+    retryAttempts: 2,
   }),
   branches: ['master'],
 });

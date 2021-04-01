@@ -660,22 +660,39 @@ export class UserPool extends UserPoolBase {
    * Import an existing user pool based on its id.
    */
   public static fromUserPoolId(scope: Construct, id: string, userPoolId: string): IUserPool {
-    class Import extends UserPoolBase {
-      public readonly userPoolId = userPoolId;
-      public readonly userPoolArn = Stack.of(this).formatArn({
-        service: 'cognito-idp',
-        resource: 'userpool',
-        resourceName: userPoolId,
-      });
-    }
-    return new Import(scope, id);
+    let userPoolArn = Stack.of(scope).formatArn({
+      service: 'cognito-idp',
+      resource: 'userpool',
+      resourceName: userPoolId,
+    });
+
+    return UserPool.fromUserPoolArn(scope, id, userPoolArn);
   }
 
   /**
    * Import an existing user pool based on its ARN.
    */
   public static fromUserPoolArn(scope: Construct, id: string, userPoolArn: string): IUserPool {
-    return UserPool.fromUserPoolId(scope, id, Stack.of(scope).parseArn(userPoolArn).resourceName!);
+    const arnParts = Stack.of(scope).parseArn(userPoolArn);
+
+    if (!arnParts.resourceName) {
+      throw new Error('invalid user pool ARN');
+    }
+
+    const userPoolId = arnParts.resourceName;
+
+    class ImportedUserPool extends UserPoolBase {
+      public readonly userPoolArn = userPoolArn;
+      public readonly userPoolId = userPoolId;
+      constructor() {
+        super(scope, id, {
+          account: arnParts.account,
+          region: arnParts.region,
+        });
+      }
+    }
+
+    return new ImportedUserPool();
   }
 
   /**

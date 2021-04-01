@@ -1,8 +1,6 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
 import * as kms from '@aws-cdk/aws-kms';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import { Duration, SecretValue } from '@aws-cdk/core';
-import { IClusterParameterGroup } from './parameter-group';
 
 /**
  * Backup configuration for DocumentDB databases
@@ -55,44 +53,6 @@ export interface Login {
    * @default default master key
    */
   readonly kmsKey?: kms.IKey;
-}
-
-/**
- * Instance properties for database instances
- */
-export interface InstanceProps {
-  /**
-   * What type of instance to start for the replicas
-   */
-  readonly instanceType: ec2.InstanceType;
-
-  /**
-   * What subnets to run the DocumentDB instances in.
-   *
-   * Must be at least 2 subnets in two different AZs.
-   */
-  readonly vpc: ec2.IVpc;
-
-  /**
-   * Where to place the instances within the VPC
-   *
-   * @default private subnets
-   */
-  readonly vpcSubnets?: ec2.SubnetSelection;
-
-  /**
-   * Security group.
-   *
-   * @default a new security group is created.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
-   * The DB parameter group to associate with the instance.
-   *
-   * @default no parameter group
-   */
-  readonly parameterGroup?: IClusterParameterGroup;
 }
 
 /**

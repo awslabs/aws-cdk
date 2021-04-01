@@ -91,7 +91,7 @@
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/aws-secretsmanager": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
@@ -104,7 +104,7 @@
     "@aws-cdk/aws-secretsmanager": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/aws-s3": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
@@ -134,7 +134,8 @@
       "docs-public-apis:@aws-cdk/aws-rds.SecretRotationApplication.MYSQL_ROTATION_SINGLE_USER",
       "docs-public-apis:@aws-cdk/aws-rds.SecretRotationApplication.MYSQL_ROTATION_MULTI_USER",
       "docs-public-apis:@aws-cdk/aws-rds.SecretRotationApplication.MARIADB_ROTATION_SINGLE_USER",
-      "docs-public-apis:@aws-cdk/aws-rds.SecretRotationApplication.MARIADB_ROTATION_MULTI_USER"
+      "docs-public-apis:@aws-cdk/aws-rds.SecretRotationApplication.MARIADB_ROTATION_MULTI_USER",
+      "resource-attribute:@aws-cdk/aws-rds.DatabaseProxy.dbProxyVpcId"
     ]
   },
   "stability": "stable",

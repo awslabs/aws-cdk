@@ -413,10 +413,16 @@ export class ConstructNode {
   }
 
   /**
+   * DEPRECATED
+   * @deprecated use `metadataEntry`
+   */
+  public get metadata() { return this._actualNode.metadata as cxapi.MetadataEntry[]; }
+
+  /**
    * An immutable array of metadata objects associated with this construct.
    * This can be used, for example, to implement support for deprecation notices, source mapping, etc.
    */
-  public get metadata() { return this._actualNode.metadata as cxapi.MetadataEntry[]; }
+  public get metadataEntry() { return this._actualNode.metadata; }
 
   /**
    * Adds a metadata entry to this construct.

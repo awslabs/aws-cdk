@@ -20,10 +20,8 @@ const cluster = new docdb.DatabaseCluster(stack, 'Database', {
   masterUser: {
     username: 'docdb',
   },
-  instanceProps: {
-    instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
-    vpc,
-  },
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
+  vpc,
   removalPolicy: cdk.RemovalPolicy.DESTROY,
 });
 

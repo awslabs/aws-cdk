@@ -66,6 +66,20 @@ export = {
     test.done();
   },
 
+  '--dns-cluster-ip'(test: Test) {
+    // GIVEN
+    const { asg, stack } = newFixtures();
+
+    // WHEN
+    const userData = stack.resolve(renderAmazonLinuxUserData('my-cluster-name', asg, {
+      dnsClusterIp: '192.0.2.53',
+    }));
+
+    // THEN
+    test.deepEqual(userData[1], '/etc/eks/bootstrap.sh my-cluster-name --kubelet-extra-args "--node-labels lifecycle=OnDemand" --use-max-pods true --dns-cluster-ip 192.0.2.53');
+    test.done();
+  },
+
   '--docker-config-json'(test: Test) {
     // GIVEN
     const { asg } = newFixtures();

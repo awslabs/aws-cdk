@@ -286,31 +286,39 @@ function parseToken(arnToken: string, sep: string = '/', hasName: boolean = true
  * Validate that a string is either unparseable or looks mostly like an ARN
  */
 function parseArnShape(arn: string): 'token' | string[] {
-  const components = arn.split(':');
-  const looksLikeArn = arn.startsWith('arn:') && components.length >= 6;
+  // assume anything that starts with 'arn:' is an ARN,
+  // so we can report better errors
+  const looksLikeArn = arn.startsWith('arn:');
 
   if (!looksLikeArn) {
-    if (Token.isUnresolved(arn)) { return 'token'; }
-    throw new Error(`ARNs must start with "arn:" and have at least 6 components: ${arn}`);
+    if (Token.isUnresolved(arn)) {
+      return 'token';
+    } else {
+      throw new Error(`ARNs must start with "arn:" and have at least 6 components: ${arn}`);
+    }
   }
 
   // If the ARN merely contains Tokens, but otherwise *looks* mostly like an ARN,
-  // it's a string of the form 'arn:${partition}:service:${region}:${account}:abc/xyz'.
+  // it's a string of the form 'arn:${partition}:service:${region}:${account}:resource/xyz'.
   // Parse fields out to the best of our ability.
   // Tokens won't contain ":", so this won't break them.
+  const components = arn.split(':');
 
-  const [/* arn */, partition, service, /* region */ , /* account */ , resource] = components;
+  // const [/* arn */, partition, service, /* region */ , /* account */ , resource] = components;
 
+  const partition = components.length > 1 ? components[1] : undefined;
   if (!partition) {
-    throw new Error('The `partition` component (2nd component) is required: ' + arn);
+    throw new Error('The `partition` component (2nd component) of an ARN is required: ' + arn);
   }
 
+  const service = components.length > 2 ? components[2] : undefined;
   if (!service) {
-    throw new Error('The `service` component (3rd component) is required: ' + arn);
+    throw new Error('The `service` component (3rd component) of an ARN is required: ' + arn);
   }
 
+  const resource = components.length > 5 ? components[5] : undefined;
   if (!resource) {
-    throw new Error('The `resource` component (6th component) is required: ' + arn);
+    throw new Error('The `resource` component (6th component) of an ARN is required: ' + arn);
   }
 
   // Region can be missing in global ARNs (such as used by IAM)

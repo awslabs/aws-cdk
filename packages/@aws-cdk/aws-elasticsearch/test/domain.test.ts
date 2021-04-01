@@ -3,7 +3,7 @@ import '@aws-cdk/assert/jest';
 import * as assert from '@aws-cdk/assert';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import { Metric, Statistic } from '@aws-cdk/aws-cloudwatch';
-import { Subnet, Vpc, EbsDeviceVolumeType } from '@aws-cdk/aws-ec2';
+import { Vpc, EbsDeviceVolumeType, SecurityGroup } from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as logs from '@aws-cdk/aws-logs';
@@ -29,6 +29,84 @@ const readWriteActions = [
   ...readActions,
   ...writeActions,
 ];
+
+test('connections throws if domain is placed inside a vpc', () => {
+
+  expect(() => {
+    new Domain(stack, 'Domain', {
+      version: ElasticsearchVersion.V7_1,
+    }).connections;
+  }).toThrowError("Connections are only available on VPC enabled domains. Use the 'vpc' property to place a domain inside a VPC");
+});
+
+test('subnets and security groups can be provided when vpc is used', () => {
+
+  const vpc = new Vpc(stack, 'Vpc');
+  const securityGroup = new SecurityGroup(stack, 'CustomSecurityGroup', {
+    vpc,
+  });
+  const domain = new Domain(stack, 'Domain', {
+    version: ElasticsearchVersion.V7_9,
+    vpc,
+    vpcSubnets: [{ subnets: [vpc.privateSubnets[0]] }],
+    securityGroups: [securityGroup],
+  });
+
+  expect(domain.connections.securityGroups[0].securityGroupId).toEqual(securityGroup.securityGroupId);
+  expect(stack).toHaveResource('AWS::Elasticsearch::Domain', {
+    VPCOptions: {
+      SecurityGroupIds: [
+        {
+          'Fn::GetAtt': [
+            'CustomSecurityGroupE5E500E5',
+            'GroupId',
+          ],
+        },
+      ],
+      SubnetIds: [
+        {
+          Ref: 'VpcPrivateSubnet1Subnet536B997A',
+        },
+      ],
+    },
+  });
+
+});
+
+test('default subnets and security group when vpc is used', () => {
+
+  const vpc = new Vpc(stack, 'Vpc');
+  const domain = new Domain(stack, 'Domain', {
+    version: ElasticsearchVersion.V7_9,
+    vpc,
+  });
+
+  expect(stack.resolve(domain.connections.securityGroups[0].securityGroupId)).toEqual({ 'Fn::GetAtt': ['DomainSecurityGroup48AA5FD6', 'GroupId'] });
+  expect(stack).toHaveResource('AWS::Elasticsearch::Domain', {
+    VPCOptions: {
+      SecurityGroupIds: [
+        {
+          'Fn::GetAtt': [
+            'DomainSecurityGroup48AA5FD6',
+            'GroupId',
+          ],
+        },
+      ],
+      SubnetIds: [
+        {
+          Ref: 'VpcPrivateSubnet1Subnet536B997A',
+        },
+        {
+          Ref: 'VpcPrivateSubnet2Subnet3788AAA1',
+        },
+        {
+          Ref: 'VpcPrivateSubnet3SubnetF258B56E',
+        },
+      ],
+    },
+  });
+
+});
 
 test('default removalpolicy is retain', () => {
   new Domain(stack, 'Domain', {
@@ -709,8 +787,8 @@ describe('metrics', () => {
 
   test('Can use metricClusterIndexWriteBlocked on an Elasticsearch Domain', () => {
     testMetric(
-      (domain) => domain.metricClusterIndexWriteBlocked(),
-      'ClusterIndexWriteBlocked',
+      (domain) => domain.metricClusterIndexWritesBlocked(),
+      'ClusterIndexWritesBlocked',
       Statistic.MAXIMUM,
       Duration.minutes(1),
     );
@@ -1150,7 +1228,9 @@ describe('custom endpoints', () => {
 describe('custom error responses', () => {
 
   test('error when availabilityZoneCount does not match vpcOptions.subnets length', () => {
-    const vpc = new Vpc(stack, 'Vpc');
+    const vpc = new Vpc(stack, 'Vpc', {
+      maxAzs: 1,
+    });
 
     expect(() => new Domain(stack, 'Domain', {
       version: ElasticsearchVersion.V7_4,
@@ -1158,16 +1238,7 @@ describe('custom error responses', () => {
         enabled: true,
         availabilityZoneCount: 2,
       },
-      vpcOptions: {
-        subnets: [
-          new Subnet(stack, 'Subnet', {
-            availabilityZone: 'testaz',
-            cidrBlock: vpc.vpcCidrBlock,
-            vpcId: vpc.vpcId,
-          }),
-        ],
-        securityGroups: [],
-      },
+      vpc,
     })).toThrow(/you need to provide a subnet for each AZ you are using/);
   });
 
@@ -1357,31 +1428,7 @@ describe('custom error responses', () => {
 
     expect(() => new Domain(stack, 'Domain1', {
       version: ElasticsearchVersion.V7_4,
-      vpcOptions: {
-        subnets: [
-          new Subnet(stack, 'Subnet1', {
-            availabilityZone: 'testaz1',
-            cidrBlock: vpc.vpcCidrBlock,
-            vpcId: vpc.vpcId,
-          }),
-          new Subnet(stack, 'Subnet2', {
-            availabilityZone: 'testaz2',
-            cidrBlock: vpc.vpcCidrBlock,
-            vpcId: vpc.vpcId,
-          }),
-          new Subnet(stack, 'Subnet3', {
-            availabilityZone: 'testaz3',
-            cidrBlock: vpc.vpcCidrBlock,
-            vpcId: vpc.vpcId,
-          }),
-          new Subnet(stack, 'Subnet4', {
-            availabilityZone: 'testaz4',
-            cidrBlock: vpc.vpcCidrBlock,
-            vpcId: vpc.vpcId,
-          }),
-        ],
-        securityGroups: [],
-      },
+      vpc,
       zoneAwareness: {
         availabilityZoneCount: 4,
       },

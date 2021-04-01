@@ -337,6 +337,11 @@
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete"
     },
+    "dlq09C78ACC": {
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
     "Timer30894E3BB": {
       "Type": "AWS::Events::Rule",
       "Properties": {
@@ -364,7 +369,19 @@
                 ]
               ]
             },
-            "Id": "Target0"
+            "DeadLetterConfig": {
+              "Arn": {
+                "Fn::GetAtt": [
+                  "dlq09C78ACC",
+                  "Arn"
+                ]
+              }
+            },
+            "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 7200,
+              "MaximumRetryAttempts": 2
+            }
           }
         ]
       }

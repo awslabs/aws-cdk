@@ -175,7 +175,7 @@ export interface FunctionAttributes {
   readonly sameEnvironment?: boolean;
 }
 
-export abstract class FunctionBase extends Resource implements IFunction {
+export abstract class FunctionBase extends Resource implements IFunction, ec2.IClientVpnConnectionHandler {
   /**
    * The principal this Lambda Function is running as
    */

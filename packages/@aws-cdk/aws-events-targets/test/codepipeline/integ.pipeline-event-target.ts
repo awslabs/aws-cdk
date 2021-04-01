@@ -1,6 +1,7 @@
 import * as codecommit from '@aws-cdk/aws-codecommit';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as events from '@aws-cdk/aws-events';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
 import * as constructs from 'constructs';
 import * as targets from '../../lib';
@@ -64,9 +65,15 @@ pipeline.addStage({
   })],
 });
 
+let queue = new sqs.Queue(stack, 'dlq');
+
 new events.Rule(stack, 'rule', {
   schedule: events.Schedule.expression('rate(1 minute)'),
-  targets: [new targets.CodePipeline(pipeline)],
+  targets: [new targets.CodePipeline(pipeline, {
+    deadLetterQueue: queue,
+    maxEventAge: cdk.Duration.hours(2),
+    retryAttempts: 2,
+  })],
 });
 
 app.synth();

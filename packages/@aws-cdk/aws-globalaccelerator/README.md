@@ -5,17 +5,7 @@
 
 ![cfn-resources: Stable](https://img.shields.io/badge/cfn--resources-stable-success.svg?style=for-the-badge)
 
-> All classes with the `Cfn` prefix in this module ([CFN Resources]) are always stable and safe to use.
->
-> [CFN Resources]: https://docs.aws.amazon.com/cdk/latest/guide/constructs.html#constructs_lib
-
-![cdk-constructs: Experimental](https://img.shields.io/badge/cdk--constructs-experimental-important.svg?style=for-the-badge)
-
-> The APIs of higher level constructs in this module are experimental and under active development.
-> They are subject to non-backward compatible changes or removal in any future version. These are
-> not subject to the [Semantic Versioning](https://semver.org/) model and breaking changes will be
-> announced in the release notes. This means that while you may use them, you may need to update
-> your source code when upgrading to a newer version of this package.
+![cdk-constructs: Stable](https://img.shields.io/badge/cdk--constructs-stable-success.svg?style=for-the-badge)
 
 ---
 
@@ -23,115 +13,178 @@
 
 ## Introduction
 
-AWS Global Accelerator (AGA) is a service that improves the availability and performance of your applications with local or global users. It provides static IP addresses that act as a fixed entry point to your application endpoints in a single or multiple AWS Regions, such as your Application Load Balancers, Network Load Balancers or Amazon EC2 instances.
+AWS Global Accelerator (AGA) is a service that improves the availability and
+performance of your applications with local or global users.
 
-This module supports features under [AWS Global Accelerator](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_GlobalAccelerator.html) that allows users set up resources using the `@aws-cdk/aws-globalaccelerator` module.
+It intercepts your user's network connection at an edge location close to
+them, and routes it to one of potentially multiple, redundant backends across
+the more reliable and less congested AWS global network.
 
-## Accelerator
+AGA can be used to route traffic to Application Load Balancers, Network Load
+Balancers, EC2 Instances and Elastic IP Addresses.
 
-The `Accelerator` resource is a Global Accelerator resource type that contains information about how you create an accelerator. An accelerator includes one or more listeners that process inbound connections and direct traffic to one or more endpoint groups, each of which includes endpoints, such as Application Load Balancers, Network Load Balancers, and Amazon EC2 instances.
+For more information, see the [AWS Global
+Accelerator Developer Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_GlobalAccelerator.html).
 
-To create the `Accelerator`:
+## Example
+
+Here's an example that sets up a Global Accelerator for two Application Load
+Balancers in two different AWS Regions:
 
 ```ts
 import globalaccelerator = require('@aws-cdk/aws-globalaccelerator');
+import ga_endpoints = require('@aws-cdk/aws-globalaccelerator-endpoints');
+import elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2');
 
-new globalaccelerator.Accelerator(stack, 'Accelerator');
+// Create an Accelerator
+const accelerator = new globalaccelerator.Accelerator(stack, 'Accelerator');
 
+// Create a Listener
+const listener = accelerator.addListener('Listener', {
+  portRanges: [
+    { fromPort: 80 },
+    { fromPort: 443 },
+  ],
+});
+
+// Import the Load Balancers
+const nlb1 = elbv2.NetworkLoadBalancer.fromNetworkLoadBalancerAttributes(stack, 'NLB1', {
+  loadBalancerArn: 'arn:aws:elasticloadbalancing:us-west-2:111111111111:loadbalancer/app/my-load-balancer1/e16bef66805b',
+});
+const nlb2 = elbv2.NetworkLoadBalancer.fromNetworkLoadBalancerAttributes(stack, 'NLB2', {
+  loadBalancerArn: 'arn:aws:elasticloadbalancing:ap-south-1:111111111111:loadbalancer/app/my-load-balancer2/5513dc2ea8a1',
+});
+
+// Add one EndpointGroup for each Region we are targeting
+listener.addEndpointGroup('Group1', {
+  endpoints: [new ga_endpoints.NetworkLoadBalancerEndpoint(nlb1)],
+});
+listener.addEndpointGroup('Group2', {
+  // Imported load balancers automatically calculate their Region from the ARN.
+  // If you are load balancing to other resources, you must also pass a `region`
+  // parameter here.
+  endpoints: [new ga_endpoints.NetworkLoadBalancerEndpoint(nlb2)],
+});
 ```
 
-## Listener
+## Concepts
 
-The `Listener` resource is a Global Accelerator resource type that contains information about how you create a listener to process inbound connections from clients to an accelerator. Connections arrive to assigned static IP addresses on a port, port range, or list of port ranges that you specify.
+The **Accelerator** construct defines a Global Accelerator resource.
 
-To create the `Listener` listening on TCP 80:
+An Accelerator includes one or more **Listeners** that accepts inbound
+connections on one or more ports.
+
+Each Listener has one or more **Endpoint Groups**, representing multiple
+geographically distributed copies of your application. There is one Endpoint
+Group per Region, and user traffic is routed to the closest Region by default.
+
+An Endpoint Group consists of one or more **Endpoints**, which is where the
+user traffic coming in on the Listener is ultimately sent. The Endpoint port
+used is the same as the traffic came in on at the Listener, unless overridden.
+
+## Types of Endpoints
+
+There are 4 types of Endpoints, and they can be found in the
+`@aws-cdk/aws-globalaccelerator-endpoints` package:
+
+* Application Load Balancers
+* Network Load Balancers
+* EC2 Instances
+* Elastic IP Addresses
+
+### Application Load Balancers
 
 ```ts
-new globalaccelerator.Listener(stack, 'Listener', {
-  accelerator,
-  portRanges: [
-    {
-      fromPort: 80,
-      toPort: 80,
-    },
+const alb = new elbv2.ApplicationLoadBalancer(...);
+
+listener.addEndpointGroup('Group', {
+  endpoints: [
+    new ga_endpoints.ApplicationLoadBalancerEndpoint(alb, {
+      weight: 128,
+      preserveClientIp: true,
+    }),
   ],
 });
 ```
 
-
-## EndpointGroup
-
-The `EndpointGroup` resource is a Global Accelerator resource type that contains information about how you create an endpoint group for the specified listener. An endpoint group is a collection of endpoints in one AWS Region.
-
-To create the `EndpointGroup`:
+### Network Load Balancers
 
 ```ts
-new globalaccelerator.EndpointGroup(stack, 'Group', { listener });
+const nlb = new elbv2.NetworkLoadBalancer(...);
 
-```
-
-## Add Endpoint into EndpointGroup
-
-You may use the following methods to add endpoints into the `EndpointGroup`:
-
-- `addEndpoint` to add a generic `endpoint` into the `EndpointGroup`.
-- `addLoadBalancer` to add an Application Load Balancer or Network Load Balancer.
-- `addEc2Instance` to add an EC2 Instance.
-- `addElasticIpAddress` to add an Elastic IP Address.
-
-
-```ts
-const endpointGroup = new globalaccelerator.EndpointGroup(stack, 'Group', { listener });
-const alb = new elbv2.ApplicationLoadBalancer(stack, 'ALB', { vpc, internetFacing: true  });
-const nlb = new elbv2.NetworkLoadBalancer(stack, 'NLB', { vpc, internetFacing: true });
-const eip = new ec2.CfnEIP(stack, 'ElasticIpAddress');
-const instances = new Array<ec2.Instance>();
-
-for ( let i = 0; i < 2; i++) {
-  instances.push(new ec2.Instance(stack, `Instance${i}`, {
-    vpc,
-    machineImage: new ec2.AmazonLinuxImage(),
-    instanceType: new ec2.InstanceType('t3.small'),
-  }));
-}
-
-endpointGroup.addLoadBalancer('AlbEndpoint', alb);
-endpointGroup.addLoadBalancer('NlbEndpoint', nlb);
-endpointGroup.addElasticIpAddress('EipEndpoint', eip);
-endpointGroup.addEc2Instance('InstanceEndpoint', instances[0]);
-endpointGroup.addEndpoint('InstanceEndpoint2', instances[1].instanceId);
-```
-
-## Accelerator Security Groups
-
-When using certain AGA features (client IP address preservation), AGA creates elastic network interfaces (ENI) in your AWS account which are
-associated with a Security Group, and which are reused for all AGAs associated with that VPC. Per the
-[best practices](https://docs.aws.amazon.com/global-accelerator/latest/dg/best-practices-aga.html) page, AGA creates a specific security group
-called `GlobalAccelerator` for each VPC it has an ENI in. You can use the security group created by AGA as a source group in other security
-groups, such as those for EC2 instances or Elastic Load Balancers, in order to implement least-privilege security group rules.
-
-CloudFormation doesn't support referencing the security group created by AGA. CDK has a library that enables you to reference the AGA security group
-for a VPC using an AwsCustomResource.
-
-```ts
-const vpc = new Vpc(stack, 'VPC', {});
-const alb = new elbv2.ApplicationLoadBalancer(stack, 'ALB', { vpc, internetFacing: false  });
-const accelerator = new ga.Accelerator(stack, 'Accelerator');
-const listener = new ga.Listener(stack, 'Listener', {
-  accelerator,
-  portRanges: [
-    {
-      fromPort: 443,
-      toPort: 443,
-    },
+listener.addEndpointGroup('Group', {
+  endpoints: [
+    new ga_endpoints.NetworkLoadBalancerEndpoint(nlb, {
+      weight: 128,
+    }),
   ],
 });
-const endpointGroup = new ga.EndpointGroup(stack, 'Group', { listener });
-endpointGroup.addLoadBalancer('AlbEndpoint', alb);
+```
+
+### EC2 Instances
+
+```ts
+const instance = new ec2.instance(...);
+
+listener.addEndpointGroup('Group', {
+  endpoints: [
+    new ga_endpoints.InstanceEndpoint(instance, {
+      weight: 128,
+      preserveClientIp: true,
+    }),
+  ],
+});
+```
+
+### Elastic IP Addresses
+
+```ts
+const eip = new ec2.CfnEIP(...);
+
+listener.addEndpointGroup('Group', {
+  endpoints: [
+    new ga_endpoints.CfnEipEndpoint(eip, {
+      weight: 128,
+    }),
+  ],
+});
+```
+
+## Client IP Address Preservation and Security Groups
+
+When using the `preserveClientIp` feature, AGA creates
+**Elastic Network Interfaces** (ENIs) in your AWS account, that are
+associated with a Security Group AGA creates for you. You can use the
+security group created by AGA as a source group in other security groups
+(such as those for EC2 instances or Elastic Load Balancers), if you want to
+restrict incoming traffic to the AGA security group rules.
+
+AGA creates a specific security group called `GlobalAccelerator` for each VPC
+it has an ENI in (this behavior can not be changed). CloudFormation doesn't
+support referencing the security group created by AGA, but this construct
+library comes with a custom resource that enables you to reference the AGA
+security group.
+
+Call `endpointGroup.connectionsPeer()` to obtain a reference to the Security Group
+which you can use in connection rules. You must pass a reference to the VPC in whose
+context the security group will be looked up. Example:
+
+```ts
+// ...
+
+// Non-open ALB
+const alb = new elbv2.ApplicationLoadBalancer(stack, 'ALB', { /* ... */ });
+
+const endpointGroup = listener.addEndpointGroup('Group', {
+  endpoints: [
+    new ga_endpoints.ApplicationLoadBalancerEndpoint(alb, {
+      preserveClientIps: true,
+    })],
+  ],
+});
 
 // Remember that there is only one AGA security group per VPC.
-// This code will fail at CloudFormation deployment time if you do not have an AGA
-const agaSg = ga.AcceleratorSecurityGroup.fromVpc(stack, 'GlobalAcceleratorSG', vpc);
+const agaSg = endpointGroup.connectionsPeer('GlobalAcceleratorSG', vpc);
 
 // Allow connections from the AGA to the ALB
 alb.connections.allowFrom(agaSg, Port.tcp(443));

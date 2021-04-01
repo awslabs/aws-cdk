@@ -24,13 +24,12 @@ export class EventBus implements events.IRuleTarget {
     this.role = props.role;
   }
 
-  bind(rule: events.IRule, id?: string): events.RuleTargetConfig {
+  bind(rule: events.IRule, _id?: string): events.RuleTargetConfig {
     if (this.role) {
       this.role.addToPrincipalPolicy(this.putEventStatement());
     }
     const role = this.role ?? singletonEventRole(rule, [this.putEventStatement()]);
     return {
-      id: id ?? '',
       arn: this.eventBus.eventBusArn,
       role,
     };

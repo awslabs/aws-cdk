@@ -3,7 +3,7 @@ import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import {
-  Aws, CfnCondition, CfnCustomResource, CustomResource, Duration,
+  Aws, CfnCondition, CfnCustomResource, CfnResource, CustomResource, Duration,
   Fn, IResource, Lazy, Names, RemovalPolicy, Resource, Stack, Token,
 } from '@aws-cdk/core';
 import { Construct } from 'constructs';
@@ -1477,7 +1477,8 @@ export class Table extends TableBase {
     this.grant(onEventHandlerPolicy, 'dynamodb:*');
     this.grant(isCompleteHandlerPolicy, 'dynamodb:DescribeTable');
 
-    let previousRegion;
+    let previousRegion: CustomResource | undefined;
+    let previousRegionCondition: CfnCondition | undefined;
     for (const region of new Set(regions)) { // Remove duplicates
       // Use multiple custom resources because multiple create/delete
       // updates cannot be combined in a single API call.
@@ -1498,8 +1499,9 @@ export class Table extends TableBase {
       // Deploy time check to prevent from creating a replica in the region
       // where this stack is deployed. Only needed for environment agnostic
       // stacks.
+      let createReplica: CfnCondition | undefined;
       if (Token.isUnresolved(stack.region)) {
-        const createReplica = new CfnCondition(this, `StackRegionNotEquals${region}`, {
+        createReplica = new CfnCondition(this, `StackRegionNotEquals${region}`, {
           expression: Fn.conditionNot(Fn.conditionEquals(region, Aws.REGION)),
         });
         const cfnCustomResource = currentRegion.node.defaultChild as CfnCustomResource;
@@ -1518,9 +1520,22 @@ export class Table extends TableBase {
       // have multiple table updates at the same time. The `isCompleteHandler`
       // of the provider waits until the replica is in an ACTIVE state.
       if (previousRegion) {
-        currentRegion.node.addDependency(previousRegion);
+        if (previousRegionCondition) {
+          // we can't simply use a Dependency,
+          // because the previousRegion is protected by the "different region" Condition,
+          // and you can't have Fn::If in DependsOn.
+          // Instead, rely on Ref adding a dependency implicitly!
+          const previousRegionCfnResource = previousRegion.node.defaultChild as CfnResource;
+          const currentRegionCfnResource = currentRegion.node.defaultChild as CfnResource;
+          currentRegionCfnResource.addMetadata('DynamoDbReplicationDependency',
+            Fn.conditionIf(previousRegionCondition.logicalId, previousRegionCfnResource.ref, Aws.NO_VALUE));
+        } else {
+          currentRegion.node.addDependency(previousRegion);
+        }
       }
+
       previousRegion = currentRegion;
+      previousRegionCondition = createReplica;
     }
 
     // Permissions in the destination regions (outside of the loop to

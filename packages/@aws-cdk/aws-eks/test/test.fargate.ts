@@ -1,9 +1,11 @@
 import { expect, haveResource, haveResourceLike, ResourcePart } from '@aws-cdk/assert';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
+import * as kms from '@aws-cdk/aws-kms';
 import { Stack, Tags } from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import * as eks from '../lib';
+
 
 const CLUSTER_VERSION = eks.KubernetesVersion.V1_19;
 
@@ -423,6 +425,36 @@ export = {
             },
           },
         ],
+      },
+    }));
+    test.done();
+  },
+
+  'supports passing secretsEncryptionKey with FargateCluster'(test: Test) {
+    // GIVEN
+    const stack = new Stack();
+
+    // WHEN
+
+    new eks.FargateCluster(stack, 'FargateCluster', {
+      version: CLUSTER_VERSION,
+      secretsEncryptionKey: new kms.Key(stack, 'Key'),
+    });
+
+    // THEN
+    expect(stack).to(haveResourceLike('Custom::AWSCDK-EKS-Cluster', {
+      Config: {
+        encryptionConfig: [{
+          provider: {
+            keyArn: {
+              'Fn::GetAtt': [
+                'Key961B73FD',
+                'Arn',
+              ],
+            },
+          },
+          resources: ['secrets'],
+        }],
       },
     }));
     test.done();

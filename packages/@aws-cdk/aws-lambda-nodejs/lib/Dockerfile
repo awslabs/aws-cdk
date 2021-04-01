@@ -1,6 +1,6 @@
 # The correct AWS SAM build image based on the runtime of the function will be
 # passed as build arg. The default allows to do `docker build .` when testing.
-ARG IMAGE=amazon/aws-sam-cli-build-image-nodejs12.x
+ARG IMAGE=public.ecr.aws/sam/build-nodejs12.x
 FROM $IMAGE
 
 # Install yarn

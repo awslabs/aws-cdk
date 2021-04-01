@@ -27,6 +27,10 @@ export function renderAmazonLinuxUserData(clusterName: string, autoScalingGroup:
     extraArgs.push(`--docker-config-json '${options.dockerConfigJson}'`);
   }
 
+  if (options.dnsClusterIp) {
+    extraArgs.push(`--dns-cluster-ip ${options.dnsClusterIp}`);
+  }
+
   if (options.additionalArgs) {
     extraArgs.push(options.additionalArgs);
   }

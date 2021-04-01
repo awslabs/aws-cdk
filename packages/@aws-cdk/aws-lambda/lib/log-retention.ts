@@ -3,8 +3,6 @@ import { Construct } from 'constructs';
 
 /**
  * Retry options for all AWS API calls.
- *
- * @deprecated use `LogRetentionRetryOptions` from '@aws-cdk/aws-logs' instead
  */
 export interface LogRetentionRetryOptions extends logs.LogRetentionRetryOptions {
 }

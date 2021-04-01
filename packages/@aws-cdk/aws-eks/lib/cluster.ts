@@ -467,6 +467,15 @@ export interface ClusterOptions extends CommonClusterOptions {
    * @default false
    */
   readonly placeClusterHandlerInVpc?: boolean;
+
+  /**
+   * KMS secret for envelope encryption for Kubernetes secrets.
+   *
+   * @default - By default, Kubernetes stores all secret object data within etcd and
+   *            all etcd volumes used by Amazon EKS are encrypted at the disk-level
+   *            using AWS-Managed encryption keys.
+   */
+  readonly secretsEncryptionKey?: kms.IKey;
 }
 
 /**
@@ -594,15 +603,6 @@ export interface ClusterProps extends ClusterOptions {
    * @default NODEGROUP
    */
   readonly defaultCapacityType?: DefaultCapacityType;
-
-  /**
-   * KMS secret for envelope encryption for Kubernetes secrets.
-   *
-   * @default - By default, Kubernetes stores all secret object data within etcd and
-   *            all etcd volumes used by Amazon EKS are encrypted at the disk-level
-   *            using AWS-Managed encryption keys.
-   */
-  readonly secretsEncryptionKey?: kms.IKey;
 }
 
 /**
@@ -983,8 +983,8 @@ export class Cluster extends ClusterBase {
     const privateSubents = this.selectPrivateSubnets().slice(0, 16);
     const publicAccessDisabled = !this.endpointAccess._config.publicAccess;
     const publicAccessRestricted = !publicAccessDisabled
-        && this.endpointAccess._config.publicCidrs
-        && this.endpointAccess._config.publicCidrs.length !== 0;
+      && this.endpointAccess._config.publicCidrs
+      && this.endpointAccess._config.publicCidrs.length !== 0;
 
     // validate endpoint access configuration
 
@@ -1020,7 +1020,7 @@ export class Cluster extends ClusterBase {
           },
           resources: ['secrets'],
         }],
-      } : {} ),
+      } : {}),
       endpointPrivateAccess: this.endpointAccess._config.privateAccess,
       endpointPublicAccess: this.endpointAccess._config.publicAccess,
       publicAccessCidrs: this.endpointAccess._config.publicCidrs,
@@ -1167,7 +1167,7 @@ export class Cluster extends ClusterBase {
    * [EC2 Spot Instance Termination Notices](https://aws.amazon.com/blogs/aws/new-ec2-spot-instance-termination-notices/).
    */
   public addAutoScalingGroupCapacity(id: string, options: AutoScalingGroupCapacityOptions): autoscaling.AutoScalingGroup {
-    if (options.machineImageType === MachineImageType.BOTTLEROCKET && options.bootstrapOptions !== undefined ) {
+    if (options.machineImageType === MachineImageType.BOTTLEROCKET && options.bootstrapOptions !== undefined) {
       throw new Error('bootstrapOptions is not supported for Bottlerocket');
     }
     const asg = new autoscaling.AutoScalingGroup(this, id, {
@@ -1638,6 +1638,16 @@ export interface BootstrapOptions {
   readonly dockerConfigJson?: string;
 
   /**
+
+   * Overrides the IP address to use for DNS queries within the
+   * cluster.
+   *
+   * @default - 10.100.0.10 or 172.20.0.10 based on the IP
+   * address of the primary interface.
+   */
+  readonly dnsClusterIp?: string;
+
+  /**
    * Extra arguments to add to the kubelet. Useful for adding labels or taints.
    *
    * @example --node-labels foo=bar,goo=far
@@ -1842,9 +1852,9 @@ export class EksOptimizedImage implements ec2.IMachineImage {
 
     // set the SSM parameter name
     this.amiParameterName = `/aws/service/eks/optimized-ami/${this.kubernetesVersion}/`
-      + ( this.nodeType === NodeType.STANDARD ? this.cpuArch === CpuArch.X86_64 ?
-        'amazon-linux-2/' : 'amazon-linux-2-arm64/' :'' )
-      + ( this.nodeType === NodeType.GPU ? 'amazon-linux-2-gpu/' : '' )
+      + (this.nodeType === NodeType.STANDARD ? this.cpuArch === CpuArch.X86_64 ?
+        'amazon-linux-2/' : 'amazon-linux-2-arm64/' : '')
+      + (this.nodeType === NodeType.GPU ? 'amazon-linux-2-gpu/' : '')
       + (this.nodeType === NodeType.INFERENTIA ? 'amazon-linux-2-gpu/' : '')
       + 'recommended/image_id';
   }

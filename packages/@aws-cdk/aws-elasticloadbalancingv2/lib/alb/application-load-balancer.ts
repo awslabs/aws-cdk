@@ -562,7 +562,10 @@ class ImportedApplicationLoadBalancer extends Resource implements IApplicationLo
   public readonly vpc?: ec2.IVpc;
 
   constructor(scope: Construct, id: string, private readonly props: ApplicationLoadBalancerAttributes) {
-    super(scope, id);
+    super(scope, id, {
+      environmentFromArn: props.loadBalancerArn,
+    });
+
     this.vpc = props.vpc;
     this.loadBalancerArn = props.loadBalancerArn;
     this.connections = new ec2.Connections({
@@ -601,7 +604,9 @@ class LookedUpApplicationLoadBalancer extends Resource implements IApplicationLo
   public readonly vpc?: ec2.IVpc;
 
   constructor(scope: Construct, id: string, props: cxapi.LoadBalancerContextResponse) {
-    super(scope, id);
+    super(scope, id, {
+      environmentFromArn: props.loadBalancerArn,
+    });
 
     this.loadBalancerArn = props.loadBalancerArn;
     this.loadBalancerCanonicalHostedZoneId = props.loadBalancerCanonicalHostedZoneId;

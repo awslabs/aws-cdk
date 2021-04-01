@@ -24,7 +24,7 @@ describe('CachePolicy', () => {
 
     expect(stack).toHaveResource('AWS::CloudFront::CachePolicy', {
       CachePolicyConfig: {
-        Name: 'StackCachePolicy0D6FCBC0',
+        Name: 'StackCachePolicy0D6FCBC0-testregion',
         MinTTL: 0,
         DefaultTTL: 86400,
         MaxTTL: 31536000,

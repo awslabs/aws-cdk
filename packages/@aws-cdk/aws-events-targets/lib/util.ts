@@ -2,17 +2,74 @@ import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as sqs from '@aws-cdk/aws-sqs';
-import { Annotations, ConstructNode, IConstruct, Names, Token, TokenComparison } from '@aws-cdk/core';
+import { Annotations, ConstructNode, IConstruct, Names, Token, TokenComparison, Duration } from '@aws-cdk/core';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
 
 /**
+ * The generic properties for an RuleTarget
+ */
+export interface TargetBaseProps {
+  /**
+   * The SQS queue to be used as deadLetterQueue.
+   * Check out the [considerations for using a dead-letter queue](https://docs.aws.amazon.com/eventbridge/latest/userguide/rule-dlq.html#dlq-considerations).
+   *
+   * The events not successfully delivered are automatically retried for a specified period of time,
+   * depending on the retry policy of the target.
+   * If an event is not delivered before all retry attempts are exhausted, it will be sent to the dead letter queue.
+   *
+   * @default - no dead-letter queue
+   */
+  readonly deadLetterQueue?: sqs.IQueue;
+  /**
+   * The maximum age of a request that Lambda sends to a function for
+   * processing.
+   *
+   * Minimum value of 60.
+   * Maximum value of 86400.
+   *
+   * @default Duration.hours(24)
+   */
+  readonly maxEventAge?: Duration;
+
+  /**
+   * The maximum number of times to retry when the function returns an error.
+   *
+   * Minimum value of 0.
+   * Maximum value of 185.
+   *
+   * @default 185
+   */
+  readonly retryAttempts?: number;
+}
+
+/**
+ * Bind props to base rule target config.
+ * @internal
+ */
+export function bindBaseTargetConfig(props: TargetBaseProps) {
+  let { deadLetterQueue, retryAttempts, maxEventAge } = props;
+
+  return {
+    deadLetterConfig: deadLetterQueue ? { arn: deadLetterQueue?.queueArn } : undefined,
+    retryPolicy: retryAttempts || maxEventAge
+      ? {
+        maximumRetryAttempts: retryAttempts,
+        maximumEventAgeInSeconds: maxEventAge?.toSeconds({ integral: true }),
+      }
+      : undefined,
+  };
+}
+
+
+/**
  * Obtain the Role for the EventBridge event
  *
  * If a role already exists, it will be returned. This ensures that if multiple
  * events have the same target, they will share a role.
+ * @internal
  */
 export function singletonEventRole(scope: IConstruct, policyStatements: iam.PolicyStatement[]): iam.IRole {
   const id = 'EventsRole';
@@ -30,6 +87,7 @@ export function singletonEventRole(scope: IConstruct, policyStatements: iam.Poli
 
 /**
  * Allows a Lambda function to be called from a rule
+ * @internal
  */
 export function addLambdaPermission(rule: events.IRule, handler: lambda.IFunction): void {
   let scope: Construct | undefined;
@@ -54,6 +112,7 @@ export function addLambdaPermission(rule: events.IRule, handler: lambda.IFunctio
 
 /**
  * Allow a rule to send events with failed invocation to an Amazon SQS queue.
+ * @internal
  */
 export function addToDeadLetterQueueResourcePolicy(rule: events.IRule, queue: sqs.IQueue) {
   if (!sameEnvDimension(rule.env.region, queue.env.region)) {
@@ -89,6 +148,7 @@ export function addToDeadLetterQueueResourcePolicy(rule: events.IRule, queue: sq
  *
  * Used to compare either accounts or regions, and also returns true if both
  * are unresolved (in which case both are expted to be "current region" or "current account").
+ * @internal
  */
 function sameEnvDimension(dim1: string, dim2: string) {
   return [TokenComparison.SAME, TokenComparison.BOTH_UNRESOLVED].includes(Token.compareStrings(dim1, dim2));

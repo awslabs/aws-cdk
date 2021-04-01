@@ -810,7 +810,7 @@ export = {
     const stack1 = new cdk.Stack(app, 'MyStack');
     const vpc1 = new ec2.Vpc(stack1, 'VPC');
     const cluster1 = new ecs.Cluster(stack1, 'Cluster', { vpc: vpc1 });
-    const nlbArn = 'arn:aws:elasticloadbalancing::000000000000::dummyloadbalancer';
+    const nlbArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const stack2 = new cdk.Stack(stack1, 'Stack2');
     const cluster2 = ecs.Cluster.fromClusterAttributes(stack2, 'ImportedCluster', {
       vpc: vpc1,
@@ -887,7 +887,7 @@ export = {
   'passing in imported application load balancer and resources to ALB Fargate Service'(test: Test) {
     // GIVEN
     const stack1 = new cdk.Stack();
-    const albArn = 'arn:aws:elasticloadbalancing::000000000000::dummyloadbalancer';
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const vpc = new ec2.Vpc(stack1, 'Vpc');
     const cluster = new ecs.Cluster(stack1, 'Cluster', { vpc, clusterName: 'MyClusterName' });
     const sg = new ec2.SecurityGroup(stack1, 'SecurityGroup', { vpc });

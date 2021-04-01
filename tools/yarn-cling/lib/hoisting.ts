@@ -1,4 +1,4 @@
-import { PackageLockPackage } from "./types";
+import { PackageLockPackage } from './types';
 
 /**
  * Hoist package-lock dependencies in-place

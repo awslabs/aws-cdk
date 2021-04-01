@@ -1,0 +1,13 @@
+// Fixture with packages imported and a VPC created
+import { Construct, Stack } from '@aws-cdk/core';
+import ec2 = require('@aws-cdk/aws-ec2');
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const vpc = new ec2.Vpc(this, 'VPC');
+
+    /// here
+  }
+}

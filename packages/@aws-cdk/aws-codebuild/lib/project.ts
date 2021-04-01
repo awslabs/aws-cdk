@@ -7,7 +7,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import { Aws, Duration, IResource, Lazy, Names, PhysicalName, Resource, SecretValue, Stack, Tokenization } from '@aws-cdk/core';
+import { ArnComponents, Aws, Duration, IResource, Lazy, Names, PhysicalName, Resource, SecretValue, Stack, Token, Tokenization } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { IArtifacts } from './artifacts';
 import { BuildSpec } from './build-spec';
@@ -639,14 +639,19 @@ export interface BindToCodePipelineOptions {
 export class Project extends ProjectBase {
 
   public static fromProjectArn(scope: Construct, id: string, projectArn: string): IProject {
+    const parsedArn = Stack.of(scope).parseArn(projectArn);
+
     class Import extends ProjectBase {
       public readonly grantPrincipal: iam.IPrincipal;
       public readonly projectArn = projectArn;
-      public readonly projectName = Stack.of(scope).parseArn(projectArn).resourceName!;
+      public readonly projectName = parsedArn.resourceName!;
       public readonly role?: iam.Role = undefined;
 
       constructor(s: Construct, i: string) {
-        super(s, i);
+        super(s, i, {
+          account: parsedArn.account,
+          region: parsedArn.region,
+        });
         this.grantPrincipal = new iam.UnknownPrincipal({ resource: this });
       }
     }
@@ -707,14 +712,15 @@ export class Project extends ProjectBase {
     validateNoPlainTextSecrets: boolean = false, principal?: iam.IGrantable): CfnProject.EnvironmentVariableProperty[] {
 
     const ret = new Array<CfnProject.EnvironmentVariableProperty>();
-    const ssmVariables = new Array<string>();
-    const secretsManagerSecrets = new Array<string>();
+    const ssmIamResources = new Array<string>();
+    const secretsManagerIamResources = new Array<string>();
 
     for (const [name, envVariable] of Object.entries(environmentVariables)) {
+      const envVariableValue = envVariable.value?.toString();
       const cfnEnvVariable: CfnProject.EnvironmentVariableProperty = {
         name,
         type: envVariable.type || BuildEnvironmentVariableType.PLAINTEXT,
-        value: envVariable.value?.toString(),
+        value: envVariableValue,
       };
       ret.push(cfnEnvVariable);
 
@@ -733,10 +739,11 @@ export class Project extends ProjectBase {
       }
 
       if (principal) {
+        const stack = Stack.of(principal);
+
         // save the SSM env variables
         if (envVariable.type === BuildEnvironmentVariableType.PARAMETER_STORE) {
-          const envVariableValue = envVariable.value.toString();
-          ssmVariables.push(Stack.of(principal).formatArn({
+          ssmIamResources.push(stack.formatArn({
             service: 'ssm',
             resource: 'parameter',
             // If the parameter name starts with / the resource name is not separated with a double '/'
@@ -749,27 +756,58 @@ export class Project extends ProjectBase {
 
         // save SecretsManager env variables
         if (envVariable.type === BuildEnvironmentVariableType.SECRETS_MANAGER) {
-          secretsManagerSecrets.push(Stack.of(principal).formatArn({
-            service: 'secretsmanager',
-            resource: 'secret',
-            // we don't know the exact ARN of the Secret just from its name, but we can get close
-            resourceName: `${envVariable.value}-??????`,
-            sep: ':',
-          }));
+          if (Token.isUnresolved(envVariableValue)) {
+            // the value of the property can be a complex string, separated by ':';
+            // see https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.secrets-manager
+            const secretArn = envVariableValue.split(':')[0];
+
+            // if we are passed a Token, we should assume it's the ARN of the Secret
+            // (as the name would not work anyway, because it would be the full name, which CodeBuild does not support)
+            secretsManagerIamResources.push(secretArn);
+          } else {
+            // check if the provided value is a full ARN of the Secret
+            let parsedArn: ArnComponents | undefined;
+            try {
+              parsedArn = stack.parseArn(envVariableValue, ':');
+            } catch (e) {}
+            const secretSpecifier: string = parsedArn ? parsedArn.resourceName : envVariableValue;
+
+            // the value of the property can be a complex string, separated by ':';
+            // see https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.secrets-manager
+            const secretName = secretSpecifier.split(':')[0];
+            const secretIamResourceName = parsedArn
+              // If we were given an ARN, we don't' know whether the name is full, or partial,
+              // as CodeBuild supports both ARN forms.
+              // Because of that, follow the name with a '*', which works for both
+              ? `${secretName}*`
+              // If we were given just a name, it must be partial, as CodeBuild doesn't support providing full names.
+              // In this case, we need to accommodate for the generated suffix in the IAM resource name
+              : `${secretName}-??????`;
+            secretsManagerIamResources.push(Stack.of(principal).formatArn({
+              service: 'secretsmanager',
+              resource: 'secret',
+              resourceName: secretIamResourceName,
+              sep: ':',
+              // if we were given an ARN, we need to use the provided partition/account/region
+              partition: parsedArn?.partition,
+              account: parsedArn?.account,
+              region: parsedArn?.region,
+            }));
+          }
         }
       }
     }
 
-    if (ssmVariables.length !== 0) {
+    if (ssmIamResources.length !== 0) {
       principal?.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
         actions: ['ssm:GetParameters'],
-        resources: ssmVariables,
+        resources: ssmIamResources,
       }));
     }
-    if (secretsManagerSecrets.length !== 0) {
+    if (secretsManagerIamResources.length !== 0) {
       principal?.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
-        resources: secretsManagerSecrets,
+        resources: secretsManagerIamResources,
       }));
     }
 
@@ -1831,7 +1869,10 @@ export interface BuildEnvironmentVariable {
    * The value of the environment variable.
    * For plain-text variables (the default), this is the literal value of variable.
    * For SSM parameter variables, pass the name of the parameter here (`parameterName` property of `IParameter`).
-   * For SecretsManager variables secrets, pass the secret name here (`secretName` property of `ISecret`).
+   * For SecretsManager variables secrets, pass either the secret name (`secretName` property of `ISecret`)
+   * or the secret ARN (`secretArn` property of `ISecret`) here,
+   * along with optional SecretsManager qualifiers separated by ':', like the JSON key, or the version or stage
+   * (see https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.secrets-manager for details).
    */
   readonly value: any;
 }

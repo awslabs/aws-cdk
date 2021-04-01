@@ -1,0 +1,26 @@
+// Fixture with packages imported, but nothing else
+import { Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as cognito from '@aws-cdk/aws-cognito';
+import * as iam from '@aws-cdk/aws-iam';
+import * as lambda from '@aws-cdk/aws-lambda';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const postAuthFn = new lambda.Function(this, 'postAuthFn', {
+      code: lambda.Code.fromInline('post authentication'),
+      runtime: lambda.Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+    });
+
+    const userpool = new cognito.UserPool(this, 'myuserpool', {
+      lambdaTriggers: {
+        postAuthentication: postAuthFn,
+      },
+    });
+
+    /// here
+  }
+}

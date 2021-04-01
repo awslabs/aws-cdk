@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { IAccelerator } from './accelerator';
+import { EndpointGroup, EndpointGroupOptions } from './endpoint-group';
 import * as ga from './globalaccelerator.generated';
 
 /**
@@ -16,20 +17,15 @@ export interface IListener extends cdk.IResource {
 }
 
 /**
- * construct properties for Listener
+ * Construct options for Listener
  */
-export interface ListenerProps {
+export interface ListenerOptions {
   /**
    * Name of the listener
    *
    * @default - logical ID of the resource
    */
   readonly listenerName?: string;
-
-  /**
-   * The accelerator for this listener
-   */
-  readonly accelerator: IAccelerator;
 
   /**
    * The list of port ranges for the connections from clients to the accelerator
@@ -39,16 +35,33 @@ export interface ListenerProps {
   /**
    * The protocol for the connections from clients to the accelerator
    *
-   * @default TCP
+   * @default ConnectionProtocol.TCP
    */
   readonly protocol?: ConnectionProtocol;
 
   /**
    * Client affinity to direct all requests from a user to the same endpoint
    *
-   * @default NONE
+   * If you have stateful applications, client affinity lets you direct all
+   * requests from a user to the same endpoint.
+   *
+   * By default, each connection from each client is routed to seperate
+   * endpoints. Set client affinity to SOURCE_IP to route all connections from
+   * a single client to the same endpoint.
+   *
+   * @default ClientAffinity.NONE
    */
   readonly clientAffinity?: ClientAffinity;
+}
+
+/**
+ * Construct properties for Listener
+ */
+export interface ListenerProps extends ListenerOptions {
+  /**
+   * The accelerator for this listener
+   */
+  readonly accelerator: IAccelerator;
 }
 
 /**
@@ -58,11 +71,14 @@ export interface PortRange {
   /**
    * The first port in the range of ports, inclusive.
    */
-  readonly fromPort: number,
+  readonly fromPort: number;
+
   /**
    * The last port in the range of ports, inclusive.
+   *
+   * @default - same as `fromPort`
    */
-  readonly toPort: number,
+  readonly toPort?: number;
 }
 
 /**
@@ -80,20 +96,20 @@ export enum ConnectionProtocol {
 }
 
 /**
- * Client affinity lets you direct all requests from a user to the same endpoint, if you have stateful applications,
- * regardless of the port and protocol of the client request. Client affinity gives you control over whether to always
- * route each client to the same specific endpoint. If you want a given client to always be routed to the same
- * endpoint, set client affinity to SOURCE_IP.
+ * Client affinity gives you control over whether to always route each client to the same specific endpoint.
  *
  * @see https://docs.aws.amazon.com/global-accelerator/latest/dg/about-listeners.html#about-listeners-client-affinity
  */
 export enum ClientAffinity {
   /**
-   * default affinity
+   * Route traffic based on the 5-tuple `(source IP, source port, destination IP, destination port, protocol)`
    */
   NONE = 'NONE',
+
   /**
-   * affinity by source IP
+   * Route traffic based on the 2-tuple `(source IP, destination IP)`
+   *
+   * The result is that multiple connections from the same client will be routed the same.
    */
   SOURCE_IP = 'SOURCE_IP',
 }
@@ -127,7 +143,7 @@ export class Listener extends cdk.Resource implements IListener {
       acceleratorArn: props.accelerator.acceleratorArn,
       portRanges: props.portRanges.map(m => ({
         fromPort: m.fromPort,
-        toPort: m.toPort,
+        toPort: m.toPort ?? m.fromPort,
       })),
       protocol: props.protocol ?? ConnectionProtocol.TCP,
       clientAffinity: props.clientAffinity ?? ClientAffinity.NONE,
@@ -135,6 +151,15 @@ export class Listener extends cdk.Resource implements IListener {
 
     this.listenerArn = resource.attrListenerArn;
     this.listenerName = props.listenerName ?? resource.logicalId;
+  }
 
+  /**
+   * Add a new endpoint group to this listener
+   */
+  public addEndpointGroup(id: string, options: EndpointGroupOptions = {}) {
+    return new EndpointGroup(this, id, {
+      listener: this,
+      ...options,
+    });
   }
 }

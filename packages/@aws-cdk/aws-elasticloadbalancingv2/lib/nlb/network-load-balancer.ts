@@ -102,7 +102,7 @@ export class NetworkLoadBalancer extends BaseLoadBalancer implements INetworkLoa
       }
     }
 
-    return new Import(scope, id);
+    return new Import(scope, id, { environmentFromArn: attrs.loadBalancerArn });
   }
 
   constructor(scope: Construct, id: string, props: NetworkLoadBalancerProps) {
@@ -306,7 +306,7 @@ class LookedUpNetworkLoadBalancer extends Resource implements INetworkLoadBalanc
   public readonly vpc?: ec2.IVpc;
 
   constructor(scope: Construct, id: string, props: cxapi.LoadBalancerContextResponse) {
-    super(scope, id);
+    super(scope, id, { environmentFromArn: props.loadBalancerArn });
 
     this.loadBalancerArn = props.loadBalancerArn;
     this.loadBalancerCanonicalHostedZoneId = props.loadBalancerCanonicalHostedZoneId;

@@ -332,32 +332,6 @@ export interface CognitoOptions {
 }
 
 /**
- * The virtual private cloud (VPC) configuration for the Amazon ES domain. For
- * more information, see [VPC Support for Amazon Elasticsearch Service
- * Domains](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-vpc.html)
- * in the Amazon Elasticsearch Service Developer Guide.
- */
-export interface VpcOptions {
-  /**
-   * The list of security groups that are associated with the VPC endpoints
-   * for the domain. If you don't provide a security group ID, Amazon ES uses
-   * the default security group for the VPC. To learn more, see [Security Groups for your VPC]
-   * (https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) in the Amazon VPC
-   * User Guide.
-   */
-  readonly securityGroups: ec2.ISecurityGroup[];
-
-  /**
-   * Provide one subnet for each Availability Zone that your domain uses. For
-   * example, you must specify three subnet IDs for a three Availability Zone
-   * domain. To learn more, see [VPCs and Subnets]
-   * (https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html) in the
-   * Amazon VPC User Guide.
-   */
-  readonly subnets: ec2.ISubnet[];
-}
-
-/**
  * The minimum TLS version required for traffic to the domain.
  */
 export enum TLSSecurityPolicy {
@@ -513,14 +487,35 @@ export interface DomainProps {
   readonly automatedSnapshotStartHour?: number;
 
   /**
-   * The virtual private cloud (VPC) configuration for the Amazon ES domain. For
-   * more information, see [VPC Support for Amazon Elasticsearch Service
-   * Domains](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-vpc.html)
-   * in the Amazon Elasticsearch Service Developer Guide.
+   * Place the domain inside this VPC.
    *
-   * @default - VPC not used
+   * @see https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-vpc.html
+   * @default - Domain is not placed in a VPC.
    */
-  readonly vpcOptions?: VpcOptions;
+  readonly vpc?: ec2.IVpc;
+
+  /**
+   * The list of security groups that are associated with the VPC endpoints
+   * for the domain.
+   *
+   * Only used if `vpc` is specified.
+   *
+   * @see https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+   * @default - One new security group is created.
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
+
+  /**
+   * The specific vpc subnets the domain will be placed in. You must provide one subnet for each Availability Zone
+   * that your domain uses. For example, you must specify three subnet IDs for a three Availability Zone
+   * domain.
+   *
+   * Only used if `vpc` is specified.
+   *
+   * @see https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html
+   * @default - All private subnets.
+   */
+  readonly vpcSubnets?: ec2.SubnetSelection[];
 
   /**
    * True to require that all traffic to the domain arrive over HTTPS.
@@ -719,7 +714,7 @@ export interface IDomain extends cdk.IResource {
    *
    * @default maximum over 1 minute
    */
-  metricClusterIndexWriteBlocked(props?: MetricOptions): Metric;
+  metricClusterIndexWritesBlocked(props?: MetricOptions): Metric;
 
   /**
    * Metric for the number of nodes.
@@ -1002,8 +997,8 @@ abstract class DomainBase extends cdk.Resource implements IDomain {
    *
    * @default maximum over 1 minute
    */
-  public metricClusterIndexWriteBlocked(props?: MetricOptions): Metric {
-    return this.metric('ClusterIndexWriteBlocked', {
+  public metricClusterIndexWritesBlocked(props?: MetricOptions): Metric {
+    return this.metric('ClusterIndexWritesBlocked', {
       statistic: Statistic.MAXIMUM,
       period: cdk.Duration.minutes(1),
       ...props,
@@ -1177,7 +1172,7 @@ export interface DomainAttributes {
 /**
  * Provides an Elasticsearch domain.
  */
-export class Domain extends DomainBase implements IDomain {
+export class Domain extends DomainBase implements IDomain, ec2.IConnectable {
   /**
    * Creates a Domain construct that represents an external domain via domain endpoint.
    *
@@ -1264,6 +1259,8 @@ export class Domain extends DomainBase implements IDomain {
 
   private readonly domain: CfnDomain;
 
+  private readonly _connections: ec2.Connections | undefined;
+
   constructor(scope: Construct, id: string, props: DomainProps) {
     super(scope, id, {
       physicalName: props.domainName,
@@ -1300,11 +1297,23 @@ export class Domain extends DomainBase implements IDomain {
       props.zoneAwareness?.enabled ??
       props.zoneAwareness?.availabilityZoneCount != null;
 
+
+    let securityGroups: ec2.ISecurityGroup[] | undefined;
+    let subnets: ec2.ISubnet[] | undefined;
+
+    if (props.vpc) {
+      subnets = selectSubnets(props.vpc, props.vpcSubnets ?? [{ subnetType: ec2.SubnetType.PRIVATE }]);
+      securityGroups = props.securityGroups ?? [new ec2.SecurityGroup(this, 'SecurityGroup', {
+        vpc: props.vpc,
+        description: `Security group for domain ${this.node.id}`,
+      })];
+      this._connections = new ec2.Connections({ securityGroups });
+    }
+
     // If VPC options are supplied ensure that the number of subnets matches the number AZ
-    if (props.vpcOptions != null && zoneAwarenessEnabled &&
-      new Set(props.vpcOptions?.subnets.map((subnet) => subnet.availabilityZone)).size < availabilityZoneCount) {
+    if (subnets && zoneAwarenessEnabled && new Set(subnets.map((subnet) => subnet.availabilityZone)).size < availabilityZoneCount) {
       throw new Error('When providing vpc options you need to provide a subnet for each AZ you are using');
-    };
+    }
 
     if ([dedicatedMasterType, instanceType, warmType].some(t => !t.endsWith('.elasticsearch'))) {
       throw new Error('Master, data and UltraWarm node instance types must end with ".elasticsearch".');
@@ -1491,10 +1500,11 @@ export class Domain extends DomainBase implements IDomain {
     }
 
     let cfnVpcOptions: CfnDomain.VPCOptionsProperty | undefined;
-    if (props.vpcOptions) {
+
+    if (securityGroups && subnets) {
       cfnVpcOptions = {
-        securityGroupIds: props.vpcOptions.securityGroups.map((sg) => sg.securityGroupId),
-        subnetIds: props.vpcOptions.subnets.map((subnet) => subnet.subnetId),
+        securityGroupIds: securityGroups.map((sg) => sg.securityGroupId),
+        subnetIds: subnets.map((subnet) => subnet.subnetId),
       };
     }
 
@@ -1730,6 +1740,17 @@ export class Domain extends DomainBase implements IDomain {
       accessPolicy.node.addDependency(this.domain);
     }
   }
+
+  /**
+   * Manages network connections to the domain. This will throw an error in case the domain
+   * is not placed inside a VPC.
+   */
+  public get connections(): ec2.Connections {
+    if (!this._connections) {
+      throw new Error("Connections are only available on VPC enabled domains. Use the 'vpc' property to place a domain inside a VPC");
+    }
+    return this._connections;
+  }
 }
 
 /**
@@ -1777,4 +1798,12 @@ function parseVersion(version: ElasticsearchVersion): number {
   } catch (error) {
     throw new Error(`Invalid Elasticsearch version: ${versionStr}. Version string needs to start with major and minor version (x.y).`);
   }
+}
+
+function selectSubnets(vpc: ec2.IVpc, vpcSubnets: ec2.SubnetSelection[]): ec2.ISubnet[] {
+  const selected = [];
+  for (const selection of vpcSubnets) {
+    selected.push(...vpc.selectSubnets(selection).subnets);
+  }
+  return selected;
 }

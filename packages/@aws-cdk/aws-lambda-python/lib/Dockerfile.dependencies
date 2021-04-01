@@ -1,6 +1,6 @@
 # The correct AWS SAM build image based on the runtime of the function will be
 # passed as build arg. The default allows to do `docker build .` when testing.
-ARG IMAGE=amazon/aws-sam-cli-build-image-python3.7
+ARG IMAGE=public.ecr.aws/sam/build-python3.7
 FROM $IMAGE
 
 # Ensure rsync is installed

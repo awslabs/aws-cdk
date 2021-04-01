@@ -60,7 +60,7 @@ nodeunitShim({
     const fingerprintStub = sinon.stub(FileSystem, 'fingerprint');
     fingerprintStub.callsFake(() => imageHash);
 
-    const image = BundlingDockerImage.fromAsset('docker-path', {
+    const image = DockerImage.fromBuild('docker-path', {
       buildArgs: {
         TEST_ARG: 'cdk-test',
       },
@@ -139,7 +139,7 @@ nodeunitShim({
     const fingerprintStub = sinon.stub(FileSystem, 'fingerprint');
     fingerprintStub.callsFake(() => imageHash);
 
-    const image = BundlingDockerImage.fromAsset('docker-path');
+    const image = DockerImage.fromBuild('docker-path');
 
     const tagHash = crypto.createHash('sha256').update(JSON.stringify({
       path: 'docker-path',
@@ -170,6 +170,25 @@ nodeunitShim({
     const expected = path.join(imagePath, 'my-dockerfile');
     test.ok(new RegExp(`-f ${expected}`).test(spawnSyncStub.firstCall.args[1]?.join(' ') ?? ''));
 
+    test.done();
+  },
+
+  'fromAsset'(test: Test) {
+    sinon.stub(child_process, 'spawnSync').returns({
+      status: 0,
+      stderr: Buffer.from('stderr'),
+      stdout: Buffer.from('sha256:1234567890abcdef'),
+      pid: 123,
+      output: ['stdout', 'stderr'],
+      signal: null,
+    });
+
+    const imagePath = path.join(__dirname, 'fs/fixtures/test1');
+    const image = BundlingDockerImage.fromAsset(imagePath, {
+      file: 'my-dockerfile',
+    });
+    test.ok(image);
+    test.ok(image.image);
     test.done();
   },
 

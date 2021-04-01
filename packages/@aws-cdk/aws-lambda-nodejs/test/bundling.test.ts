@@ -2,7 +2,7 @@ import * as child_process from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
 import { Code, Runtime } from '@aws-cdk/aws-lambda';
-import { AssetHashType, BundlingDockerImage } from '@aws-cdk/core';
+import { AssetHashType, DockerImage } from '@aws-cdk/core';
 import { version as delayVersion } from 'delay/package.json';
 import { Bundling } from '../lib/bundling';
 import { LogLevel } from '../lib/types';
@@ -11,7 +11,7 @@ import * as util from '../lib/util';
 jest.mock('@aws-cdk/aws-lambda');
 
 // Mock BundlingDockerImage.fromAsset() to avoid building the image
-let fromAssetMock = jest.spyOn(BundlingDockerImage, 'fromAsset');
+let fromAssetMock = jest.spyOn(DockerImage, 'fromBuild');
 let getEsBuildVersionMock = jest.spyOn(util, 'getEsBuildVersion');
 beforeEach(() => {
   jest.clearAllMocks();
@@ -290,7 +290,7 @@ test('Custom bundling docker image', () => {
     entry,
     depsLockFilePath,
     runtime: Runtime.NODEJS_12_X,
-    dockerImage: BundlingDockerImage.fromRegistry('my-custom-image'),
+    dockerImage: DockerImage.fromRegistry('my-custom-image'),
     forceDockerBundling: true,
   });
 

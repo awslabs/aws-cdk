@@ -1,0 +1,612 @@
+{
+  "Resources": {
+    "ImportCertificatesCreateCertificates71085A81": {
+      "Type": "Custom::ACMImportCertificates",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomACMImportCertificatesCustomResourceProviderHandler2EB12457",
+            "Arn"
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "ImportCertificatesDeleteCertificates6462F0A6": {
+      "Type": "Custom::ACMImportCertificates",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomACMImportCertificatesCustomResourceProviderHandler2EB12457",
+            "Arn"
+          ]
+        },
+        "ServerCertificateArn": {
+          "Fn::GetAtt": [
+            "ImportCertificatesCreateCertificates71085A81",
+            "ClientCertificateArn"
+          ]
+        },
+        "ClientCertificateArn": {
+          "Fn::GetAtt": [
+            "ImportCertificatesCreateCertificates71085A81",
+            "ServerCertificateArn"
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "CustomACMImportCertificatesCustomResourceProviderRole2CE46D14": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "Inline",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "acm:ImportCertificate",
+                    "acm:DeleteCertificate"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CustomACMImportCertificatesCustomResourceProviderHandler2EB12457": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957S3Bucket60FDAA05"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957S3VersionKeyF2886582"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957S3VersionKeyF2886582"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Timeout": 900,
+        "MemorySize": 128,
+        "Handler": "__entrypoint__.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomACMImportCertificatesCustomResourceProviderRole2CE46D14",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs12.x"
+      },
+      "DependsOn": [
+        "CustomACMImportCertificatesCustomResourceProviderRole2CE46D14"
+      ]
+    },
+    "Vpc8378EB38": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet1Subnet5C2D37C4": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/18",
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "AvailabilityZone": "test-region-1a",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/PublicSubnet1"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet1RouteTable6C95E38E": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/PublicSubnet1"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet1RouteTableAssociation97140677": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet1DefaultRoute3DA9E72A": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VpcIGWD7BA715C"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6",
+        "VpcVPCGWBF912B6E"
+      ]
+    },
+    "VpcPublicSubnet2Subnet691E08A3": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.64.0/18",
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "AvailabilityZone": "test-region-1b",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/PublicSubnet2"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet2RouteTable94F7E489": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/PublicSubnet2"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet2RouteTableAssociationDD5762D8": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet2Subnet691E08A3"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcPublicSubnet2DefaultRoute97F91067": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VpcIGWD7BA715C"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6",
+        "VpcVPCGWBF912B6E"
+      ]
+    },
+    "VpcIsolatedSubnet1SubnetE48C5737": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.128.0/18",
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "AvailabilityZone": "test-region-1a",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Isolated"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated"
+          },
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/IsolatedSubnet1"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIsolatedSubnet1RouteTable4771E3E5": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/IsolatedSubnet1"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIsolatedSubnet1RouteTableAssociationD300FCBB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcIsolatedSubnet1RouteTable4771E3E5"
+        },
+        "SubnetId": {
+          "Ref": "VpcIsolatedSubnet1SubnetE48C5737"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIsolatedSubnet2Subnet16364B91": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.192.0/18",
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "AvailabilityZone": "test-region-1b",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Isolated"
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated"
+          },
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/IsolatedSubnet2"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIsolatedSubnet2RouteTable1D30AF7D": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc/IsolatedSubnet2"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIsolatedSubnet2RouteTableAssociationF7B18CCA": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcIsolatedSubnet2RouteTable1D30AF7D"
+        },
+        "SubnetId": {
+          "Ref": "VpcIsolatedSubnet2Subnet16364B91"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcIGWD7BA715C": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc"
+          }
+        ]
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcVPCGWBF912B6E": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        },
+        "InternetGatewayId": {
+          "Ref": "VpcIGWD7BA715C"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcEndpointSecurityGroup7B25EFDC": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "cdk-ec2-client-vpn-endpoint/Vpc/Endpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "cdk-ec2-client-vpn-endpoint/Vpc"
+          }
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcEndpoint6FF034F6": {
+      "Type": "AWS::EC2::ClientVpnEndpoint",
+      "Properties": {
+        "AuthenticationOptions": [
+          {
+            "MutualAuthentication": {
+              "ClientRootCertificateChainArn": {
+                "Fn::GetAtt": [
+                  "ImportCertificatesCreateCertificates71085A81",
+                  "ServerCertificateArn"
+                ]
+              }
+            },
+            "Type": "certificate-authentication"
+          }
+        ],
+        "ClientCidrBlock": "10.100.0.0/16",
+        "ConnectionLogOptions": {
+          "CloudwatchLogGroup": {
+            "Ref": "LogGroupF5B46931"
+          },
+          "Enabled": true
+        },
+        "ServerCertificateArn": {
+          "Fn::GetAtt": [
+            "ImportCertificatesCreateCertificates71085A81",
+            "ClientCertificateArn"
+          ]
+        },
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "VpcEndpointSecurityGroup7B25EFDC",
+              "GroupId"
+            ]
+          }
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcEndpointAssociation06B066321": {
+      "Type": "AWS::EC2::ClientVpnTargetNetworkAssociation",
+      "Properties": {
+        "ClientVpnEndpointId": {
+          "Ref": "VpcEndpoint6FF034F6"
+        },
+        "SubnetId": {
+          "Ref": "VpcIsolatedSubnet1SubnetE48C5737"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcEndpointAssociation12B51A67F": {
+      "Type": "AWS::EC2::ClientVpnTargetNetworkAssociation",
+      "Properties": {
+        "ClientVpnEndpointId": {
+          "Ref": "VpcEndpoint6FF034F6"
+        },
+        "SubnetId": {
+          "Ref": "VpcIsolatedSubnet2Subnet16364B91"
+        }
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "VpcEndpointAuthorizeAll70F0E613": {
+      "Type": "AWS::EC2::ClientVpnAuthorizationRule",
+      "Properties": {
+        "ClientVpnEndpointId": {
+          "Ref": "VpcEndpoint6FF034F6"
+        },
+        "TargetNetworkCidr": {
+          "Fn::GetAtt": [
+            "Vpc8378EB38",
+            "CidrBlock"
+          ]
+        },
+        "AuthorizeAllGroups": true
+      },
+      "DependsOn": [
+        "ImportCertificatesCreateCertificates71085A81",
+        "ImportCertificatesDeleteCertificates6462F0A6"
+      ]
+    },
+    "LogGroupF5B46931": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "RetentionInDays": 731
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    }
+  },
+  "Parameters": {
+    "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957S3Bucket60FDAA05": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"bb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957\""
+    },
+    "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957S3VersionKeyF2886582": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"bb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957\""
+    },
+    "AssetParametersbb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957ArtifactHashF17C10B6": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"bb3ce11d35aa60dce674523850f7a4a038127a6c48af335699cff4cc55cb0957\""
+    }
+  }
+}

@@ -8,7 +8,7 @@ import { DatabaseSecret } from './database-secret';
 import { CfnDBCluster, CfnDBInstance, CfnDBSubnetGroup } from './docdb.generated';
 import { Endpoint } from './endpoint';
 import { IClusterParameterGroup } from './parameter-group';
-import { BackupProps, InstanceProps, Login, RotationMultiUserOptions } from './props';
+import { BackupProps, Login, RotationMultiUserOptions } from './props';
 
 /**
  * Properties for a new database cluster
@@ -82,9 +82,37 @@ export interface DatabaseClusterProps {
   readonly instanceIdentifierBase?: string;
 
   /**
-   * Settings for the individual instances that are launched
+   * What type of instance to start for the replicas
    */
-  readonly instanceProps: InstanceProps;
+  readonly instanceType: ec2.InstanceType;
+
+  /**
+    * What subnets to run the DocumentDB instances in.
+    *
+    * Must be at least 2 subnets in two different AZs.
+    */
+  readonly vpc: ec2.IVpc;
+
+  /**
+    * Where to place the instances within the VPC
+    *
+    * @default private subnets
+    */
+  readonly vpcSubnets?: ec2.SubnetSelection;
+
+  /**
+    * Security group.
+    *
+    * @default a new security group is created.
+    */
+  readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+    * The DB parameter group to associate with the instance.
+    *
+    * @default no parameter group
+    */
+  readonly parameterGroup?: IClusterParameterGroup;
 
   /**
    * A weekly time range in which maintenance should preferably execute.
@@ -98,13 +126,6 @@ export interface DatabaseClusterProps {
    * @see https://docs.aws.amazon.com/documentdb/latest/developerguide/db-instance-maintain.html#maintenance-window
    */
   readonly preferredMaintenanceWindow?: string;
-
-  /**
-   * Additional parameters to pass to the database engine
-   *
-   * @default - No parameter group.
-   */
-  readonly parameterGroup?: IClusterParameterGroup;
 
   /**
    * The removal policy to apply when the cluster and its instances are removed
@@ -275,8 +296,8 @@ export class DatabaseCluster extends DatabaseClusterBase {
   constructor(scope: Construct, id: string, props: DatabaseClusterProps) {
     super(scope, id);
 
-    this.vpc = props.instanceProps.vpc;
-    this.vpcSubnets = props.instanceProps.vpcSubnets;
+    this.vpc = props.vpc;
+    this.vpcSubnets = props.vpcSubnets;
 
     // Determine the subnet(s) to deploy the DocDB cluster to
     const { subnetIds, internetConnectivityEstablished } = this.vpc.selectSubnets(this.vpcSubnets);
@@ -295,8 +316,8 @@ export class DatabaseCluster extends DatabaseClusterBase {
 
     // Create the security group for the DB cluster
     let securityGroup: ec2.ISecurityGroup;
-    if (props.instanceProps.securityGroup) {
-      securityGroup = props.instanceProps.securityGroup;
+    if (props.securityGroup) {
+      securityGroup = props.securityGroup;
     } else {
       securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
         description: 'DocumentDB security group',
@@ -381,7 +402,7 @@ export class DatabaseCluster extends DatabaseClusterBase {
         dbClusterIdentifier: cluster.ref,
         dbInstanceIdentifier: instanceIdentifier,
         // Instance properties
-        dbInstanceClass: databaseInstanceType(props.instanceProps.instanceType),
+        dbInstanceClass: databaseInstanceType(props.instanceType),
       });
 
       instance.applyRemovalPolicy(props.removalPolicy, {

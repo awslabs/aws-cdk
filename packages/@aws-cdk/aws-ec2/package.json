@@ -92,7 +92,7 @@
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
     "@aws-cdk/region-info": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
@@ -107,7 +107,7 @@
     "@aws-cdk/cx-api": "0.0.0",
     "@aws-cdk/cloud-assembly-schema": "0.0.0",
     "@aws-cdk/region-info": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
@@ -636,7 +636,10 @@
       "docs-public-apis:@aws-cdk/aws-ec2.WindowsVersion.WINDOWS_SERVER_2008_R2_SP1_PORTUGUESE_BRAZIL_64BIT_BASE",
       "props-default-doc:@aws-cdk/aws-ec2.InterfaceVpcEndpointAttributes.securityGroupId",
       "props-default-doc:@aws-cdk/aws-ec2.InterfaceVpcEndpointAttributes.securityGroups",
-      "props-physical-name:@aws-cdk/aws-ec2.VpnGatewayProps"
+      "props-physical-name:@aws-cdk/aws-ec2.VpnGatewayProps",
+      "props-physical-name:@aws-cdk/aws-ec2.ClientVpnEndpointProps",
+      "props-physical-name:@aws-cdk/aws-ec2.ClientVpnAuthorizationRuleProps",
+      "props-physical-name:@aws-cdk/aws-ec2.ClientVpnRouteProps"
     ]
   },
   "stability": "stable",

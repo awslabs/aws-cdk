@@ -20,10 +20,16 @@ export = {
     test.done();
   },
 
-  'rate must not be in seconds'(test: Test) {
+  'rate can be in seconds'(test: Test) {
+    const duration = appscaling.Schedule.rate(Duration.seconds(120));
+    test.equal('rate(2 minutes)', duration.expressionString);
+    test.done();
+  },
+
+  'rate must not be in seconds when specified as a token'(test: Test) {
     test.throws(() => {
-      appscaling.Schedule.rate(Duration.seconds(1));
-    }, /Allowed unit for scheduling is: 'minute', 'minutes', 'hour', 'hours', 'day' or 'days'/);
+      appscaling.Schedule.rate(Duration.seconds(Lazy.number({ produce: () => 5 })));
+    }, /Allowed units for scheduling/);
     test.done();
   },
 

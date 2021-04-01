@@ -49,7 +49,7 @@ export class CloudAssembly {
   constructor(directory: string) {
     this.directory = directory;
 
-    this.manifest = cxschema.Manifest.load(path.join(directory, MANIFEST_FILE));
+    this.manifest = cxschema.Manifest.loadAssemblyManifest(path.join(directory, MANIFEST_FILE));
     this.version = this.manifest.version;
     this.artifacts = this.renderArtifacts();
     this.runtime = this.manifest.runtime || { libraries: { } };
@@ -303,7 +303,7 @@ export class CloudAssemblyBuilder {
     manifest = filterUndefined(manifest);
 
     const manifestFilePath = path.join(this.outdir, MANIFEST_FILE);
-    cxschema.Manifest.save(manifest, manifestFilePath);
+    cxschema.Manifest.saveAssemblyManifest(manifest, manifestFilePath);
 
     // "backwards compatibility": in order for the old CLI to tell the user they
     // need a new version, we'll emit the legacy manifest with only "version".

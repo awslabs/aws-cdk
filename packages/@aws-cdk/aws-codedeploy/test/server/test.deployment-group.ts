@@ -1,4 +1,4 @@
-import { expect, haveResource, SynthUtils } from '@aws-cdk/assert';
+import { expect, haveOutput, haveResource, SynthUtils } from '@aws-cdk/assert';
 import * as autoscaling from '@aws-cdk/aws-autoscaling';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
@@ -23,6 +23,25 @@ export = {
         'ApplicationName': {
           'Ref': 'MyApp3CE31C26',
         },
+      }));
+
+      test.done();
+    },
+
+    'creating an application with physical name if needed'(test: Test) {
+      const stack = new cdk.Stack(undefined, undefined, { env: { account: '12345', region: 'us-test-1' } });
+      const stack2 = new cdk.Stack(undefined, undefined, { env: { account: '12346', region: 'us-test-2' } });
+      const serverDeploymentGroup = new codedeploy.ServerDeploymentGroup(stack, 'MyDG', {
+        deploymentGroupName: cdk.PhysicalName.GENERATE_IF_NEEDED,
+      });
+
+      new cdk.CfnOutput(stack2, 'Output', {
+        value: serverDeploymentGroup.application.applicationName,
+      });
+
+      expect(stack2).to(haveOutput({
+        outputName: 'Output',
+        outputValue: 'defaultmydgapplication78dba0bb0c7580b32033',
       }));
 
       test.done();
@@ -62,7 +81,7 @@ export = {
             'Fn::Join': [
               '',
               [
-                '#!/bin/bash\nset +e\nPKG_CMD=`which yum 2>/dev/null`\nset -e\nif [ -z "$PKG_CMD" ]; then\nPKG_CMD=apt-get\nelse\nPKG=CMD=yum\nfi\n$PKG_CMD update -y\nset +e\n$PKG_CMD install -y ruby2.0\nRUBY2_INSTALL=$?\nset -e\nif [ $RUBY2_INSTALL -ne 0 ]; then\n$PKG_CMD install -y ruby\nfi\nAWS_CLI_PACKAGE_NAME=awscli\nif [[ "$PKG_CMD" = "yum" ]];\nthen\nAWS_CLI_PACKAGE_NAME=aws-cli\nfi\n$PKG_CMD install -y $AWS_CLI_PACKAGE_NAME\nTMP_DIR=`mktemp -d`\ncd $TMP_DIR\naws s3 cp s3://aws-codedeploy-',
+                '#!/bin/bash\nset +e\nPKG_CMD=`which yum 2>/dev/null`\nset -e\nif [ -z "$PKG_CMD" ]; then\nPKG_CMD=apt-get\nelse\nPKG_CMD=yum\nfi\n$PKG_CMD update -y\nset +e\n$PKG_CMD install -y ruby2.0\nRUBY2_INSTALL=$?\nset -e\nif [ $RUBY2_INSTALL -ne 0 ]; then\n$PKG_CMD install -y ruby\nfi\nAWS_CLI_PACKAGE_NAME=awscli\nif [ "$PKG_CMD" = "yum" ]; then\nAWS_CLI_PACKAGE_NAME=aws-cli\nfi\n$PKG_CMD install -y $AWS_CLI_PACKAGE_NAME\nTMP_DIR=`mktemp -d`\ncd $TMP_DIR\naws s3 cp s3://aws-codedeploy-',
                 {
                   'Ref': 'AWS::Region',
                 },

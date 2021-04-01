@@ -90,7 +90,7 @@
     "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/aws-servicediscovery": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "peerDependencies": {
     "@aws-cdk/aws-acmpca": "0.0.0",
@@ -99,7 +99,7 @@
     "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/aws-servicediscovery": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"

@@ -4,11 +4,13 @@ import * as cxapi from '@aws-cdk/cx-api';
 import { Construct } from 'constructs';
 import { Connections } from './connections';
 import { CfnSecurityGroup, CfnSecurityGroupEgress, CfnSecurityGroupIngress } from './ec2.generated';
-import { IPeer } from './peer';
+import { IPeer, Peer } from './peer';
 import { Port } from './port';
 import { IVpc } from './vpc';
 
 const SECURITY_GROUP_SYMBOL = Symbol.for('@aws-cdk/iam.SecurityGroup');
+
+const SECURITY_GROUP_DISABLE_INLINE_RULES_CONTEXT_KEY = '@aws-cdk/aws-ec2.securityGroupDisableInlineRules';
 
 /**
  * Interface for security group-like objects
@@ -229,6 +231,22 @@ export interface SecurityGroupProps {
    * @default true
    */
   readonly allowAllOutbound?: boolean;
+
+  /**
+   * Whether to disable inline ingress and egress rule optimization.
+   *
+   * If this is set to true, ingress and egress rules will not be declared under the
+   * SecurityGroup in cloudformation, but will be separate elements.
+   *
+   * Inlining rules is an optimization for producing smaller stack templates. Sometimes
+   * this is not desirable, for example when security group access is managed via tags.
+   *
+   * The default value can be overriden globally by setting the context variable
+   * '@aws-cdk/aws-ec2.securityGroupDisableInlineRules'.
+   *
+   * @default false
+   */
+  readonly disableInlineRules?: boolean;
 }
 
 /**
@@ -390,6 +408,11 @@ export class SecurityGroup extends SecurityGroupBase {
   private readonly directIngressRules: CfnSecurityGroup.IngressProperty[] = [];
   private readonly directEgressRules: CfnSecurityGroup.EgressProperty[] = [];
 
+  /**
+   * Whether to disable optimization for inline security group rules.
+   */
+  private readonly disableInlineRules: boolean;
+
   constructor(scope: Construct, id: string, props: SecurityGroupProps) {
     super(scope, id, {
       physicalName: props.securityGroupName,
@@ -398,6 +421,10 @@ export class SecurityGroup extends SecurityGroupBase {
     const groupDescription = props.description || this.node.path;
 
     this.allowAllOutbound = props.allowAllOutbound !== false;
+
+    this.disableInlineRules = props.disableInlineRules !== undefined ?
+      !!props.disableInlineRules :
+      !!this.node.tryGetContext(SECURITY_GROUP_DISABLE_INLINE_RULES_CONTEXT_KEY);
 
     this.securityGroup = new CfnSecurityGroup(this, 'Resource', {
       groupName: this.physicalName,
@@ -415,7 +442,7 @@ export class SecurityGroup extends SecurityGroupBase {
   }
 
   public addIngressRule(peer: IPeer, connection: Port, description?: string, remoteRule?: boolean) {
-    if (!peer.canInlineRule || !connection.canInlineRule) {
+    if (!peer.canInlineRule || !connection.canInlineRule || this.disableInlineRules) {
       super.addIngressRule(peer, connection, description, remoteRule);
       return;
     }
@@ -445,7 +472,7 @@ export class SecurityGroup extends SecurityGroupBase {
       this.removeNoTrafficRule();
     }
 
-    if (!peer.canInlineRule || !connection.canInlineRule) {
+    if (!peer.canInlineRule || !connection.canInlineRule || this.disableInlineRules) {
       super.addEgressRule(peer, connection, description, remoteRule);
       return;
     }
@@ -519,10 +546,14 @@ export class SecurityGroup extends SecurityGroupBase {
    *   strictly necessary).
    */
   private addDefaultEgressRule() {
-    if (this.allowAllOutbound) {
-      this.directEgressRules.push(ALLOW_ALL_RULE);
+    if (this.disableInlineRules) {
+      const peer = this.allowAllOutbound ? ALL_TRAFFIC_PEER : NO_TRAFFIC_PEER;
+      const port = this.allowAllOutbound ? ALL_TRAFFIC_PORT : NO_TRAFFIC_PORT;
+      const description = this.allowAllOutbound ? ALLOW_ALL_RULE.description : MATCH_NO_TRAFFIC.description;
+      super.addEgressRule(peer, port, description, false);
     } else {
-      this.directEgressRules.push(MATCH_NO_TRAFFIC);
+      const rule = this.allowAllOutbound? ALLOW_ALL_RULE : MATCH_NO_TRAFFIC;
+      this.directEgressRules.push(rule);
     }
   }
 
@@ -530,9 +561,20 @@ export class SecurityGroup extends SecurityGroupBase {
    * Remove the bogus rule if it exists
    */
   private removeNoTrafficRule() {
-    const i = this.directEgressRules.findIndex(r => egressRulesEqual(r, MATCH_NO_TRAFFIC));
-    if (i > -1) {
-      this.directEgressRules.splice(i, 1);
+    if (this.disableInlineRules) {
+      const [scope, id] = determineRuleScope(
+        this,
+        NO_TRAFFIC_PEER,
+        NO_TRAFFIC_PORT,
+        'to',
+        false);
+
+      scope.node.tryRemoveChild(id);
+    } else {
+      const i = this.directEgressRules.findIndex(r => egressRulesEqual(r, MATCH_NO_TRAFFIC));
+      if (i > -1) {
+        this.directEgressRules.splice(i, 1);
+      }
     }
   }
 }
@@ -554,6 +596,9 @@ const MATCH_NO_TRAFFIC = {
   toPort: 86,
 };
 
+const NO_TRAFFIC_PEER = Peer.ipv4(MATCH_NO_TRAFFIC.cidrIp);
+const NO_TRAFFIC_PORT = Port.icmpTypeAndCode(MATCH_NO_TRAFFIC.fromPort, MATCH_NO_TRAFFIC.toPort);
+
 /**
  * Egress rule that matches all traffic
  */
@@ -562,6 +607,9 @@ const ALLOW_ALL_RULE = {
   description: 'Allow all outbound traffic by default',
   ipProtocol: '-1',
 };
+
+const ALL_TRAFFIC_PEER = Peer.anyIpv4();
+const ALL_TRAFFIC_PORT = Port.allTraffic();
 
 export interface ConnectionRule {
   /**

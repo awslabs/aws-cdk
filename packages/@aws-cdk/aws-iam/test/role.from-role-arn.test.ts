@@ -1,5 +1,5 @@
 import '@aws-cdk/assert/jest';
-import { App, CfnElement, Lazy, Stack } from '@aws-cdk/core';
+import { App, Aws, CfnElement, Lazy, Stack } from '@aws-cdk/core';
 import { AnyPrincipal, ArnPrincipal, IRole, Policy, PolicyStatement, Role } from '../lib';
 
 /* eslint-disable quote-props */
@@ -516,6 +516,21 @@ describe('IAM Role.fromRoleArn', () => {
             'codebuild-role',
           ],
         });
+      });
+    });
+  });
+
+  describe('for an incorrect ARN', () => {
+    beforeEach(() => {
+      roleStack = new Stack(app, 'RoleStack');
+    });
+
+    describe("that accidentally skipped the 'region' fragment of the ARN", () => {
+      test('throws an exception, indicating that error', () => {
+        expect(() => {
+          Role.fromRoleArn(roleStack, 'Role',
+            `arn:${Aws.PARTITION}:iam:${Aws.ACCOUNT_ID}:role/AwsCicd-${Aws.REGION}-CodeBuildRole`);
+        }).toThrow(/The `resource` component \(6th component\) of an ARN is required:/);
       });
     });
   });

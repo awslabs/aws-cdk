@@ -94,7 +94,7 @@
     "@aws-cdk/custom-resources": "0.0.0",
     "@aws-cdk/lambda-layer-awscli": "0.0.0",
     "@aws-cdk/lambda-layer-kubectl": "0.0.0",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "yaml": "1.10.2"
   },
   "bundledDependencies": [
@@ -110,7 +110,7 @@
     "@aws-cdk/aws-ssm": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/custom-resources": "0.0.0",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "@aws-cdk/lambda-layer-awscli": "0.0.0",
     "@aws-cdk/lambda-layer-kubectl": "0.0.0"
   },

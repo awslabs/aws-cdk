@@ -70,7 +70,7 @@ export = {
 
   'Seconds is not an allowed value for Schedule rate'(test: Test) {
     const lazyDuration = cdk.Duration.seconds(cdk.Lazy.number({ produce: () => 5 }));
-    test.throws(() => Schedule.rate(lazyDuration), /Allowed unit for scheduling is: 'minute', 'minutes', 'hour', 'hours', 'day', 'days'/);
+    test.throws(() => Schedule.rate(lazyDuration), /Allowed units for scheduling/i);
     test.done();
   },
 
@@ -78,7 +78,7 @@ export = {
     const lazyDuration = cdk.Duration.millis(cdk.Lazy.number({ produce: () => 5 }));
 
     // THEN
-    test.throws(() => Schedule.rate(lazyDuration), /Allowed unit for scheduling is: 'minute', 'minutes', 'hour', 'hours', 'day', 'days'/);
+    test.throws(() => Schedule.rate(lazyDuration), /Allowed units for scheduling/i);
     test.done();
   },
 

@@ -184,9 +184,6 @@ export class OriginRequestHeaderBehavior {
     if (headers.length === 0) {
       throw new Error('At least one header to allow must be provided');
     }
-    if (headers.length > 10) {
-      throw new Error(`Maximum allowed headers in Origin Request Policy is 10; got ${headers.length}.`);
-    }
     if (/Authorization/i.test(headers.join('|')) || /Accept-Encoding/i.test(headers.join('|'))) {
       throw new Error('you cannot pass `Authorization` or `Accept-Encoding` as header values; use a CachePolicy to forward these headers instead');
     }

@@ -133,7 +133,7 @@ The `corsPreflight` option lets you specify a CORS configuration for an API.
 new HttpApi(stack, 'HttpProxyApi', {
   corsPreflight: {
     allowHeaders: ['Authorization'],
-    allowMethods: [HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST],
+    allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.HEAD, CorsHttpMethod.OPTIONS, CorsHttpMethod.POST],
     allowOrigins: ['*'],
     maxAge: Duration.days(10),
   },

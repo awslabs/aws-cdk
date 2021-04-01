@@ -81,7 +81,7 @@
     "@aws-cdk/assets": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
     "minimatch": "^3.0.4",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
@@ -91,7 +91,7 @@
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "nyc": {
     "statements": 70

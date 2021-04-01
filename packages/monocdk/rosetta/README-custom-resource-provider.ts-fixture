@@ -1,0 +1,18 @@
+import { CfnOutput, Construct, Token } from '@aws-cdk/core';
+
+declare interface SumProps {
+  readonly lhs: number;
+  readonly rhs: number;
+}
+declare class Sum extends Construct {
+  public readonly result: number;
+  constructor(scope: Construct, id: string, props: SumProps);
+}
+
+class fixture$construct extends Construct {
+  public constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}

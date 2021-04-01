@@ -651,6 +651,9 @@ interface InstanceConfig {
  */
 function createInstances(cluster: DatabaseClusterNew, props: DatabaseClusterBaseProps, subnetGroup: ISubnetGroup): InstanceConfig {
   const instanceCount = props.instances != null ? props.instances : 2;
+  if (Token.isUnresolved(instanceCount)) {
+    throw new Error('The number of instances an RDS Cluster consists of cannot be provided as a deploy-time only value!');
+  }
   if (instanceCount < 1) {
     throw new Error('At least one instance is required');
   }

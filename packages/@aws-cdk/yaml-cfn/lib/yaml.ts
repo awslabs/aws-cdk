@@ -54,6 +54,6 @@ const shortForms: yaml_types.Schema.CustomTag[] = [
 function parseYamlStrWithCfnTags(text: string): any {
   return yaml.parse(text, {
     customTags: shortForms,
-    schema: 'yaml-1.1',
+    schema: 'core',
   });
 }

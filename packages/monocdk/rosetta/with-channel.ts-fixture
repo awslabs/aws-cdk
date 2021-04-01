@@ -1,0 +1,15 @@
+// Fixture with packages imported, but nothing else
+import { Duration, Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as ivs from '@aws-cdk/aws-ivs';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const myChannelArn = 'arn:aws:ivs:us-west-2:123456789012:channel/abcdABCDefgh';
+    const myChannel = ivs.Channel.fromChannelArn(this, 'Channel', myChannelArn);
+
+    /// here
+  }
+}

@@ -15,22 +15,27 @@ to the `rule.addTarget()` method.
 
 Currently supported are:
 
-* Start a CodeBuild build
-* Start a CodePipeline pipeline
+* [Start a CodeBuild build](#start-a-codebuild-build)
+* [Start a CodePipeline pipeline](#start-a-codepipeline-pipeline)
 * Run an ECS task
-* Invoke a Lambda function
+* [Invoke a Lambda function](#invoke-a-lambda-function)
 * Publish a message to an SNS topic
 * Send a message to an SQS queue
-* Start a StepFunctions state machine
+* [Start a StepFunctions state machine](#start-a-stepfunctions-state-machine)
 * Queue a Batch job
 * Make an AWS API call
 * Put a record to a Kinesis stream
-* Log an event into a LogGroup
+* [Log an event into a LogGroup](#log-an-event-into-a-loggroup)
 * Put a record to a Kinesis Data Firehose stream
 * Put an event on an EventBridge bus
 
 See the README of the `@aws-cdk/aws-events` library for more information on
 EventBridge.
+
+## Event retry policy and using dead-letter queues
+
+The Codebuild, CodePipeline, Lambda, StepFunctions and LogGroup targets support attaching a [dead letter queue and setting retry policies](https://docs.aws.amazon.com/eventbridge/latest/userguide/rule-dlq.html). See the [lambda example](#invoke-a-lambda-function).
+Use [escape hatches](https://docs.aws.amazon.com/cdk/latest/guide/cfn_layer.html) for the other target types.
 
 ## Invoke a Lambda function
 
@@ -45,6 +50,7 @@ import * as lambda from "@aws-cdk/aws-lambda";
 import * as events from "@aws-cdk/aws-events";
 import * as sqs from "@aws-cdk/aws-sqs";
 import * as targets from "@aws-cdk/aws-events-targets";
+import * as cdk from '@aws-cdk/core';
 
 const fn = new lambda.Function(this, 'MyFunc', {
   runtime: lambda.Runtime.NODEJS_12_X,
@@ -62,6 +68,8 @@ const queue = new sqs.Queue(this, 'Queue');
 
 rule.addTarget(new targets.LambdaFunction(fn, {
   deadLetterQueue: queue, // Optional: add a dead letter queue
+  maxEventAge: cdk.Duration.hours(2), // Otional: set the maxEventAge retry policy
+  retryAttempts: 2, // Optional: set the max number of retry attempts
 }));
 ```
 
@@ -90,7 +98,7 @@ const rule = new events.Rule(this, 'rule', {
 rule.addTarget(new targets.CloudWatchLogGroup(logGroup));
 ```
 
-## Trigger a CodeBuild project
+## Start a CodeBuild build
 
 Use the `CodeBuildProject` target to trigger a CodeBuild project.
 
@@ -123,7 +131,26 @@ const onCommitRule = repo.onCommit('OnCommit', {
 });
 ```
 
-## Trigger a State Machine
+## Start a CodePipeline pipeline
+
+Use the `CodePipeline` target to trigger a CodePipeline pipeline.
+
+The code snippet below creates a CodePipeline pipeline that is triggered every hour
+
+```ts
+import * as codepipeline from '@aws-sdk/aws-codepipeline';
+import * as sqs from '@aws-sdk/aws-sqs';
+
+const pipeline = new codepipeline.Pipeline(this, 'Pipeline');
+
+const rule = new events.Rule(stack, 'Rule', {
+  schedule: events.Schedule.expression('rate(1 hour)'),
+});
+
+rule.addTarget(new targets.CodePipeline(pipeline));
+```
+
+## Start a StepFunctions state machine
 
 Use the `SfnStateMachine` target to trigger a State Machine.
 

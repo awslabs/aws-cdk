@@ -175,8 +175,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/lodash": "^4.14.168",
-    "@types/minimatch": "^3.0.3",
-    "@types/node": "^10.17.55",
+    "@types/minimatch": "^3.0.4",
+    "@types/node": "^10.17.56",
     "@types/sinon": "^9.0.11",
     "cdk-build-tools": "0.0.0",
     "cfn2ts": "0.0.0",
@@ -192,7 +192,7 @@
     "@aws-cdk/cx-api": "0.0.0",
     "@aws-cdk/region-info": "0.0.0",
     "@balena/dockerignore": "^1.0.2",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "fs-extra": "^9.1.0",
     "ignore": "^5.1.8",
     "minimatch": "^3.0.4"
@@ -208,7 +208,7 @@
     "@aws-cdk/cloud-assembly-schema": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
     "@aws-cdk/region-info": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"

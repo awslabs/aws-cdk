@@ -63,6 +63,16 @@ export interface BitBucketSourceActionProps extends codepipeline.CommonAwsAction
    * @see https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-CodestarConnectionSource.html#action-reference-CodestarConnectionSource-config
    */
   readonly codeBuildCloneOutput?: boolean;
+
+  /**
+   * Controls automatically starting your pipeline when a new commit
+   * is made on the configured repository and branch. If unspecified,
+   * the default value is true, and the field does not display by default.
+   *
+   * @default true
+   * @see https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-CodestarConnectionSource.html
+   */
+  readonly triggerOnPush?: boolean;
 }
 
 /**
@@ -107,6 +117,7 @@ export class BitBucketSourceAction extends Action {
 
     // the action needs to write the output to the pipeline bucket
     options.bucket.grantReadWrite(options.role);
+    options.bucket.grantPutAcl(options.role);
 
     // if codeBuildCloneOutput is true,
     // save the connectionArn in the Artifact instance
@@ -124,6 +135,7 @@ export class BitBucketSourceAction extends Action {
         OutputArtifactFormat: this.props.codeBuildCloneOutput === true
           ? 'CODEBUILD_CLONE_REF'
           : undefined,
+        DetectChanges: this.props.triggerOnPush,
       },
     };
   }

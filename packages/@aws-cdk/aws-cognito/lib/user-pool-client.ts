@@ -232,7 +232,7 @@ export interface UserPoolClientOptions {
   readonly disableOAuth?: boolean;
 
   /**
-   * OAuth settings for this to client to interact with the app.
+   * OAuth settings for this client to interact with the app.
    * An error is thrown when this is specified and `disableOAuth` is set.
    * @default - see defaults in `OAuthSettings`. meaningless if `disableOAuth` is set.
    */

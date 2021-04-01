@@ -1,11 +1,10 @@
+import * as ec2 from '@aws-cdk/aws-ec2';
 import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
+import { AcceleratorSecurityGroupPeer } from './_accelerator-security-group';
+import { IEndpoint } from './endpoint';
 import * as ga from './globalaccelerator.generated';
 import { IListener } from './listener';
-
-// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
-// eslint-disable-next-line no-duplicate-imports, import/order
-import { Construct as CoreConstruct } from '@aws-cdk/core';
 
 /**
  * The interface of the EndpointGroup
@@ -19,81 +18,9 @@ export interface IEndpointGroup extends cdk.IResource {
 }
 
 /**
- * Options for `addLoadBalancer`, `addElasticIpAddress` and `addEc2Instance` to add endpoints into the endpoint group
+ * Basic options for creating a new EndpointGroup
  */
-export interface EndpointConfigurationOptions {
-  /**
-   * Indicates whether client IP address preservation is enabled for an Application Load Balancer endpoint
-   *
-   * @default true
-   */
-  readonly clientIpReservation?: boolean;
-
-  /**
-   * The weight associated with the endpoint. When you add weights to endpoints, you configure AWS Global Accelerator
-   * to route traffic based on proportions that you specify. For example, you might specify endpoint weights of 4, 5,
-   * 5, and 6 (sum=20). The result is that 4/20 of your traffic, on average, is routed to the first endpoint, 5/20 is
-   * routed both to the second and third endpoints, and 6/20 is routed to the last endpoint.
-   * @see https://docs.aws.amazon.com/global-accelerator/latest/dg/about-endpoints-endpoint-weights.html
-   * @default - not specified
-   */
-  readonly weight?: number;
-}
-
-/**
- * Properties to create EndpointConfiguration
- *
- */
-export interface EndpointConfigurationProps extends EndpointConfigurationOptions {
-  /**
-   * The endopoint group reesource
-   *
-   * [disable-awslint:ref-via-interface]
-   */
-  readonly endpointGroup: EndpointGroup;
-
-  /**
-   * An ID for the endpoint. If the endpoint is a Network Load Balancer or Application Load Balancer,
-   * this is the Amazon Resource Name (ARN) of the resource. If the endpoint is an Elastic IP address,
-   * this is the Elastic IP address allocation ID. For EC2 instances, this is the EC2 instance ID.
-   */
-  readonly endpointId: string;
-}
-
-/**
- * LoadBalancer Interface
- */
-export interface LoadBalancer {
-  /**
-   * The ARN of this load balancer
-   */
-  readonly loadBalancerArn: string;
-}
-
-/**
- * EC2 Instance interface
- */
-export interface Ec2Instance {
-  /**
-   * The id of the instance resource
-   */
-  readonly instanceId: string;
-}
-
-/**
- * EIP Interface
- */
-export interface ElasticIpAddress {
-  /**
-   * allocation ID of the EIP resoruce
-   */
-  readonly attrAllocationId: string
-}
-
-/**
- * Property of the EndpointGroup
- */
-export interface EndpointGroupProps {
+export interface EndpointGroupOptions {
   /**
    * Name of the endpoint group
    *
@@ -102,42 +29,124 @@ export interface EndpointGroupProps {
   readonly endpointGroupName?: string;
 
   /**
-   * The Amazon Resource Name (ARN) of the listener.
-   */
-  readonly listener: IListener;
-
-  /**
    * The AWS Region where the endpoint group is located.
    *
-   * @default - the region of the current stack
+   * @default - region of the first endpoint in this group, or the stack region if that region can't be determined
    */
   readonly region?: string;
+
+  /**
+   * The time between health checks for each endpoint
+   *
+   * Must be either 10 or 30 seconds.
+   *
+   * @default Duration.seconds(30)
+   */
+  readonly healthCheckInterval?: cdk.Duration;
+
+  /**
+   * The ping path for health checks (if the protocol is HTTP(S)).
+   *
+   * @default '/'
+   */
+  readonly healthCheckPath?: string;
+
+  /**
+   * The port used to perform health checks
+   *
+   * @default - The listener's port
+   */
+  readonly healthCheckPort?: number;
+
+  /**
+   * The protocol used to perform health checks
+   *
+   * @default HealthCheckProtocol.TCP
+   */
+  readonly healthCheckProtocol?: HealthCheckProtocol;
+
+  /**
+   * The number of consecutive health checks required to set the state of a
+   * healthy endpoint to unhealthy, or to set an unhealthy endpoint to healthy.
+   *
+   * @default 3
+   */
+  readonly healthCheckThreshold?: number;
+
+  /**
+   * The percentage of traffic to send to this AWS Region.
+   *
+   * The percentage is applied to the traffic that would otherwise have been
+   * routed to the Region based on optimal routing. Additional traffic is
+   * distributed to other endpoint groups for this listener.
+   *
+   * @default 100
+   */
+  readonly trafficDialPercentage?: number;
+
+  /**
+   * Override the destination ports used to route traffic to an endpoint.
+   *
+   * Unless overridden, the port used to hit the endpoint will be the same as the port
+   * that traffic arrives on at the listener.
+   *
+   * @default - No overrides
+   */
+  readonly portOverrides?: PortOverride[]
+
+  /**
+   * Initial list of endpoints for this group
+   *
+   * @default - Group is initially empty
+   */
+  readonly endpoints?: IEndpoint[];
 }
 
 /**
- * The class for endpoint configuration
+ * Override specific listener ports used to route traffic to endpoints that are part of an endpoint group.
  */
-export class EndpointConfiguration extends CoreConstruct {
+export interface PortOverride {
   /**
-   * The property containing all the configuration to be rendered
+   * The listener port that you want to map to a specific endpoint port.
+   *
+   * This is the port that user traffic arrives to the Global Accelerator on.
    */
-  public readonly props: EndpointConfigurationProps;
-  constructor(scope: Construct, id: string, props: EndpointConfigurationProps) {
-    super(scope, id);
-    this.props = props;
-    props.endpointGroup._linkEndpoint(this);
-  }
+  readonly listenerPort: number;
 
   /**
-   * render the endpoint configuration for the endpoint group
+   * The endpoint port that you want a listener port to be mapped to.
+   *
+   * This is the port on the endpoint, such as the Application Load Balancer or Amazon EC2 instance.
    */
-  public renderEndpointConfiguration(): ga.CfnEndpointGroup.EndpointConfigurationProperty {
-    return {
-      clientIpPreservationEnabled: this.props.clientIpReservation,
-      endpointId: this.props.endpointId,
-      weight: this.props.weight,
-    };
-  }
+  readonly endpointPort: number;
+}
+
+/**
+ * The protocol for the connections from clients to the accelerator.
+ */
+export enum HealthCheckProtocol {
+  /**
+   * TCP
+   */
+  TCP = 'TCP',
+  /**
+   * HTTP
+   */
+  HTTP = 'HTTP',
+  /**
+   * HTTPS
+   */
+  HTTPS = 'HTTPS',
+}
+
+/**
+ * Property of the EndpointGroup
+ */
+export interface EndpointGroupProps extends EndpointGroupOptions {
+  /**
+   * The Amazon Resource Name (ARN) of the listener.
+   */
+  readonly listener: IListener;
 }
 
 /**
@@ -165,75 +174,72 @@ export class EndpointGroup extends cdk.Resource implements IEndpointGroup {
   /**
    * The array of the endpoints in this endpoint group
    */
-  protected readonly endpoints = new Array<EndpointConfiguration>();
+  protected readonly endpoints = new Array<IEndpoint>();
 
   constructor(scope: Construct, id: string, props: EndpointGroupProps) {
     super(scope, id);
 
     const resource = new ga.CfnEndpointGroup(this, 'Resource', {
       listenerArn: props.listener.listenerArn,
-      endpointGroupRegion: props.region ?? cdk.Stack.of(this).region,
+      endpointGroupRegion: props.region ?? cdk.Lazy.string({ produce: () => this.firstEndpointRegion() }),
       endpointConfigurations: cdk.Lazy.any({ produce: () => this.renderEndpoints() }, { omitEmptyArray: true }),
+      healthCheckIntervalSeconds: props.healthCheckInterval?.toSeconds({ integral: true }),
+      healthCheckPath: props.healthCheckPath,
+      healthCheckPort: props.healthCheckPort,
+      healthCheckProtocol: props.healthCheckProtocol,
+      thresholdCount: props.healthCheckThreshold,
+      trafficDialPercentage: props.trafficDialPercentage,
+      portOverrides: props.portOverrides?.map(o => ({
+        endpointPort: o.endpointPort,
+        listenerPort: o.listenerPort,
+      })),
     });
 
     this.endpointGroupArn = resource.attrEndpointGroupArn;
     this.endpointGroupName = props.endpointGroupName ?? resource.logicalId;
+
+    for (const endpoint of props.endpoints ?? []) {
+      this.addEndpoint(endpoint);
+    }
   }
 
   /**
    * Add an endpoint
    */
-  public addEndpoint(id: string, endpointId: string, props: EndpointConfigurationOptions =
-  {}) {
-    return new EndpointConfiguration(this, id, {
-      endpointGroup: this,
-      endpointId,
-      ...props,
-    });
-  }
-
-  /**
-   * Add an Elastic Load Balancer as an endpoint in this endpoint group
-   */
-  public addLoadBalancer(id: string, lb: LoadBalancer, props: EndpointConfigurationOptions = {}) {
-    return new EndpointConfiguration(this, id, {
-      endpointId: lb.loadBalancerArn,
-      endpointGroup: this,
-      ...props,
-    });
-  }
-
-  /**
-   * Add an EIP as an endpoint in this endpoint group
-   */
-  public addElasticIpAddress(id: string, eip: ElasticIpAddress, props: EndpointConfigurationOptions = {}) {
-    return new EndpointConfiguration(this, id, {
-      endpointId: eip.attrAllocationId,
-      endpointGroup: this,
-      ...props,
-    });
-  }
-
-  /**
-   * Add an EC2 Instance as an endpoint in this endpoint group
-   */
-  public addEc2Instance(id: string, instance: Ec2Instance, props: EndpointConfigurationOptions = {}) {
-    return new EndpointConfiguration(this, id, {
-      endpointId: instance.instanceId,
-      endpointGroup: this,
-      ...props,
-    });
-  }
-
-  /**
-   * Links a endpoint to this endpoint group
-   * @internal
-   */
-  public _linkEndpoint(endpoint: EndpointConfiguration) {
+  public addEndpoint(endpoint: IEndpoint) {
     this.endpoints.push(endpoint);
+  }
+
+  /**
+   * Return an object that represents the Accelerator's Security Group
+   *
+   * Uses a Custom Resource to look up the Security Group that Accelerator
+   * creates at deploy time. Requires your VPC ID to perform the lookup.
+   *
+   * The Security Group will only be created if you enable **Client IP
+   * Preservation** on any of the endpoints.
+   *
+   * You cannot manipulate the rules inside this security group, but you can
+   * use this security group as a Peer in Connections rules on other
+   * constructs.
+   */
+  public connectionsPeer(id: string, vpc: ec2.IVpc): ec2.IPeer {
+    return AcceleratorSecurityGroupPeer.fromVpc(this, id, vpc, this);
   }
 
   private renderEndpoints() {
     return this.endpoints.map(e => e.renderEndpointConfiguration());
+  }
+
+  /**
+   * Return the first (readable) region of the endpoints in this group
+   */
+  private firstEndpointRegion() {
+    for (const endpoint of this.endpoints) {
+      if (endpoint.region) {
+        return endpoint.region;
+      }
+    }
+    return cdk.Stack.of(this).region;
   }
 }

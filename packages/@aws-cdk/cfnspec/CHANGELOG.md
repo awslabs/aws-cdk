@@ -1,3 +1,61 @@
+# CloudFormation Resource Specification v31.1.0
+
+## New Resource Types
+
+* AWS::FIS::ExperimentTemplate
+* AWS::S3ObjectLambda::AccessPoint
+* AWS::S3ObjectLambda::AccessPointPolicy
+
+## Attribute Changes
+
+* AWS::Backup::BackupSelection Id (__added__)
+* AWS::RDS::DBProxy VpcId (__added__)
+
+## Property Changes
+
+* AWS::EC2::LaunchTemplate TagSpecifications.ItemType (__added__)
+* AWS::EC2::LaunchTemplate TagSpecifications.Type (__changed__)
+  * Old: TagSpecifications
+  * New: List
+* AWS::ServiceCatalogAppRegistry::AttributeGroup Attributes.Type (__deleted__)
+* AWS::ServiceCatalogAppRegistry::AttributeGroup Attributes.PrimitiveType (__added__)
+* AWS::ServiceDiscovery::Service Type (__added__)
+
+## Property Type Changes
+
+* AWS::EC2::LaunchTemplate.TagSpecifications (__removed__)
+* AWS::ServiceCatalogAppRegistry::AttributeGroup.Attributes (__removed__)
+* AWS::Backup::BackupSelection.BackupSelectionResourceType IamRoleArn.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.BackupSelectionResourceType ListOfTags.DuplicatesAllowed (__added__)
+* AWS::Backup::BackupSelection.BackupSelectionResourceType ListOfTags.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.BackupSelectionResourceType Resources.DuplicatesAllowed (__added__)
+* AWS::Backup::BackupSelection.BackupSelectionResourceType Resources.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.BackupSelectionResourceType SelectionName.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.ConditionResourceType ConditionKey.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.ConditionResourceType ConditionType.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::Backup::BackupSelection.ConditionResourceType ConditionValue.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::SSM::MaintenanceWindowTarget.Targets Values.Required (__changed__)
+  * Old: false
+  * New: true
+* AWS::SSM::MaintenanceWindowTask.Target Values.Required (__changed__)
+  * Old: false
+  * New: true
+
+
 # CloudFormation Resource Specification v31.0.0
 
 ## New Resource Types

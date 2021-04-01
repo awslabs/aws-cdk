@@ -199,7 +199,6 @@
         "Region": "eu-west-3"
       },
       "DependsOn": [
-        "TableReplicauseast28A15C236",
         "TableSourceTableAttachedManagedPolicyawscdkdynamodbglobalreplicasprovisionedawscdkawsdynamodbReplicaProviderIsCompleteHandlerServiceRoleBE2B1C1A5DC546D2",
         "TableSourceTableAttachedManagedPolicyawscdkdynamodbglobalreplicasprovisionedawscdkawsdynamodbReplicaProviderOnEventHandlerServiceRoleD9856B771F8F2CCB",
         "TableWriteScalingTargetE5669214",
@@ -207,6 +206,19 @@
       ],
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete",
+      "Metadata": {
+        "DynamoDbReplicationDependency": {
+          "Fn::If": [
+            "TableStackRegionNotEqualsuseast2D20A1E77",
+            {
+              "Ref": "TableReplicauseast28A15C236"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        }
+      },
       "Condition": "TableStackRegionNotEqualseuwest302B3591C"
     },
     "TableWriteScalingTargetE5669214": {

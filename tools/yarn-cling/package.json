@@ -38,15 +38,16 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^26.0.21",
-    "@types/node": "^10.17.55",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^10.17.56",
     "@types/yarnpkg__lockfile": "^1.1.4",
     "jest": "^26.6.3",
     "pkglint": "0.0.0",
     "typescript": "~3.9.9"
   },
   "dependencies": {
-    "@yarnpkg/lockfile": "^1.1.0"
+    "@yarnpkg/lockfile": "^1.1.0",
+    "semver": "^7.3.5"
   },
   "keywords": [
     "aws",

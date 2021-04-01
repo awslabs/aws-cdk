@@ -34,7 +34,7 @@ In addition, the library also supports defining Kubernetes resource manifests wi
   * [Kubernetes Manifests](#kubernetes-manifests)
   * [Helm Charts](#helm-charts)
   * [CDK8s Charts](#cdk8s-charts)
-* [Patching Kuberentes Resources](#patching-kubernetes-resources)
+* [Patching Kubernetes Resources](#patching-kubernetes-resources)
 * [Querying Kubernetes Resources](#querying-kubernetes-resources)
 * [Using existing clusters](#using-existing-clusters)
 * [Known Issues and Limitations](#known-issues-and-limitations)
@@ -651,6 +651,15 @@ const secretsKey = new kms.Key(this, 'SecretsKey');
 const cluster = new eks.Cluster(this, 'MyCluster', {
   secretsEncryptionKey: secretsKey,
   // ...
+});
+```
+
+You can also use a similiar configuration for running a cluster built using the FargateCluster construct.
+
+```ts
+const secretsKey = new kms.Key(this, 'SecretsKey');
+const cluster = new eks.FargateCluster(this, 'MyFargateCluster', {
+  secretsEncryptionKey: secretsKey
 });
 ```
 

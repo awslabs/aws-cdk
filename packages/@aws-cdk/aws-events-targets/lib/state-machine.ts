@@ -1,13 +1,12 @@
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
-import * as sqs from '@aws-cdk/aws-sqs';
 import * as sfn from '@aws-cdk/aws-stepfunctions';
-import { addToDeadLetterQueueResourcePolicy, singletonEventRole } from './util';
+import { addToDeadLetterQueueResourcePolicy, bindBaseTargetConfig, singletonEventRole, TargetBaseProps } from './util';
 
 /**
  * Customize the Step Functions State Machine target
  */
-export interface SfnStateMachineProps {
+export interface SfnStateMachineProps extends TargetBaseProps {
   /**
    * The input to the state machine execution
    *
@@ -21,18 +20,6 @@ export interface SfnStateMachineProps {
    * @default - a new role will be created
    */
   readonly role?: iam.IRole;
-
-  /**
-   * The SQS queue to be used as deadLetterQueue.
-   * Check out the [considerations for using a dead-letter queue](https://docs.aws.amazon.com/eventbridge/latest/userguide/rule-dlq.html#dlq-considerations).
-   *
-   * The events not successfully delivered are automatically retried for a specified period of time,
-   * depending on the retry policy of the target.
-   * If an event is not delivered before all retry attempts are exhausted, it will be sent to the dead letter queue.
-   *
-   * @default - no dead-letter queue
-   */
-  readonly deadLetterQueue?: sqs.IQueue;
 }
 
 /**
@@ -61,8 +48,8 @@ export class SfnStateMachine implements events.IRuleTarget {
     }
 
     return {
+      ...bindBaseTargetConfig(this.props),
       arn: this.machine.stateMachineArn,
-      deadLetterConfig: this.props.deadLetterQueue ? { arn: this.props.deadLetterQueue?.queueArn } : undefined,
       role: this.role,
       input: this.props.input,
       targetResource: this.machine,

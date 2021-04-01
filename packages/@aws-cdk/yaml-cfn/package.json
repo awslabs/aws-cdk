@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "0.0.0",
-    "@types/jest": "^26.0.21",
+    "@types/jest": "^26.0.22",
     "@types/yaml": "^1.9.7",
     "cdk-build-tools": "0.0.0",
     "jest": "^26.6.3",

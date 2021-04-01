@@ -1,4 +1,5 @@
 import { IResolveContext, Lazy, Stack } from '@aws-cdk/core';
+import * as yaml_cfn from '@aws-cdk/yaml-cfn';
 
 /**
  * BuildSpec for CodeBuild projects
@@ -6,6 +7,15 @@ import { IResolveContext, Lazy, Stack } from '@aws-cdk/core';
 export abstract class BuildSpec {
   public static fromObject(value: {[key: string]: any}): BuildSpec {
     return new ObjectBuildSpec(value);
+  }
+
+  /**
+   * Create a buildspec from an object that will be rendered as YAML in the resulting CloudFormation template.
+   *
+   * @param value the object containing the buildspec that will be rendered as YAML
+   */
+  public static fromObjectToYaml(value: {[key: string]: any}): BuildSpec {
+    return new YamlBuildSpec(value);
   }
 
   /**
@@ -67,6 +77,21 @@ class ObjectBuildSpec extends BuildSpec {
       produce: (ctx: IResolveContext) =>
         Stack.of(ctx.scope).toJsonString(this.spec, 2),
     });
+  }
+}
+
+/**
+ * BuildSpec that exports into YAML format
+ */
+class YamlBuildSpec extends BuildSpec {
+  public readonly isImmediate: boolean = true;
+
+  constructor(public readonly spec: {[key: string]: any}) {
+    super();
+  }
+
+  public toBuildSpec(): string {
+    return yaml_cfn.serialize(this.spec);
   }
 }
 

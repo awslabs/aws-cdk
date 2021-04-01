@@ -453,7 +453,7 @@
     "Accelerator8EB0B6B1": {
       "Type": "AWS::GlobalAccelerator::Accelerator",
       "Properties": {
-        "Name": "Accelerator",
+        "Name": "integglobalacceleratorAccelerator5D88FB42",
         "Enabled": true
       }
     },
@@ -474,50 +474,6 @@
         ],
         "Protocol": "TCP",
         "ClientAffinity": "NONE"
-      }
-    },
-    "GroupC77FDACD": {
-      "Type": "AWS::GlobalAccelerator::EndpointGroup",
-      "Properties": {
-        "EndpointGroupRegion": {
-          "Ref": "AWS::Region"
-        },
-        "ListenerArn": {
-          "Fn::GetAtt": [
-            "Listener828B0E81",
-            "ListenerArn"
-          ]
-        },
-        "EndpointConfigurations": [
-          {
-            "EndpointId": {
-              "Ref": "ALBAEE750D2"
-            }
-          },
-          {
-            "EndpointId": {
-              "Ref": "NLB55158F82"
-            }
-          },
-          {
-            "EndpointId": {
-              "Fn::GetAtt": [
-                "ElasticIpAddress",
-                "AllocationId"
-              ]
-            }
-          },
-          {
-            "EndpointId": {
-              "Ref": "Instance008A4B15C"
-            }
-          },
-          {
-            "EndpointId": {
-              "Ref": "Instance14BC3991D"
-            }
-          }
-        ]
       }
     },
     "ALBAEE750D2": {
@@ -573,6 +529,27 @@
         "VpcId": {
           "Ref": "VPCB9E5F0B4"
         }
+      }
+    },
+    "ALBSecurityGroupfromGlobalAcceleratorGroup4435D2AC398": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "Description": "from GlobalAcceleratorGroup:443",
+        "FromPort": 443,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "ALBSecurityGroup8B8624F8",
+            "GroupId"
+          ]
+        },
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "GroupPeerCustomResourceB3A15D36",
+            "SecurityGroups.0.GroupId"
+          ]
+        },
+        "ToPort": 443
       }
     },
     "NLB55158F82": {
@@ -808,12 +785,208 @@
       "DependsOn": [
         "Instance1InstanceRoleBC4D05C6"
       ]
+    },
+    "GroupC77FDACD": {
+      "Type": "AWS::GlobalAccelerator::EndpointGroup",
+      "Properties": {
+        "EndpointGroupRegion": {
+          "Ref": "AWS::Region"
+        },
+        "ListenerArn": {
+          "Fn::GetAtt": [
+            "Listener828B0E81",
+            "ListenerArn"
+          ]
+        },
+        "EndpointConfigurations": [
+          {
+            "EndpointId": {
+              "Ref": "ALBAEE750D2"
+            }
+          },
+          {
+            "EndpointId": {
+              "Ref": "NLB55158F82"
+            }
+          },
+          {
+            "EndpointId": {
+              "Fn::GetAtt": [
+                "ElasticIpAddress",
+                "AllocationId"
+              ]
+            }
+          },
+          {
+            "EndpointId": {
+              "Ref": "Instance008A4B15C"
+            }
+          },
+          {
+            "EndpointId": {
+              "Ref": "Instance14BC3991D"
+            }
+          }
+        ]
+      }
+    },
+    "GroupPeerCustomResourceCustomResourcePolicy42EF8263": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ec2:DescribeSecurityGroups",
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "GroupPeerCustomResourceCustomResourcePolicy42EF8263",
+        "Roles": [
+          {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+          }
+        ]
+      },
+      "DependsOn": [
+        "GroupC77FDACD"
+      ]
+    },
+    "GroupPeerCustomResourceB3A15D36": {
+      "Type": "Custom::AWS",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn"
+          ]
+        },
+        "Create": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"service\":\"EC2\",\"action\":\"describeSecurityGroups\",\"parameters\":{\"Filters\":[{\"Name\":\"group-name\",\"Values\":[\"GlobalAccelerator\"]},{\"Name\":\"vpc-id\",\"Values\":[\"",
+              {
+                "Ref": "VPCB9E5F0B4"
+              },
+              "\"]}]},\"physicalResourceId\":{\"responsePath\":\"SecurityGroups.0.GroupId\"}}"
+            ]
+          ]
+        },
+        "InstallLatestAwsSdk": true
+      },
+      "DependsOn": [
+        "GroupPeerCustomResourceCustomResourcePolicy42EF8263",
+        "GroupC77FDACD"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343S3Bucket65227904"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343S3VersionKey3AF0E7DF"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343S3VersionKey3AF0E7DF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Arn"
+          ]
+        },
+        "Handler": "index.handler",
+        "Runtime": "nodejs12.x",
+        "Timeout": 120
+      },
+      "DependsOn": [
+        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+      ]
     }
   },
   "Parameters": {
     "SsmParameterValueawsserviceamiamazonlinuxlatestamznamihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
       "Default": "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
+    },
+    "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343S3Bucket65227904": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343\""
+    },
+    "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343S3VersionKey3AF0E7DF": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343\""
+    },
+    "AssetParameters0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343ArtifactHash0C561FF5": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"0625b1566df06e0ffd948f0f65f97a3d22d48242e66196d3f72b480f5309b343\""
     }
   }
 }

@@ -50,8 +50,22 @@ describe('cluster', () => {
       DeletionPolicy: 'Delete',
       UpdateReplacePolicy: 'Delete',
     }, ResourcePart.CompleteDefinition);
+  });
 
+  test('validates that the number of instances is not a deploy-time value', () => {
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const parameter = new cdk.CfnParameter(stack, 'Param', { type: 'Number' });
 
+    expect(() => {
+      new DatabaseCluster(stack, 'Database', {
+        instances: parameter.valueAsNumber,
+        engine: DatabaseClusterEngine.AURORA,
+        instanceProps: {
+          vpc,
+        },
+      });
+    }).toThrow('The number of instances an RDS Cluster consists of cannot be provided as a deploy-time only value!');
   });
 
   test('can create a cluster with a single instance', () => {
@@ -81,8 +95,6 @@ describe('cluster', () => {
       MasterUserPassword: 'tooshort',
       VpcSecurityGroupIds: [{ 'Fn::GetAtt': ['DatabaseSecurityGroup5C91FDCB', 'GroupId'] }],
     });
-
-
   });
 
   test('can create a cluster with imported vpc and security group', () => {
@@ -116,8 +128,6 @@ describe('cluster', () => {
       MasterUserPassword: 'tooshort',
       VpcSecurityGroupIds: ['SecurityGroupId12345'],
     });
-
-
   });
 
   test('cluster with parameter group', () => {
@@ -150,8 +160,6 @@ describe('cluster', () => {
     expect(stack).toHaveResource('AWS::RDS::DBCluster', {
       DBClusterParameterGroupName: { Ref: 'ParamsA8366201' },
     });
-
-
   });
 
   test("sets the retention policy of the SubnetGroup to 'Retain' if the Cluster is created with 'Retain'", () => {
@@ -172,8 +180,6 @@ describe('cluster', () => {
       DeletionPolicy: 'Retain',
       UpdateReplacePolicy: 'Retain',
     }, ResourcePart.CompleteDefinition);
-
-
   });
 
   test('creates a secret when master credentials are not specified', () => {
@@ -230,8 +236,6 @@ describe('cluster', () => {
         SecretStringTemplate: '{"username":"admin"}',
       },
     });
-
-
   });
 
   test('create an encrypted cluster with custom KMS key', () => {
@@ -261,8 +265,6 @@ describe('cluster', () => {
         ],
       },
     });
-
-
   });
 
   test('cluster with instance parameter group', () => {
@@ -294,8 +296,6 @@ describe('cluster', () => {
         Ref: 'ParameterGroup5E32DECB',
       },
     });
-
-
   });
 
   describe('performance insights', () => {
@@ -323,8 +323,6 @@ describe('cluster', () => {
         PerformanceInsightsRetentionPeriod: 731,
         PerformanceInsightsKMSKeyId: { 'Fn::GetAtt': ['Key961B73FD', 'Arn'] },
       });
-
-
     });
 
     test('setting performance insights fields enables performance insights', () => {
@@ -348,8 +346,6 @@ describe('cluster', () => {
         EnablePerformanceInsights: true,
         PerformanceInsightsRetentionPeriod: 731,
       });
-
-
     });
 
     test('throws if performance insights fields are set but performance insights is disabled', () => {
@@ -370,8 +366,6 @@ describe('cluster', () => {
           },
         });
       }).toThrow(/`enablePerformanceInsights` disabled, but `performanceInsightRetention` or `performanceInsightEncryptionKey` was set/);
-
-
     });
   });
 
@@ -392,8 +386,6 @@ describe('cluster', () => {
     expect(stack).toHaveResource('AWS::RDS::DBInstance', {
       AutoMinorVersionUpgrade: false,
     });
-
-
   });
 
   test('cluster with allow upgrade of major version', () => {
@@ -413,8 +405,6 @@ describe('cluster', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
       AllowMajorVersionUpgrade: true,
     });
-
-
   });
 
   test('cluster with disallow remove backups', () => {
@@ -434,8 +424,6 @@ describe('cluster', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
       DeleteAutomatedBackups: false,
     });
-
-
   });
 
   test('create a cluster using a specific version of MySQL', () => {
@@ -462,8 +450,6 @@ describe('cluster', () => {
       Engine: 'aurora-mysql',
       EngineVersion: '5.7.mysql_aurora.2.04.4',
     });
-
-
   });
 
   test('create a cluster using a specific version of Postgresql', () => {
@@ -513,8 +499,6 @@ describe('cluster', () => {
 
     // THEN
     expect(stack.resolve(cluster.clusterEndpoint)).not.toEqual(stack.resolve(cluster.clusterReadEndpoint));
-
-
   });
 
   test('imported cluster with imported security group honors allowAllOutbound', () => {
@@ -540,8 +524,6 @@ describe('cluster', () => {
     expect(stack).toHaveResource('AWS::EC2::SecurityGroupEgress', {
       GroupId: 'sg-123456789',
     });
-
-
   });
 
   test('can import a cluster with minimal attributes', () => {
@@ -567,8 +549,6 @@ describe('cluster', () => {
     expect(() => cluster.clusterReadEndpoint).toThrow(/Cannot access `clusterReadEndpoint` of an imported cluster/);
     expect(() => cluster.instanceIdentifiers).toThrow(/Cannot access `instanceIdentifiers` of an imported cluster/);
     expect(() => cluster.instanceEndpoints).toThrow(/Cannot access `instanceEndpoints` of an imported cluster/);
-
-
   });
 
   test('imported cluster can access properties if attributes are provided', () => {
@@ -590,8 +570,6 @@ describe('cluster', () => {
     expect(cluster.clusterReadEndpoint.socketAddress).toEqual('reader-address:3306');
     expect(cluster.instanceIdentifiers).toEqual(['identifier']);
     expect(cluster.instanceEndpoints.map(endpoint => endpoint.socketAddress)).toEqual(['instance-addr:3306']);
-
-
   });
 
   test('cluster supports metrics', () => {

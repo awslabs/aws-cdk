@@ -192,8 +192,8 @@ describe('image asset', () => {
 
     const session = app.synth();
 
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'Dockerfile'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'index.py'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'Dockerfile'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'index.py'))).toBeDefined();
 
   });
 
@@ -214,16 +214,16 @@ describe('image asset', () => {
     const session = app.synth();
 
     // Only the files exempted above should be included.
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, '.dockerignore'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'Dockerfile'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'index.py'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'foobar.txt'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory'))).toBeDefined();
-    expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
-    expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'node_modules'))).toBeDefined();
-    expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'node_modules', 'one'))).toBeDefined();
-    expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'node_modules', 'some_dep'))).toBeDefined();
-    expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'node_modules', 'some_dep', 'file'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, '.dockerignore'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'Dockerfile'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'index.py'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'foobar.txt'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory'))).toBeDefined();
+    expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
+    expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules'))).toBeDefined();
+    expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'one'))).toBeDefined();
+    expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'some_dep'))).toBeDefined();
+    expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'some_dep', 'file'))).toBeDefined();
 
 
   });
@@ -283,13 +283,13 @@ describe('image asset', () => {
     const asset6 = new DockerImageAsset(stack, 'Asset6', { directory, extraHash: 'random-extra' });
     const asset7 = new DockerImageAsset(stack, 'Asset7', { directory, repositoryName: 'foo' });
 
-    expect(asset1.sourceHash).toEqual('ab01ecd4419f59e1ec0ac9e57a60dbb653be68a29af0223fa8cb24b4b747bc73');
-    expect(asset2.sourceHash).toEqual('7fb12f6148098e3f5c56c788a865d2af689125ead403b795fe6a262ec34384b3');
-    expect(asset3.sourceHash).toEqual('fc3b6d802ba198ba2ee55079dbef27682bcd1288d5849eb5bbd5cd69038359b3');
-    expect(asset4.sourceHash).toEqual('30439ea6dfeb4ddfd9175097286895c78393ef52a78c68f92db08abc4513cad6');
-    expect(asset5.sourceHash).toEqual('5775170880e26ba31799745241b90d4340c674bb3b1c01d758e416ee3f1c386f');
-    expect(asset6.sourceHash).toEqual('ba82fd351a4d3e3f5c5d948b9948e7e829badc3da90f97e00bb7724afbeacfd4');
-    expect(asset7.sourceHash).toEqual('26ec194928431cab6ec5af24ea9f01af2cf7b20e361128b07b2a7405d2951f95');
+    expect(asset1.assetHash).toEqual('ab01ecd4419f59e1ec0ac9e57a60dbb653be68a29af0223fa8cb24b4b747bc73');
+    expect(asset2.assetHash).toEqual('7fb12f6148098e3f5c56c788a865d2af689125ead403b795fe6a262ec34384b3');
+    expect(asset3.assetHash).toEqual('fc3b6d802ba198ba2ee55079dbef27682bcd1288d5849eb5bbd5cd69038359b3');
+    expect(asset4.assetHash).toEqual('30439ea6dfeb4ddfd9175097286895c78393ef52a78c68f92db08abc4513cad6');
+    expect(asset5.assetHash).toEqual('5775170880e26ba31799745241b90d4340c674bb3b1c01d758e416ee3f1c386f');
+    expect(asset6.assetHash).toEqual('ba82fd351a4d3e3f5c5d948b9948e7e829badc3da90f97e00bb7724afbeacfd4');
+    expect(asset7.assetHash).toEqual('26ec194928431cab6ec5af24ea9f01af2cf7b20e361128b07b2a7405d2951f95');
 
   });
 });
@@ -304,12 +304,12 @@ function testDockerDirectoryIsStagedWithoutFilesSpecifiedInDockerignore(app: App
   const session = app.synth();
 
   // .dockerignore itself should be included in output to be processed during docker build
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, '.dockerignore'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'Dockerfile'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'index.py'))).toBeDefined();
-  expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'foobar.txt'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, '.dockerignore'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'Dockerfile'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'index.py'))).toBeDefined();
+  expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'foobar.txt'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
 
 
 }
@@ -324,12 +324,12 @@ function testDockerDirectoryIsStagedWithoutFilesSpecifiedInExcludeOption(app: Ap
 
   const session = app.synth();
 
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, '.dockerignore'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'Dockerfile'))).toBeDefined();
-  expect(fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'index.py'))).toBeDefined();
-  expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'foobar.txt'))).toBeDefined();
-  expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory'))).toBeDefined();
-  expect(!fs.existsSync(path.join(session.directory, `asset.${image.sourceHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, '.dockerignore'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'Dockerfile'))).toBeDefined();
+  expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'index.py'))).toBeDefined();
+  expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'foobar.txt'))).toBeDefined();
+  expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory'))).toBeDefined();
+  expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
 
 
 }

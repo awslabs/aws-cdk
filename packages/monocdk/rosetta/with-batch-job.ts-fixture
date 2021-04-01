@@ -1,0 +1,38 @@
+// Fixture with packages imported, but nothing else
+import { Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as sfn from '@aws-cdk/aws-stepfunctions';
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+import * as batch from '@aws-cdk/aws-batch';
+import * as ec2 from '@aws-cdk/aws-ec2';
+import * as ecs from '@aws-cdk/aws-ecs';
+import * as path from 'path';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'Vpc', {
+      isDefault: true,
+    });
+
+    const batchQueue = new batch.JobQueue(this, 'JobQueue', {
+      computeEnvironments: [
+        {
+          order: 1,
+          computeEnvironment: new batch.ComputeEnvironment(this, 'ComputeEnv', {
+            computeResources: { vpc },
+          }),
+        },
+      ],
+    });
+
+    const batchJobDefinition = new batch.JobDefinition(this, 'JobDefinition', {
+      container: {
+      image: ecs.ContainerImage.fromAsset(path.resolve(__dirname, 'batchjob-image')),
+      },
+    });
+
+    /// here
+  }
+}

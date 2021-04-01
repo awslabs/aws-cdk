@@ -1,5 +1,6 @@
 import * as events from '@aws-cdk/aws-events';
 import * as logs from '@aws-cdk/aws-logs';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
 import * as targets from '../../lib';
 
@@ -38,10 +39,16 @@ timer2.addTarget(new targets.CloudWatchLogGroup(logGroup2, {
   }),
 }));
 
+const queue = new sqs.Queue(stack, 'dlq');
+
 const timer3 = new events.Rule(stack, 'Timer3', {
   schedule: events.Schedule.rate(cdk.Duration.minutes(1)),
 });
-timer3.addTarget(new targets.CloudWatchLogGroup(importedLogGroup));
+timer3.addTarget(new targets.CloudWatchLogGroup(importedLogGroup, {
+  deadLetterQueue: queue,
+  maxEventAge: cdk.Duration.hours(2),
+  retryAttempts: 2,
+}));
 
 app.synth();
 

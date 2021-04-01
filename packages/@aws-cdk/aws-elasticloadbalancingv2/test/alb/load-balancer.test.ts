@@ -284,7 +284,7 @@ describe('tests', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const vpc = new ec2.Vpc(stack, 'Vpc');
-    const albArn = 'myArn';
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const sg = new ec2.SecurityGroup(stack, 'sg', {
       vpc,
       securityGroupName: 'mySg',
@@ -303,7 +303,7 @@ describe('tests', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const vpc = new ec2.Vpc(stack, 'Vpc');
-    const albArn = 'MyArn';
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const sg = new ec2.SecurityGroup(stack, 'sg', {
       vpc,
       securityGroupName: 'mySg',
@@ -317,6 +317,20 @@ describe('tests', () => {
     // WHEN
     const listener = alb.addListener('Listener', { port: 80 });
     expect(() => listener.addTargets('Targets', { port: 8080 })).not.toThrow();
+  });
+
+  test('imported load balancer knows its region', () => {
+    const stack = new cdk.Stack();
+
+    // WHEN
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
+    const alb = elbv2.ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(stack, 'ALB', {
+      loadBalancerArn: albArn,
+      securityGroupId: 'sg-1234',
+    });
+
+    // THEN
+    expect(alb.env.region).toEqual('us-west-2');
   });
 
   test('can add secondary security groups', () => {
@@ -364,6 +378,7 @@ describe('tests', () => {
       expect(loadBalancer.loadBalancerDnsName).toEqual('my-load-balancer-1234567890.us-west-2.elb.amazonaws.com');
       expect(loadBalancer.ipAddressType).toEqual(elbv2.IpAddressType.DUAL_STACK);
       expect(loadBalancer.connections.securityGroups[0].securityGroupId).toEqual('sg-12345');
+      expect(loadBalancer.env.region).toEqual('us-west-2');
     });
 
     test('Can add listeners to a looked-up ApplicationLoadBalancer', () => {

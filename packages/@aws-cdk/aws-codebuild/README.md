@@ -152,6 +152,9 @@ const project = codebuild.Project(stack, 'MyProject', {
 });
 ```
 
+If you'd prefer your buildspec to be rendered as YAML in the template,
+use the `fromObjectToYaml()` method instead of `fromObject()`.
+
 Because we've not set the `name` property, this example will set the
 `overrideArtifactName` parameter, and produce an artifact named as defined in
 the Buildspec file, uploaded to an S3 bucket (`bucket`). The path will be

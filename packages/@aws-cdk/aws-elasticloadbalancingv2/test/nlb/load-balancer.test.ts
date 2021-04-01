@@ -227,7 +227,7 @@ describe('tests', () => {
   test('imported network load balancer with no vpc specified throws error when calling addTargets', () => {
     // GIVEN
     const stack = new cdk.Stack();
-    const nlbArn = 'arn:aws:elasticloadbalancing::000000000000::dummyloadbalancer';
+    const nlbArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const nlb = elbv2.NetworkLoadBalancer.fromNetworkLoadBalancerAttributes(stack, 'NLB', {
       loadBalancerArn: nlbArn,
     });
@@ -240,7 +240,7 @@ describe('tests', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const vpc = new ec2.Vpc(stack, 'Vpc');
-    const nlbArn = 'arn:aws:elasticloadbalancing::000000000000::dummyloadbalancer';
+    const nlbArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
     const nlb = elbv2.NetworkLoadBalancer.fromNetworkLoadBalancerAttributes(stack, 'NLB', {
       loadBalancerArn: nlbArn,
       vpc,
@@ -248,6 +248,19 @@ describe('tests', () => {
     // WHEN
     const listener = nlb.addListener('Listener', { port: 80 });
     expect(() => listener.addTargets('targetgroup', { port: 8080 })).not.toThrow();
+  });
+
+  test('imported load balancer knows its region', () => {
+    const stack = new cdk.Stack();
+
+    // WHEN
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
+    const alb = elbv2.NetworkLoadBalancer.fromNetworkLoadBalancerAttributes(stack, 'ALB', {
+      loadBalancerArn: albArn,
+    });
+
+    // THEN
+    expect(alb.env.region).toEqual('us-west-2');
   });
 
   test('Trivial construction: internal with Isolated subnets only', () => {
@@ -429,6 +442,7 @@ describe('tests', () => {
       expect(loadBalancer.loadBalancerArn).toEqual('arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/network/my-load-balancer/50dc6c495c0c9188');
       expect(loadBalancer.loadBalancerCanonicalHostedZoneId).toEqual('Z3DZXE0EXAMPLE');
       expect(loadBalancer.loadBalancerDnsName).toEqual('my-load-balancer-1234567890.us-west-2.elb.amazonaws.com');
+      expect(loadBalancer.env.region).toEqual('us-west-2');
     });
 
     test('Can add listeners to a looked-up NetworkLoadBalancer', () => {

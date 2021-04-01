@@ -76,6 +76,33 @@ export = {
     test.done();
   },
 
+  'specific tumblingWindow'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const fn = new TestFunction(stack, 'Fn');
+    const table = new dynamodb.Table(stack, 'T', {
+      partitionKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      stream: dynamodb.StreamViewType.NEW_IMAGE,
+    });
+
+    // WHEN
+    fn.addEventSource(new sources.DynamoEventSource(table, {
+      batchSize: 50,
+      startingPosition: lambda.StartingPosition.LATEST,
+      tumblingWindow: cdk.Duration.seconds(60),
+    }));
+
+    // THEN
+    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+      TumblingWindowInSeconds: 60,
+    }));
+
+    test.done();
+  },
+
   'specific batch size'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();

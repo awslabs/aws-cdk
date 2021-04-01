@@ -1,12 +1,11 @@
 import * as events from '@aws-cdk/aws-events';
 import * as lambda from '@aws-cdk/aws-lambda';
-import * as sqs from '@aws-cdk/aws-sqs';
-import { addLambdaPermission, addToDeadLetterQueueResourcePolicy } from './util';
+import { addLambdaPermission, addToDeadLetterQueueResourcePolicy, TargetBaseProps, bindBaseTargetConfig } from './util';
 
 /**
  * Customize the Lambda Event Target
  */
-export interface LambdaFunctionProps {
+export interface LambdaFunctionProps extends TargetBaseProps {
   /**
    * The event to send to the Lambda
    *
@@ -15,18 +14,6 @@ export interface LambdaFunctionProps {
    * @default the entire EventBridge event
    */
   readonly event?: events.RuleTargetInput;
-
-  /**
-   * The SQS queue to be used as deadLetterQueue.
-   * Check out the [considerations for using a dead-letter queue](https://docs.aws.amazon.com/eventbridge/latest/userguide/rule-dlq.html#dlq-considerations).
-   *
-   * The events not successfully delivered are automatically retried for a specified period of time,
-   * depending on the retry policy of the target.
-   * If an event is not delivered before all retry attempts are exhausted, it will be sent to the dead letter queue.
-   *
-   * @default - no dead-letter queue
-   */
-  readonly deadLetterQueue?: sqs.IQueue;
 }
 
 /**
@@ -50,8 +37,8 @@ export class LambdaFunction implements events.IRuleTarget {
     }
 
     return {
+      ...bindBaseTargetConfig(this.props),
       arn: this.handler.functionArn,
-      deadLetterConfig: this.props.deadLetterQueue ? { arn: this.props.deadLetterQueue?.queueArn } : undefined,
       input: this.props.event,
       targetResource: this.handler,
     };

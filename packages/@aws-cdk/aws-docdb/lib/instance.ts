@@ -120,7 +120,7 @@ export interface DatabaseInstanceProps {
   /**
    * The name of the compute and memory capacity classes.
    */
-  readonly instanceClass: ec2.InstanceType;
+  readonly instanceType: ec2.InstanceType;
 
   /**
    * The name of the Availability Zone where the DB instance will be located.
@@ -202,7 +202,7 @@ export class DatabaseInstance extends DatabaseInstanceBase implements IDatabaseI
 
     const instance = new CfnDBInstance(this, 'Resource', {
       dbClusterIdentifier: props.cluster.clusterIdentifier,
-      dbInstanceClass: `db.${props.instanceClass}`,
+      dbInstanceClass: `db.${props.instanceType}`,
       autoMinorVersionUpgrade: props.autoMinorVersionUpgrade ?? true,
       availabilityZone: props.availabilityZone,
       dbInstanceIdentifier: props.dbInstanceName,

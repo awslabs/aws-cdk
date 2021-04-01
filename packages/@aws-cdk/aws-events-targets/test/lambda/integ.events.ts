@@ -33,6 +33,8 @@ const queue = new sqs.Queue(stack, 'Queue');
 
 timer3.addTarget(new targets.LambdaFunction(fn, {
   deadLetterQueue: queue,
+  maxEventAge: cdk.Duration.hours(2),
+  retryAttempts: 2,
 }));
 
 app.synth();

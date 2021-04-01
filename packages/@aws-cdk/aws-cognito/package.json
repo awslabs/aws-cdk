@@ -85,7 +85,7 @@
     "@aws-cdk/aws-lambda": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/custom-resources": "0.0.0",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "punycode": "^2.1.1"
   },
   "homepage": "https://github.com/aws/aws-cdk",
@@ -95,7 +95,7 @@
     "@aws-cdk/aws-lambda": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/custom-resources": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "bundledDependencies": [
     "punycode"

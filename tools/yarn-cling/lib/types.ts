@@ -29,8 +29,8 @@ export interface ResolvedYarnPackage {
 
 export interface PackageLock extends PackageLockEntry {
   name: string;
-  lockfileVersion: 1;
-  requires: true;
+  lockfileVersion: number;
+  requires: boolean;
 }
 
 export interface PackageLockEntry {

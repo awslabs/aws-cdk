@@ -1,21 +1,12 @@
 # AWS::ACMPCA Construct Library
+
 <!--BEGIN STABILITY BANNER-->
 
 ---
 
 ![cfn-resources: Stable](https://img.shields.io/badge/cfn--resources-stable-success.svg?style=for-the-badge)
 
-> All classes with the `Cfn` prefix in this module ([CFN Resources]) are always stable and safe to use.
->
-> [CFN Resources]: https://docs.aws.amazon.com/cdk/latest/guide/constructs.html#constructs_lib
-
-![cdk-constructs: Experimental](https://img.shields.io/badge/cdk--constructs-experimental-important.svg?style=for-the-badge)
-
-> The APIs of higher level constructs in this module are experimental and under active development.
-> They are subject to non-backward compatible changes or removal in any future version. These are
-> not subject to the [Semantic Versioning](https://semver.org/) model and breaking changes will be
-> announced in the release notes. This means that while you may use them, you may need to update
-> your source code when upgrading to a newer version of this package.
+![cdk-constructs: Stable](https://img.shields.io/badge/cdk--constructs-stable-success.svg?style=for-the-badge)
 
 ---
 
@@ -25,4 +16,52 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
 
 ```ts
 import * as acmpca from '@aws-cdk/aws-acmpca';
+```
+
+## Certificate Authority
+
+This package contains a `CertificateAuthority` class.
+At the moment, you cannot create new Authorities using it,
+but you can import existing ones using the `fromCertificateAuthorityArn` static method:
+
+```ts
+const certificateAuthority = acmpca.CertificateAuthority.fromCertificateAuthorityArn(this, 'CA',
+  'arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/023077d8-2bfa-4eb0-8f22-05c96deade77');
+```
+
+## Low-level `Cfn*` classes
+
+You can always use the low-level classes
+(starting with `Cfn*`) to create resources like the Certificate Authority:
+
+```ts
+const cfnCertificateAuthority = new acmpca.CfnCertificateAuthority(this, 'CA', {
+  type: 'ROOT',
+  keyAlgorithm: 'RSA_2048',
+  signingAlgorithm: 'SHA256WITHRSA',
+  subject: {
+    country: 'US',
+    organization: 'string',
+    organizationalUnit: 'string',
+    distinguishedNameQualifier: 'string',
+    state: 'string',
+    commonName: '123',
+    serialNumber: 'string',
+    locality: 'string',
+    title: 'string',
+    surname: 'string',
+    givenName: 'string',
+    initials: 'DG',
+    pseudonym: 'string',
+    generationQualifier: 'DBG',
+  },
+});
+```
+
+If you need to pass the higher-level `ICertificateAuthority` somewhere,
+you can get it from the lower-level `CfnCertificateAuthority` using the same `fromCertificateAuthorityArn` method:
+
+```ts
+const certificateAuthority = acmpca.CertificateAuthority.fromCertificateAuthorityArn(this, 'CertificateAuthority',
+  cfnCertificateAuthority.attrArn);
 ```

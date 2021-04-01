@@ -4,6 +4,7 @@ import { Metric } from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import { Duration, Stack } from '@aws-cdk/core';
 import {
+  CorsHttpMethod,
   HttpApi, HttpAuthorizer, HttpAuthorizerType, HttpIntegrationType, HttpMethod, HttpRouteAuthorizerBindOptions, HttpRouteAuthorizerConfig,
   HttpRouteIntegrationBindOptions, HttpRouteIntegrationConfig, IHttpRouteAuthorizer, IHttpRouteIntegration, HttpNoneAuthorizer, PayloadFormatVersion,
 } from '../../lib';
@@ -106,7 +107,7 @@ describe('HttpApi', () => {
       new HttpApi(stack, 'HttpApi', {
         corsPreflight: {
           allowHeaders: ['Authorization'],
-          allowMethods: [HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST],
+          allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.HEAD, CorsHttpMethod.OPTIONS, CorsHttpMethod.POST, CorsHttpMethod.ANY],
           allowOrigins: ['*'],
           maxAge: Duration.seconds(36400),
         },
@@ -115,7 +116,7 @@ describe('HttpApi', () => {
       expect(stack).toHaveResource('AWS::ApiGatewayV2::Api', {
         CorsConfiguration: {
           AllowHeaders: ['Authorization'],
-          AllowMethods: ['GET', 'HEAD', 'OPTIONS', 'POST'],
+          AllowMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', '*'],
           AllowOrigins: ['*'],
           MaxAge: 36400,
         },

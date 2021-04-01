@@ -112,6 +112,54 @@ test('Existing role can be used for State machine Rule target', () => {
   });
 });
 
+test('specifying retry policy', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+  const rule = new events.Rule(stack, 'Rule', {
+    schedule: events.Schedule.expression('rate(1 hour)'),
+  });
+
+  // WHEN
+  const role = new iam.Role(stack, 'Role', {
+    assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
+  });
+  const stateMachine = new sfn.StateMachine(stack, 'SM', {
+    definition: new sfn.Wait(stack, 'Hello', { time: sfn.WaitTime.duration(cdk.Duration.seconds(10)) }),
+    role,
+  });
+
+  rule.addTarget(new targets.SfnStateMachine(stateMachine, {
+    input: events.RuleTargetInput.fromObject({ SomeParam: 'SomeValue' }),
+    maxEventAge: cdk.Duration.hours(2),
+    retryAttempts: 2,
+  }));
+
+  // THEN
+  expect(stack).toHaveResource('AWS::Events::Rule', {
+    ScheduleExpression: 'rate(1 hour)',
+    State: 'ENABLED',
+    Targets: [
+      {
+        Arn: {
+          Ref: 'SM934E715A',
+        },
+        Id: 'Target0',
+        Input: '{"SomeParam":"SomeValue"}',
+        RetryPolicy: {
+          MaximumEventAgeInSeconds: 7200,
+          MaximumRetryAttempts: 2,
+        },
+        RoleArn: {
+          'Fn::GetAtt': [
+            'SMEventsRoleB320A902',
+            'Arn',
+          ],
+        },
+      },
+    ],
+  });
+});
+
 test('use a Dead Letter Queue for the rule target', () => {
   // GIVEN
   const app = new cdk.App();

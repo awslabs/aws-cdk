@@ -106,6 +106,7 @@
             "Arn"
           ]
         },
+        "TumblingWindowInSeconds": 60,
         "StartingPosition": "TRIM_HORIZON"
       }
     },

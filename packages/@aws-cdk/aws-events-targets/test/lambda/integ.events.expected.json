@@ -145,7 +145,11 @@
                 ]
               }
             },
-            "Id": "Target0"
+            "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 7200,
+              "MaximumRetryAttempts": 2
+            }
           }
         ]
       }

@@ -169,6 +169,17 @@ export interface EventSourceMappingOptions {
   readonly kafkaTopic?: string;
 
   /**
+   * The size of the tumbling windows to group records sent to DynamoDB or Kinesis
+   *
+   * @see https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html#services-ddb-windows
+   *
+   * Valid Range: 0 - 15 minutes
+   *
+   * @default - None
+   */
+  readonly tumblingWindow?: cdk.Duration;
+
+  /**
    * A list of host and port pairs that are the addresses of the Kafka brokers in a self managed "bootstrap" Kafka cluster
    * that a Kafka client connects to initially to bootstrap itself.
    * They are in the format `abc.example.com:9096`.
@@ -269,6 +280,10 @@ export class EventSourceMapping extends cdk.Resource implements IEventSourceMapp
       }
     });
 
+    if (props.tumblingWindow && !cdk.Token.isUnresolved(props.tumblingWindow) && props.tumblingWindow.toSeconds() > 900) {
+      throw new Error(`tumblingWindow cannot be over 900 seconds, got ${props.tumblingWindow.toSeconds()}`);
+    }
+
 
     let destinationConfig;
 
@@ -296,6 +311,7 @@ export class EventSourceMapping extends cdk.Resource implements IEventSourceMapp
       maximumRetryAttempts: props.retryAttempts,
       parallelizationFactor: props.parallelizationFactor,
       topics: props.kafkaTopic !== undefined ? [props.kafkaTopic] : undefined,
+      tumblingWindowInSeconds: props.tumblingWindow?.toSeconds(),
       sourceAccessConfigurations: props.sourceAccessConfigurations?.map((o) => {return { type: o.type.type, uri: o.uri };}),
       selfManagedEventSource,
     });

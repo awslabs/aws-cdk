@@ -397,6 +397,11 @@
         ]
       }
     },
+    "dlq09C78ACC": {
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
     "ruleF2C1DCDC": {
       "Type": "AWS::Events::Rule",
       "Properties": {
@@ -427,7 +432,19 @@
                 ]
               ]
             },
+            "DeadLetterConfig": {
+              "Arn": {
+                "Fn::GetAtt": [
+                  "dlq09C78ACC",
+                  "Arn"
+                ]
+              }
+            },
             "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 7200,
+              "MaximumRetryAttempts": 2
+            },
             "RoleArn": {
               "Fn::GetAtt": [
                 "pipelinePipeline22F2A91DEventsRole048D7F59",

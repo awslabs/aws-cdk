@@ -18,14 +18,14 @@
     "fs-extra": "^9.1.0",
     "graceful-fs": "^4.2.6",
     "jest-junit": "^12.0.0",
-    "jsii-diff": "^1.25.0",
-    "jsii-pacmak": "^1.25.0",
-    "jsii-rosetta": "^1.25.0",
-    "lerna": "^3.22.1",
+    "jsii-diff": "^1.26.0",
+    "jsii-pacmak": "^1.26.0",
+    "jsii-rosetta": "^1.26.0",
+    "lerna": "^4.0.0",
     "standard-version": "^9.1.1",
     "typescript": "~3.9.9"
   },
-  "resolutions-comment": "should be removed or reviewed when nodeunit dependency is dropped or adjusted",
+  "tap-mocha-reporter-resolutions-comment": "should be removed or reviewed when nodeunit dependency is dropped or adjusted",
   "resolutions": {
     "tap-mocha-reporter": "^5.0.1"
   },

@@ -1,0 +1,65 @@
+import * as cfn from '@aws-cdk/aws-cloudformation';
+import * as customresources from '@aws-cdk/custom-resources';
+import * as iam from '@aws-cdk/aws-iam';
+import * as lambda from '@aws-cdk/aws-lambda';
+import * as sns from '@aws-cdk/aws-sns';
+import * as sqs from '@aws-cdk/aws-sqs';
+import * as s3 from '@aws-cdk/aws-s3';
+import {
+  App,
+  Aws,
+  CfnCondition,
+  CfnDynamicReference,
+  CfnDynamicReferenceService,
+  CfnInclude,
+  CfnJson,
+  CfnMapping,
+  CfnOutput,
+  CfnParameter,
+  CfnResource,
+  CfnResourceProps,
+  ConcreteDependable,
+  Construct,
+  CustomResource,
+  CustomResourceProvider,
+  CustomResourceProviderRuntime,
+  DependableTrait,
+  Duration,
+  Fn,
+  IConstruct,
+  SecretValue,
+  Size,
+  SizeRoundingBehavior,
+  Stack,
+  StackProps,
+  Stage,
+  Token,
+} from '@aws-cdk/core';
+
+declare const app: App;
+declare const arn: 'arn:partition:service:region:account-id:resource-id';
+declare const cfnResource: CfnResource;
+declare const construct: Construct;
+declare const constructA: Construct;
+declare const constructB: Construct;
+declare const constructC: Construct;
+declare const functionProps: lambda.FunctionProps;
+declare const isCompleteHandler: lambda.Function;
+declare const myBucket: s3.IBucket;
+declare const myFunction: lambda.IFunction;
+declare const myProvider: CustomResourceProvider;
+declare const myTopic: sns.ITopic;
+declare const onEventHandler: lambda.Function;
+declare const resourceProps: CfnResourceProps;
+declare const stack: Stack;
+
+declare class MyStack extends Stack {}
+declare class YourStack extends Stack {}
+
+class fixture$construct extends Construct {
+  public constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}

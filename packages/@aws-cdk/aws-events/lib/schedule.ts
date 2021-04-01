@@ -17,11 +17,11 @@ export abstract class Schedule {
    * Construct a schedule from an interval and a time unit
    */
   public static rate(duration: Duration): Schedule {
-    const validDurationUnit = ['minute', 'minutes', 'hour', 'hours', 'day', 'days'];
-    if (validDurationUnit.indexOf(duration.unitLabel()) === -1) {
-      throw new Error('Allowed unit for scheduling is: \'minute\', \'minutes\', \'hour\', \'hours\', \'day\', \'days\'');
-    }
     if (duration.isUnresolved()) {
+      const validDurationUnit = ['minute', 'minutes', 'hour', 'hours', 'day', 'days'];
+      if (validDurationUnit.indexOf(duration.unitLabel()) === -1) {
+        throw new Error("Allowed units for scheduling are: 'minute', 'minutes', 'hour', 'hours', 'day', 'days'");
+      }
       return new LiteralSchedule(`rate(${duration.formatTokenToNumber()})`);
     }
     if (duration.toSeconds() === 0) {

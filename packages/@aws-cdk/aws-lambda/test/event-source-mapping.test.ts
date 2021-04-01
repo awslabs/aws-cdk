@@ -261,4 +261,35 @@ describe('event source mapping', () => {
       SelfManagedEventSource: { Endpoints: { KafkaBootstrapServers: kafkaBootstrapServers } },
     });
   });
+
+  test('throws if tumblingWindow > 900 seconds', () => {
+    const stack = new cdk.Stack();
+    const fn = new Function(stack, 'fn', {
+      handler: 'index.handler',
+      code: Code.fromInline('exports.handler = ${handler.toString()}'),
+      runtime: Runtime.NODEJS_10_X,
+    });
+
+    expect(() => new EventSourceMapping(stack, 'test', {
+      target: fn,
+      eventSourceArn: '',
+      tumblingWindow: cdk.Duration.seconds(901),
+    })).toThrow(/tumblingWindow cannot be over 900 seconds/);
+  });
+
+  test('accepts if tumblingWindow is a token', () => {
+    const stack = new cdk.Stack();
+    const fn = new Function(stack, 'fn', {
+      handler: 'index.handler',
+      code: Code.fromInline('exports.handler = ${handler.toString()}'),
+      runtime: Runtime.NODEJS_10_X,
+    });
+    const lazyDuration = cdk.Duration.seconds(cdk.Lazy.number({ produce: () => 60 }));
+
+    new EventSourceMapping(stack, 'test', {
+      target: fn,
+      eventSourceArn: '',
+      tumblingWindow: lazyDuration,
+    });
+  });
 });

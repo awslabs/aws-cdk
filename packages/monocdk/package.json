@@ -71,6 +71,11 @@
       "python": {
         "distName": "monocdk",
         "module": "monocdk"
+      },
+      "go": {
+        "moduleName": "github.com/aws/aws-cdk-go",
+        "packageName": "awscdk",
+        "versionSuffix": "-devpreview"
       }
     },
     "projectReferences": false
@@ -100,7 +105,7 @@
     "jsonschema": "^1.4.0",
     "minimatch": "^3.0.4",
     "punycode": "^2.1.1",
-    "semver": "^7.3.4",
+    "semver": "^7.3.5",
     "yaml": "1.10.2"
   },
   "devDependencies": {
@@ -186,10 +191,12 @@
     "@aws-cdk/aws-events": "0.0.0",
     "@aws-cdk/aws-events-targets": "0.0.0",
     "@aws-cdk/aws-eventschemas": "0.0.0",
+    "@aws-cdk/aws-fis": "0.0.0",
     "@aws-cdk/aws-fms": "0.0.0",
     "@aws-cdk/aws-fsx": "0.0.0",
     "@aws-cdk/aws-gamelift": "0.0.0",
     "@aws-cdk/aws-globalaccelerator": "0.0.0",
+    "@aws-cdk/aws-globalaccelerator-endpoints": "0.0.0",
     "@aws-cdk/aws-glue": "0.0.0",
     "@aws-cdk/aws-greengrass": "0.0.0",
     "@aws-cdk/aws-greengrassv2": "0.0.0",
@@ -252,6 +259,7 @@
     "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/aws-s3-deployment": "0.0.0",
     "@aws-cdk/aws-s3-notifications": "0.0.0",
+    "@aws-cdk/aws-s3objectlambda": "0.0.0",
     "@aws-cdk/aws-s3outposts": "0.0.0",
     "@aws-cdk/aws-sagemaker": "0.0.0",
     "@aws-cdk/aws-sam": "0.0.0",
@@ -289,9 +297,9 @@
     "@aws-cdk/region-info": "0.0.0",
     "@aws-cdk/yaml-cfn": "0.0.0",
     "@types/fs-extra": "^8.1.1",
-    "@types/node": "^10.17.55",
+    "@types/node": "^10.17.56",
     "cdk-build-tools": "0.0.0",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "fs-extra": "^9.1.0",
     "pkglint": "0.0.0",
     "ts-node": "^9.1.1",
@@ -299,7 +307,7 @@
     "ubergen": "0.0.0"
   },
   "peerDependencies": {
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "engines": {

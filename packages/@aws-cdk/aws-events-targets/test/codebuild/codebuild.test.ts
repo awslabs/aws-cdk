@@ -3,7 +3,7 @@ import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as sqs from '@aws-cdk/aws-sqs';
-import { CfnElement, Stack } from '@aws-cdk/core';
+import { CfnElement, Duration, Stack } from '@aws-cdk/core';
 import * as targets from '../../lib';
 
 describe('CodeBuild event target', () => {
@@ -117,6 +117,54 @@ describe('CodeBuild event target', () => {
           Arn: projectArn,
           Id: 'Target0',
           RoleArn: { 'Fn::GetAtt': ['MyRole', 'Arn'] },
+        },
+      ],
+    }));
+  });
+
+  test('specifying retry policy', () => {
+    // GIVEN
+    const rule = new events.Rule(stack, 'Rule', {
+      schedule: events.Schedule.expression('rate(1 hour)'),
+    });
+
+    // WHEN
+    const eventInput = {
+      buildspecOverride: 'buildspecs/hourly.yml',
+    };
+
+    rule.addTarget(
+      new targets.CodeBuildProject(project, {
+        event: events.RuleTargetInput.fromObject(eventInput),
+        retryAttempts: 2,
+        maxEventAge: Duration.hours(2),
+      }),
+    );
+
+    // THEN
+    expect(stack).to(haveResource('AWS::Events::Rule', {
+      ScheduleExpression: 'rate(1 hour)',
+      State: 'ENABLED',
+      Targets: [
+        {
+          Arn: {
+            'Fn::GetAtt': [
+              'MyProject39F7B0AE',
+              'Arn',
+            ],
+          },
+          Id: 'Target0',
+          Input: '{"buildspecOverride":"buildspecs/hourly.yml"}',
+          RetryPolicy: {
+            MaximumEventAgeInSeconds: 7200,
+            MaximumRetryAttempts: 2,
+          },
+          RoleArn: {
+            'Fn::GetAtt': [
+              'MyProjectEventsRole5B7D93F5',
+              'Arn',
+            ],
+          },
         },
       ],
     }));

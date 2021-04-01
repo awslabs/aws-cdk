@@ -6,7 +6,7 @@
 Features                           | Stability
 -----------------------------------|----------------------------------------------------------------
 CFN Resources                      | ![Stable](https://img.shields.io/badge/stable-success.svg?style=for-the-badge)
-Higher level constructs for Domain | ![Experimental](https://img.shields.io/badge/experimental-important.svg?style=for-the-badge)
+Higher level constructs for Domain | ![Stable](https://img.shields.io/badge/stable-success.svg?style=for-the-badge)
 
 > **CFN Resources:** All classes with the `Cfn` prefix in this module ([CFN Resources]) are always
 > stable and safe to use.
@@ -15,11 +15,8 @@ Higher level constructs for Domain | ![Experimental](https://img.shields.io/badg
 
 <!-- -->
 
-> **Experimental:** Higher level constructs in this module that are marked as experimental are
-> under active development. They are subject to non-backward compatible changes or removal in any
-> future version. These are not subject to the [Semantic Versioning](https://semver.org/) model and
-> breaking changes will be announced in the release notes. This means that while you may use them,
-> you may need to update your source code when upgrading to a newer version of this package.
+> **Stable:** Higher level constructs in this module that are marked stable will not undergo any
+> breaking changes. They will strictly follow the [Semantic Versioning](https://semver.org/) model.
 
 ---
 
@@ -145,6 +142,33 @@ const domain = new es.Domain(this, 'Domain', {
 This sets up the domain with node to node encryption and encryption at
 rest. You can also choose to supply your own KMS key to use for encryption at
 rest.
+
+## VPC Support
+
+Elasticsearch domains can be placed inside a VPC, providing a secure communication between Amazon ES and other services within the VPC without the need for an internet gateway, NAT device, or VPN connection.
+
+> Visit [VPC Support for Amazon Elasticsearch Service Domains](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-vpc.html) for more details.
+
+```ts
+const vpc = new ec2.Vpc(this, 'Vpc');
+const domainProps: es.DomainProps = {
+  version: es.ElasticsearchVersion.V7_1,
+  removalPolicy: RemovalPolicy.DESTROY,
+  vpc,
+  // must be enabled since our VPC contains multiple private subnets.
+  zoneAwareness: {
+    enabled: true,
+  },
+  capacity: {
+    // must be an even number since the default az count is 2.
+    dataNodes: 2,
+  },
+};
+new es.Domain(this, 'Domain', domainProps);
+```
+
+In addition, you can use the `vpcSubnets` property to control which specific subnets will be used, and the `securityGroups` property to control
+which security groups will be attached to the domain. By default, CDK will select all *private* subnets in the VPC, and create one dedicated security group.
 
 ## Metrics
 

@@ -1,13 +1,12 @@
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
-import * as sqs from '@aws-cdk/aws-sqs';
-import { addToDeadLetterQueueResourcePolicy, singletonEventRole } from './util';
+import { addToDeadLetterQueueResourcePolicy, bindBaseTargetConfig, singletonEventRole, TargetBaseProps } from './util';
 
 /**
  * Customize the CodeBuild Event Target
  */
-export interface CodeBuildProjectProps {
+export interface CodeBuildProjectProps extends TargetBaseProps {
 
   /**
    * The role to assume before invoking the target
@@ -25,18 +24,6 @@ export interface CodeBuildProjectProps {
    * @default - the entire EventBridge event
    */
   readonly event?: events.RuleTargetInput;
-
-  /**
-   * The SQS queue to be used as deadLetterQueue.
-   * Check out the [considerations for using a dead-letter queue](https://docs.aws.amazon.com/eventbridge/latest/userguide/rule-dlq.html#dlq-considerations).
-   *
-   * The events not successfully delivered are automatically retried for a specified period of time,
-   * depending on the retry policy of the target.
-   * If an event is not delivered before all retry attempts are exhausted, it will be sent to the dead letter queue.
-   *
-   * @default - no dead-letter queue
-   */
-  readonly deadLetterQueue?: sqs.IQueue;
 }
 
 /**
@@ -58,8 +45,8 @@ export class CodeBuildProject implements events.IRuleTarget {
     }
 
     return {
+      ...bindBaseTargetConfig(this.props),
       arn: this.project.projectArn,
-      deadLetterConfig: this.props.deadLetterQueue ? { arn: this.props.deadLetterQueue?.queueArn } : undefined,
       role: this.props.eventRole || singletonEventRole(this.project, [
         new iam.PolicyStatement({
           actions: ['codebuild:StartBuild'],

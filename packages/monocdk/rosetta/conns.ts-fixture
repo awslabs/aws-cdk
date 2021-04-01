@@ -1,0 +1,26 @@
+// Fixture with fake connectables
+import { Construct, Stack } from '@aws-cdk/core';
+import ec2 = require('@aws-cdk/aws-ec2');
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const vpc = new ec2.Vpc(this, 'VPC');
+
+    const loadBalancer = new FakeConnectable();
+    const appFleet = new FakeConnectable();
+    const dbFleet = new FakeConnectable();
+    const rdsDatabase = new FakeConnectable();
+    const fleet1 = new FakeConnectable();
+    const fleet2 = new FakeConnectable();
+    const listener = new FakeConnectable();
+    const myEndpoint = new FakeConnectable();
+
+    /// here
+  }
+}
+
+class FakeConnectable implements ec2.IConnectable {
+    public readonly connections = new ec2.Connections({ securityGroups: [] });
+}

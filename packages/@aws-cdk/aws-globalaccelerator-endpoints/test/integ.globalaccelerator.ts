@@ -1,12 +1,11 @@
-
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
-import * as cdk from '@aws-cdk/core';
+import * as ga from '@aws-cdk/aws-globalaccelerator';
+import { App, Stack } from '@aws-cdk/core';
 import * as constructs from 'constructs';
-import * as ga from '../lib';
-import * as testfixture from './util';
+import * as endpoints from '../lib';
 
-class GaStack extends testfixture.TestStack {
+class GaStack extends Stack {
   constructor(scope: constructs.Construct, id: string) {
     super(scope, id);
 
@@ -21,7 +20,6 @@ class GaStack extends testfixture.TestStack {
         },
       ],
     });
-    const endpointGroup = new ga.EndpointGroup(this, 'Group', { listener });
     const alb = new elbv2.ApplicationLoadBalancer(this, 'ALB', { vpc, internetFacing: true });
     const nlb = new elbv2.NetworkLoadBalancer(this, 'NLB', { vpc, internetFacing: true });
     const eip = new ec2.CfnEIP(this, 'ElasticIpAddress');
@@ -35,15 +33,20 @@ class GaStack extends testfixture.TestStack {
       }));
     }
 
-    endpointGroup.addLoadBalancer('AlbEndpoint', alb);
-    endpointGroup.addLoadBalancer('NlbEndpoint', nlb);
-    endpointGroup.addElasticIpAddress('EipEndpoint', eip);
-    endpointGroup.addEc2Instance('InstanceEndpoint', instances[0]);
-    endpointGroup.addEndpoint('InstanceEndpoint2', instances[1].instanceId);
+    const group = new ga.EndpointGroup(this, 'Group', {
+      listener,
+      endpoints: [
+        new endpoints.ApplicationLoadBalancerEndpoint(alb),
+        new endpoints.NetworkLoadBalancerEndpoint(nlb),
+        new endpoints.CfnEipEndpoint(eip),
+        new endpoints.InstanceEndpoint(instances[0]),
+        new endpoints.InstanceEndpoint(instances[1]),
+      ],
+    });
 
+    alb.connections.allowFrom(group.connectionsPeer('Peer', vpc), ec2.Port.tcp(443));
   }
 }
 
-const app = new cdk.App();
-
+const app = new App();
 new GaStack(app, 'integ-globalaccelerator');

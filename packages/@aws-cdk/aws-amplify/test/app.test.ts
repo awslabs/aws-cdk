@@ -17,7 +17,7 @@ test('create an app connected to a GitHub repository', () => {
       repository: 'aws-cdk',
       oauthToken: SecretValue.plainText('secret'),
     }),
-    buildSpec: codebuild.BuildSpec.fromObject({
+    buildSpec: codebuild.BuildSpec.fromObjectToYaml({
       version: '1.0',
       frontend: {
         phases: {
@@ -34,7 +34,7 @@ test('create an app connected to a GitHub repository', () => {
   // THEN
   expect(stack).toHaveResource('AWS::Amplify::App', {
     Name: 'App',
-    BuildSpec: '{\n  \"version\": \"1.0\",\n  \"frontend\": {\n    \"phases\": {\n      \"build\": {\n        \"commands\": [\n          \"npm run build\"\n        ]\n      }\n    }\n  }\n}',
+    BuildSpec: 'version: \"1.0\"\nfrontend:\n  phases:\n    build:\n      commands:\n        - npm run build\n',
     IAMServiceRole: {
       'Fn::GetAtt': [
         'AppRole1AF9B530',

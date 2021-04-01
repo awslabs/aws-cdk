@@ -74,7 +74,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@aws-cdk/assert": "0.0.0",
-    "@aws-cdk/aws-elasticloadbalancingv2": "0.0.0",
     "cdk-integ-tools": "0.0.0",
     "cdk-build-tools": "0.0.0",
     "cfn2ts": "0.0.0",
@@ -84,19 +83,19 @@
     "@aws-cdk/aws-ec2": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "@aws-cdk/custom-resources": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "peerDependencies": {
     "@aws-cdk/aws-ec2": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0",
+    "constructs": "^3.3.69",
     "@aws-cdk/custom-resources": "0.0.0"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
-  "stability": "experimental",
-  "maturity": "experimental",
+  "stability": "stable",
+  "maturity": "stable",
   "awscdkio": {
     "announce": false
   },

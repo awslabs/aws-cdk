@@ -80,4 +80,18 @@ export = {
         .expressionString);
     test.done();
   },
+
+  'rate can be in seconds'(test: Test) {
+    test.equal('rate(2 minutes)',
+      events.Schedule.rate(Duration.seconds(120))
+        .expressionString);
+    test.done();
+  },
+
+  'rate must not be in seconds when specified as a token'(test: Test) {
+    test.throws(() => {
+      events.Schedule.rate(Duration.seconds(Lazy.number({ produce: () => 5 })));
+    }, /Allowed units for scheduling/);
+    test.done();
+  },
 };

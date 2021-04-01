@@ -23,6 +23,33 @@ describe('CDK Include', () => {
     );
   });
 
+  test('can ingest a template with year-month-date parsed as string instead of Date', () => {
+    includeTestTemplate(stack, 'year-month-date-as-strings.yaml');
+
+    expect(stack).toMatchTemplate({
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Resources": {
+        "Role": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": ["ec2.amazonaws.com"],
+                  },
+                  "Action": ["sts:AssumeRole"],
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+  });
+
   test('can ingest a template with the short form Base64 function', () => {
     includeTestTemplate(stack, 'short-form-base64.yaml');
 

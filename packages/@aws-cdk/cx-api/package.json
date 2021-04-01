@@ -57,14 +57,14 @@
   },
   "dependencies": {
     "@aws-cdk/cloud-assembly-schema": "0.0.0",
-    "semver": "^7.3.4"
+    "semver": "^7.3.5"
   },
   "peerDependencies": {
     "@aws-cdk/cloud-assembly-schema": "0.0.0"
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.21",
+    "@types/jest": "^26.0.22",
     "@types/mock-fs": "^4.13.0",
     "@types/semver": "^7.3.4",
     "cdk-build-tools": "0.0.0",

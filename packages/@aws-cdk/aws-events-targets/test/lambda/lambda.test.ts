@@ -325,6 +325,52 @@ test('must display a warning when using a Dead Letter Queue from another account
   expect(rule?.node.metadata[0].data).toMatch(/Cannot add a resource policy to your dead letter queue associated with rule .* because the queue is in a different account\. You must add the resource policy manually to the dead letter queue in account 222222222222\./);
 });
 
+
+test('specifying retry policy', () => {
+  // GIVEN
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'Stack');
+
+  const fn = new lambda.Function(stack, 'MyLambda', {
+    code: new lambda.InlineCode('foo'),
+    handler: 'bar',
+    runtime: lambda.Runtime.PYTHON_2_7,
+  });
+
+  // WHEN
+  new events.Rule(stack, 'Rule', {
+    schedule: events.Schedule.rate(cdk.Duration.minutes(1)),
+    targets: [new targets.LambdaFunction(fn, {
+      retryAttempts: 2,
+      maxEventAge: cdk.Duration.hours(2),
+    })],
+  });
+
+  // THEN
+  expect(() => app.synth()).not.toThrow();
+
+  // the Permission resource should be in the event stack
+  expect(stack).toHaveResource('AWS::Events::Rule', {
+    ScheduleExpression: 'rate(1 minute)',
+    State: 'ENABLED',
+    Targets: [
+      {
+        Arn: {
+          'Fn::GetAtt': [
+            'MyLambdaCCE802FB',
+            'Arn',
+          ],
+        },
+        Id: 'Target0',
+        RetryPolicy: {
+          MaximumEventAgeInSeconds: 7200,
+          MaximumRetryAttempts: 2,
+        },
+      },
+    ],
+  });
+});
+
 function newTestLambda(scope: constructs.Construct, suffix = '') {
   return new lambda.Function(scope, `MyLambda${suffix}`, {
     code: new lambda.InlineCode('foo'),

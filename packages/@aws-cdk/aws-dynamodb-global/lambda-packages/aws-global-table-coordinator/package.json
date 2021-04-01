@@ -29,7 +29,7 @@
   "devDependencies": {
     "aws-sdk": "^2.596.0",
     "aws-sdk-mock": "^5.1.0",
-    "eslint": "^7.22.0",
+    "eslint": "^7.23.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",

@@ -53,6 +53,8 @@ behavior:
 * __receiveMessageWaitTime__: Will determine [long
   poll](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html)
   duration. The default value is 20 seconds.
+* __batchSize__: Determines how many records are buffered before invoking your lambda function.
+* __maxBatchingWindow__: The maximum amount of time to gather records before invoking the lambda. This increases the likelihood of a full batch at the cost of delayed processing.
 * __enabled__: If the SQS event source mapping should be enabled. The default is true.
 
 ```ts
@@ -67,6 +69,7 @@ const queue = new sqs.Queue(this, 'MyQueue', {
 
 lambda.addEventSource(new SqsEventSource(queue, {
   batchSize: 10, // default
+  maxBatchingWindow: Duration.minutes(5),
 }));
 ```
 
@@ -148,6 +151,7 @@ and add it to your Lambda function. The following parameters will impact Amazon 
 * __parallelizationFactor__: The number of batches to concurrently process on each shard.
 * __retryAttempts__: The maximum number of times a record should be retried in the event of failure.
 * __startingPosition__: Will determine where to being consumption, either at the most recent ('LATEST') record or the oldest record ('TRIM_HORIZON'). 'TRIM_HORIZON' will ensure you process all available data, while 'LATEST' will ignore all records that arrived prior to attaching the event source.
+* __tumblingWindow__: The duration in seconds of a processing window when using streams.
 * __enabled__: If the DynamoDB Streams event source mapping should be enabled. The default is true.
 
 ```ts
@@ -192,6 +196,7 @@ behavior:
 * __parallelizationFactor__: The number of batches to concurrently process on each shard.
 * __retryAttempts__: The maximum number of times a record should be retried in the event of failure.
 * __startingPosition__: Will determine where to being consumption, either at the most recent ('LATEST') record or the oldest record ('TRIM_HORIZON'). 'TRIM_HORIZON' will ensure you process all available data, while 'LATEST' will ignore all records that arrived prior to attaching the event source.
+* __tumblingWindow__: The duration in seconds of a processing window when using streams.
 * __enabled__: If the DynamoDB Streams event source mapping should be enabled. The default is true.
 
 ```ts
@@ -212,7 +217,7 @@ myFunction.addEventSource(new KinesisEventSource(stream, {
 You can write Lambda functions to process data either from [Amazon MSK](https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html) or a [self managed Kafka](https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html) cluster.
 
 The following code sets up Amazon MSK as an event source for a lambda function. Credentials will need to be configured to access the
-MSK cluster, as described in [Username/Password authentication](https://docs.aws.amazon.com/msk/latest/developerguide/msk-password.html). 
+MSK cluster, as described in [Username/Password authentication](https://docs.aws.amazon.com/msk/latest/developerguide/msk-password.html).
 
 ```ts
 import * as lambda from '@aws-cdk/aws-lambda';

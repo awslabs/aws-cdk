@@ -30,14 +30,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-cdk/cfnspec": "0.0.0",
-    "codemaker": "^1.25.0",
+    "codemaker": "^1.26.0",
     "fast-json-patch": "^3.0.0-1",
     "fs-extra": "^9.1.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.1",
-    "@types/jest": "^26.0.21",
+    "@types/jest": "^26.0.22",
     "@types/yargs": "^15.0.13",
     "cdk-build-tools": "0.0.0",
     "jest": "^26.6.3",

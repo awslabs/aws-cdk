@@ -1,0 +1,30 @@
+// Fixture with file system and an EC2 instance created in a VPC
+import { Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as efs from '@aws-cdk/aws-efs';
+import * as ec2 from '@aws-cdk/aws-ec2';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const vpc = new ec2.Vpc(this, 'VPC');
+
+    const fileSystem = new efs.FileSystem(this, 'FileSystem', {
+      vpc,
+    });
+
+    const instance = new ec2.Instance(this, 'instance', {
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.LARGE),
+      machineImage: new ec2.AmazonLinuxImage({
+        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+      }),
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      }
+    });
+
+    /// here
+  }
+}

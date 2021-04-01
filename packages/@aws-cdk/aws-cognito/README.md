@@ -87,9 +87,9 @@ new cognito.UserPool(this, 'myuserpool', {
   selfSignUpEnabled: true,
   userVerification: {
     emailSubject: 'Verify your email for our awesome app!',
-    emailBody: 'Hello {username}, Thanks for signing up to our awesome app! Your verification code is {####}',
+    emailBody: 'Thanks for signing up to our awesome app! Your verification code is {####}',
     emailStyle: cognito.VerificationEmailStyle.CODE,
-    smsMessage: 'Hello {username}, Thanks for signing up to our awesome app! Your verification code is {####}',
+    smsMessage: 'Thanks for signing up to our awesome app! Your verification code is {####}',
   }
 });
 ```
@@ -345,7 +345,7 @@ on the construct, as so -
 const authChallengeFn = new lambda.Function(this, 'authChallengeFn', {
   runtime: lambda.Runtime.NODEJS_12_X,
   handler: 'index.handler',
-  code: lambda.Code.fromInline('auth challenge'),
+  code: lambda.Code.fromAsset(/* path to lambda asset */),
 });
 
 const userpool = new cognito.UserPool(this, 'myuserpool', {
@@ -359,7 +359,7 @@ const userpool = new cognito.UserPool(this, 'myuserpool', {
 userpool.addTrigger(cognito.UserPoolOperation.USER_MIGRATION, new lambda.Function(this, 'userMigrationFn', {
     runtime: lambda.Runtime.NODEJS_12_X,
   handler: 'index.handler',
-  code: lambda.Code.fromInline('user migration'),
+  code: lambda.Code.fromAsset(/* path to lambda asset */),
 }));
 ```
 

@@ -425,6 +425,17 @@ export class Stack extends CoreConstruct implements ITaggable {
   }
 
   /**
+   * DEPRECATED
+   * @deprecated use `reportMissingContextKey()`
+   */
+  public reportMissingContext(report: cxapi.MissingContext) {
+    if (!Object.values(cxschema.ContextProvider).includes(report.provider as cxschema.ContextProvider)) {
+      throw new Error(`Unknown context provider requested in: ${JSON.stringify(report)}`);
+    }
+    this.reportMissingContextKey(report as cxschema.MissingContext);
+  }
+
+  /**
    * Indicate that a context key was expected
    *
    * Contains instructions which will be emitted into the cloud assembly on how
@@ -432,11 +443,8 @@ export class Stack extends CoreConstruct implements ITaggable {
    *
    * @param report The set of parameters needed to obtain the context
    */
-  public reportMissingContext(report: cxapi.MissingContext) {
-    if (!Object.values(cxschema.ContextProvider).includes(report.provider as cxschema.ContextProvider)) {
-      throw new Error(`Unknown context provider requested in: ${JSON.stringify(report)}`);
-    }
-    this._missingContext.push(report as cxschema.MissingContext);
+  public reportMissingContextKey(report: cxschema.MissingContext) {
+    this._missingContext.push(report);
   }
 
   /**

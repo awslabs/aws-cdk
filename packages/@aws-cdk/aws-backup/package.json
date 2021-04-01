@@ -89,7 +89,7 @@
     "@aws-cdk/aws-rds": "0.0.0",
     "@aws-cdk/aws-sns": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "peerDependencies": {
     "@aws-cdk/aws-dynamodb": "0.0.0",
@@ -101,10 +101,15 @@
     "@aws-cdk/aws-rds": "0.0.0",
     "@aws-cdk/aws-sns": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.2.0"
+    "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
+  },
+  "awslint": {
+    "exclude": [
+      "resource-attribute:@aws-cdk/aws-backup.BackupSelection.backupSelectionId"
+    ]
   },
   "stability": "experimental",
   "maturity": "experimental",

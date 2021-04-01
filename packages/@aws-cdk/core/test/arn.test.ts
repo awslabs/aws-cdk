@@ -110,19 +110,19 @@ nodeunitShim({
 
       'if the ARN doesnt have enough components'(test: Test) {
         const stack = new Stack();
-        test.throws(() => stack.parseArn('arn:is:too:short'), /ARNs must.*have at least 6 components.*arn:is:too:short/);
+        test.throws(() => stack.parseArn('arn:is:too:short'), /The `resource` component \(6th component\) of an ARN is required/);
         test.done();
       },
 
       'if "service" is not specified'(test: Test) {
         const stack = new Stack();
-        test.throws(() => stack.parseArn('arn:aws::4:5:6'), /The `service` component \(3rd component\) is required/);
+        test.throws(() => stack.parseArn('arn:aws::4:5:6'), /The `service` component \(3rd component\) of an ARN is required/);
         test.done();
       },
 
       'if "resource" is not specified'(test: Test) {
         const stack = new Stack();
-        test.throws(() => stack.parseArn('arn:aws:service:::'), /The `resource` component \(6th component\) is required/);
+        test.throws(() => stack.parseArn('arn:aws:service:::'), /The `resource` component \(6th component\) of an ARN is required/);
         test.done();
       },
     },

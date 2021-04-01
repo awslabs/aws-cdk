@@ -1,4 +1,4 @@
-import { expect, haveResourceLike } from '@aws-cdk/assert';
+import { arrayWith, expect, haveResourceLike, objectLike } from '@aws-cdk/assert';
 import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import { Stack } from '@aws-cdk/core';
@@ -82,9 +82,80 @@ nodeunitShim({
 
     test.done();
   },
+  'grant s3 putObjectACL to the following CodeBuild Project'(test: Test) {
+    const stack = new Stack();
+    createBitBucketAndCodeBuildPipeline(stack, {
+      codeBuildCloneOutput: true,
+    });
+    expect(stack).to(haveResourceLike('AWS::IAM::Policy', {
+      'PolicyDocument': {
+        'Statement': arrayWith(
+          objectLike({
+            'Action': 's3:PutObjectAcl',
+            'Effect': 'Allow',
+            'Resource': {
+              'Fn::Join': [
+                '',
+                [
+                  {
+                    'Fn::GetAtt': [
+                      'PipelineArtifactsBucket22248F97',
+                      'Arn',
+                    ],
+                  },
+                  '/*',
+                ],
+              ],
+            },
+          }),
+        ),
+      },
+    }));
+    test.done();
+  },
+  'setting triggerOnPush=false reflects in the configuration'(test: Test) {
+    const stack = new Stack();
+
+    createBitBucketAndCodeBuildPipeline(stack, {
+      triggerOnPush: false,
+    });
+
+    expect(stack).to(haveResourceLike('AWS::CodePipeline::Pipeline', {
+      'Stages': [
+        {
+          'Name': 'Source',
+          'Actions': [
+            {
+              'Name': 'BitBucket',
+              'ActionTypeId': {
+                'Owner': 'AWS',
+                'Provider': 'CodeStarSourceConnection',
+              },
+              'Configuration': {
+                'ConnectionArn': 'arn:aws:codestar-connections:us-east-1:123456789012:connection/12345678-abcd-12ab-34cdef5678gh',
+                'FullRepositoryId': 'aws/aws-cdk',
+                'BranchName': 'master',
+                'DetectChanges': false,
+              },
+            },
+          ],
+        },
+        {
+          'Name': 'Build',
+          'Actions': [
+            {
+              'Name': 'CodeBuild',
+            },
+          ],
+        },
+      ],
+    }));
+
+    test.done();
+  },
 });
 
-function createBitBucketAndCodeBuildPipeline(stack: Stack, props: { codeBuildCloneOutput: boolean }): void {
+function createBitBucketAndCodeBuildPipeline(stack: Stack, props: Partial<cpactions.BitBucketSourceActionProps>): void {
   const sourceOutput = new codepipeline.Artifact();
   new codepipeline.Pipeline(stack, 'Pipeline', {
     stages: [
@@ -97,7 +168,7 @@ function createBitBucketAndCodeBuildPipeline(stack: Stack, props: { codeBuildClo
             repo: 'aws-cdk',
             output: sourceOutput,
             connectionArn: 'arn:aws:codestar-connections:us-east-1:123456789012:connection/12345678-abcd-12ab-34cdef5678gh',
-            codeBuildCloneOutput: props.codeBuildCloneOutput,
+            ...props,
           }),
         ],
       },

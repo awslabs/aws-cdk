@@ -98,7 +98,7 @@ export function bundle(options: BundlingOptions): lambda.Code {
   // copy Dockerfile to workdir
   fs.copyFileSync(path.join(__dirname, dockerfile), path.join(stagedir, dockerfile));
 
-  const image = cdk.BundlingDockerImage.fromAsset(stagedir, {
+  const image = cdk.DockerImage.fromBuild(stagedir, {
     buildArgs: {
       IMAGE: runtime.bundlingDockerImage.image,
     },

@@ -1,4 +1,4 @@
-import { BundlingDockerImage } from '@aws-cdk/core';
+import { DockerImage } from '@aws-cdk/core';
 
 /**
  * Bundling options
@@ -200,7 +200,7 @@ export interface BundlingOptions {
    *
    * @default - use the Docker image provided by @aws-cdk/aws-lambda-nodejs
    */
-  readonly dockerImage?: BundlingDockerImage;
+  readonly dockerImage?: DockerImage;
 
   /**
    * Command hooks
