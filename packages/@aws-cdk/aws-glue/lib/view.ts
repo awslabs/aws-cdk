@@ -7,6 +7,8 @@ import { ITable } from './table';
 
 /**
  * View props.
+ *
+ * @experimental
  */
 export interface ViewProps {
   /**
@@ -58,6 +60,7 @@ const prestoTypes: { [key: string]: string } = {
 /**
  * A View in AWS Glue, implemented by an AWS Glue table.
  *
+ * @experimental
  * @resource AWS::glue::Table
  */
 export class View extends Resource implements ITable {
