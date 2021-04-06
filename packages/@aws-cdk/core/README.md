@@ -911,3 +911,9 @@ When deploying to AWS CloudFormation, it needs to keep in check the amount of re
 It's possible to synthesize the project with more Resources than the allowed (or even reduce the number of Resources).
 
 Set the context key `@aws-cdk/core:stackResourceLimit` with the proper value, being 0 for disable the limit of resources.
+
+### Loosely Coupled Stack References
+
+By default when you pass a Stack property to another Stack cdk uses cloudformation exports and Fn::ImportValue to share
+the value cross stack. Adding `'@aws-cdk/core:looseCrossStackRefs'` to your cdk.json changes this behavior
+so that parameter store is used for storing and retrieving values across stacks

@@ -5,18 +5,19 @@
         "Type": "AWS::S3::Bucket",
         "UpdateReplacePolicy": "Delete",
         "DeletionPolicy": "Delete"
-      }
-    },
-    "Outputs": {
-      "ExportsOutputFnGetAttMyBucketF68F3FF0Arn0F7E8E58": {
-        "Value": {
-          "Fn::GetAtt": [
-            "MyBucketF68F3FF0",
-            "Arn"
-          ]
-        },
-        "Export": {
-          "Name": "ProducerStack:ExportsOutputFnGetAttMyBucketF68F3FF0Arn0F7E8E58"
+      },
+      "ProducerStackMyBucketBA95DEFF": {
+        "Type": "AWS::SSM::Parameter",
+        "Properties": {
+          "description": "Created by ProducerStack",
+          "name": "/cdk/ProducerStack/Arn",
+          "type": "String",
+          "value": {
+            "Fn::GetAtt": [
+              "MyBucketF68F3FF0",
+              "Arn"
+            ]
+          }
         }
       }
     }
@@ -43,14 +44,14 @@
                 "Effect": "Allow",
                 "Resource": [
                   {
-                    "Fn::ImportValue": "ProducerStack:ExportsOutputFnGetAttMyBucketF68F3FF0Arn0F7E8E58"
+                    "Ref": "ProducerStackMyBucketBA95DEFF"
                   },
                   {
                     "Fn::Join": [
                       "",
                       [
                         {
-                          "Fn::ImportValue": "ProducerStack:ExportsOutputFnGetAttMyBucketF68F3FF0Arn0F7E8E58"
+                          "Ref": "ProducerStackMyBucketBA95DEFF"
                         },
                         "/*"
                       ]
@@ -68,6 +69,12 @@
             }
           ]
         }
+      }
+    },
+    "Parameters": {
+      "ProducerStackMyBucketBA95DEFF": {
+        "Type": "AWS::SSM::Parameter::Value<String>",
+        "Default": "/cdk/ProducerStack/Arn"
       }
     }
   }

@@ -53,18 +53,19 @@
         },
         "UpdateReplacePolicy": "Delete",
         "DeletionPolicy": "Delete"
-      }
-    },
-    "Outputs": {
-      "ExportsOutputFnGetAttNestedUnderStack1NestedStackNestedUnderStack1NestedStackResourceF616305BOutputsStack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicNameD753D416": {
-        "Value": {
-          "Fn::GetAtt": [
-            "NestedUnderStack1NestedStackNestedUnderStack1NestedStackResourceF616305B",
-            "Outputs.Stack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicName"
-          ]
-        },
-        "Export": {
-          "Name": "Stack1:ExportsOutputFnGetAttNestedUnderStack1NestedStackNestedUnderStack1NestedStackResourceF616305BOutputsStack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicNameD753D416"
+      },
+      "Stack1NestedUnderStack1NestedStackNestedUnderStack1NestedStackResource6214ABA6": {
+        "Type": "AWS::SSM::Parameter",
+        "Properties": {
+          "description": "Created by Stack1",
+          "name": "/cdk/Stack1/Outputs.Stack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicName",
+          "type": "String",
+          "value": {
+            "Fn::GetAtt": [
+              "NestedUnderStack1NestedStackNestedUnderStack1NestedStackResourceF616305B",
+              "Outputs.Stack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicName"
+            ]
+          }
         }
       }
     },
@@ -95,13 +96,19 @@
                 "Fn::Split": [
                   "-",
                   {
-                    "Fn::ImportValue": "Stack1:ExportsOutputFnGetAttNestedUnderStack1NestedStackNestedUnderStack1NestedStackResourceF616305BOutputsStack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicNameD753D416"
+                    "Ref": "Stack1NestedUnderStack1NestedStackNestedUnderStack1NestedStackResource6214ABA6"
                   }
                 ]
               }
             ]
           }
         }
+      }
+    },
+    "Parameters": {
+      "Stack1NestedUnderStack1NestedStackNestedUnderStack1NestedStackResource6214ABA6": {
+        "Type": "AWS::SSM::Parameter::Value<String>",
+        "Default": "/cdk/Stack1/Outputs.Stack1NestedUnderStack1TopicInNestedUnderStack136BDF841TopicName"
       }
     }
   }

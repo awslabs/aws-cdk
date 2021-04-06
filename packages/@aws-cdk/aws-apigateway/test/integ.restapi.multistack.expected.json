@@ -38,31 +38,32 @@
           "Code": {
             "ZipFile": "exports.handler = async function(event) {\n          return  {\n            'headers': { 'Content-Type': 'text/plain' },\n            'statusCode': 200\n          }\n        }"
           },
-          "Handler": "index.handler",
           "Role": {
             "Fn::GetAtt": [
               "firstLambdaServiceRoleB6408C31",
               "Arn"
             ]
           },
-          "Runtime": "nodejs10.x",
-          "FunctionName": "FirstLambda"
+          "FunctionName": "FirstLambda",
+          "Handler": "index.handler",
+          "Runtime": "nodejs10.x"
         },
         "DependsOn": [
           "firstLambdaServiceRoleB6408C31"
         ]
-      }
-    },
-    "Outputs": {
-      "ExportsOutputFnGetAttfirstLambda395F9ADEArn1A9B3BC3": {
-        "Value": {
-          "Fn::GetAtt": [
-            "firstLambda395F9ADE",
-            "Arn"
-          ]
-        },
-        "Export": {
-          "Name": "FirstStack:ExportsOutputFnGetAttfirstLambda395F9ADEArn1A9B3BC3"
+      },
+      "FirstStackfirstLambdaF32D7E04": {
+        "Type": "AWS::SSM::Parameter",
+        "Properties": {
+          "description": "Created by FirstStack",
+          "name": "/cdk/FirstStack/Arn",
+          "type": "String",
+          "value": {
+            "Fn::GetAtt": [
+              "firstLambda395F9ADE",
+              "Arn"
+            ]
+          }
         }
       }
     }
@@ -120,7 +121,7 @@
           "BooksApi60AC975F"
         ]
       },
-      "BooksApiDeployment86CA39AF4ff82f86c127f53c9de94d266b1906be": {
+      "BooksApiDeployment86CA39AFffbc16f284abaaafeb83c45d41f856d7": {
         "Type": "AWS::ApiGateway::Deployment",
         "Properties": {
           "RestApiId": {
@@ -141,7 +142,7 @@
             "Ref": "BooksApi60AC975F"
           },
           "DeploymentId": {
-            "Ref": "BooksApiDeployment86CA39AF4ff82f86c127f53c9de94d266b1906be"
+            "Ref": "BooksApiDeployment86CA39AFffbc16f284abaaafeb83c45d41f856d7"
           },
           "StageName": "prod"
         }
@@ -185,7 +186,7 @@
         "Properties": {
           "Action": "lambda:InvokeFunction",
           "FunctionName": {
-            "Fn::ImportValue": "FirstStack:ExportsOutputFnGetAttfirstLambda395F9ADEArn1A9B3BC3"
+            "Ref": "FirstStackfirstLambdaF32D7E04"
           },
           "Principal": "apigateway.amazonaws.com",
           "SourceArn": {
@@ -223,7 +224,7 @@
         "Properties": {
           "Action": "lambda:InvokeFunction",
           "FunctionName": {
-            "Fn::ImportValue": "FirstStack:ExportsOutputFnGetAttfirstLambda395F9ADEArn1A9B3BC3"
+            "Ref": "FirstStackfirstLambdaF32D7E04"
           },
           "Principal": "apigateway.amazonaws.com",
           "SourceArn": {
@@ -280,7 +281,7 @@
                   },
                   ":lambda:path/2015-03-31/functions/",
                   {
-                    "Fn::ImportValue": "FirstStack:ExportsOutputFnGetAttfirstLambda395F9ADEArn1A9B3BC3"
+                    "Ref": "FirstStackfirstLambdaF32D7E04"
                   },
                   "/invocations"
                 ]
@@ -316,6 +317,12 @@
             ]
           ]
         }
+      }
+    },
+    "Parameters": {
+      "FirstStackfirstLambdaF32D7E04": {
+        "Type": "AWS::SSM::Parameter::Value<String>",
+        "Default": "/cdk/FirstStack/Arn"
       }
     }
   }

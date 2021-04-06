@@ -1,3 +1,5 @@
+import * as cxapi from '@aws-cdk/cx-api';
+
 // ----------------------------------------------------
 // CROSS REFERENCES
 // ----------------------------------------------------
@@ -5,7 +7,9 @@
 import { CfnElement } from '../cfn-element';
 import { CfnOutput } from '../cfn-output';
 import { CfnParameter } from '../cfn-parameter';
+import { CfnResource } from '../cfn-resource';
 import { IConstruct } from '../construct-compat';
+import { FeatureFlags } from '../feature-flags';
 import { Names } from '../names';
 import { Reference } from '../reference';
 import { IResolvable } from '../resolvable';
@@ -100,6 +104,11 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
   consumer.addDependency(producer,
     `${consumer.node.path} -> ${reference.target.node.path}.${reference.displayName}`);
 
+  const looseReferenceFeatureEnabled = FeatureFlags.of(consumer).isEnabled(cxapi.LOOSE_CROSS_STACK_REF);
+  if (looseReferenceFeatureEnabled) {
+    return createParameterStoreGet(consumer, reference);
+  }
+
   return createImportValue(reference);
 }
 
@@ -151,6 +160,36 @@ function findAllReferences(root: IConstruct) {
   }
 
   return result;
+}
+
+// ------------------------------------------------------------------------------------------------
+// parmaterstore put/get
+// ------------------------------------------------------------------------------------------------
+/*
+ * use paramter store as a way of storing and retrieving values
+ */
+
+function createParameterStoreGet(consumer: Stack, reference: Reference): IResolvable {
+
+  const providerStack = Stack.of(reference.target);
+  consumer.addDependency(providerStack);
+
+  const parameterName = `/cdk/${providerStack.stackName}/${reference.displayName}`;
+
+  new CfnResource(providerStack, Names.nodeUniqueId(reference.target.node), {
+    type: 'AWS::SSM::Parameter',
+    properties: {
+      description: `Created by ${providerStack.stackName}`,
+      name: parameterName,
+      type: 'String',
+      value: Token.asString(reference),
+    },
+  });
+
+  return new CfnParameter(consumer, Names.nodeUniqueId(reference.target.node), {
+    type: 'AWS::SSM::Parameter::Value<String>',
+    default: parameterName,
+  });
 }
 
 // ------------------------------------------------------------------------------------------------

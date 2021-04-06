@@ -35,18 +35,19 @@
         },
         "UpdateReplacePolicy": "Delete",
         "DeletionPolicy": "Delete"
-      }
-    },
-    "Outputs": {
-      "ExportsOutputFnGetAttMyKey6AB29FA6Arn4FA82736": {
-        "Value": {
-          "Fn::GetAtt": [
-            "MyKey6AB29FA6",
-            "Arn"
-          ]
-        },
-        "Export": {
-          "Name": "KeyStack:ExportsOutputFnGetAttMyKey6AB29FA6Arn4FA82736"
+      },
+      "KeyStackMyKey27DD23B5": {
+        "Type": "AWS::SSM::Parameter",
+        "Properties": {
+          "description": "Created by KeyStack",
+          "name": "/cdk/KeyStack/Arn",
+          "type": "String",
+          "value": {
+            "Fn::GetAtt": [
+              "MyKey6AB29FA6",
+              "Arn"
+            ]
+          }
         }
       }
     }
@@ -58,9 +59,15 @@
         "Properties": {
           "AliasName": "alias/foo",
           "TargetKeyId": {
-            "Fn::ImportValue": "KeyStack:ExportsOutputFnGetAttMyKey6AB29FA6Arn4FA82736"
+            "Ref": "KeyStackMyKey27DD23B5"
           }
         }
+      }
+    },
+    "Parameters": {
+      "KeyStackMyKey27DD23B5": {
+        "Type": "AWS::SSM::Parameter::Value<String>",
+        "Default": "/cdk/KeyStack/Arn"
       }
     }
   }

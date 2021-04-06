@@ -53,18 +53,19 @@
         },
         "UpdateReplacePolicy": "Delete",
         "DeletionPolicy": "Delete"
-      }
-    },
-    "Outputs": {
-      "ExportsOutputFnGetAttNested1NestedStackNested1NestedStackResourceCD0AD36BOutputsnestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicNameF4BCEDAF": {
-        "Value": {
-          "Fn::GetAtt": [
-            "Nested1NestedStackNested1NestedStackResourceCD0AD36B",
-            "Outputs.nestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicName"
-          ]
-        },
-        "Export": {
-          "Name": "nested-stacks-refs2-parent-with-producer:ExportsOutputFnGetAttNested1NestedStackNested1NestedStackResourceCD0AD36BOutputsnestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicNameF4BCEDAF"
+      },
+      "nestedstacksrefs2parentwithproducerNested1NestedStackNested1NestedStackResourceAAD006FA": {
+        "Type": "AWS::SSM::Parameter",
+        "Properties": {
+          "description": "Created by nested-stacks-refs2-parent-with-producer",
+          "name": "/cdk/nested-stacks-refs2-parent-with-producer/Outputs.nestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicName",
+          "type": "String",
+          "value": {
+            "Fn::GetAtt": [
+              "Nested1NestedStackNested1NestedStackResourceCD0AD36B",
+              "Outputs.nestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicName"
+            ]
+          }
         }
       }
     },
@@ -100,7 +101,7 @@
                       "Fn::Split": [
                         "-",
                         {
-                          "Fn::ImportValue": "nested-stacks-refs2-parent-with-producer:ExportsOutputFnGetAttNested1NestedStackNested1NestedStackResourceCD0AD36BOutputsnestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicNameF4BCEDAF"
+                          "Ref": "nestedstacksrefs2parentwithproducerNested1NestedStackNested1NestedStackResourceAAD006FA"
                         }
                       ]
                     }
@@ -110,6 +111,12 @@
             ]
           }
         }
+      }
+    },
+    "Parameters": {
+      "nestedstacksrefs2parentwithproducerNested1NestedStackNested1NestedStackResourceAAD006FA": {
+        "Type": "AWS::SSM::Parameter::Value<String>",
+        "Default": "/cdk/nested-stacks-refs2-parent-with-producer/Outputs.nestedstacksrefs2parentwithproducerNested1MyTopic9E26C363TopicName"
       }
     }
   }
