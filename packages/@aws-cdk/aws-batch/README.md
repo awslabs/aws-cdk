@@ -37,7 +37,7 @@ For more information on **AWS Batch** visit the [AWS Docs for Batch](https://doc
 
 ## Compute Environment
 
-At the core of AWS Batch is the compute environment. All batch jobs are processed within a compute environment, which uses resource like OnDemand or Spot EC2 instances.
+At the core of AWS Batch is the compute environment. All batch jobs are processed within a compute environment, which uses resource like OnDemand/Spot EC2 instances or Fargate.
 
 In **MANAGED** mode, AWS will handle the provisioning of compute resources to accommodate the demand. Otherwise, in **UNMANAGED** mode, you will need to manage the provisioning of those resources.
 
@@ -69,6 +69,21 @@ const spotEnvironment = new batch.ComputeEnvironment(stack, 'MySpotEnvironment',
   computeResources: {
     type: batch.ComputeResourceType.SPOT,
     bidPercentage: 75, // Bids for resources at 75% of the on-demand price
+    vpc,
+  },
+});
+```
+
+### Fargate Compute Environment
+
+It is possible to have AWS Batch submit jobs to be run on Fargate compute resources. Below is an example of how this can be done:
+
+```ts
+const vpc = new ec2.Vpc(this, 'VPC');
+
+const spotEnvironment = new batch.ComputeEnvironment(stack, 'MyFargateEnvironment', {
+  computeResources: {
+    type: batch.ComputeResourceType.FARGATE_SPOT,
     vpc,
   },
 });

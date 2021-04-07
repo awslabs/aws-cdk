@@ -18,6 +18,16 @@ export enum ComputeResourceType {
    * Resources will be EC2 SpotFleet resources.
    */
   SPOT = 'SPOT',
+
+  /**
+   * Resources will be Fargate resources.
+   */
+  FARGATE = 'FARGATE',
+
+  /**
+   * Resources will be Fargate resources.
+   */
+  FARGATE_SPOT = 'FARGATE_SPOT',
 }
 
 /**
@@ -427,41 +437,100 @@ export class ComputeEnvironment extends Resource implements IComputeEnvironment 
       throw new Error('computeResources is missing but required on a managed compute environment');
     }
 
-    // Setting a bid percentage is only allowed on SPOT resources +
-    // Cannot use SPOT_CAPACITY_OPTIMIZED when using ON_DEMAND
     if (props.computeResources) {
-      if (props.computeResources.type === ComputeResourceType.ON_DEMAND) {
-        // VALIDATE FOR ON_DEMAND
+      if (props.computeResources.type === ComputeResourceType.FARGATE || props.computeResources.type === ComputeResourceType.FARGATE_SPOT) {
+        // VALIDATE FOR FARGATE
 
-        // Bid percentage is not allowed
+        // Bid percentage cannot be set for Fargate evnvironments
         if (props.computeResources.bidPercentage !== undefined) {
-          throw new Error('Setting the bid percentage is only allowed for SPOT type resources on a batch compute environment');
+          throw new Error('Bid percentage must not be set for Fargate compute environments');
         }
 
-        // SPOT_CAPACITY_OPTIMIZED allocation is not allowed
-        if (props.computeResources.allocationStrategy && props.computeResources.allocationStrategy === AllocationStrategy.SPOT_CAPACITY_OPTIMIZED) {
-          throw new Error('The SPOT_CAPACITY_OPTIMIZED allocation strategy is only allowed if the environment is a SPOT type compute environment');
+        // Allocation strategy cannot be set for Fargate evnvironments
+        if (props.computeResources.allocationStrategy !== undefined) {
+          throw new Error('Allocation strategy must not be set for Fargate compute environments');
+        }
+
+        // Desired vCPUs cannot be set for Fargate evnvironments
+        if (props.computeResources.desiredvCpus !== undefined) {
+          throw new Error('Desired vCPUs must not be set for Fargate compute environments');
+        }
+
+        // Image ID cannot be set for Fargate evnvironments
+        if (props.computeResources.image !== undefined) {
+          throw new Error('Image must not be set for Fargate compute environments');
+        }
+
+        // Instance types cannot be set for Fargate evnvironments
+        if (props.computeResources.instanceTypes !== undefined) {
+          throw new Error('Instance types must not be set for Fargate compute environments');
+        }
+
+        // EC2 key pair cannot be set for Fargate evnvironments
+        if (props.computeResources.ec2KeyPair !== undefined) {
+          throw new Error('EC2 key pair must not be set for Fargate compute environments');
+        }
+
+        // Instance role cannot be set for Fargate evnvironments
+        if (props.computeResources.instanceRole !== undefined) {
+          throw new Error('Instance role must not be set for Fargate compute environments');
+        }
+
+        // Launch template cannot be set for Fargate evnvironments
+        if (props.computeResources.launchTemplate !== undefined) {
+          throw new Error('Launch template must not be set for Fargate compute environments');
+        }
+
+        // Min vCPUs cannot be set for Fargate evnvironments
+        if (props.computeResources.minvCpus !== undefined) {
+          throw new Error('Min vCPUs must not be set for Fargate compute environments');
+        }
+
+        // Placement group cannot be set for Fargate evnvironments
+        if (props.computeResources.placementGroup !== undefined) {
+          throw new Error('Placement group must not be set for Fargate compute environments');
+        }
+
+        // Spot fleet role cannot be set for Fargate evnvironments
+        if (props.computeResources.spotFleetRole !== undefined) {
+          throw new Error('Spot fleet role must not be set for Fargate compute environments');
         }
       } else {
-        // VALIDATE FOR SPOT
+        // VALIDATE FOR ON_DEMAND AND SPOT
+        if (props.computeResources.minvCpus) {
+          // minvCpus cannot be less than 0
+          if (props.computeResources.minvCpus < 0) {
+            throw new Error('Minimum vCpus for a batch compute environment cannot be less than 0');
+          }
 
-        // Bid percentage must be from 0 - 100
-        if (props.computeResources.bidPercentage !== undefined &&
-          (props.computeResources.bidPercentage < 0 || props.computeResources.bidPercentage > 100)) {
-          throw new Error('Bid percentage can only be a value between 0 and 100');
+          // minvCpus cannot exceed max vCpus
+          if (props.computeResources.maxvCpus &&
+              props.computeResources.minvCpus > props.computeResources.maxvCpus) {
+            throw new Error('Minimum vCpus cannot be greater than the maximum vCpus');
+          }
         }
-      }
+        // Setting a bid percentage is only allowed on SPOT resources +
+        // Cannot use SPOT_CAPACITY_OPTIMIZED when using ON_DEMAND
+        if (props.computeResources.type === ComputeResourceType.ON_DEMAND) {
+          // VALIDATE FOR ON_DEMAND
 
-      if (props.computeResources.minvCpus) {
-        // minvCpus cannot be less than 0
-        if (props.computeResources.minvCpus < 0) {
-          throw new Error('Minimum vCpus for a batch compute environment cannot be less than 0');
-        }
+          // Bid percentage is not allowed
+          if (props.computeResources.bidPercentage !== undefined) {
+            throw new Error('Setting the bid percentage is only allowed for SPOT type resources on a batch compute environment');
+          }
 
-        // minvCpus cannot exceed max vCpus
-        if (props.computeResources.maxvCpus &&
-          props.computeResources.minvCpus > props.computeResources.maxvCpus) {
-          throw new Error('Minimum vCpus cannot be greater than the maximum vCpus');
+          // SPOT_CAPACITY_OPTIMIZED allocation is not allowed
+          if (props.computeResources.allocationStrategy && props.computeResources.allocationStrategy === AllocationStrategy.SPOT_CAPACITY_OPTIMIZED) {
+            throw new Error('The SPOT_CAPACITY_OPTIMIZED allocation strategy is only allowed if the environment is a SPOT type compute environment');
+          }
+        } else if (props.computeResources.type === ComputeResourceType.SPOT) {
+          // VALIDATE FOR SPOT
+
+          // Bid percentage must be from 0 - 100
+          if (props.computeResources.bidPercentage !== undefined &&
+              (props.computeResources.bidPercentage < 0 || props.computeResources.bidPercentage > 100)) {
+            throw new Error('Bid percentage can only be a value between 0 and 100');
+          }
         }
       }
     }

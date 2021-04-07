@@ -7,7 +7,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
 import * as batch from '../lib';
 
-describe('Batch Compute Evironment', () => {
+describe('Batch Compute Environment', () => {
   let expectedManagedDefaultComputeProps: any;
   let defaultServiceRole: any;
 
@@ -78,6 +78,164 @@ describe('Batch Compute Evironment', () => {
         // WHEN
         new batch.ComputeEnvironment(stack, 'test-compute-env', {
           managed: true,
+        });
+      });
+    });
+  });
+  describe('using fargate resources', () => {
+    test('should deny setting bid percentage', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            bidPercentage: -1,
+          },
+        });
+      });
+    });
+    test('should deny setting allocation strategy', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            allocationStrategy: batch.AllocationStrategy.BEST_FIT,
+          },
+        });
+      });
+    });
+    test('should deny setting desired vCPUs', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            desiredvCpus: 1,
+          },
+        });
+      });
+    });
+    test('should deny setting min vCPUs', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            minvCpus: 1,
+          },
+        });
+      });
+    });
+    test('should deny setting image', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            image: ec2.MachineImage.latestAmazonLinux(),
+          },
+        });
+      });
+    });
+    test('should deny setting instance types', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            instanceTypes: [],
+          },
+        });
+      });
+    });
+    test('should deny setting EC2 key pair', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            ec2KeyPair: 'test',
+          },
+        });
+      });
+    });
+    test('should deny setting instance role', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            instanceRole: 'test',
+          },
+        });
+      });
+    });
+    test('should deny setting launch template', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            launchTemplate: {
+              launchTemplateName: 'test-template',
+            },
+          },
+        });
+      });
+    });
+    test('should deny setting placement group', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            placementGroup: 'test',
+          },
+        });
+      });
+    });
+    test('should deny setting spot fleet role', () => {
+      // THEN
+      throws(() => {
+        // WHEN
+        new batch.ComputeEnvironment(stack, 'test-compute-env', {
+          managed: true,
+          computeResources: {
+            vpc,
+            type: batch.ComputeResourceType.FARGATE,
+            spotFleetRole: iam.Role.fromRoleArn(stack, 'test-role-arn', 'test-role'),
+          },
         });
       });
     });

@@ -53,6 +53,21 @@ export enum LogDriver {
 }
 
 /**
+ * Platform capabilities
+ */
+export enum PlatformCapabilities {
+  /**
+   * Specifies EC2 environment.
+   */
+  EC2 = 'EC2',
+
+  /**
+   * Specifies Fargate environment.
+   */
+  FARGATE = 'FARGATE'
+}
+
+/**
  * Log configuration options to send to a custom log driver for the container.
  */
 export interface LogConfiguration {
@@ -75,6 +90,17 @@ export interface LogConfiguration {
    * @default - No secrets are passed
    */
   readonly secretOptions?: ExposedSecret[];
+}
+
+
+/**
+ * Fargate platform configuration
+ */
+export interface FargatePlatformConfiguration {
+  /**
+   * Fargate platform version
+   */
+  readonly platformVersion: ecs.FargatePlatformVersion
 }
 
 /**
@@ -197,6 +223,20 @@ export interface JobDefinitionContainer {
    * @default - No data volumes will be used.
    */
   readonly volumes?: ecs.Volume[];
+
+  /**
+   * The platform configuration for jobs that are running on Fargate resources.
+   *
+   * @default - LATEST platform version will be used
+   */
+  readonly fargatePlatformConfiguration?: FargatePlatformConfiguration;
+
+  /**
+   * The IAM role that AWS Batch can assume.
+   *
+   * @default - None
+   */
+  readonly executionRole?: iam.IRole;
 }
 
 /**
@@ -252,6 +292,13 @@ export interface JobDefinitionProps {
    * @default - undefined
    */
   readonly timeout?: Duration;
+
+  /**
+   * The platform capabilities required by the job definition.
+   *
+   * @default - undefined
+   */
+  readonly platformCapabilities?: PlatformCapabilities[];
 }
 
 /**
@@ -382,6 +429,8 @@ export class JobDefinition extends Resource implements IJobDefinition {
       physicalName: props.jobDefinitionName,
     });
 
+    this.validateProps(props);
+
     this.imageConfig = new JobDefinitionImageConfig(this, props.container);
 
     const jobDef = new CfnJobDefinition(this, 'Resource', {
@@ -402,6 +451,7 @@ export class JobDefinition extends Resource implements IJobDefinition {
       timeout: {
         attemptDurationSeconds: props.timeout ? props.timeout.toSeconds() : undefined,
       },
+      platformCapabilities: props.platformCapabilities || undefined,
     });
 
     this.jobDefinitionArn = this.getResourceArnAttribute(jobDef.ref, {
@@ -426,6 +476,20 @@ export class JobDefinition extends Resource implements IJobDefinition {
     return vars;
   }
 
+  /**
+   * Validates the properties provided for a new job definition.
+   */
+  private validateProps(props: JobDefinitionProps) {
+    if (props === undefined) {
+      return;
+    }
+
+    if (props.platformCapabilities !== undefined && props.platformCapabilities.includes(PlatformCapabilities.FARGATE)
+        && props.container.executionRole === undefined) {
+      throw new Error('Fargate job must have executionRole set');
+    }
+  }
+
   private buildJobContainer(container?: JobDefinitionContainer): CfnJobDefinition.ContainerPropertiesProperty | undefined {
     if (container === undefined) {
       return undefined;
@@ -437,6 +501,7 @@ export class JobDefinition extends Resource implements IJobDefinition {
       image: this.imageConfig.imageName,
       instanceType: container.instanceType && container.instanceType.toString(),
       jobRoleArn: container.jobRole && container.jobRole.roleArn,
+      executionRoleArn: container.executionRole && container.executionRole.roleArn,
       linuxParameters: container.linuxParams
         ? { devices: container.linuxParams.renderLinuxParameters().devices }
         : undefined,
@@ -458,6 +523,9 @@ export class JobDefinition extends Resource implements IJobDefinition {
       user: container.user,
       vcpus: container.vcpus || 1,
       volumes: container.volumes,
+      fargatePlatformConfiguration: container.fargatePlatformConfiguration ? {
+        platformVersion: container.fargatePlatformConfiguration.platformVersion,
+      } : undefined,
     };
   }
 
