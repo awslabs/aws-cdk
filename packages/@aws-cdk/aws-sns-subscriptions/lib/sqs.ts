@@ -50,6 +50,11 @@ export class SqsSubscription implements sns.ITopicSubscription {
       },
     }));
 
+    // grant KMS permission to SNS service principal if the queue is encrypted
+    if (this.queue.encryptionMasterKey) {
+      this.queue.encryptionMasterKey.grantEncryptDecrypt(new iam.ServicePrincipal('sns.amazonaws.com'));
+    }
+
     return {
       subscriberScope: this.queue,
       subscriberId: Names.nodeUniqueId(topic.node),
