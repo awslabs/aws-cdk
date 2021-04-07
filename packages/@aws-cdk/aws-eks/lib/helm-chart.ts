@@ -1,3 +1,5 @@
+import { Policy, PolicyStatement } from '@aws-cdk/aws-iam';
+import { Asset } from '@aws-cdk/aws-s3-assets';
 import { CustomResource, Duration, Names, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { ICluster } from './cluster';
@@ -13,9 +15,9 @@ import { Construct as CoreConstruct } from '@aws-cdk/core';
 
 export interface HelmChartOptions {
   /**
-   * The name of the chart.
+   * The name of the chart or an Asset.
    */
-  readonly chart: string;
+  readonly chart: string | Asset;
 
   /**
    * The name of the release.
@@ -107,14 +109,37 @@ export class HelmChart extends CoreConstruct {
     // default to create new namespace
     const createNamespace = props.createNamespace ?? true;
 
-    new CustomResource(this, 'Resource', {
+
+    let chartAssetPolicy: Policy | undefined = undefined;
+
+    if (typeof props.chart !== 'string') {
+      // Use of props.chart.grantRead(provider.handlerRole) causes a
+      // dependency loop as it causes the cluster to depend on the
+      // asset.
+      chartAssetPolicy = new Policy(this, 'ChartAssetPolicy', {
+        roles: [provider.handlerRole],
+        statements: [new PolicyStatement({
+          actions: [
+            's3:GetObject*',
+            's3:GetBucket*',
+            's3:List*',
+          ],
+          resources: [
+            props.chart.bucket.bucketArn,
+            props.chart.bucket.arnForObjects('*'),
+          ],
+        })],
+      });
+    }
+
+    const cr = new CustomResource(this, 'Resource', {
       serviceToken: provider.serviceToken,
       resourceType: HelmChart.RESOURCE_TYPE,
       properties: {
         ClusterName: props.cluster.clusterName,
         RoleArn: provider.roleArn, // TODO: bake into the provider's environment
         Release: props.release ?? Names.uniqueId(this).slice(-53).toLowerCase(), // Helm has a 53 character limit for the name
-        Chart: props.chart,
+        Chart: typeof props.chart === 'string' ? props.chart : props.chart.s3ObjectUrl,
         Version: props.version,
         Wait: wait || undefined, // props are stringified so we encode “false” as undefined
         Timeout: timeout ? `${timeout.toString()}s` : undefined, // Helm v3 expects duration instead of integer
@@ -124,5 +149,9 @@ export class HelmChart extends CoreConstruct {
         CreateNamespace: createNamespace || undefined,
       },
     });
+
+    if (chartAssetPolicy) {
+      cr.node.addDependency(chartAssetPolicy);
+    }
   }
 }

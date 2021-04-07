@@ -1,4 +1,6 @@
+import * as path from 'path';
 import { expect, haveResource } from '@aws-cdk/assert';
+import { Asset } from '@aws-cdk/aws-s3-assets';
 import { Duration } from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import * as eks from '../lib';
@@ -39,6 +41,59 @@ export = {
 
       // THEN
       expect(stack).to(haveResource(eks.HelmChart.RESOURCE_TYPE, { Release: 'hismostprobablylongerthanfiftythreecharacterscaf15d09' }));
+      test.done();
+    },
+    'should handle chart from S3 asset'(test: Test) {
+      // GIVEN
+      const { stack, cluster } = testFixtureCluster();
+
+      // WHEN
+      const chartAsset = new Asset(stack, 'ChartAsset', {
+        path: path.join(__dirname, 'test-chart'),
+      });
+      new eks.HelmChart(stack, 'MyChart', { cluster, chart: chartAsset });
+
+      // THEN
+      expect(stack).to(haveResource(eks.HelmChart.RESOURCE_TYPE, {
+        Chart: {
+          'Fn::Join': [
+            '',
+            [
+              's3://',
+              {
+                Ref: 'AssetParametersd45bb51d1e14fb08f2472d57f5c445c4aad026e904f668bb3260fe7eda4d048bS3Bucket5C34693B',
+              },
+              '/',
+              {
+                'Fn::Select': [
+                  0,
+                  {
+                    'Fn::Split': [
+                      '||',
+                      {
+                        Ref: 'AssetParametersd45bb51d1e14fb08f2472d57f5c445c4aad026e904f668bb3260fe7eda4d048bS3VersionKey3FCDBA5E',
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                'Fn::Select': [
+                  1,
+                  {
+                    'Fn::Split': [
+                      '||',
+                      {
+                        Ref: 'AssetParametersd45bb51d1e14fb08f2472d57f5c445c4aad026e904f668bb3260fe7eda4d048bS3VersionKey3FCDBA5E',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          ],
+        },
+      }));
       test.done();
     },
     'with values'(test: Test) {

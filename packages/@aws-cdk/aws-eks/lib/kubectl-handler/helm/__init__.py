@@ -2,6 +2,11 @@ import json
 import logging
 import os
 import subprocess
+import boto3
+import shutil
+import zipfile
+import time
+from urllib.parse import urlparse, unquote
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -45,6 +50,17 @@ def helm_handler(event, context):
         values_file = os.path.join(outdir, 'values.yaml')
         with open(values_file, "w") as f:
             f.write(json.dumps(values, indent=2))
+
+    if (request_type != "Delete") and chart.startswith('s3://'):
+        chart_zip = os.path.join(outdir, 'chart.zip')
+        shutil.rmtree('chart.zip', ignore_errors=True)
+        subprocess.check_call(['aws', 's3', 'cp', chart, chart_zip])
+        chart_dir = os.path.join(outdir, 'chart')
+        shutil.rmtree('chart', ignore_errors=True)
+        os.mkdir(chart_dir)
+        with zipfile.ZipFile(chart_zip, 'r') as zip_ref:
+            zip_ref.extractall(chart_dir)
+        chart = chart_dir
 
     if request_type == 'Create' or request_type == 'Update':
         helm('upgrade', release, chart, repository, values_file, namespace, version, wait, timeout, create_namespace)
