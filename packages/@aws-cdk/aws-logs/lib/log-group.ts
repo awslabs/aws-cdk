@@ -24,6 +24,14 @@ export interface ILogGroup extends IResource {
   readonly logGroupName: string;
 
   /**
+   * The role to assume to write log events to the destination
+   *
+   * @default No role assumed
+   * @attribute
+   */
+  readonly role?: iam.IRole;
+
+  /**
    * Create a new Log Stream for this Log Group
    *
    * @param id Unique identifier for the construct in its parent
@@ -109,7 +117,10 @@ abstract class LogGroupBase extends Resource implements ILogGroup {
    */
   public addSubscriptionFilter(id: string, props: SubscriptionFilterOptions): SubscriptionFilter {
     return new SubscriptionFilter(this, id, {
-      logGroup: this,
+      logGroup: {
+        ...this,
+        role: props.role,
+      },
       ...props,
     });
   }
@@ -417,6 +428,11 @@ export interface SubscriptionFilterOptions {
    * Log events matching this pattern will be sent to the destination.
    */
   readonly filterPattern: IFilterPattern;
+
+  /**
+   * The role to assume to write log events to the destination
+   */
+  readonly role?: iam.IRole;
 }
 
 /**

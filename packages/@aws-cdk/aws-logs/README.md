@@ -93,6 +93,17 @@ new SubscriptionFilter(this, 'Subscription', {
 });
 ```
 
+You can pass an existing IAM ``roleArn`` to be assumed for writing logs in the destination. If not, a new one will be created.
+
+```
+new SubscriptionFilter(this, 'Subscription', {
+    logGroup,
+    destination: new LogsDestinations.LambdaDestination(fn),
+    filterPattern: FilterPattern.allTerms("ERROR", "MainThread")
+    roleArn: role.roleArn
+});
+```
+
 ## Metric Filters
 
 CloudWatch Logs can extract and emit metrics based on a textual log stream.
