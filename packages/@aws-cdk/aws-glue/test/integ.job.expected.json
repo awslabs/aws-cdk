@@ -1,0 +1,633 @@
+{
+  "Parameters": {
+    "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6b\""
+    },
+    "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6b\""
+    },
+    "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bArtifactHashB9AA8E72": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6b\""
+    }
+  },
+  "Resources": {
+    "MinimalGlueEtlJobServiceRole60989380": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "glue.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSGlueServiceRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "MinimalGlueEtlJobServiceRoleDefaultPolicyEDA57791": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "MinimalGlueEtlJobServiceRoleDefaultPolicyEDA57791",
+        "Roles": [
+          {
+            "Ref": "MinimalGlueEtlJobServiceRole60989380"
+          }
+        ]
+      }
+    },
+    "MinimalGlueEtlJobF8C90254": {
+      "Type": "AWS::Glue::Job",
+      "Properties": {
+        "Command": {
+          "Name": "glueetl",
+          "ScriptLocation": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                },
+                "/",
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "MinimalGlueEtlJobServiceRole60989380",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "MinimalGlueStreamingJobServiceRole77973DB5": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "glue.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSGlueServiceRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "MinimalGlueStreamingJobServiceRoleDefaultPolicyCA892591": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "MinimalGlueStreamingJobServiceRoleDefaultPolicyCA892591",
+        "Roles": [
+          {
+            "Ref": "MinimalGlueStreamingJobServiceRole77973DB5"
+          }
+        ]
+      }
+    },
+    "MinimalGlueStreamingJobC58FD856": {
+      "Type": "AWS::Glue::Job",
+      "Properties": {
+        "Command": {
+          "Name": "gluestreaming",
+          "ScriptLocation": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                },
+                "/",
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "MinimalGlueStreamingJobServiceRole77973DB5",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "MinimalPythonShellJobServiceRole4944649D": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "glue.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSGlueServiceRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "MinimalPythonShellJobServiceRoleDefaultPolicy0FFC6CE9": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "MinimalPythonShellJobServiceRoleDefaultPolicy0FFC6CE9",
+        "Roles": [
+          {
+            "Ref": "MinimalPythonShellJobServiceRole4944649D"
+          }
+        ]
+      }
+    },
+    "MinimalPythonShellJob43B4A269": {
+      "Type": "AWS::Glue::Job",
+      "Properties": {
+        "Command": {
+          "Name": "pythonshell",
+          "ScriptLocation": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                },
+                "/",
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "MinimalPythonShellJobServiceRole4944649D",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "JobServiceRole4F432993": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "glue.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSGlueServiceRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "JobServiceRoleDefaultPolicy03F68F9D": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "JobServiceRoleDefaultPolicy03F68F9D",
+        "Roles": [
+          {
+            "Ref": "JobServiceRole4F432993"
+          }
+        ]
+      }
+    },
+    "JobB9D00F9F": {
+      "Type": "AWS::Glue::Job",
+      "Properties": {
+        "Command": {
+          "Name": "glueetl",
+          "ScriptLocation": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3Bucket252142A8"
+                },
+                "/",
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters894df8f835015940e27548bfbf722885cb247378af70effdc8ecbe342419fc6bS3VersionKey7D45B377"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "JobServiceRole4F432993",
+            "Arn"
+          ]
+        },
+        "DefaultArguments": {
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        "ExecutionProperty": {
+          "MaxConcurrentRuns": 2
+        },
+        "GlueVersion": "2.0",
+        "MaxRetries": 2,
+        "NotificationProperty": {
+          "NotifyDelayAfter": 1
+        },
+        "NumberOfWorkers": 10,
+        "Tags": {
+          "key": "value"
+        },
+        "Timeout": 5,
+        "WorkerType": "G.2X"
+      }
+    },
+    "JobSUCCEEDEDRule682F039B": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Event triggered when Glue job ",
+              {
+                "Ref": "JobB9D00F9F"
+              },
+              " is in SUCCEEDED state"
+            ]
+          ]
+        },
+        "EventPattern": {
+          "source": [
+            "aws.glue"
+          ],
+          "detail-type": [
+            "Glue Job State Change",
+            "Glue Job Run Status"
+          ],
+          "detail": {
+            "state": [
+              "SUCCEEDED"
+            ],
+            "jobName": [
+              {
+                "Ref": "JobB9D00F9F"
+              }
+            ]
+          }
+        },
+        "State": "ENABLED"
+      }
+    }
+  }
+}

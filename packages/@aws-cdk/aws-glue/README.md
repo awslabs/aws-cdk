@@ -41,6 +41,20 @@ If you need to use a connection type that doesn't exist as a static member on `C
 
 See [Adding a Connection to Your Data Store](https://docs.aws.amazon.com/glue/latest/dg/populate-add-connection.html) and [Connection Structure](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-catalog-connections.html#aws-glue-api-catalog-connections-Connection) documentation for more information on the supported data stores and their configurations.
 
+## Job
+
+A `Job` encapsulates a script that connects to a data source, processes it, and then writes output to a data target.
+Typically, a job runs extract, transform, and load (ETL) scripts. Jobs can also run general-purpose Python scripts (Python shell jobs).
+
+```ts
+new glue.Job(stack, 'Job', {
+  jobCommand: glue.JobCommand.pythonShell('s3://bucketName/script.py', glue.PythonVersion.TWO),
+  description: 'an example pythonshell job',
+});
+```
+
+See [documentation](https://docs.aws.amazon.com/glue/latest/dg/add-job.html) for more information on adding jobs in Glue.
+
 ## Database
 
 A `Database` is a logical grouping of `Tables` in the Glue Catalog.
