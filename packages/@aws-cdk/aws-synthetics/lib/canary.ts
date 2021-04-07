@@ -235,6 +235,46 @@ export interface CanaryProps {
    */
   readonly test: Test;
 
+  /**
+   * Key-value pairs that the Synthetics caches and makes available for your canary
+   * scripts. Use environment variables to apply configuration changes, such
+   * as test and production environment configurations, without changing your
+   * Canary script source code.
+   *
+   * @default - No environment variables.
+   */
+  readonly environment?: { [key: string]: string };
+
+  /**
+   * How long the canary is allowed to run before it must stop.
+   * You can't set this time to be longer than the frequency of the runs of this canary.
+   * If you omit this field, the frequency of the canary is used as this value, up to a maximum of 900 seconds.
+   *
+   * @default cdk.Duration.seconds(840)
+   */
+  readonly timeout?: cdk.Duration;
+
+  /**
+   * The maximum amount of memory that the canary can use while running. This value
+   *  must be a multiple of 64. The range is 960 to 3008.
+   *
+   * @default 960
+   */
+  readonly memorySize?: number;
+
+  /**
+   * Specifies whether this canary is to use active AWS X-Ray tracing when it runs.
+   * Active tracing enables this canary run to be displayed in the ServiceLens and X-Ray service maps
+   * even if the canary does not hit an endpoint that has X-ray tracing enabled.
+   *
+   * You can enable active tracing only for canaries that use version syn-nodejs-2.0 or later for their canary runtime.
+   *
+   * Enabling tracing increases canary run time by 2.5% to 7%.
+   *
+   * @default false
+   */
+  readonly tracing?: boolean;
+
 }
 
 /**
@@ -284,7 +324,9 @@ export class Canary extends cdk.Resource {
       encryption: s3.BucketEncryption.KMS_MANAGED,
     });
 
-    this.role = props.role ?? this.createDefaultRole(props.artifactsBucketLocation?.prefix);
+    this.role = props.role ?? this.createDefaultRole(props.artifactsBucketLocation?.prefix, props.tracing);
+
+    const schedule = this.createSchedule(props);
 
     const resource: CfnCanary = new CfnCanary(this, 'Resource', {
       artifactS3Location: this.artifactsBucket.s3UrlForObject(props.artifactsBucketLocation?.prefix),
@@ -292,10 +334,11 @@ export class Canary extends cdk.Resource {
       startCanaryAfterCreation: props.startAfterCreation ?? true,
       runtimeVersion: props.runtime.name,
       name: this.physicalName,
-      schedule: this.createSchedule(props),
+      schedule: schedule,
       failureRetentionPeriod: props.failureRetentionPeriod?.toDays(),
       successRetentionPeriod: props.successRetentionPeriod?.toDays(),
       code: this.createCode(props),
+      runConfig: this.createRunConfig(props, schedule),
     });
 
     this.canaryId = resource.attrId;
@@ -339,7 +382,7 @@ export class Canary extends cdk.Resource {
   /**
    * Returns a default role for the canary
    */
-  private createDefaultRole(prefix?: string): iam.IRole {
+  private createDefaultRole(prefix?: string, tracingEnabled?: boolean): iam.IRole {
     const { partition } = cdk.Stack.of(this);
     // Created role will need these policies to run the Canary.
     // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-synthetics-canary.html#cfn-synthetics-canary-executionrolearn
@@ -364,6 +407,15 @@ export class Canary extends cdk.Resource {
         }),
       ],
     });
+
+    if (tracingEnabled) {
+      policy.addStatements(
+        new iam.PolicyStatement({
+          resources: ['*'],
+          actions: ['xray:PutTraceSegments'],
+        }),
+      );
+    }
 
     return new iam.Role(this, 'ServiceRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -397,6 +449,27 @@ export class Canary extends cdk.Resource {
     return {
       durationInSeconds: String(`${props.timeToLive?.toSeconds() ?? 0}`),
       expression: props.schedule?.expressionString ?? 'rate(5 minutes)',
+    };
+  }
+
+  /**
+   * Retruns a runConfig object
+   */
+  private createRunConfig(props:CanaryProps, schedule: CfnCanary.ScheduleProperty): CfnCanary.RunConfigProperty {
+    // Cloudformation implementation made TimeoutInSeconds a required field where it should not (see links below).
+    // So here is a workaround to fix https://github.com/aws/aws-cdk/issues/9300 and still follow documented behavior.
+    // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-synthetics-canary-runconfig.html#cfn-synthetics-canary-runconfig-timeoutinseconds
+    // https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-synthetics/issues/31
+
+    const MAX_CANARY_TIMEOUT = 840;
+    const RATE_IN_SECONDS = Schedule.expressionToRateInSeconds(schedule.expression);
+    const DEFAULT_CANARY_TIMEOUT_IN_SECONDS = RATE_IN_SECONDS <= MAX_CANARY_TIMEOUT ? RATE_IN_SECONDS : MAX_CANARY_TIMEOUT;
+
+    return {
+      timeoutInSeconds: props.timeout?.toSeconds() ?? DEFAULT_CANARY_TIMEOUT_IN_SECONDS,
+      activeTracing: props.tracing,
+      environmentVariables: props.environment,
+      memoryInMb: props.memorySize,
     };
   }
 

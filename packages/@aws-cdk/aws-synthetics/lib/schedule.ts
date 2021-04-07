@@ -42,6 +42,33 @@ export class Schedule {
     return new Schedule(`rate(${minutes} minutes)`);
   }
 
+  /**
+   * Convert a Schedule expression in to a number of seconds
+   *
+   * @param expression Schedule expression such as 'rate(2 minutes)'
+   */
+  public static expressionToRateInSeconds(expression: string): number {
+    // extract data isolating the number and units of the rate set
+    const regularExpression = /^rate\(([0-9]*) ([a-z]*)\)/;
+    const split = regularExpression.exec(expression);
+    const number = Number(split ? split[1] : '0');
+    const unit = split ? split[2] : 'minutes';
+
+    switch (unit) {
+      case 'second':
+      case 'seconds':
+        return number;
+      case 'minute':
+      case 'minutes':
+        return 60 * number;
+      case 'hour':
+      case 'hours':
+        return 3600 * number;
+      default:
+        throw new Error('Unit not supported');
+    }
+  }
+
   private constructor(
     /**
      * The Schedule expression

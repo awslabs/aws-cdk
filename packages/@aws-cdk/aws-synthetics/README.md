@@ -45,6 +45,9 @@ const canary = new synthetics.Canary(this, 'MyCanary', {
     handler: 'index.handler',
   }),
   runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+  environment: {
+      URL: 'https://api.example.com/user/books/topbook/'
+  }
 });
 ```
 
@@ -57,7 +60,7 @@ const log = require('SyntheticsLogger');
 const pageLoadBlueprint = async function () {
 
     // INSERT URL here
-    const URL = "https://api.example.com/user/books/topbook/";
+    const URL =process.env.URL;
 
     let page = await synthetics.getPage();
     const response = await page.goto(URL, {waitUntil: 'domcontentloaded', timeout: 30000});
