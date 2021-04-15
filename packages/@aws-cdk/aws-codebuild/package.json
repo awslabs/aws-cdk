@@ -108,7 +108,6 @@
   ],
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
-    "@aws-cdk/assets": "0.0.0",
     "@aws-cdk/aws-cloudwatch": "0.0.0",
     "@aws-cdk/aws-codecommit": "0.0.0",
     "@aws-cdk/aws-ec2": "0.0.0",

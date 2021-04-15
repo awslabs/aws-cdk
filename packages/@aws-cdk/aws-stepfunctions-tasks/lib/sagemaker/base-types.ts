@@ -5,7 +5,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as sfn from '@aws-cdk/aws-stepfunctions';
-import { Duration, Size } from '@aws-cdk/core';
+import { Duration, ImageAsset, ImageAssetProps, Size } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 
 /**
@@ -394,10 +394,25 @@ export abstract class DockerImage {
    * @param scope the scope in which to create the Asset.
    * @param id    the ID for the asset in the construct tree.
    * @param props the configuration props of the asset.
+   *
+   * @deprecated use fromImageAsset instead
    */
   public static fromAsset(scope: Construct, id: string, props: DockerImageAssetProps): DockerImage {
     const asset = new DockerImageAsset(scope, id, props);
     return new StandardDockerImage({ repository: asset.repository, imageUri: asset.imageUri });
+  }
+
+  /**
+   * Reference a Docker image that is provided as an image Asset in the current app.
+   *
+   * @param scope the scope in which to create the Asset.
+   * @param id    the ID for the asset in the construct tree.
+   * @param props the configuration props of the asset.
+   */
+  public static fromImageAsset(scope: Construct, id: string, props: ImageAssetProps): DockerImage {
+    const asset = new ImageAsset(scope, id, props);
+    const assetRepo = ecr.Repository.fromRepositoryName(asset, 'AssetImageEcrRepository', asset.repositoryName);
+    return new StandardDockerImage({ repository: assetRepo, imageUri: asset.imageUri });
   }
 
   /**

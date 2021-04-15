@@ -1,6 +1,8 @@
+import * as assets from '@aws-cdk/assets';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as s3_assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset, FileAssetOptions, SymlinkFollowMode } from '@aws-cdk/core';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -74,8 +76,21 @@ export class Source {
   /**
    * Uses a local asset as the deployment source.
    * @param path The path to a local .zip file or a directory
+   *
+   * @deprecated use fileAsset instead
    */
   public static asset(path: string, options?: s3_assets.AssetOptions): ISource {
+    return this.fileAsset(path, {
+      ...options,
+      followSymlinks: options?.followSymlinks ?? toSymlinkFollow(options?.follow),
+    });
+  }
+
+  /**
+   * Uses a local asset as the deployment source.
+   * @param path The path to a local .zip file or a directory
+   */
+  public static fileAsset(path: string, options?: FileAssetOptions): ISource {
     return {
       bind(scope: Construct, context?: DeploymentSourceContext): SourceConfig {
         if (!context) {
@@ -86,17 +101,18 @@ export class Source {
         while (scope.node.tryFindChild(`Asset${id}`)) {
           id++;
         }
-        const asset = new s3_assets.Asset(scope, `Asset${id}`, {
+        const asset = new FileAsset(scope, `Asset${id}`, {
           path,
           ...options,
         });
         if (!asset.isZipArchive) {
           throw new Error('Asset path must be either a .zip file or a directory');
         }
-        asset.grantRead(context.handlerRole);
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(context.handlerRole);
 
         return {
-          bucket: asset.bucket,
+          bucket,
           zipObjectKey: asset.s3ObjectKey,
         };
       },
@@ -104,4 +120,14 @@ export class Source {
   }
 
   private constructor() { }
+}
+
+function toSymlinkFollow(follow?: assets.FollowMode): SymlinkFollowMode | undefined {
+  switch (follow) {
+    case undefined: return undefined;
+    case assets.FollowMode.NEVER: return SymlinkFollowMode.NEVER;
+    case assets.FollowMode.ALWAYS: return SymlinkFollowMode.ALWAYS;
+    case assets.FollowMode.BLOCK_EXTERNAL: return SymlinkFollowMode.BLOCK_EXTERNAL;
+    case assets.FollowMode.EXTERNAL: return SymlinkFollowMode.EXTERNAL;
+  }
 }

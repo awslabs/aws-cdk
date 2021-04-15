@@ -1,6 +1,11 @@
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import { IGrantable } from '@aws-cdk/aws-iam';
+import * as s3 from '@aws-cdk/aws-s3';
 import * as s3assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset } from '@aws-cdk/core';
+
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
 
 /**
@@ -29,7 +34,7 @@ export abstract class Files {
     let realFiles: Files;
     return {
       bind(scope: Construct) {
-        realFiles = Files.fromAsset(new s3assets.Asset(scope, directoryPath, {
+        realFiles = Files.fromFileAsset(new FileAsset(scope, directoryPath, {
           path: directoryPath,
         }));
 
@@ -46,6 +51,8 @@ export abstract class Files {
 
   /**
    * Use an existing asset as a file source
+   *
+   * @deprecated use fromFileAsset instead
    */
   public static fromAsset(asset: s3assets.Asset): Files {
     return {
@@ -57,6 +64,25 @@ export abstract class Files {
         ],
       }),
       grantRead: (grantee) => asset.grantRead(grantee),
+    };
+  }
+
+  /**
+   * Use an existing asset as a file source
+   */
+  public static fromFileAsset(asset: FileAsset): Files {
+    return {
+      bind: () => ({
+        commands: [
+          `echo "Downloading additional files from ${asset.s3ObjectUrl}"`,
+          `aws s3 cp ${asset.s3ObjectUrl} /tmp/dl.zip`,
+          'unzip /tmp/dl.zip -d .',
+        ],
+      }),
+      grantRead: (grantee) => {
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(grantee);
+      },
     };
   }
 

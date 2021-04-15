@@ -6,7 +6,7 @@ import '@aws-cdk/assert-internal/jest';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import { Asset } from '@aws-cdk/aws-s3-assets';
-import { AssetStaging, App, Aws, CfnResource, Stack, DefaultStackSynthesizer, IStackSynthesizer, FileAssetSource, FileAssetLocation } from '@aws-cdk/core';
+import { App, AssetStaging, Aws, CfnResource, DefaultStackSynthesizer, FileAsset, FileAssetLocation, FileAssetSource, IStackSynthesizer, Stack } from '@aws-cdk/core';
 import * as ec2 from '../lib';
 
 let app: App;
@@ -255,13 +255,15 @@ describe('assets n buckets', () => {
 
   test.each([
     ['Existing'],
+    ['ExistingFile'],
     [''],
   ])('InitFile.from%sAsset', (existing: string) => {
     // GIVEN
-    const asset = new Asset(stack, 'Asset', { path: __filename });
     const init = ec2.CloudFormationInit.fromElements(
       existing
-        ? ec2.InitFile.fromExistingAsset('/etc/fun.js', asset)
+        ? (existing === 'Existing'
+          ? ec2.InitFile.fromExistingAsset('/etc/fun.js', new Asset(stack, 'Asset', { path: __filename }))
+          : ec2.InitFile.fromExistingFileAsset('/etc/fun.js', new FileAsset(stack, 'Asset', { path: __filename })))
         : ec2.InitFile.fromAsset('/etc/fun.js', __filename),
     );
 
@@ -309,13 +311,15 @@ describe('assets n buckets', () => {
 
   test.each([
     ['Existing'],
+    ['ExistingFile'],
     [''],
   ])('InitSource.from%sAsset', (existing: string) => {
     // GIVEN
-    const asset = new Asset(stack, 'Asset', { path: path.join(__dirname, 'asset-fixture') });
     const init = ec2.CloudFormationInit.fromElements(
       existing
-        ? ec2.InitSource.fromExistingAsset('/etc/fun', asset)
+        ? (existing === 'Existing'
+          ? ec2.InitSource.fromExistingAsset('/etc/fun', new Asset(stack, 'Asset', { path: path.join(__dirname, 'asset-fixture') }))
+          : ec2.InitSource.fromExistingFileAsset('/etc/fun', new FileAsset(stack, 'Asset', { path: path.join(__dirname, 'asset-fixture') })))
         : ec2.InitSource.fromAsset('/etc/fun', path.join(__dirname, 'asset-fixture')),
     );
 

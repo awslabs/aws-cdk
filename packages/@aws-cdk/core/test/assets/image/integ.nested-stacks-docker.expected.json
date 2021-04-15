@@ -1,0 +1,71 @@
+{
+  "Resources": {
+    "nestedstackwithimageNestedStacknestedstackwithimageNestedStackResourceDF784FD5": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.",
+              {
+                "Ref": "AWS::Region"
+              },
+              ".",
+              {
+                "Ref": "AWS::URLSuffix"
+              },
+              "/",
+              {
+                "Ref": "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976S3Bucket727A2FAC"
+              },
+              "/",
+              {
+                "Fn::Select": [
+                  0,
+                  {
+                    "Fn::Split": [
+                      "||",
+                      {
+                        "Ref": "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976S3VersionKey75C9A5D5"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      "||",
+                      {
+                        "Ref": "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976S3VersionKey75C9A5D5"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    }
+  },
+  "Parameters": {
+    "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976S3Bucket727A2FAC": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976\""
+    },
+    "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976S3VersionKey75C9A5D5": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976\""
+    },
+    "AssetParameters108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976ArtifactHashEC694637": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"108367430b5665d5b2b0f0c6c4393a84d9eb6d25de8b9a5b9db93e7f55683976\""
+    }
+  }
+}

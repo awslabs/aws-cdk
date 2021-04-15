@@ -86,6 +86,7 @@
     "@aws-cdk/assert-internal": "0.0.0"
   },
   "dependencies": {
+    "@aws-cdk/assets": "0.0.0",
     "@aws-cdk/aws-cloudfront": "0.0.0",
     "@aws-cdk/aws-ec2": "0.0.0",
     "@aws-cdk/aws-iam": "0.0.0",
@@ -98,6 +99,7 @@
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
+    "@aws-cdk/assets": "0.0.0",
     "@aws-cdk/aws-cloudfront": "0.0.0",
     "@aws-cdk/aws-ec2": "0.0.0",
     "@aws-cdk/aws-iam": "0.0.0",

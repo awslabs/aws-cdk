@@ -1,16 +1,16 @@
+import * as path from 'path';
+import * as cxapi from '@aws-cdk/cx-api';
+import { Construct } from 'constructs';
+import { CfnResource } from '../cfn-resource';
+import { FileCopyOptions } from '../fs';
+import { Stack } from '../stack';
+import { AssetStaging } from './asset-staging';
 import { BundlingOptions } from './bundling';
+import { IAsset } from './common';
 
-/**
- * Common interface for all assets.
- */
-export interface IAsset {
-  /**
-   * A hash of this asset, which is available at construction time. As this is a plain string, it
-   * can be used in construct IDs in order to enforce creation of a new resource when the content
-   * hash has changed.
-   */
-  readonly assetHash: string;
-}
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
+import { Construct as CoreConstruct } from '../construct-compat';
 
 /**
  * Asset hash options
@@ -56,6 +56,137 @@ export interface AssetOptions {
    * @experimental
    */
   readonly bundling?: BundlingOptions;
+}
+
+/**
+ * Options for a file asset.
+ */
+export interface FileAssetOptions extends AssetOptions, FileCopyOptions {
+}
+
+/**
+ * Properties for `FileAsset`.
+ */
+export interface FileAssetProps extends FileAssetOptions {
+  /**
+   * The disk location of the asset.
+   *
+   * The path should refer to one of the following:
+   * - A regular file or a .zip file, in which case the file will be uploaded as-is to S3.
+   * - A directory, in which case it will be archived into a .zip file and uploaded to S3.
+   */
+  readonly path: string;
+}
+
+/**
+ * An asset represents a local file or directory, which is automatically uploaded to S3
+ * and then can be referenced within a CDK application.
+ */
+export class FileAsset extends CoreConstruct implements IAsset {
+  /**
+   * Attribute that represents the name of the bucket this asset exists in.
+   */
+  public readonly s3BucketName: string;
+
+  /**
+   * Attribute which represents the S3 object key of this asset.
+   */
+  public readonly s3ObjectKey: string;
+
+  /**
+   * Attribute which represents the S3 HTTP URL of this asset.
+   * @example https://s3.us-west-1.amazonaws.com/bucket/key
+   */
+  public readonly httpUrl: string;
+
+  /**
+   * Attribute which represents the S3 URL of this asset.
+   * @example s3://bucket/key
+   */
+  public readonly s3ObjectUrl: string;
+
+  /**
+   * The path to the asset, relative to the current Cloud Assembly
+   *
+   * If asset staging is disabled, this will just be the original path.
+   * If asset staging is enabled it will be the staged path.
+   */
+  public readonly assetPath: string;
+
+  /**
+   * Indicates if this asset is a single file. Allows constructs to ensure that the
+   * correct file type was used.
+   */
+  public readonly isFile: boolean;
+
+  /**
+   * Indicates if this asset is a zip archive. Allows constructs to ensure that the
+   * correct file type was used.
+   */
+  public readonly isZipArchive: boolean;
+
+  public readonly assetHash: string;
+
+  constructor(scope: Construct, id: string, props: FileAssetProps) {
+    super(scope, id);
+
+    // stage the asset source (conditionally).
+    const staging = new AssetStaging(this, 'Stage', {
+      ...props,
+      sourcePath: path.resolve(props.path),
+      follow: props.followSymlinks,
+      assetHash: props.assetHash,
+    });
+
+    this.assetHash = staging.assetHash;
+
+    const stack = Stack.of(this);
+
+    this.assetPath = staging.relativeStagedPath(stack);
+
+    this.isFile = staging.packaging === FileAssetPackaging.FILE;
+
+    this.isZipArchive = staging.isArchive;
+
+    const location = stack.synthesizer.addFileAsset({
+      packaging: staging.packaging,
+      sourceHash: this.assetHash,
+      fileName: this.assetPath,
+    });
+
+    this.s3BucketName = location.bucketName;
+    this.s3ObjectKey = location.objectKey;
+    this.s3ObjectUrl = location.s3ObjectUrl;
+    this.httpUrl = location.httpUrl;
+  }
+
+  /**
+   * Adds CloudFormation template metadata to the specified resource with
+   * information that indicates which resource property is mapped to this local
+   * asset. This can be used by tools such as SAM CLI to provide local
+   * experience such as local invocation and debugging of Lambda functions.
+   *
+   * Asset metadata will only be included if the stack is synthesized with the
+   * "aws:cdk:enable-asset-metadata" context key defined, which is the default
+   * behavior when synthesizing via the CDK Toolkit.
+   *
+   * @see https://github.com/aws/aws-cdk/issues/1432
+   *
+   * @param resource The CloudFormation resource which is using this asset [disable-awslint:ref-via-interface]
+   * @param resourceProperty The property name where this asset is referenced
+   * (e.g. "Code" for AWS::Lambda::Function)
+   */
+  public addResourceMetadata(resource: CfnResource, resourceProperty: string) {
+    if (!this.node.tryGetContext(cxapi.ASSET_RESOURCE_METADATA_ENABLED_CONTEXT)) {
+      return; // not enabled
+    }
+
+    // tell tools such as SAM CLI that the "Code" property of this resource
+    // points to a local path in order to enable local invocation of this function.
+    resource.cfnOptions.metadata = resource.cfnOptions.metadata || { };
+    resource.cfnOptions.metadata[cxapi.ASSET_RESOURCE_METADATA_PATH_KEY] = this.assetPath;
+    resource.cfnOptions.metadata[cxapi.ASSET_RESOURCE_METADATA_PROPERTY_KEY] = resourceProperty;
+  }
 }
 
 /**
@@ -132,78 +263,6 @@ export interface FileAssetSource {
   readonly packaging?: FileAssetPackaging;
 }
 
-export interface DockerImageAssetSource {
-  /**
-   * The hash of the contents of the docker build context. This hash is used
-   * throughout the system to identify this image and avoid duplicate work
-   * in case the source did not change.
-   *
-   * NOTE: this means that if you wish to update your docker image, you
-   * must make a modification to the source (e.g. add some metadata to your Dockerfile).
-   */
-  readonly sourceHash: string;
-
-  /**
-   * An external command that will produce the packaged asset.
-   *
-   * The command should produce the name of a local Docker image on `stdout`.
-   *
-   * @default - Exactly one of `directoryName` and `executable` is required
-   */
-  readonly executable?: string[];
-
-  /**
-   * The directory where the Dockerfile is stored, must be relative
-   * to the cloud assembly root.
-   *
-   * @default - Exactly one of `directoryName` and `executable` is required
-   */
-  readonly directoryName?: string;
-
-  /**
-   * Build args to pass to the `docker build` command.
-   *
-   * Since Docker build arguments are resolved before deployment, keys and
-   * values cannot refer to unresolved tokens (such as `lambda.functionArn` or
-   * `queue.queueUrl`).
-   *
-   * Only allowed when `directoryName` is specified.
-   *
-   * @default - no build args are passed
-   */
-  readonly dockerBuildArgs?: { [key: string]: string };
-
-  /**
-   * Docker target to build to
-   *
-   * Only allowed when `directoryName` is specified.
-   *
-   * @default - no target
-   */
-  readonly dockerBuildTarget?: string;
-
-  /**
-   * Path to the Dockerfile (relative to the directory).
-   *
-   * Only allowed when `directoryName` is specified.
-   *
-   * @default - no file
-   */
-  readonly dockerFile?: string;
-
-  /**
-   * ECR repository name
-   *
-   * Specify this property if you need to statically address the image, e.g.
-   * from a Kubernetes Pod. Note, this is only the repository name, without the
-   * registry and the tag parts.
-   *
-   * @default - automatically derived from the asset's ID.
-   * @deprecated repository name should be specified at the environment-level and not at the image level
-   */
-  readonly repositoryName?: string;
-}
-
 /**
  * Packaging modes for file assets.
  */
@@ -275,20 +334,4 @@ export interface FileAssetLocation {
    * key via the bucket and no additional parameters have to be granted anymore.
    */
   readonly kmsKeyArn?: string;
-}
-
-/**
- * The location of the published docker image. This is where the image can be
- * consumed at runtime.
- */
-export interface DockerImageAssetLocation {
-  /**
-   * The URI of the image in Amazon ECR.
-   */
-  readonly imageUri: string;
-
-  /**
-   * The name of the ECR repository.
-   */
-  readonly repositoryName: string;
 }

@@ -7,7 +7,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import { ArnComponents, Aws, Duration, IResource, Lazy, Names, PhysicalName, Resource, SecretValue, Stack, Token, Tokenization } from '@aws-cdk/core';
+import { ArnComponents, Aws, Duration, ImageAsset, ImageAssetProps, IResource, Lazy, Names, PhysicalName, Resource, SecretValue, Stack, Token, Tokenization } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { IArtifacts } from './artifacts';
 import { BuildSpec } from './build-spec';
@@ -1513,6 +1513,13 @@ interface LinuxBuildImageProps {
 }
 
 /**
+ * The properties of the CodeBuild BuildImage created from an ImageAsset
+ * using the {@link LinuxBuildImage#fromImageAsset} method.
+ */
+export interface LinuxBuildImageAssetProps extends ImageAssetProps {
+}
+
+/**
  * A CodeBuild image running Linux.
  *
  * This class has a bunch of public constants that represent the most popular images.
@@ -1635,6 +1642,8 @@ export class LinuxBuildImage implements IBuildImage {
 
   /**
    * Uses an Docker image asset as a Linux build image.
+   *
+   * @deprecated use fromImageAsset instead
    */
   public static fromAsset(scope: Construct, id: string, props: DockerImageAssetProps): IBuildImage {
     const asset = new DockerImageAsset(scope, id, props);
@@ -1642,6 +1651,19 @@ export class LinuxBuildImage implements IBuildImage {
       imageId: asset.imageUri,
       imagePullPrincipalType: ImagePullPrincipalType.SERVICE_ROLE,
       repository: asset.repository,
+    });
+  }
+
+  /**
+   * Uses an Docker image asset as a Linux build image.
+   */
+  public static fromImageAsset(scope: Construct, id: string, props: LinuxBuildImageAssetProps): IBuildImage {
+    const asset = new ImageAsset(scope, id, props);
+    const assetRepo = ecr.Repository.fromRepositoryName(asset, 'AssetImageEcrRepository', asset.repositoryName);
+    return new LinuxBuildImage({
+      imageId: asset.imageUri,
+      imagePullPrincipalType: ImagePullPrincipalType.SERVICE_ROLE,
+      repository: assetRepo,
     });
   }
 
@@ -1714,6 +1736,19 @@ interface WindowsBuildImageProps {
   readonly secretsManagerCredentials?: secretsmanager.ISecret;
   readonly repository?: ecr.IRepository;
   readonly imageType?: WindowsImageType;
+}
+
+/**
+ * The properties of the CodeBuild BuildImage created from an ImageAsset
+ * using the {@link WindowsBuildImage#fromImageAsset} method.
+ */
+export interface WindowsBuildImageAssetProps extends ImageAssetProps {
+  /**
+   * The CodeBuild type of the Windows image to use.
+   *
+   * @default WindowsImageType.STANDARD
+   */
+  readonly imageType: WindowsImageType;
 }
 
 /**
@@ -1801,6 +1836,8 @@ export class WindowsBuildImage implements IBuildImage {
 
   /**
    * Uses an Docker image asset as a Windows build image.
+   *
+   * @deprecated use fromImageAsset instead
    */
   public static fromAsset(
     scope: Construct,
@@ -1814,6 +1851,20 @@ export class WindowsBuildImage implements IBuildImage {
       imagePullPrincipalType: ImagePullPrincipalType.SERVICE_ROLE,
       imageType,
       repository: asset.repository,
+    });
+  }
+
+  /**
+   * Uses an Docker image asset as a Windows build image.
+   */
+  public static fromImageAsset(scope: Construct, id: string, props: WindowsBuildImageAssetProps): IBuildImage {
+    const asset = new ImageAsset(scope, id, props);
+    const assetRepo = ecr.Repository.fromRepositoryName(asset, 'AssetImageEcrRepository', asset.repositoryName);
+    return new WindowsBuildImage({
+      imageId: asset.imageUri,
+      imagePullPrincipalType: ImagePullPrincipalType.SERVICE_ROLE,
+      imageType: props.imageType,
+      repository: assetRepo,
     });
   }
 

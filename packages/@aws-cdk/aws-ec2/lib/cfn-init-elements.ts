@@ -1,8 +1,9 @@
 import * as fs from 'fs';
+import * as assets from '@aws-cdk/assets';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as s3_assets from '@aws-cdk/aws-s3-assets';
-import { Duration } from '@aws-cdk/core';
+import { Duration, FileAsset, FileAssetOptions, SymlinkFollowMode } from '@aws-cdk/core';
 import { InitBindOptions, InitElementConfig, InitElementType, InitPlatform } from './private/cfn-init-internal';
 
 /**
@@ -315,7 +316,7 @@ export interface InitFileOptions {
 /**
  * Additional options for creating an InitFile from an asset.
  */
-export interface InitFileAssetOptions extends InitFileOptions, s3_assets.AssetOptions {
+export interface InitFileAssetOptions extends InitFileOptions, FileAssetOptions, s3_assets.AssetOptions {
 }
 
 /**
@@ -424,11 +425,13 @@ export abstract class InitFile extends InitElement {
   public static fromAsset(targetFileName: string, path: string, options: InitFileAssetOptions = {}): InitFile {
     return new class extends InitFile {
       protected _doBind(bindOptions: InitBindOptions) {
-        const asset = new s3_assets.Asset(bindOptions.scope, `${targetFileName}Asset`, {
+        const asset = new FileAsset(bindOptions.scope, `${targetFileName}Asset`, {
           path,
           ...options,
+          followSymlinks: options.followSymlinks ?? toSymlinkFollow(options.follow),
         });
-        asset.grantRead(bindOptions.instanceRole);
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(bindOptions.instanceRole);
 
         return {
           config: this._standardConfig(options, bindOptions.platform, {
@@ -443,11 +446,32 @@ export abstract class InitFile extends InitElement {
 
   /**
    * Use a file from an asset at instance startup time
+   *
+   * @deprecated use fromExistingFileAsset instead
    */
   public static fromExistingAsset(targetFileName: string, asset: s3_assets.Asset, options: InitFileOptions = {}): InitFile {
     return new class extends InitFile {
       protected _doBind(bindOptions: InitBindOptions) {
         asset.grantRead(bindOptions.instanceRole);
+        return {
+          config: this._standardConfig(options, bindOptions.platform, {
+            source: asset.httpUrl,
+          }),
+          authentication: standardS3Auth(bindOptions.instanceRole, asset.s3BucketName),
+          assetHash: asset.assetHash,
+        };
+      }
+    }(targetFileName, options);
+  }
+
+  /**
+   * Use a file from an asset at instance startup time.
+   */
+  public static fromExistingFileAsset(targetFileName: string, asset: FileAsset, options: InitFileOptions = {}): InitFile {
+    return new class extends InitFile {
+      protected _doBind(bindOptions: InitBindOptions) {
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(bindOptions.instanceRole);
         return {
           config: this._standardConfig(options, bindOptions.platform, {
             source: asset.httpUrl,
@@ -847,7 +871,7 @@ export interface InitSourceOptions {
 /**
  * Additional options for an InitSource that builds an asset from local files.
  */
-export interface InitSourceAssetOptions extends InitSourceOptions, s3_assets.AssetOptions {
+export interface InitSourceAssetOptions extends InitSourceOptions, FileAssetOptions, s3_assets.AssetOptions {
 
 }
 
@@ -897,10 +921,31 @@ export abstract class InitSource extends InitElement {
   public static fromAsset(targetDirectory: string, path: string, options: InitSourceAssetOptions = {}): InitSource {
     return new class extends InitSource {
       protected _doBind(bindOptions: InitBindOptions) {
-        const asset = new s3_assets.Asset(bindOptions.scope, `${targetDirectory}Asset`, {
+        const asset = new FileAsset(bindOptions.scope, `${targetDirectory}Asset`, {
           path,
           ...bindOptions,
+          followSymlinks: options.followSymlinks ?? toSymlinkFollow(options.follow),
         });
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(bindOptions.instanceRole);
+
+        return {
+          config: { [this.targetDirectory]: asset.httpUrl },
+          authentication: standardS3Auth(bindOptions.instanceRole, asset.s3BucketName),
+          assetHash: asset.assetHash,
+        };
+      }
+    }(targetDirectory, options.serviceRestartHandles);
+  }
+
+  /**
+   * Extract a directory from an existing directory asset.
+   *
+   * @deprecated use fromExistingFileAsset instead
+   */
+  public static fromExistingAsset(targetDirectory: string, asset: s3_assets.Asset, options: InitSourceOptions = {}): InitSource {
+    return new class extends InitSource {
+      protected _doBind(bindOptions: InitBindOptions) {
         asset.grantRead(bindOptions.instanceRole);
 
         return {
@@ -915,10 +960,11 @@ export abstract class InitSource extends InitElement {
   /**
    * Extract a directory from an existing directory asset.
    */
-  public static fromExistingAsset(targetDirectory: string, asset: s3_assets.Asset, options: InitSourceOptions = {}): InitSource {
+  public static fromExistingFileAsset(targetDirectory: string, asset: FileAsset, options: InitSourceOptions = {}): InitSource {
     return new class extends InitSource {
       protected _doBind(bindOptions: InitBindOptions) {
-        asset.grantRead(bindOptions.instanceRole);
+        const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
+        bucket.grantRead(bindOptions.instanceRole);
 
         return {
           config: { [this.targetDirectory]: asset.httpUrl },
@@ -969,4 +1015,14 @@ function standardS3Auth(role: iam.IRole, bucketName: string) {
       buckets: [bucketName],
     },
   };
+}
+
+function toSymlinkFollow(follow?: assets.FollowMode): SymlinkFollowMode | undefined {
+  switch (follow) {
+    case undefined: return undefined;
+    case assets.FollowMode.NEVER: return SymlinkFollowMode.NEVER;
+    case assets.FollowMode.ALWAYS: return SymlinkFollowMode.ALWAYS;
+    case assets.FollowMode.BLOCK_EXTERNAL: return SymlinkFollowMode.BLOCK_EXTERNAL;
+    case assets.FollowMode.EXTERNAL: return SymlinkFollowMode.EXTERNAL;
+  }
 }

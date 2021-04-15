@@ -14,6 +14,8 @@ import { Construct as CoreConstruct } from '@aws-cdk/core';
 
 /**
  * Options for DockerImageAsset
+ *
+ * @deprecated use ImageAssetOptions from the `core` module instead
  */
 export interface DockerImageAssetOptions extends FingerprintOptions, FileFingerprintOptions {
   /**
@@ -58,6 +60,8 @@ export interface DockerImageAssetOptions extends FingerprintOptions, FileFingerp
 
 /**
  * Props for DockerImageAssets
+ *
+ * @deprecated use ImageAssetProps from the `core` module instead
  */
 export interface DockerImageAssetProps extends DockerImageAssetOptions {
   /**
@@ -70,6 +74,8 @@ export interface DockerImageAssetProps extends DockerImageAssetOptions {
  * An asset that represents a Docker image.
  *
  * The image will be created in build time and uploaded to an ECR repository.
+ *
+ * @deprecated use ImageAsset from the `core` module instead
  */
 export class DockerImageAsset extends CoreConstruct implements IAsset {
   /**

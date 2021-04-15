@@ -1,7 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as assets from '@aws-cdk/assets';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as s3_assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset, FileAssetOptions, SymlinkFollowMode } from '@aws-cdk/core';
+
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
 
 /**
@@ -27,9 +32,23 @@ export abstract class Code {
    * @param assetPath Either a directory or a .zip file
    *
    * @returns `AssetCode` associated with the specified path.
+   *
+   * @deprecated use fromFileAsset instead
    */
   public static fromAsset(assetPath: string, options?: s3_assets.AssetOptions): AssetCode {
     return new AssetCode(assetPath, options);
+  }
+
+  /**
+   * Specify code from a local path. Path must include the folder structure `nodejs/node_modules/myCanaryFilename.js`.
+   * @see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries_WritingCanary.html#CloudWatch_Synthetics_Canaries_write_from_scratch
+   *
+   * @param assetPath Either a directory or a .zip file
+   *
+   * @returns `Code` associated with the specified path.
+   */
+  public static fromFileAsset(assetPath: string, options?: FileAssetOptions): Code {
+    return new FileAssetCode(assetPath, options);
   }
 
   /**
@@ -80,14 +99,39 @@ export interface CodeConfig {
 
 /**
  * Canary code from an Asset
+ *
+ * @deprecated use Code.fromFileAsset instead
  */
 export class AssetCode extends Code {
-  private asset?: s3_assets.Asset;
+  private readonly fileAssetCode: FileAssetCode;
 
   /**
    * @param assetPath The path to the asset file or directory.
    */
-  public constructor(private assetPath: string, private options?: s3_assets.AssetOptions) {
+  public constructor(assetPath: string, options?: s3_assets.AssetOptions) {
+    super();
+
+    this.fileAssetCode = new FileAssetCode(assetPath, {
+      ...options,
+      followSymlinks: options?.followSymlinks ?? toSymlinkFollow(options?.follow),
+    });
+  }
+
+  public bind(scope: Construct, handler: string): CodeConfig {
+    return this.fileAssetCode.bind(scope, handler);
+  }
+}
+
+/**
+ * Canary code from an Asset
+ */
+class FileAssetCode extends Code {
+  private asset?: FileAsset;
+
+  /**
+   * @param assetPath The path to the asset file or directory.
+   */
+  public constructor(private assetPath: string, private options?: FileAssetOptions) {
     super();
 
     if (!fs.existsSync(this.assetPath)) {
@@ -100,7 +144,7 @@ export class AssetCode extends Code {
 
     // If the same AssetCode is used multiple times, retain only the first instantiation.
     if (!this.asset) {
-      this.asset = new s3_assets.Asset(scope, 'Code', {
+      this.asset = new FileAsset(scope, 'Code', {
         path: this.assetPath,
         ...this.options,
       });
@@ -179,5 +223,15 @@ export class S3Code extends Code {
         objectVersion: this.objectVersion,
       },
     };
+  }
+}
+
+function toSymlinkFollow(follow?: assets.FollowMode): SymlinkFollowMode | undefined {
+  switch (follow) {
+    case undefined: return undefined;
+    case assets.FollowMode.NEVER: return SymlinkFollowMode.NEVER;
+    case assets.FollowMode.ALWAYS: return SymlinkFollowMode.ALWAYS;
+    case assets.FollowMode.BLOCK_EXTERNAL: return SymlinkFollowMode.BLOCK_EXTERNAL;
+    case assets.FollowMode.EXTERNAL: return SymlinkFollowMode.EXTERNAL;
   }
 }

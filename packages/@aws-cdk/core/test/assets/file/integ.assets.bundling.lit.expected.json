@@ -1,0 +1,21 @@
+{
+  "Parameters": {
+    "AssetParameters8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2S3Bucket32756583": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2\""
+    },
+    "AssetParameters8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2S3VersionKey39CCFFC8": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2\""
+    },
+    "AssetParameters8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2ArtifactHashDF68D9B9": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"8995e9405bdcae88dc6fc76b4fc224fecfd00ef93663cb759b491c6a13cc59c2\""
+    }
+  },
+  "Resources": {
+    "MyUser": {
+      "Type": "AWS::IAM::User"
+    }
+  }
+}

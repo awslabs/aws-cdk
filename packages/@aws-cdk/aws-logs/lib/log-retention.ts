@@ -1,6 +1,5 @@
 import * as path from 'path';
 import * as iam from '@aws-cdk/aws-iam';
-import * as s3_assets from '@aws-cdk/aws-s3-assets';
 import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { RetentionDays } from './log-group';
@@ -135,7 +134,7 @@ class LogRetentionFunction extends CoreConstruct {
     super(scope, id);
 
     // Code
-    const asset = new s3_assets.Asset(this, 'Code', {
+    const asset = new cdk.FileAsset(this, 'Code', {
       path: path.join(__dirname, 'log-retention-provider'),
     });
 

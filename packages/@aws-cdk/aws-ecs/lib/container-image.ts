@@ -1,4 +1,5 @@
 import * as ecr from '@aws-cdk/aws-ecr';
+import { ImageAsset } from '@aws-cdk/core';
 import { ContainerDefinition } from './container-definition';
 import { CfnTaskDefinition } from './ecs.generated';
 
@@ -40,11 +41,30 @@ export abstract class ContainerImage {
    * Use an existing `DockerImageAsset` for this container image.
    *
    * @param asset The `DockerImageAsset` to use for this container definition.
+   *
+   * @deprecated use fromImageAsset instead
    */
   public static fromDockerImageAsset(asset: DockerImageAsset): ContainerImage {
     return {
       bind(_scope: CoreConstruct, containerDefinition: ContainerDefinition): ContainerImageConfig {
         asset.repository.grantPull(containerDefinition.taskDefinition.obtainExecutionRole());
+        return {
+          imageName: asset.imageUri,
+        };
+      },
+    };
+  }
+
+  /**
+   * Use an existing `ImageAsset` for this container image.
+   *
+   * @param asset The `ImageAsset` to use for this container definition.
+   */
+  public static fromImageAsset(asset: ImageAsset): ContainerImage {
+    return {
+      bind(_scope: CoreConstruct, containerDefinition: ContainerDefinition): ContainerImageConfig {
+        const assetRepo = ecr.Repository.fromRepositoryName(asset, 'AssetImageEcrRepository', asset.repositoryName);
+        assetRepo.grantPull(containerDefinition.taskDefinition.obtainExecutionRole());
         return {
           imageName: asset.imageUri,
         };

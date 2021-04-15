@@ -1,5 +1,5 @@
 import * as s3 from '@aws-cdk/aws-s3';
-import * as s3_assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset, FileAssetOptions } from '@aws-cdk/core';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -70,9 +70,8 @@ export abstract class ApiDefinition {
 
   /**
    * Loads the API specification from a local disk asset.
-   * @experimental
    */
-  public static fromAsset(file: string, options?: s3_assets.AssetOptions): AssetApiDefinition {
+  public static fromAsset(file: string, options?: FileAssetOptions): AssetApiDefinition {
     return new AssetApiDefinition(file, options);
   }
 
@@ -176,19 +175,18 @@ export class InlineApiDefinition extends ApiDefinition {
 
 /**
  * OpenAPI specification from a local file.
- * @experimental
  */
 export class AssetApiDefinition extends ApiDefinition {
-  private asset?: s3_assets.Asset;
+  private asset?: FileAsset;
 
-  constructor(private readonly path: string, private readonly options: s3_assets.AssetOptions = { }) {
+  constructor(private readonly path: string, private readonly options: FileAssetOptions = { }) {
     super();
   }
 
   public bind(scope: Construct): ApiDefinitionConfig {
     // If the same AssetAPIDefinition is used multiple times, retain only the first instantiation.
     if (this.asset === undefined) {
-      this.asset = new s3_assets.Asset(scope, 'APIDefinition', {
+      this.asset = new FileAsset(scope, 'APIDefinition', {
         path: this.path,
         ...this.options,
       });

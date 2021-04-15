@@ -18,7 +18,7 @@ class TestStack extends cdk.Stack {
       grantReportGroupPermissions: false,
       /// !show
       environment: {
-        buildImage: codebuild.LinuxBuildImage.fromAsset(this, 'MyImage', {
+        buildImage: codebuild.LinuxBuildImage.fromImageAsset(this, 'MyImage', {
           directory: path.join(__dirname, 'demo-image'),
         }),
       },

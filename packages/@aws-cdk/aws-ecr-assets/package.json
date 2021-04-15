@@ -102,8 +102,8 @@
   "bundledDependencies": [
     "minimatch"
   ],
-  "stability": "experimental",
-  "maturity": "experimental",
+  "stability": "deprecated",
+  "maturity": "deprecated",
   "awscdkio": {
     "announce": false
   },

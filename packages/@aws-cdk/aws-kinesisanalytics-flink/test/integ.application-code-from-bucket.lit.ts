@@ -1,15 +1,15 @@
 import * as path from 'path';
-import * as assets from '@aws-cdk/aws-s3-assets';
+import * as s3 from '@aws-cdk/aws-s3';
 import * as core from '@aws-cdk/core';
 import * as flink from '../lib';
 
 const app = new core.App();
 const stack = new core.Stack(app, 'FlinkAppCodeFromBucketTest');
 
-const asset = new assets.Asset(stack, 'CodeAsset', {
+const asset = new core.FileAsset(stack, 'CodeAsset', {
   path: path.join(__dirname, 'code-asset'),
 });
-const bucket = asset.bucket;
+const bucket = s3.Bucket.fromBucketName(asset, 'AssetBucket', asset.s3BucketName);
 const fileKey = asset.s3ObjectKey;
 
 ///! show

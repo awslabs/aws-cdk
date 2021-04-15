@@ -1,0 +1,30 @@
+{
+  "Resources": {
+    "MyUser": {
+      "Type": "AWS::IAM::User"
+    }
+  },
+  "Outputs": {
+    "ImageUri": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Ref": "AWS::AccountId"
+            },
+            ".dkr.ecr.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/aws-cdk/assets:b2c69bfbfe983b634456574587443159b3b7258849856a118ad3d2772238f1a5"
+          ]
+        ]
+      }
+    }
+  }
+}

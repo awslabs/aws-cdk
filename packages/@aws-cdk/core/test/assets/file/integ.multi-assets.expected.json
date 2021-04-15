@@ -1,0 +1,21 @@
+{
+  "Resources": {
+    "DummyResourceF3AB250A": {
+      "Type": "AWS::IAM::User"
+    }
+  },
+  "Parameters": {
+    "AssetParameters78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197S3Bucket2C60F94A": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197\""
+    },
+    "AssetParameters78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197S3VersionKey9482DC35": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197\""
+    },
+    "AssetParameters78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197ArtifactHash22BFFA67": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"78add9eaf468dfa2191da44a7da92a21baba4c686cf6053d772556768ef21197\""
+    }
+  }
+}

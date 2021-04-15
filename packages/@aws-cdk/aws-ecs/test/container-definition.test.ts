@@ -1864,6 +1864,8 @@ describe('container definition', () => {
   });
 
   testFutureBehavior('can use a DockerImageAsset directly for a container image', { [cxapi.DOCKER_IGNORE_SUPPORT]: true }, cdk.App, (app) => {
+    // ToDo this test needs to be re-written to use the fromImageAsset() method
+
     // GIVEN
     const stack = new cdk.Stack(app, 'Stack');
     const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'TaskDef');
@@ -1874,6 +1876,74 @@ describe('container definition', () => {
     // WHEN
     taskDefinition.addContainer('default', {
       image: ecs.ContainerImage.fromDockerImageAsset(asset),
+      memoryLimitMiB: 1024,
+    });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::ECS::TaskDefinition', {
+      ContainerDefinitions: [
+        {
+          Essential: true,
+          Image: {
+            'Fn::Join': [
+              '',
+              [
+                { Ref: 'AWS::AccountId' },
+                '.dkr.ecr.',
+                { Ref: 'AWS::Region' },
+                '.',
+                { Ref: 'AWS::URLSuffix' },
+                '/aws-cdk/assets:b2c69bfbfe983b634456574587443159b3b7258849856a118ad3d2772238f1a5',
+              ],
+            ],
+          },
+          Memory: 1024,
+          Name: 'default',
+        },
+      ],
+    });
+    expect(stack).toHaveResource('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: [
+          {
+            Action: [
+              'ecr:BatchCheckLayerAvailability',
+              'ecr:GetDownloadUrlForLayer',
+              'ecr:BatchGetImage',
+            ],
+            Effect: 'Allow',
+            Resource: {
+              'Fn::Join': [
+                '',
+                ['arn:', { Ref: 'AWS::Partition' }, ':ecr:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':repository/aws-cdk/assets'],
+              ],
+            },
+          },
+          {
+            Action: 'ecr:GetAuthorizationToken',
+            Effect: 'Allow',
+            Resource: '*',
+          },
+        ],
+        Version: '2012-10-17',
+      },
+    });
+
+  });
+
+  testFutureBehavior('can use an ImageAsset directly for a container image', { [cxapi.DOCKER_IGNORE_SUPPORT]: true }, cdk.App, (app) => {
+    // ToDo this test needs to be re-written to use the fromImageAsset() method
+
+    // GIVEN
+    const stack = new cdk.Stack(app, 'Stack');
+    const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'TaskDef');
+    const asset = new cdk.ImageAsset(stack, 'MyDockerImage', {
+      directory: path.join(__dirname, 'demo-image'),
+    });
+
+    // WHEN
+    taskDefinition.addContainer('default', {
+      image: ecs.ContainerImage.fromImageAsset(asset),
       memoryLimitMiB: 1024,
     });
 

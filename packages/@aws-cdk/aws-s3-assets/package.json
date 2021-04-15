@@ -97,8 +97,8 @@
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
-  "stability": "experimental",
-  "maturity": "experimental",
+  "stability": "deprecated",
+  "maturity": "deprecated",
   "awslint": {
     "exclude": [
       "docs-public-apis:@aws-cdk/aws-s3-assets.AssetOptions",

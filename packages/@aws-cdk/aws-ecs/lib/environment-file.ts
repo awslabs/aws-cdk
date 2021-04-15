@@ -1,5 +1,10 @@
 import { IBucket, Location } from '@aws-cdk/aws-s3';
-import { Asset, AssetOptions } from '@aws-cdk/aws-s3-assets';
+import * as s3_assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset, FileAssetOptions } from '@aws-cdk/core';
+import { toSymlinkFollow } from './private/follow';
+
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
 
 /**
@@ -11,9 +16,21 @@ export abstract class EnvironmentFile {
    *
    * @param path Local disk path
    * @param options
+   *
+   * @deprecated use fromFileAsset instead
    */
-  public static fromAsset(path: string, options?: AssetOptions): AssetEnvironmentFile {
+  public static fromAsset(path: string, options?: s3_assets.AssetOptions): AssetEnvironmentFile {
     return new AssetEnvironmentFile(path, options);
+  }
+
+  /**
+   * Loads the environment file from a local disk path.
+   *
+   * @param path Local disk path
+   * @param options
+   */
+  public static fromFileAsset(path: string, options?: FileAssetOptions): EnvironmentFile {
+    return new FileAssetEnvironmentFile(path, options);
   }
 
   /**
@@ -39,22 +56,45 @@ export abstract class EnvironmentFile {
 
 /**
  * Environment file from a local directory.
+ *
+ * @deprecated use EnvironmentFile.fromFileAsset instead
  */
 export class AssetEnvironmentFile extends EnvironmentFile {
-  private asset?: Asset;
+  private readonly fileAssetEnvrionmentFile: FileAssetEnvironmentFile;
 
   /**
    * @param path The path to the asset file or directory.
    * @param options
    */
-  constructor(public readonly path: string, private readonly options: AssetOptions = { }) {
+  constructor(path: string, options: s3_assets.AssetOptions = { }) {
+    super();
+
+    this.fileAssetEnvrionmentFile = new FileAssetEnvironmentFile(path, {
+      ...options,
+      followSymlinks: options.followSymlinks ?? toSymlinkFollow(options.follow),
+    });
+  }
+
+  public bind(scope: Construct): EnvironmentFileConfig {
+    return this.fileAssetEnvrionmentFile.bind(scope);
+  }
+}
+
+class FileAssetEnvironmentFile extends EnvironmentFile {
+  private asset?: FileAsset;
+
+  /**
+   * @param path The path to the asset file or directory.
+   * @param options
+   */
+  constructor(public readonly path: string, private readonly options: FileAssetOptions = { }) {
     super();
   }
 
   public bind(scope: Construct): EnvironmentFileConfig {
     // If the same AssetCode is used multiple times, retain only the first instantiation.
     if (!this.asset) {
-      this.asset = new Asset(scope, 'EnvironmentFile', {
+      this.asset = new FileAsset(scope, 'EnvironmentFile', {
         path: this.path,
         ...this.options,
       });

@@ -1,0 +1,151 @@
+{
+  "Parameters": {
+    "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3Bucket50B5A10B": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2\""
+    },
+    "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2\""
+    },
+    "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2ArtifactHash220DE9BD": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2\""
+    }
+  },
+  "Outputs": {
+    "S3BucketName": {
+      "Value": {
+        "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3Bucket50B5A10B"
+      }
+    },
+    "S3ObjectKey": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Fn::Select": [
+                0,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Fn::Select": [
+                1,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "S3HttpURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://s3.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/",
+            {
+              "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3Bucket50B5A10B"
+            },
+            "/",
+            {
+              "Fn::Select": [
+                0,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Fn::Select": [
+                1,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "S3ObjectURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "s3://",
+            {
+              "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3Bucket50B5A10B"
+            },
+            "/",
+            {
+              "Fn::Select": [
+                0,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Fn::Select": [
+                1,
+                {
+                  "Fn::Split": [
+                    "||",
+                    {
+                      "Ref": "AssetParameters6b84b87243a4a01c592d78e1fd3855c4bfef39328cd0a450cc97e81717fea2a2S3VersionKey1F7D75F9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "MyUser": {
+      "Type": "AWS::IAM::User"
+    }
+  }
+}

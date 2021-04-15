@@ -14,6 +14,9 @@ import { CopyOptions } from '@aws-cdk/assets';
 // eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct as CoreConstruct } from '@aws-cdk/core';
 
+/**
+ * @deprecated use FileAssetOptions from the core module instead
+ */
 export interface AssetOptions extends CopyOptions, cdk.FileCopyOptions, cdk.AssetOptions {
   /**
    * A list of principals that should be able to read this asset from S3.
@@ -42,6 +45,9 @@ export interface AssetOptions extends CopyOptions, cdk.FileCopyOptions, cdk.Asse
   readonly sourceHash?: string;
 }
 
+/**
+ * @deprecated use FileAssetProps from the core module instead
+ */
 export interface AssetProps extends AssetOptions {
   /**
    * The disk location of the asset.
@@ -56,6 +62,8 @@ export interface AssetProps extends AssetOptions {
 /**
  * An asset represents a local file or directory, which is automatically uploaded to S3
  * and then can be referenced within a CDK application.
+ *
+ * @deprecated use FileAsset from the core module instead
  */
 export class Asset extends CoreConstruct implements cdk.IAsset {
   /**

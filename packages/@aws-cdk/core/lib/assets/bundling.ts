@@ -1,7 +1,7 @@
 import { spawnSync, SpawnSyncOptions } from 'child_process';
 import * as crypto from 'crypto';
 import { isAbsolute, join } from 'path';
-import { FileSystem } from './fs';
+import { FileSystem } from '../fs/index';
 
 /**
  * Bundling options

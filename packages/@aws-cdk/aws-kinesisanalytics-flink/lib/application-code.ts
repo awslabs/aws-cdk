@@ -1,6 +1,9 @@
 import * as ka from '@aws-cdk/aws-kinesisanalytics';
 import * as s3 from '@aws-cdk/aws-s3';
-import * as s3_assets from '@aws-cdk/aws-s3-assets';
+import { FileAsset, FileAssetOptions } from '@aws-cdk/core';
+
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
 
 /**
@@ -43,9 +46,9 @@ export abstract class ApplicationCode {
    * Reference code from a local directory containing a Flink JAR file.
    *
    * @param path - a local directory path
-   * @parm options - standard s3 AssetOptions
+   * @param options - standard s3 AssetOptions
    */
-  public static fromAsset(path: string, options?: s3_assets.AssetOptions): ApplicationCode {
+  public static fromAsset(path: string, options?: FileAssetOptions): ApplicationCode {
     return new AssetApplicationCode(path, options);
   }
 
@@ -94,17 +97,17 @@ class BucketApplicationCode extends ApplicationCode {
 
 class AssetApplicationCode extends ApplicationCode {
   private readonly path: string;
-  private readonly options?: s3_assets.AssetOptions;
-  private _asset?: s3_assets.Asset;
+  private readonly options?: FileAssetOptions;
+  private _asset?: FileAsset;
 
-  constructor(path: string, options?: s3_assets.AssetOptions) {
+  constructor(path: string, options?: FileAssetOptions) {
     super();
     this.path = path;
     this.options = options;
   }
 
   public bind(scope: Construct): ApplicationCodeConfig {
-    this._asset = new s3_assets.Asset(scope, 'Code', {
+    this._asset = new FileAsset(scope, 'Code', {
       path: this.path,
       ...this.options,
     });
@@ -113,27 +116,21 @@ class AssetApplicationCode extends ApplicationCode {
       throw new Error(`Asset must be a .zip file or a directory (${this.path})`);
     }
 
+    const bucket = s3.Bucket.fromBucketName(this._asset, 'AssetBucket',
+      this._asset.s3BucketName);
     return {
       applicationCodeConfigurationProperty: {
         applicationCodeConfiguration: {
           codeContent: {
             s3ContentLocation: {
-              bucketArn: this._asset.bucket.bucketArn,
+              bucketArn: bucket.bucketArn,
               fileKey: this._asset.s3ObjectKey,
             },
           },
           codeContentType: 'ZIPFILE',
         },
       },
-      bucket: this._asset.bucket,
+      bucket,
     };
-  }
-
-  get asset(): s3_assets.Asset | undefined {
-    return this._asset;
-  }
-
-  get bucket(): s3.IBucket | undefined {
-    return this._asset?.bucket;
   }
 }
