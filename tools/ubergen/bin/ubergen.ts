@@ -29,6 +29,8 @@ main().then(
 );
 
 interface LibraryReference {
+  readonly entryPoint: string;
+  readonly namespace: string;
   readonly packageJson: PackageJson;
   readonly root: string;
   readonly shortName: string;
@@ -110,10 +112,14 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
       console.log(`\t⚠️ Skipping (deprecated):         ${packageJson.name}`);
       continue;
     }
+
+    const shortName = packageJson.name.substr('@aws-cdk/'.length);
     result.push({
+      entryPoint: packageJson.types.replace(/(\/index)?(\.d)?\.ts$/, ''),
+      namespace: shortName.replace(/-/g, '_'),
       packageJson,
       root: path.join(librariesRoot, dir),
-      shortName: packageJson.name.substr('@aws-cdk/'.length),
+      shortName,
     });
   }
 
@@ -221,10 +227,11 @@ async function prepareSourceFiles(libraries: readonly LibraryReference[], packag
     const libDir = path.join(LIB_ROOT, library.shortName);
     await transformPackage(library, packageJson, libDir, libraries);
 
+    const libMain = `./${library.shortName}/${library.entryPoint}`;
     if (library.shortName === 'core') {
-      indexStatements.push(`export * from './${library.shortName}';`);
+      indexStatements.push(`export * from './${libMain}';`);
     } else {
-      indexStatements.push(`export * as ${library.shortName.replace(/-/g, '_')} from './${library.shortName}';`);
+      indexStatements.push(`export * as ${library.namespace} from './${libMain}';`);
     }
   }
 
@@ -262,12 +269,6 @@ async function transformPackage(
 
   await copyOrTransformFiles(library.root, destination, allLibraries, uberPackageJson);
 
-  await fs.writeFile(
-    path.join(destination, 'index.ts'),
-    `export * from './${library.packageJson.types.replace(/(\/index)?(\.d)?\.ts$/, '')}';\n`,
-    { encoding: 'utf8' },
-  );
-
   if (library.shortName !== 'core') {
     const config = uberPackageJson.jsii.targets;
     await fs.writeJson(
@@ -280,7 +281,7 @@ async function transformPackage(
 
     await fs.writeFile(
       path.resolve(LIB_ROOT, '..', `${library.shortName}.ts`),
-      `export * from './lib/${library.shortName}';\n`,
+      `export * from './lib/${library.shortName}/${library.entryPoint}';\n`,
       { encoding: 'utf8' },
     );
   }
@@ -431,7 +432,7 @@ async function rewriteImports(fromFile: string, targetDir: string, libraries: re
     if (sourceLibrary == null) { return undefined; }
 
     const importedFile = moduleSpecifier === sourceLibrary.packageJson.name
-      ? path.join(LIB_ROOT, sourceLibrary.shortName)
+      ? path.join(LIB_ROOT, sourceLibrary.shortName, sourceLibrary.entryPoint)
       : path.join(LIB_ROOT, sourceLibrary.shortName, moduleSpecifier.substr(sourceLibrary.packageJson.name.length + 1));
     return ts.createStringLiteral(
       path.relative(targetDir, importedFile),
@@ -445,6 +446,8 @@ const IGNORED_FILE_NAMES = new Set([
   '.jest.config.js',
   '.jsii',
   '.npmignore',
+  'dist',
+  'key.snk',
   'node_modules',
   'package.json',
   'test',
