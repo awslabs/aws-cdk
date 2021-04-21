@@ -289,7 +289,7 @@ const queueProcessingFargateService = new QueueProcessingFargateService(stack, '
 });
 ```
 
-when queue not provided by user, CDK will create a primary queue and a dead letter queue with default redrive policy and attach permission to the task to be able to access the primary queue.
+When a queue is not provided by the user, CDK will create a primary queue and a dead letter queue with default redrive policy and attach permission to the task to be able to access the primary queue.
 
 ## Scheduled Tasks
 
@@ -390,6 +390,26 @@ const loadBalancedFargateService = new ApplicationLoadBalancedFargateService(sta
   },
   deploymentController: {
     type: ecs.DeploymentControllerType.CODE_DEPLOY,
+  },
+});
+```
+
+### Use custom SSL Policy and an imported SSL Certificate
+
+```ts
+import { ApplicationLoadBalancedFargateService } from './application-load-balanced-fargate-service';
+import { SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { Certificate } from '@aws-cdk/aws-certificatemanager';
+
+const loadBalancedFargateService = new ApplicationLoadBalancedFargateService(stack, 'Service', {
+  certificate: Certificate.fromCertificateArn(this, 'Certificate', `arn:aws:acm:us-west-2:[ACCOUNT_ID]:certificate/[SSL_CERT_ID]`
+  sslPolicy: SslPolicy.TLS12_EXT,
+  cluster,
+  memoryLimitMiB: 1024,
+  desiredCount: 1,
+  cpu: 512,
+  taskImageOptions: {
+    image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
   },
 });
 ```

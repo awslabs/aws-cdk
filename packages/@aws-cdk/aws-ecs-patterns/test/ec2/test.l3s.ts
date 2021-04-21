@@ -2,7 +2,7 @@ import { ABSENT, arrayWith, expect, haveResource, haveResourceLike, objectLike }
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
-import { ApplicationLoadBalancer, ApplicationProtocol, NetworkLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { ApplicationLoadBalancer, ApplicationProtocol, NetworkLoadBalancer, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { PublicHostedZone } from '@aws-cdk/aws-route53';
 import * as cloudmap from '@aws-cdk/aws-servicediscovery';
 import * as cdk from '@aws-cdk/core';
@@ -498,6 +498,7 @@ export = {
       domainName: 'api.example.com',
       domainZone: zone,
       certificate: Certificate.fromCertificateArn(stack, 'Cert', 'helloworld'),
+      sslPolicy: SslPolicy.TLS12_EXT,
     });
 
     // THEN - stack contains a load balancer and a service
@@ -509,6 +510,7 @@ export = {
       Certificates: [{
         CertificateArn: 'helloworld',
       }],
+      SslPolicy: 'ELBSecurityPolicy-TLS-1-2-Ext-2018-06',
     }));
 
     expect(stack).to(haveResource('AWS::ElasticLoadBalancingV2::TargetGroup', {

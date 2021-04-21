@@ -103,7 +103,7 @@ export enum SslPolicy {
   RECOMMENDED = 'ELBSecurityPolicy-2016-08',
 
   /**
-   * Strong foward secrecy ciphers and TLV1.2 only (2020 edition).
+   * Strong forward secrecy ciphers and TLV1.2 only (2020 edition).
    * Same as FORWARD_SECRECY_TLS12_RES, but only supports GCM versions of the TLS ciphers
    */
   FORWARD_SECRECY_TLS12_RES_GCM = 'ELBSecurityPolicy-FS-1-2-Res-2020-10',

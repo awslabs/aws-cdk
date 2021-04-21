@@ -6,7 +6,7 @@ import {
 } from '@aws-cdk/aws-ecs';
 import {
   ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup,
-  IApplicationLoadBalancer, ListenerCertificate, ListenerAction, AddApplicationTargetsProps,
+  IApplicationLoadBalancer, ListenerCertificate, ListenerAction, AddApplicationTargetsProps, SslPolicy,
 } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { IRole } from '@aws-cdk/aws-iam';
 import { ARecord, IHostedZone, RecordTarget, CnameRecord } from '@aws-cdk/aws-route53';
@@ -96,6 +96,13 @@ export interface ApplicationLoadBalancedServiceBaseProps {
    * created for the load balancer's specified domain name.
    */
   readonly certificate?: ICertificate;
+
+  /**
+   * The security policy that defines which ciphers and protocols are supported.
+   *
+   * @default - The current predefined security policy.
+   */
+  readonly sslPolicy?: SslPolicy;
 
   /**
    * The protocol for connections from the load balancer to the ECS tasks.
@@ -418,6 +425,7 @@ export abstract class ApplicationLoadBalancedServiceBase extends CoreConstruct {
       protocol,
       port: props.listenerPort,
       open: props.openListener ?? true,
+      sslPolicy: props.sslPolicy,
     });
     this.targetGroup = this.listener.addTargets('ECS', targetProps);
 
@@ -442,6 +450,7 @@ export abstract class ApplicationLoadBalancedServiceBase extends CoreConstruct {
     if (props.redirectHTTP) {
       this.redirectListener = loadBalancer.addListener('PublicRedirectListener', {
         protocol: ApplicationProtocol.HTTP,
+        sslPolicy: props.sslPolicy,
         port: 80,
         open: props.openListener ?? true,
         defaultAction: ListenerAction.redirect({
