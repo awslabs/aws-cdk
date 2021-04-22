@@ -70,7 +70,7 @@ function synthesizeApp(stack: core.Stack, options: core.SynthesisOptions) {
     throw new Error('unexpected: all stacks must be part of a Stage or an App');
   }
 
-  // to support incremental assertions (i.e. "expect(stack).toNotContainSomething(); doSomething(); expect(stack).toContainSomthing()")
+  // to support incremental assertions (i.e. "expect(stack).toNotContainSomething(); doSomething(); expect(stack).toContainSomething()")
   const force = true;
 
   return root.synth({
