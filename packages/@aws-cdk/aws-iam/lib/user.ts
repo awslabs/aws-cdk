@@ -262,7 +262,8 @@ export class User extends Resource implements IIdentity, IUser {
       region: '', // IAM is global in each partition
       service: 'iam',
       resource: 'user',
-      resourceName: this.physicalName,
+      // Removes leading slash from path
+      resourceName: `${props.path ? props.path.substr(props.path.charAt(0) === '/' ? 1 : 0) : ''}${this.physicalName}`,
     });
 
     this.policyFragment = new ArnPrincipal(this.userArn).policyFragment;

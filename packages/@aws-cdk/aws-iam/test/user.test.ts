@@ -1,5 +1,5 @@
 import '@aws-cdk/assert-internal/jest';
-import { App, SecretValue, Stack } from '@aws-cdk/core';
+import { App, SecretValue, Stack, CfnResource } from '@aws-cdk/core';
 import { ManagedPolicy, Policy, PolicyStatement, User } from '../lib';
 
 describe('IAM user', () => {
@@ -176,5 +176,34 @@ describe('IAM user', () => {
         Version: '2012-10-17',
       },
     });
+  });
+});
+
+test('cross-env user ARNs include path', () => {
+  const app = new App();
+  const userStack = new Stack(app, 'user-stack', { env: { account: '123456789012', region: 'us-east-1' } });
+  const referencerStack = new Stack(app, 'referencer-stack', { env: { region: 'us-east-2' } });
+  const user = new User(userStack, 'User', {
+    path: '/sample/path/',
+    userName: 'sample-name',
+  });
+  new CfnResource(referencerStack, 'Referencer', {
+    type: 'Custom::UserReferencer',
+    properties: { UserArn: user.userArn },
+  });
+
+  expect(referencerStack).toHaveResource('Custom::UserReferencer', {
+    UserArn: {
+      'Fn::Join': [
+        '',
+        [
+          'arn:',
+          {
+            Ref: 'AWS::Partition',
+          },
+          ':iam::123456789012:user/sample/path/sample-name',
+        ],
+      ],
+    },
   });
 });

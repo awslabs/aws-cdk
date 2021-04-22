@@ -179,7 +179,8 @@ export class Group extends GroupBase {
       region: '', // IAM is global in each partition
       service: 'iam',
       resource: 'group',
-      resourceName: this.physicalName,
+      // Removes leading slash from path
+      resourceName: `${props.path ? props.path.substr(props.path.charAt(0) === '/' ? 1 : 0) : ''}${this.physicalName}`,
     });
   }
 
