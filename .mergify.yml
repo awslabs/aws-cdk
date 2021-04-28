@@ -6,7 +6,7 @@ pull_request_rules:
       label:
         add: [ contribution/core ]
     conditions:
-      - author~=^(eladb|RomainMuller|garnaat|nija-at|skinny85|rix0rrr|NGL321|Jerry-AWS|MrArnoldPalmer|NetaNir|iliapolo|njlynch|ericzbeard|ccfife|fulghum|pkandasamy91|SoManyHs|uttarasridhar)$
+      - author~=^(eladb|RomainMuller|garnaat|nija-at|skinny85|rix0rrr|NGL321|Jerry-AWS|MrArnoldPalmer|NetaNir|iliapolo|njlynch|ericzbeard|ccfife|fulghum|pkandasamy91|SoManyHs|uttarasridhar|peterwoodworth)$
       - -label~="contribution/core"
   - name: automatic merge
     actions:
