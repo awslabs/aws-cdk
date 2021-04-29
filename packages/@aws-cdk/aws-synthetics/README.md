@@ -44,9 +44,11 @@ const canary = new synthetics.Canary(this, 'MyCanary', {
     code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
     handler: 'index.handler',
   }),
-  runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+  runtime: synthetics.Runtime.latestPuppeteer(this),
 });
 ```
+
+> **Note:** Using `latestPuppeteer` runtime may lag behind what is available in CloudWatch Synthetics.
 
 The following is an example of an `index.js` file which exports the `handler` function:
 
@@ -107,7 +109,7 @@ const canary = new Canary(this, 'MyCanary', {
     code: synthetics.Code.fromInline('/* Synthetics handler code */'),
     handler: 'index.handler', // must be 'index.handler'
   }),
-  runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+  runtime: synthetics.Runtime.latestPuppeteer(this),
 });
 
 // To supply the code from your local filesystem:
@@ -116,7 +118,7 @@ const canary = new Canary(this, 'MyCanary', {
     code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
     handler: 'index.handler', // must end with '.handler'
   }),
-  runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+  runtime: synthetics.Runtime.latestPuppeteer(this),
 });
 
 // To supply the code from a S3 bucket:
@@ -125,7 +127,7 @@ const canary = new Canary(this, 'MyCanary', {
     code: synthetics.Code.fromBucket(bucket, 'canary.zip'),
     handler: 'index.handler', // must end with '.handler'
   }),
-  runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+  runtime: synthetics.Runtime.latestPuppeteer(this),
 });
 ```
 

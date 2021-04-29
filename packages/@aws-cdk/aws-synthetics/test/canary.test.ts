@@ -44,7 +44,7 @@ test('Canary can have generated name', () => {
       handler: 'index.handler',
       code: synthetics.Code.fromInline('/* Synthetics handler code */'),
     }),
-    runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_0,
+    runtime: synthetics.Runtime.latestPuppeteer(stack),
   });
 
   // THEN
