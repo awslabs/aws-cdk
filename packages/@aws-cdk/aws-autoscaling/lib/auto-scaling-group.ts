@@ -384,6 +384,13 @@ export interface AutoScalingGroupProps extends CommonAutoScalingGroupProps {
    * @default - default options
    */
   readonly initOptions?: ApplyCloudFormationInitOptions;
+
+  /**
+   * Specific MetadataOptions to use in LaunchConfiguration.
+   *
+   * @default - no options
+   */
+  readonly metadataOptions?: MetadataOptions;
 }
 
 /**
@@ -972,6 +979,7 @@ export class AutoScalingGroup extends AutoScalingGroupBase implements
       spotPrice: props.spotPrice,
       blockDeviceMappings: (props.blockDevices !== undefined ?
         synthesizeBlockDeviceMappings(this, props.blockDevices) : undefined),
+      metadataOptions: (props.metadataOptions !== undefined ? props.metadataOptions : undefined),
     });
 
     launchConfig.node.addDependency(this.role);
@@ -1780,4 +1788,31 @@ export interface ApplyCloudFormationInitOptions {
    * @default false
    */
   readonly ignoreFailures?: boolean;
+}
+
+/**
+ * Metadata options for the instances
+ */
+export interface MetadataOptions {
+  /**
+   * The HTTP metadata endpoint on your instances.
+   * Allowed values: disabled | enabled
+   * @default enabled
+   */
+  readonly httpEndpoint?: string;
+
+  /**
+   * The desired HTTP PUT response hop limit for instance metadata requests.
+   *
+   * The valid range is from 1 to 64.
+   * @default 1
+   */
+  readonly httpPutResponseHopLimit?: number;
+
+  /**
+   * The state of token usage for your instance metadata requests.
+   * Allowed values: optional | required
+   * @default optional
+   */
+  readonly httpTokens?: string;
 }
