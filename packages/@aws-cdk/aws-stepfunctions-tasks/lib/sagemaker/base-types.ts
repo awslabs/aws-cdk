@@ -476,6 +476,573 @@ export enum CompressionType {
 }
 
 //
+// Create Processing Job types
+//
+
+/**
+ * Configures the processing job to run a specified Docker container image.
+ */
+export interface AppSpecification {
+  /**
+   * The arguments for a container used to run a processing job.
+   *
+   * @see https://docs.aws.amazon.com/sagemaker/latest/dg/build-your-own-processing-container.html
+   *
+   * @default None
+   */
+  readonly containerArguments?: string[];
+
+  /**
+   * The entrypoint for a container used to run a processing job.
+   *
+   * @see https://docs.aws.amazon.com/sagemaker/latest/dg/build-your-own-processing-container.html
+   *
+   * @default None
+   */
+  readonly containerEntrypoint?: string[];
+
+  /**
+   * The fully qualified ECR URI of the Docker image.
+   * If you specify a value for this parameter, you can't specify a value for ImageUri.
+   *
+   * @default None
+   */
+  readonly containerImage?: DockerImage;
+
+  /**
+   * The fully qualified URI of the Docker image.
+   * If you specify a value for this parameter, you can't specify a value for ContainerImage.
+   *
+   * @default None
+   */
+  readonly imageUri?: string;
+}
+
+/**
+ * Associates a SageMaker job as a trial component with an experiment and trial. Specified when you call the
+ * following APIs: CreateProcessingJob, CreateTrainingJob, CreateTransformJob
+ */
+export interface ExperimentConfig {
+  /**
+   * The name of an existing experiment to associate the trial component with.
+   *
+   * @default NONE
+   */
+  readonly experimentName?: string;
+
+  /**
+   * The display name for the trial component. If this key isn't specified, the display name is the trial component name.
+   *
+   * @default NONE
+   */
+  readonly trialComponentDisplayName?: string;
+
+  /**
+   * The name of an existing trial to associate the trial component with. If not specified, a new trial is created.
+   *
+   * @default NONE
+   */
+  readonly trialName?: string;
+}
+
+/**
+ * Networking options for a job, such as network traffic encryption between containers, whether to allow inbound and
+ * outbound network calls to and from containers, and the VPC subnets and security groups to use for VPC-enabled jobs.
+ */
+export interface NetworkConfig {
+  /**
+   * Whether to encrypt all communications between distributed processing jobs. Choose True to encrypt communications.
+   * Encryption provides greater security for distributed processing jobs, but the processing might take longer.
+   *
+   * @default False
+   */
+  readonly enableInterContainerTrafficEncryption?: boolean;
+
+  /**
+   * Whether to allow inbound and outbound network calls to and from the containers used for the processing job.
+   *
+   * @default False
+   */
+  readonly enableNetworkIsolation?: boolean;
+
+  /**
+   * Specifies a VPC that your training jobs and hosted models have access to. Control access to and from your
+   * training and model containers by configuring the VPC.
+   *
+   * @default - No VPC
+   */
+  readonly vpcConfig?: VpcConfig;
+}
+
+/**
+ * Information about where and how you want to obtain the inputs for an processing job.
+ */
+export interface S3Input {
+  /**
+   * The local path to the Amazon S3 bucket where you want Amazon SageMaker to download the inputs to run a processing job.
+   * LocalPath is an absolute path to the input data.
+   */
+  readonly localPath: string;
+
+  /**
+   * Whether to use Gzip compression for Amazon S3 storage.
+   *
+   * @default NONE
+   */
+  readonly s3CompressionType?: CompressionType;
+
+  /**
+   * Whether the data stored in Amazon S3 is FullyReplicated or ShardedByS3Key.
+   *
+   * @default NONE
+   */
+  readonly s3DataDistributionType?: S3DataDistributionType;
+
+  /**
+   * Whether you use an S3Prefix or a ManifestFile for the data type. If you choose S3Prefix, S3Uri identifies a key
+   * name prefix. Amazon SageMaker uses all objects with the specified key name prefix for the processing job. If you
+   * choose ManifestFile, S3Uri identifies an object that is a manifest file containing a list of object keys that you
+   * want Amazon SageMaker to use for the processing job.
+   */
+  readonly s3DataType: S3DataType;
+
+  /**
+   * Whether to use File or Pipe input mode. In File mode, Amazon SageMaker copies the data from the input source onto
+   * the local Amazon Elastic Block Store (Amazon EBS) volumes before starting your training algorithm. This is the
+   * most commonly used input mode. In Pipe mode, Amazon SageMaker streams input data from the source directly to your
+   * algorithm without using the EBS volume.
+   */
+  readonly s3InputMode: InputMode;
+
+  /**
+   * The URI for the Amazon S3 storage where you want Amazon SageMaker to download the artifacts needed to run a processing job.
+   */
+  readonly s3Uri: string;
+}
+
+/**
+ * Configuration for processing job outputs in Amazon S3.
+ */
+export interface S3Output {
+  /**
+   * The local path to the Amazon S3 bucket where you want Amazon SageMaker to save the results of an processing job.
+   * LocalPath is an absolute path to the input data.
+   */
+  readonly localPath: string;
+
+  /**
+   * Whether to upload the results of the processing job continuously or after the job completes.
+   */
+  readonly s3UploadMode: S3UploadMode;
+
+  /**
+   * A URI that identifies the Amazon S3 bucket where you want Amazon SageMaker to save the results of a processing job.
+   */
+  readonly s3Uri: string;
+}
+
+/**
+ * The inputs for a processing job. The processing input must specify exactly one of either S3Input or DatasetDefinition types.
+ */
+export interface ProcessingInput {
+  /**
+   * When True, output operations such as data upload are managed natively by the processing job application.
+   * When False (default when unspecified), output operations are managed by Amazon SageMaker.
+   *
+   * @default None
+   */
+  readonly appManaged?: boolean;
+
+  /**
+   * Configuration for a Dataset Definition input.
+   *
+   * @default None
+   */
+  readonly datasetDefinition?: DatasetDefinition;
+
+  /**
+   * The name of the inputs for the processing job.
+   */
+  readonly inputName: string;
+
+  /**
+   * The S3 inputs for the processing job.
+   *
+   * @default None
+   */
+  readonly s3Input?: S3Input;
+}
+
+/**
+ * Configuration for Dataset Definition inputs. The Dataset Definition input must specify exactly one of either
+ * AthenaDatasetDefinition or RedshiftDatasetDefinition types.
+ */
+export interface DatasetDefinition {
+  /**
+   * Configuration for Athena Dataset Definition input.
+   *
+   * @default None
+   */
+  readonly athenaDatasetDefinition?: AthenaDatasetDefinition;
+
+  /**
+   * Whether the generated dataset is FullyReplicated or ShardedByS3Key (default when unspecified).
+   *
+   * @default None
+   */
+  readonly dataDistributionType?: S3DataDistributionType;
+
+  /**
+   * Whether to use File or Pipe input mode. In File (default) mode, Amazon SageMaker copies the data from the input
+   * source onto the local Amazon Elastic Block Store (Amazon EBS) volumes before starting your training algorithm.
+   * This is the most commonly used input mode. In Pipe mode, Amazon SageMaker streams input data from the source
+   * directly to your algorithm without using the EBS volume.
+   *
+   * @default None
+   */
+  readonly inputMode?: InputMode;
+
+  /**
+   * The local path where you want Amazon SageMaker to download the Dataset Definition inputs to run a processing job.
+   * LocalPath is an absolute path to the input data. This is a required parameter when AppManaged is False (default).
+   *
+   * @default None
+   */
+  readonly localPath?: string;
+
+  /**
+   * Configuration for Redshift Dataset Definition input.
+   *
+   * @default None
+   */
+  readonly redshiftDatasetDefinition?: RedshiftDatasetDefinition;
+}
+
+/**
+ * Configuration for Athena Dataset Definition input.
+ */
+export interface AthenaDatasetDefinition {
+  /**
+   * The name of the data catalog used in Athena query execution.
+   */
+  readonly catalog: string;
+
+  /**
+   * The name of the database used in the Athena query execution.
+   */
+  readonly database: string;
+
+  /**
+   * The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to encrypt data generated from an Athena query execution.
+   *
+   * @default None
+   */
+  readonly encryptionKey?: kms.IKey;
+
+  /**
+   * The compression used for Athena query results.
+   *
+   * @default None
+   */
+  readonly outputCompression?: AthenaOutputCompressionType;
+
+  /**
+   * The data storage format for Athena query results.
+   */
+  readonly outputFormat: AthenaOutputFormat;
+
+  /**
+   * The location in Amazon S3 where Athena query results are stored.
+   */
+  readonly outputS3Uri: string;
+
+  /**
+   * The SQL query statements, to be executed.
+   */
+  readonly queryString: string;
+
+  /**
+   * The name of the workgroup in which the Athena query is being started.
+   *
+   * @default None
+   */
+  readonly workGroup?: string;
+}
+
+/**
+ * Configuration for Redshift Dataset Definition input.
+ */
+export interface RedshiftDatasetDefinition {
+  /**
+   * The Redshift cluster Identifier.
+   */
+  readonly clusterId: string;
+
+  /**
+   * The IAM role attached to your Redshift cluster that Amazon SageMaker uses to generate datasets.
+   */
+  readonly clusterRoleArn: string;
+
+  /**
+   * The name of the Redshift database used in Redshift query execution.
+   */
+  readonly database: string;
+
+  /**
+   * The database user name used in Redshift query execution.
+   */
+  readonly dbUser: string;
+
+  /**
+   * The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to encrypt data from a Redshift execution.
+   *
+   * @default None
+   */
+  readonly encryptionKey?: kms.IKey;
+
+  /**
+   * The compression used for Redshift query results.
+   *
+   * @default None
+   */
+  readonly outputCompression?: RedshiftCompressionType;
+
+  /**
+   * The data storage format for Redshift query results.
+   */
+  readonly outputFormat: RedshiftOutputFormat;
+
+  /**
+   * The location in Amazon S3 where the Redshift query results are stored.
+   */
+  readonly outputS3Uri : string;
+
+  /**
+   * The SQL query statements to be executed.
+   */
+  readonly queryString : string;
+}
+
+/**
+ * The compression used for Athena query results.
+ */
+export enum AthenaOutputCompressionType {
+  /**
+   * Gzip compression type
+   */
+  GZIP = 'GZIP',
+
+  /**
+   * Snappy compression type
+   */
+  SNAPPY = 'SNAPPY',
+
+  /**
+   * Zlib compression type
+   */
+  ZLIB = 'ZLIB'
+}
+
+/**
+ * The data storage format for Athena query results.
+ */
+export enum AthenaOutputFormat {
+  /**
+   * Parquet data storage format type
+   */
+  PARQUET = 'PARQUET',
+
+  /**
+   * Orc data storage format type
+   */
+  ORC = 'ORC',
+
+  /**
+   * Avro data storage format type
+   */
+  AVRO = 'AVRO',
+
+  /**
+   * Json data storage format type
+   */
+  JSON = 'JSON',
+
+  /**
+   * Textfile data storage format type
+   */
+  TEXTFILE = 'TEXTFILE'
+}
+
+
+/**
+ * The compression used for Redshift query results.
+ */
+export enum RedshiftCompressionType {
+  /**
+   * No compression
+   */
+  NONE = 'None',
+
+  /**
+   * Gzip compression type
+   */
+  GZIP = 'GZIP',
+
+  /**
+   * BZip2 compression type
+   */
+  BZIP2 = 'BZIP2',
+
+  /**
+   * Zstd compression type
+   */
+  ZSTD = 'ZSTD',
+
+  /**
+   * Snappy compression type
+   */
+  SNAPPY = 'SNAPPY'
+}
+
+/**
+ * The data storage format for Redshift query results.
+ */
+export enum RedshiftOutputFormat {
+  /**
+   * Parquet data storage format type
+   */
+  PARQUET = 'PARQUET',
+
+  /**
+   * Csv data storage format type
+   */
+  CSV = 'CSV'
+}
+
+/**
+ * Information about where and how you want to store the results of an processing job.
+ */
+export interface ProcessingOutput {
+  /**
+   * When True, output operations such as data upload are managed natively by the processing job application.
+   * When False (default), output operations are managed by Amazon SageMaker.
+   *
+   * @default False
+   */
+  readonly appManaged?: boolean;
+
+  /**
+   * Configuration for processing job outputs in Amazon SageMaker Feature Store.
+   * This processing output type is only supported when AppManaged is specified.
+   *
+   * @default None
+   */
+  readonly featureStoreOutput?: ProcessingFeatureStoreOutput;
+
+  /**
+   * The name for the processing job output.
+   */
+  readonly outputName: string;
+
+  /**
+   * Configuration for processing job outputs in Amazon S3.
+   */
+  readonly s3Output: S3Output;
+}
+
+
+/**
+ * Configuration for processing job outputs in Amazon SageMaker Feature Store.
+ */
+export interface ProcessingFeatureStoreOutput {
+  /**
+   * The name of the Amazon SageMaker FeatureGroup to use as the destination for processing job output.
+   * Note that your processing script is responsible for putting records into your Feature Store.
+   */
+  readonly featureGroupName: string;
+}
+
+/**
+ * Output configuration for the processing job.
+ */
+export interface ProcessingOutputConfig {
+  /**
+   * The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to encrypt the processing job output.
+   * KmsKeyId can be an ID of a KMS key, ARN of a KMS key, alias of a KMS key, or alias of a KMS key.
+   * The KmsKeyId is applied to all outputs.
+   *
+   * @default None
+   */
+  readonly encryptionKey?: kms.IKey;
+
+  /**
+   * Output configuration information for a processing job.
+   */
+  readonly outputs: ProcessingOutput[];
+}
+
+/**
+ * Identifies the resources, ML compute instances, and ML storage volumes to deploy for a processing job. In distributed
+ * training, you specify more than one instance.
+ */
+export interface ProcessingResources {
+  /**
+   * Configuration for the cluster used to run a processing job.
+   */
+  readonly clusterConfig: ClusterConfig;
+}
+
+/**
+ * The configuration for the resources in a cluster used to run the processing job.
+ */
+export interface ClusterConfig {
+  /**
+   * The number of ML compute instances to use.
+   *
+   * @default 1 instance.
+   */
+  readonly instanceCount?: number;
+
+  /**
+   * ML compute instance type.
+   *
+   * @default is the 'm4.xlarge' instance type.
+   */
+  readonly instanceType?: ec2.InstanceType;
+
+  /**
+   * KMS key that Amazon SageMaker uses to encrypt data on the storage volume attached to the ML compute instance(s) that
+   * run the processing job.
+   *
+   * @default None
+   */
+  readonly volumeEncryptionKey?: kms.IKey;
+
+  /**
+   * The size of the ML storage volume in gigabytes that you want to provision. You must specify sufficient ML storage
+   * for your scenario. If left unspecified, SageMaker will assign a 10 GB EBS volume
+   *
+   * @default None
+   */
+  readonly volumeSize?: Size;
+}
+
+/**
+ * Whether to upload the results of the processing job continuously or after the job completes.
+ */
+export enum S3UploadMode {
+  /**
+   * Upload the results of the processing job continuously.
+   */
+  CONTINUOUS = 'Continuous',
+
+  /**
+   * Upload the results of the processing job after the job completes.
+   */
+  END_OF_JOB = 'EndOfJob'
+}
+
+//
 // Create Transform Job types
 //
 
