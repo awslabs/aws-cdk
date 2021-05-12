@@ -1,6 +1,63 @@
-import { AuthorizationType } from './graphqlapi';
+import { Construct } from 'constructs';
+import { AuthorizationType, GraphqlApi, GraphqlApiProps } from './graphqlapi';
 import { Directive } from './schema-base';
+import { GraphqlType, ResolvableField } from './schema-field';
 import { InterfaceType } from './schema-intermediate';
+
+const AWSTypes = [
+  'AWSDate',
+  'AWSTime',
+  'AWSDateTime',
+  'AWSTimestamp',
+  'AWSEmail',
+  'AWSJSON',
+  'AWSURL',
+  'AWSPhone',
+  'AWSIPAddress',
+];
+
+const AWSDirectives = [
+  '@aws_api_key',
+  '@aws_cognito_user_pools',
+  '@aws_auth',
+  '@aws_oidc',
+  '@aws_iam',
+];
+
+/**
+ * Custom Graphql Defintiioons for schema validation
+ */
+export const CustomGraphqlDefinition =
+  AWSDirectives.reduce((acc, directive) =>`${acc}directive ${directive} on OBJECT | INTERFACE | FIELD_DEFINITION\n`, '') +
+  'directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION\n' +
+  AWSTypes.reduce((acc, type) =>`${acc}scalar ${type}\n`, '');
+
+/**
+ *
+ */
+export class GraphqlApiTest extends GraphqlApi {
+  private declaredSchema: boolean
+
+  constructor(scope: Construct, id: string, props: GraphqlApiProps) {
+    super(scope, id, props);
+
+    this.declaredSchema = !!props.schema;
+
+    this.addQuery('generatedField', new ResolvableField({
+      returnType: GraphqlType.string(),
+    }));
+  }
+
+  public expectedSchema(out: string, schemaAddition?: string): string {
+    const rootDefinitions = ['query: Query', schemaAddition];
+    const schema = rootDefinitions.reduce((acc, def) => {
+      if (def === undefined) return acc;
+      return `${acc}  ${def}\n`;
+    }, 'schema {\n') + '}\n';
+    const query = 'type Query {\n  generatedField: String\n}\n';
+    return this.declaredSchema ? `${schema}${out}${query}` : `${schema}${query}${out}`;
+  }
+}
 
 /**
  * Utility enum for Schema class

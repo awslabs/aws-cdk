@@ -1,2 +1,10 @@
 AWS Cloud Development Kit (AWS CDK)
 Copyright 2018-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+-------------------------------------------------------------------------------
+
+The AWS CDK includes the following third-party software/licensing:
+
+** graphql - https://www.npmjs.com/package/graphql
+
+-------------------------------------------------------------------------------

@@ -72,6 +72,8 @@
     "nohoist": [
       "**/jszip",
       "**/jszip/**",
+      "@aws-cdk/aws-appsync/graphql",
+      "@aws-cdk/aws-appsync/graphql/**",
       "@aws-cdk/aws-codebuild/yaml",
       "@aws-cdk/aws-codebuild/yaml/**",
       "@aws-cdk/aws-codepipeline-actions/case",

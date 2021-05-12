@@ -1,14 +1,16 @@
 import '@aws-cdk/assert-internal/jest';
 import * as cdk from '@aws-cdk/core';
 import * as appsync from '../lib';
+import { GraphqlApiTest } from '../lib/private';
 import * as t from './scalar-type-defintions';
 
 let stack: cdk.Stack;
-let api: appsync.GraphqlApi;
+let api: GraphqlApiTest;
+
 beforeEach(() => {
   // GIVEN
   stack = new cdk.Stack();
-  api = new appsync.GraphqlApi(stack, 'api', {
+  api = new GraphqlApiTest(stack, 'api', {
     name: 'api',
   });
 });
@@ -37,7 +39,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -66,7 +68,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -83,12 +85,13 @@ describe('testing Object Type properties', () => {
         test: graphqlType,
       },
     });
+    api.addType(baseTest);
     api.addType(test);
-    const out = 'type Test {\n  test: baseTest\n}\n';
+    const out = 'type baseTest {\n  id: ID\n}\ntype Test {\n  test: baseTest\n}\n';
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -113,7 +116,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -138,7 +141,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -196,7 +199,6 @@ describe('testing Object Type properties', () => {
       },
     });
     test.addField({ fieldName: 'resolve', field });
-    // test.addField('resolve', field);
     test.addField({ fieldName: 'dynamic', field: t.string });
 
     api.addType(test);
@@ -204,7 +206,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
     expect(stack).toHaveResource('AWS::AppSync::Resolver');
   });
@@ -229,7 +231,7 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -256,9 +258,12 @@ describe('testing Object Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
-    expect(stack).toHaveResource('AWS::AppSync::Resolver');
+    expect(stack).toHaveResourceLike('AWS::AppSync::Resolver', {
+      TypeName: 'Test',
+      FieldName: 'resolve',
+    });
   });
 
   test('appsync fails addField with ObjectType missing fieldName', () => {

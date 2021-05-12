@@ -1,15 +1,16 @@
 import '@aws-cdk/assert-internal/jest';
 import * as cdk from '@aws-cdk/core';
 import * as appsync from '../lib';
+import { GraphqlApiTest } from '../lib/private';
 import * as t from './scalar-type-defintions';
 
 const out = 'input Test {\n  test: String\n}\n';
 let stack: cdk.Stack;
-let api: appsync.GraphqlApi;
+let api: GraphqlApiTest;
 beforeEach(() => {
   // GIVEN
   stack = new cdk.Stack();
-  api = new appsync.GraphqlApi(stack, 'api', {
+  api = new GraphqlApiTest(stack, 'api', {
     name: 'api',
   });
 });
@@ -24,9 +25,11 @@ describe('testing Input Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
-    expect(stack).not.toHaveResource('AWS::AppSync::Resolver');
+    expect(stack).not.toHaveResourceLike('AWS::AppSync::Resolver', {
+      TypeName: 'Test',
+    });
   });
 
   test('InputType can addField', () => {
@@ -37,7 +40,7 @@ describe('testing Input Type properties', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -85,11 +88,11 @@ describe('testing Input Type properties', () => {
       definition: { input: test.attribute() },
     }));
 
-    const obj = 'type Test2 {\n  input: Test\n}\n';
+    const obj = 'input Test {\n  test: String\n}\ntype Test2 {\n  input: Test\n}\n';
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}${obj}`,
+      Definition: api.expectedSchema(`${out}${obj}`),
     });
   });
 });

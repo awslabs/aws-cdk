@@ -1,8 +1,9 @@
 import { readFileSync } from 'fs';
 import { Lazy } from '@aws-cdk/core';
+import { validateSchema, GraphQLError, buildASTSchema, parse } from 'graphql';
 import { CfnGraphQLSchema } from './appsync.generated';
 import { GraphqlApi } from './graphqlapi';
-import { SchemaMode, shapeAddition } from './private';
+import { CustomGraphqlDefinition, SchemaMode, shapeAddition } from './private';
 import { IIntermediateType } from './schema-base';
 import { ResolvableField } from './schema-field';
 import { ObjectType } from './schema-intermediate';
@@ -81,8 +82,15 @@ export class Schema {
         apiId: api.apiId,
         definition: this.mode === SchemaMode.CODE ?
           Lazy.string({
-            produce: () => this.types.reduce((acc, type) => `${acc}${type._bindToGraphqlApi(api).toString()}\n`,
-              `${this.declareSchema()}${this.definition}`),
+            produce: () => {
+              const schema = this.types.reduce((acc, type) =>`${acc}${type._bindToGraphqlApi(api).toString()}\n`,
+                `${this.declareSchema()}${this.definition}`);
+              const _ast = buildASTSchema(parse(`${CustomGraphqlDefinition}${schema}`));
+              const errors = validateSchema(_ast);
+              errors.map((error: GraphQLError) => { throw new Error(error.message); });
+
+              return schema;
+            },
           })
           : this.definition,
       });
@@ -213,7 +221,7 @@ export class Schema {
     return shapeAddition({
       prefix: 'schema',
       fields: list.map((key: root) => this[key] ? `${key}: ${this[key]?.name}` : '')
-        .filter((field) => field != ''),
+        .filter((field) => field !== ''),
     }) + '\n';
   }
 }

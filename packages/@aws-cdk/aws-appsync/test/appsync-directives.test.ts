@@ -73,6 +73,10 @@ beforeEach(() => {
       ],
     },
   });
+
+  [api_apiKey, api_iam, api_oidc, api_auth, api_cognito].map((api) =>
+    api.addQuery('filler', new appsync.ResolvableField({ returnType: t.string })),
+  );
 });
 
 const testObjectType = (IApi: appsync.GraphqlApi, directives: appsync.Directive[], tag: string): any => {
@@ -84,9 +88,11 @@ const testObjectType = (IApi: appsync.GraphqlApi, directives: appsync.Directive[
     },
     directives: directives,
   }));
+  const schema = 'schema {\n  query: Query\n}\ntype Query {\n  filler: String\n}\n';
+  const out = `type Test ${tag} {\n  field: String\n  ${tag}\n  rfield: String\n  ${tag}\n}\n`;
   // THEN
   expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-    Definition: `type Test ${tag} {\n  field: String\n  ${tag}\n  rfield: String\n  ${tag}\n}\n`,
+    Definition: `${schema}${out}`,
   });
 };
 
@@ -99,9 +105,11 @@ const testInterfaceType = (IApi: appsync.GraphqlApi, directives: appsync.Directi
     },
     directives: directives,
   }));
+  const schema = 'schema {\n  query: Query\n}\ntype Query {\n  filler: String\n}\n';
+  const out = `interface Test ${tag} {\n  field: String\n  ${tag}\n  rfield: String\n  ${tag}\n}\n`;
   // THEN
   expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-    Definition: `interface Test ${tag} {\n  field: String\n  ${tag}\n  rfield: String\n  ${tag}\n}\n`,
+    Definition: `${schema}${out}`,
   });
 };
 

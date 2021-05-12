@@ -1,14 +1,16 @@
 import '@aws-cdk/assert-internal/jest';
 import * as cdk from '@aws-cdk/core';
 import * as appsync from '../lib';
+import { GraphqlApiTest } from '../lib/private';
 import * as t from './scalar-type-defintions';
 
 let stack: cdk.Stack;
-let api: appsync.GraphqlApi;
+let api: GraphqlApiTest;
+
 beforeEach(() => {
   // GIVEN
   stack = new cdk.Stack();
-  api = new appsync.GraphqlApi(stack, 'api', {
+  api = new GraphqlApiTest(stack, 'api', {
     name: 'api',
   });
 });
@@ -25,7 +27,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -40,7 +42,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -55,7 +57,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -70,7 +72,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -85,7 +87,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -100,7 +102,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -115,7 +117,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -130,7 +132,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -145,7 +147,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -160,7 +162,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -175,7 +177,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -191,7 +193,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -206,7 +208,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 
@@ -221,7 +223,7 @@ describe('testing all GraphQL Types', () => {
 
     // THEN
     expect(stack).toHaveResourceLike('AWS::AppSync::GraphQLSchema', {
-      Definition: `${out}`,
+      Definition: api.expectedSchema(out),
     });
   });
 });
