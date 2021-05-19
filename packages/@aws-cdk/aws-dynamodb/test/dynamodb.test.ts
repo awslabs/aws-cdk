@@ -352,9 +352,14 @@ test('when specifying every property', () => {
       StreamSpecification: { StreamViewType: 'KEYS_ONLY' },
       TableName: 'MyTable',
       Tags: [{ Key: 'Environment', Value: 'Production' }],
-      TimeToLiveSpecification: { AttributeName: 'timeToLive', Enabled: true },
     },
   );
+  expect(stack).toHaveResource('Custom::DynamoDBTimeToLive', {
+    TableName: {
+      Ref: 'MyTable794EDED1',
+    },
+    TimeToLiveAttribute: 'timeToLive',
+  });
 });
 
 test('when specifying sse with customer managed CMK', () => {

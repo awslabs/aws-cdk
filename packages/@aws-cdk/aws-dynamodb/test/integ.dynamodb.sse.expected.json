@@ -311,11 +311,7 @@
             "Key": "Environment",
             "Value": "Production"
           }
-        ],
-        "TimeToLiveSpecification": {
-          "AttributeName": "timeToLive",
-          "Enabled": true
-        }
+        ]
       },
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete"
@@ -569,6 +565,849 @@
           }
         ]
       }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleCC8E9CB9": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleDefaultPolicyF806C6EE": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:DescribeTable",
+                "dynamodb:DescribeTimeToLive",
+                "dynamodb:UpdateTimeToLive"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TableWithGlobalAndLocalSecondaryIndexBC540710",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TableWithGlobalAndLocalSecondaryIndexBC540710",
+                          "Arn"
+                        ]
+                      },
+                      "/index/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleDefaultPolicyF806C6EE",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleCC8E9CB9"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3Bucket71E0D600"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3VersionKey69BC2BD5"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3VersionKey69BC2BD5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleCC8E9CB9",
+            "Arn"
+          ]
+        },
+        "Handler": "index.onEventHandler",
+        "Runtime": "nodejs12.x",
+        "Timeout": 30
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleDefaultPolicyF806C6EE",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandlerServiceRoleCC8E9CB9"
+      ]
+    },
+    "TableWithGlobalAndLocalSecondaryIndexTimeToLive4103D09D": {
+      "Type": "Custom::DynamoDBTimeToLive",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventD14AFB7C",
+            "Arn"
+          ]
+        },
+        "TableName": {
+          "Ref": "TableWithGlobalAndLocalSecondaryIndexBC540710"
+        },
+        "TimeToLiveAttribute": "timeToLive"
+      },
+      "DependsOn": [
+        "TableWithGlobalAndLocalSecondaryIndexBC540710"
+      ],
+      "DeletionPolicy": "Delete",
+      "UpdateReplacePolicy": "Delete"
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleA529D064": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleDefaultPolicy59E21111": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:DescribeTable",
+                "dynamodb:DescribeTimeToLive",
+                "dynamodb:UpdateTimeToLive"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TableWithGlobalAndLocalSecondaryIndexBC540710",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TableWithGlobalAndLocalSecondaryIndexBC540710",
+                          "Arn"
+                        ]
+                      },
+                      "/index/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleDefaultPolicy59E21111",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleA529D064"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3Bucket71E0D600"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3VersionKey69BC2BD5"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3VersionKey69BC2BD5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleA529D064",
+            "Arn"
+          ]
+        },
+        "Handler": "index.isCompleteHandler",
+        "Runtime": "nodejs12.x",
+        "Timeout": 30
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleDefaultPolicy59E21111",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandlerServiceRoleA529D064"
+      ]
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRole43BE36E7": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRoleDefaultPolicyAB35463C": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "states:StartExecution",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765Providerwaiterstatemachine22186468"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRoleDefaultPolicyAB35463C",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRole43BE36E7"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventD14AFB7C": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3BucketDC4B98B1"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRole43BE36E7",
+            "Arn"
+          ]
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (aws-cdk-dynamodb/TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765/Provider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                "Arn"
+              ]
+            },
+            "USER_IS_COMPLETE_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                "Arn"
+              ]
+            },
+            "WAITER_STATE_MACHINE_ARN": {
+              "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765Providerwaiterstatemachine22186468"
+            }
+          }
+        },
+        "Handler": "framework.onEvent",
+        "Runtime": "nodejs14.x",
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRoleDefaultPolicyAB35463C",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonEventServiceRole43BE36E7"
+      ]
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDD3F4648": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDefaultPolicy2A1BC67F": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDefaultPolicy2A1BC67F",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDD3F4648"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteD50D28E0": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3BucketDC4B98B1"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDD3F4648",
+            "Arn"
+          ]
+        },
+        "Description": "AWS CDK resource provider framework - isComplete (aws-cdk-dynamodb/TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765/Provider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                "Arn"
+              ]
+            },
+            "USER_IS_COMPLETE_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                "Arn"
+              ]
+            }
+          }
+        },
+        "Handler": "framework.isComplete",
+        "Runtime": "nodejs14.x",
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDefaultPolicy2A1BC67F",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteServiceRoleDD3F4648"
+      ]
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRole5940A7EC": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRoleDefaultPolicyF1E6F0EC": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRoleDefaultPolicyF1E6F0EC",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRole5940A7EC"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeout5D2EAC1B": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3BucketDC4B98B1"
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRole5940A7EC",
+            "Arn"
+          ]
+        },
+        "Description": "AWS CDK resource provider framework - onTimeout (aws-cdk-dynamodb/TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765/Provider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765OnEventHandler725FDE66",
+                "Arn"
+              ]
+            },
+            "USER_IS_COMPLETE_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765IsCompleteHandler8D96756F",
+                "Arn"
+              ]
+            }
+          }
+        },
+        "Handler": "framework.onTimeout",
+        "Runtime": "nodejs14.x",
+        "Timeout": 900
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRoleDefaultPolicyF1E6F0EC",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeoutServiceRole5940A7EC"
+      ]
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRole40F8D32C": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "states.",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ".amazonaws.com"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRoleDefaultPolicyD841DE8C": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteD50D28E0",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeout5D2EAC1B",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRoleDefaultPolicyD841DE8C",
+        "Roles": [
+          {
+            "Ref": "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRole40F8D32C"
+          }
+        ]
+      }
+    },
+    "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765Providerwaiterstatemachine22186468": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "DefinitionString": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"StartAt\":\"framework-isComplete-task\",\"States\":{\"framework-isComplete-task\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":75,\"BackoffRate\":1}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"framework-onTimeout-task\"}],\"Type\":\"Task\",\"Resource\":\"",
+              {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkisCompleteD50D28E0",
+                  "Arn"
+                ]
+              },
+              "\"},\"framework-onTimeout-task\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"",
+              {
+                "Fn::GetAtt": [
+                  "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderframeworkonTimeout5D2EAC1B",
+                  "Arn"
+                ]
+              },
+              "\"}}}"
+            ]
+          ]
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRole40F8D32C",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRoleDefaultPolicyD841DE8C",
+        "TableTimeToLiveProvider15b48ecf0bc70966e44f6d4becded765ProviderwaiterstatemachineRole40F8D32C"
+      ]
+    }
+  },
+  "Parameters": {
+    "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3Bucket71E0D600": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036a\""
+    },
+    "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aS3VersionKey69BC2BD5": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036a\""
+    },
+    "AssetParameters8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036aArtifactHash4C67D23D": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"8bdf3f0e1607db128eaafb85935195fdf89921f6ac08c5741bf8eaccaacf036a\""
+    },
+    "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3BucketDC4B98B1": {
+      "Type": "String",
+      "Description": "S3 bucket for asset \"daeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1\""
+    },
+    "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1S3VersionKeyA495226F": {
+      "Type": "String",
+      "Description": "S3 key for asset version \"daeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1\""
+    },
+    "AssetParametersdaeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1ArtifactHashA521A16F": {
+      "Type": "String",
+      "Description": "Artifact hash for asset \"daeb79e3cee39c9b902dc0d5c780223e227ed573ea60976252947adab5fb2be1\""
     }
   }
 }

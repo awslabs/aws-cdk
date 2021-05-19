@@ -13,6 +13,7 @@ import * as perms from './perms';
 import { ReplicaProvider } from './replica-provider';
 import { EnableScalingProps, IScalableTableAttribute } from './scalable-attribute-api';
 import { ScalableTableAttribute } from './scalable-table-attribute';
+import { TimeToLiveProvider } from './time-to-live-provider';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -192,9 +193,21 @@ export interface TableOptions {
 
   /**
    * The name of TTL attribute.
+   *
+   * If a value is passed a custom resource is created. The custom resource does add support
+   * for changes to the TTL attribute later.
+   *
+   * If you wish to remove the custom resource and disable the TTL, you can leave the default (undefined).
    * @default - TTL is disabled
    */
   readonly timeToLiveAttribute?: string;
+
+  /**
+   * Whether a custom resource is created to manage the time to live attribute value.
+   *
+   * @default - true
+   */
+  readonly timeToLiveCustomResource?: boolean;
 
   /**
    * When an item in the table is modified, StreamViewType determines what information
@@ -1143,6 +1156,10 @@ export class Table extends TableBase {
     if (props.replicationRegions && props.replicationRegions.length > 0) {
       this.createReplicaTables(props.replicationRegions, props.replicationTimeout);
     }
+
+    if (props.timeToLiveAttribute !== undefined && ( props.timeToLiveCustomResource ?? true ) ) {
+      this.createTimeToLiveCustomResource(props.timeToLiveAttribute);
+    }
   }
 
   /**
@@ -1543,6 +1560,32 @@ export class Table extends TableBase {
       actions: ['dynamodb:*'],
       resources: this.regionalArns,
     }));
+  }
+
+  private createTimeToLiveCustomResource(timeToLiveAttribute?: string) {
+    const provider = TimeToLiveProvider.getOrCreate(this);
+
+    // Permissions
+    const tablePermissions = ['dynamodb:DescribeTable', 'dynamodb:DescribeTimeToLive', 'dynamodb:UpdateTimeToLive'];
+    const cloudFormationPermissions = ['cloudformation:DescribeStacks', 'cloudformation:DescribeChangeSet'];
+
+    [provider.onEventHandler, provider.isCompleteHandler].forEach((handler) => {
+      this.grant(handler, ...tablePermissions);
+      iam.Grant.addToPrincipal({
+        grantee: handler,
+        actions: cloudFormationPermissions,
+        resourceArns: [Stack.of(this).stackId],
+      });
+    });
+
+    new CustomResource(this, 'TimeToLive', {
+      serviceToken: provider.provider.serviceToken,
+      resourceType: 'Custom::DynamoDBTimeToLive',
+      properties: {
+        TableName: this.tableName,
+        TimeToLiveAttribute: timeToLiveAttribute,
+      },
+    });
   }
 
   /**
