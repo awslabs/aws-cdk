@@ -82,7 +82,13 @@ interface FieldHandlers {
 }
 
 export function recurseObject(obj: object | undefined, handlers: FieldHandlers, visited: object[] = []): object | undefined {
-  if (obj === undefined) { return undefined; }
+  // If the argument received is not actually an object (string, number, boolean, undefined, ...) or null
+  // just return it as is as there's nothing to be rendered. This should only happen in the original call to
+  // recurseObject as any recursive calls to it are checking for typeof value === 'object' && value !== null
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
   if (visited.includes(obj)) {
     return {};
   } else {
