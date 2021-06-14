@@ -178,6 +178,8 @@ Resources:
             IgnorePublicAcls: true
             RestrictPublicBuckets: true
           - Ref: AWS::NoValue
+      VersioningConfiguration:
+        Status: Enabled
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
   StagingBucketPolicy:

@@ -474,6 +474,16 @@ export interface StandardNpmSynthOptions extends SimpleSynthOptions {
    * @default 'npx cdk synth'
    */
   readonly synthCommand?: string;
+
+  /**
+   * Test commands
+   *
+   * These commands are run after the build commands but before the
+   * synth command.
+   *
+   * @default - No test commands
+   */
+  readonly testCommands?: string[];
 }
 
 /**
@@ -505,6 +515,16 @@ export interface StandardYarnSynthOptions extends SimpleSynthOptions {
    * @default 'npx cdk synth'
    */
   readonly synthCommand?: string;
+
+  /**
+   * Test commands
+   *
+   * These commands are run after the build commands but before the
+   * synth command.
+   *
+   * @default - No test commands
+   */
+  readonly testCommands?: string[];
 }
 
 function hash<A>(obj: A) {

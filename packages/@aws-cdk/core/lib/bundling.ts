@@ -259,6 +259,7 @@ export class DockerImage extends BundlingDockerImage {
     const dockerArgs: string[] = [
       'build', '-t', tag,
       ...(options.file ? ['-f', join(path, options.file)] : []),
+      ...(options.platform ? ['--platform', options.platform] : []),
       ...flatten(Object.entries(buildArgs).map(([k, v]) => ['--build-arg', `${k}=${v}`])),
       path,
     ];
@@ -423,6 +424,15 @@ export interface DockerBuildOptions {
    * @default `Dockerfile`
    */
   readonly file?: string;
+
+  /**
+   * Set platform if server is multi-platform capable. _Requires Docker Engine API v1.38+_.
+   *
+   * @example 'linux/amd64'
+   *
+   * @default - no platform specified
+   */
+  readonly platform?: string;
 }
 
 function flatten(x: string[][]) {

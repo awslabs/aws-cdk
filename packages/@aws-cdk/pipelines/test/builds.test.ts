@@ -217,7 +217,7 @@ test('environmentVariables must be rendered in the action', () => {
   });
 });
 
-test('complex setup with environemnt variables still renders correct project', () => {
+test('complex setup with environment variables still renders correct project', () => {
   // WHEN
   new TestGitHubNpmPipeline(pipelineStack, 'Cdk', {
     sourceArtifact,
@@ -291,6 +291,39 @@ test.each([['npm'], ['yarn']])('%s can have its install command overridden', (np
         phases: {
           pre_build: {
             commands: ['/bin/true'],
+          },
+        },
+      })),
+    },
+  });
+});
+
+test.each([['npm'], ['yarn']])('%s can have its test commands set', (npmYarn) => {
+  // WHEN
+  new TestGitHubNpmPipeline(pipelineStack, 'Cdk', {
+    sourceArtifact,
+    cloudAssemblyArtifact,
+    synthAction: npmYarnBuild(npmYarn)({
+      sourceArtifact,
+      cloudAssemblyArtifact,
+      installCommand: '/bin/true',
+      testCommands: ['echo "Running tests"'],
+    }),
+  });
+
+  // THEN
+  expect(pipelineStack).toHaveResourceLike('AWS::CodeBuild::Project', {
+    Environment: {
+      Image: 'aws/codebuild/standard:5.0',
+    },
+    Source: {
+      BuildSpec: encodedJson(objectLike({
+        phases: {
+          pre_build: {
+            commands: ['/bin/true'],
+          },
+          build: {
+            commands: ['echo "Running tests"', 'npx cdk synth'],
           },
         },
       })),

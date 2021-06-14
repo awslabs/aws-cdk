@@ -348,6 +348,9 @@ export interface Account {
   readonly partition: string;
 }
 
+const DEFAULT_CONNECTION_TIMEOUT = 10000;
+const DEFAULT_TIMEOUT = 300000;
+
 /**
  * Get HTTP options for the SDK
  *
@@ -359,6 +362,9 @@ export interface Account {
 function parseHttpOptions(options: SdkHttpOptions) {
   const config: ConfigurationOptions = {};
   config.httpOptions = {};
+
+  config.httpOptions.connectTimeout = DEFAULT_CONNECTION_TIMEOUT;
+  config.httpOptions.timeout = DEFAULT_TIMEOUT;
 
   let userAgent = options.userAgent;
   if (userAgent == null) {

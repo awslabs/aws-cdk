@@ -88,6 +88,43 @@ nodeunitShim({
     test.done();
   },
 
+  'bundling with image from asset with platform'(test: Test) {
+    const spawnSyncStub = sinon.stub(child_process, 'spawnSync').returns({
+      status: 0,
+      stderr: Buffer.from('stderr'),
+      stdout: Buffer.from('stdout'),
+      pid: 123,
+      output: ['stdout', 'stderr'],
+      signal: null,
+    });
+
+    const imageHash = '123456abcdef';
+    const fingerprintStub = sinon.stub(FileSystem, 'fingerprint');
+    fingerprintStub.callsFake(() => imageHash);
+    const platform = 'linux/someArch99';
+
+    const image = DockerImage.fromBuild('docker-path', { platform });
+    image.run();
+
+    const tagHash = crypto.createHash('sha256').update(JSON.stringify({
+      path: 'docker-path',
+      platform,
+    })).digest('hex');
+    const tag = `cdk-${tagHash}`;
+
+    test.ok(spawnSyncStub.firstCall.calledWith('docker', [
+      'build', '-t', tag,
+      '--platform', platform,
+      'docker-path',
+    ]));
+
+    test.ok(spawnSyncStub.secondCall.calledWith('docker', [
+      'run', '--rm',
+      tag,
+    ]));
+    test.done();
+  },
+
   'throws in case of spawnSync error'(test: Test) {
     sinon.stub(child_process, 'spawnSync').returns({
       status: 0,
