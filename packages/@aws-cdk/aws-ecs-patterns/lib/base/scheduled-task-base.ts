@@ -1,7 +1,6 @@
-import { Schedule } from '@aws-cdk/aws-applicationautoscaling';
 import { IVpc, SubnetSelection, SubnetType } from '@aws-cdk/aws-ec2';
 import { AwsLogDriver, Cluster, ContainerImage, ICluster, LogDriver, Secret, TaskDefinition } from '@aws-cdk/aws-ecs';
-import { Rule } from '@aws-cdk/aws-events';
+import { Rule, Schedule } from '@aws-cdk/aws-events';
 import { EcsTask } from '@aws-cdk/aws-events-targets';
 import { Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
