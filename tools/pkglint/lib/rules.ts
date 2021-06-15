@@ -1633,6 +1633,7 @@ export class NoExperimentalDependents extends ValidationRule {
     ['@aws-cdk/aws-apigatewayv2-integrations', ['@aws-cdk/aws-apigatewayv2']],
     ['@aws-cdk/aws-apigatewayv2-authorizers', ['@aws-cdk/aws-apigatewayv2']],
     ['@aws-cdk/aws-events-targets', ['@aws-cdk/aws-kinesisfirehose']],
+    ['@aws-cdk/aws-logs-destinations', ['@aws-cdk/aws-kinesisfirehose']],
   ]);
 
   private readonly excludedModules = ['@aws-cdk/cloudformation-include'];

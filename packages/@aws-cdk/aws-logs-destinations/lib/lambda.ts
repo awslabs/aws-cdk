@@ -4,7 +4,7 @@ import * as logs from '@aws-cdk/aws-logs';
 import { Construct } from '@aws-cdk/core';
 
 /**
- * Use a Lamda Function as the destination for a log subscription
+ * Use a Lambda Function as the destination for a log subscription
  */
 export class LambdaDestination implements logs.ILogSubscriptionDestination {
   constructor(private readonly fn: lambda.IFunction) {

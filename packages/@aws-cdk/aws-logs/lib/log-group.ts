@@ -422,7 +422,7 @@ export interface SubscriptionFilterOptions {
   /**
    * The destination to send the filtered events to.
    *
-   * For example, a Kinesis stream or a Lambda function.
+   * For example, a Kinesis stream, a Kinesis Data Firehose delivery stream or a Lambda function.
    */
   readonly destination: ILogSubscriptionDestination;
 
