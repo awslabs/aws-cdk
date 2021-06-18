@@ -274,7 +274,6 @@ class DummyAuthorizer implements IHttpRouteAuthorizer {
 
   public bind(options: HttpRouteAuthorizerBindOptions): HttpRouteAuthorizerConfig {
     if (!this.authorizer) {
-
       this.authorizer = new HttpAuthorizer(options.scope, 'auth-1234', {
         httpApi: options.route.httpApi,
         identitySource: ['identitysource.1', 'identitysource.2'],
@@ -296,7 +295,6 @@ class InvalidTypeAuthorizer implements IHttpRouteAuthorizer {
 
   public bind(options: HttpRouteAuthorizerBindOptions): HttpRouteAuthorizerConfig {
     if (!this.authorizer) {
-
       this.authorizer = new HttpAuthorizer(options.scope, 'auth-1234', {
         httpApi: options.route.httpApi,
         identitySource: ['identitysource.1', 'identitysource.2'],

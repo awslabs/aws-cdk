@@ -110,7 +110,6 @@ describe('States Language', () => {
         'State Three': { Type: 'Wait', End: true, Seconds: 10 },
       },
     });
-
   }),
 
   test('A state machine definition can be instantiated and chained', () => {
@@ -337,7 +336,6 @@ describe('States Language', () => {
         Finally: { Type: 'Pass', End: true },
       },
     });
-
   }),
 
   test('State machines can have unconstrainted gotos', () => {
@@ -618,7 +616,6 @@ describe('States Language', () => {
   }),
 
   describe('findReachableStates', () => {
-
     test('Can retrieve possible states from initial state', () => {
       // GIVEN
       const stack = new cdk.Stack();

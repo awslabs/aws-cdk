@@ -96,14 +96,14 @@
     "VPCPublicSubnet1NATGatewayE0556630": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet1SubnetB4246D30"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet1EIP6AD938E8",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet1SubnetB4246D30"
         },
         "Tags": [
           {
@@ -193,14 +193,14 @@
     "VPCPublicSubnet2NATGateway3C070193": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet2Subnet74179F39"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet2EIP4947BC00",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet2Subnet74179F39"
         },
         "Tags": [
           {
@@ -1125,6 +1125,18 @@
       ]
     }
   },
+  "Mappings": {
+    "InstanceRotationSingleUserSARMappingFEA0C86E": {
+      "aws": {
+        "applicationId": "arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSOracleRotationSingleUser",
+        "semanticVersion": "1.1.60"
+      },
+      "aws-cn": {
+        "applicationId": "arn:aws-cn:serverlessrepo:cn-north-1:193023089310:applications/SecretsManagerRDSOracleRotationSingleUser",
+        "semanticVersion": "1.1.37"
+      }
+    }
+  },
   "Parameters": {
     "AssetParameters884431e2bc651d2b61bd699a29dc9684b0f66911f06bd3ed0635f854bf18e147S3BucketAE1150B3": {
       "Type": "String",
@@ -1137,18 +1149,6 @@
     "AssetParameters884431e2bc651d2b61bd699a29dc9684b0f66911f06bd3ed0635f854bf18e147ArtifactHash717FC602": {
       "Type": "String",
       "Description": "Artifact hash for asset \"884431e2bc651d2b61bd699a29dc9684b0f66911f06bd3ed0635f854bf18e147\""
-    }
-  },
-  "Mappings": {
-    "InstanceRotationSingleUserSARMappingFEA0C86E": {
-      "aws": {
-        "applicationId": "arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSOracleRotationSingleUser",
-        "semanticVersion": "1.1.60"
-      },
-      "aws-cn": {
-        "applicationId": "arn:aws-cn:serverlessrepo:cn-north-1:193023089310:applications/SecretsManagerRDSOracleRotationSingleUser",
-        "semanticVersion": "1.1.37"
-      }
     }
   }
 }

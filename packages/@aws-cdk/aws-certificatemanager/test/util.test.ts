@@ -101,5 +101,4 @@ describe('getCertificateRegion', () => {
 
     expect(getCertificateRegion(certificate)).toEqual(Aws.REGION);
   });
-
 });

@@ -214,7 +214,6 @@ export class Stage extends Resource implements IStage {
       if (accessLogFormat !== undefined &&
         !Token.isUnresolved(accessLogFormat.toString()) &&
         !/.*\$context.requestId.*/.test(accessLogFormat.toString())) {
-
         throw new Error('Access log must include at least `AccessLogFormat.contextRequestId()`');
       }
       if (accessLogFormat !== undefined && accessLogDestination === undefined) {

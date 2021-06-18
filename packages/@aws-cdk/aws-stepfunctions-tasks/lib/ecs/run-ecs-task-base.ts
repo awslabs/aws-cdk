@@ -126,7 +126,6 @@ export class EcsRunTaskBase implements ec2.IConnectable, sfn.IStepFunctionsTask 
     assignPublicIp?: boolean,
     subnetSelection?: ec2.SubnetSelection,
     securityGroup?: ec2.ISecurityGroup) {
-
     if (subnetSelection === undefined) {
       subnetSelection = { subnetType: assignPublicIp ? ec2.SubnetType.PUBLIC : ec2.SubnetType.PRIVATE };
     }

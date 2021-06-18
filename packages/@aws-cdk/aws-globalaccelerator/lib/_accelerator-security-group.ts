@@ -20,7 +20,6 @@ export class AcceleratorSecurityGroupPeer implements ec2.IPeer {
    * to other resources created by CDK.
    */
   public static fromVpc(scope: Construct, id: string, vpc: ec2.IVpc, endpointGroup: EndpointGroup) {
-
     // The security group name is always 'GlobalAccelerator'
     const globalAcceleratorSGName = 'GlobalAccelerator';
 

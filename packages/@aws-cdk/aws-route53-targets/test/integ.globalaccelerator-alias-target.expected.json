@@ -1,52 +1,52 @@
 {
-    "Resources": {
-      "Accelerator8EB0B6B1": {
-        "Type": "AWS::GlobalAccelerator::Accelerator",
-        "Properties": {
-          "Name": "aws-cdk-globalaccelerator-integ",
-          "Enabled": true
-        }
-      },
-      "HostedZoneDB99F866": {
-        "Type": "AWS::Route53::HostedZone",
-        "Properties": {
-          "Name": "test.public."
-        }
-      },
-      "LocalGlobalAcceleratorAlias18B4A87A": {
-        "Type": "AWS::Route53::RecordSet",
-        "Properties": {
-          "Name": "test-local.test.public.",
-          "Type": "A",
-          "AliasTarget": {
-            "DNSName": {
-              "Fn::GetAtt": [
-                "Accelerator8EB0B6B1",
-                "DnsName"
-              ]
-            },
-            "HostedZoneId": "Z2BJ6XQ5FK7U4H"
+  "Resources": {
+    "Accelerator8EB0B6B1": {
+      "Type": "AWS::GlobalAccelerator::Accelerator",
+      "Properties": {
+        "Name": "aws-cdk-globalaccelerator-integ",
+        "Enabled": true
+      }
+    },
+    "HostedZoneDB99F866": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "Name": "test.public."
+      }
+    },
+    "LocalGlobalAcceleratorAlias18B4A87A": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "Name": "test-local.test.public.",
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "Accelerator8EB0B6B1",
+              "DnsName"
+            ]
           },
-          "Comment": "Alias to the locally created Global Accelerator",
-          "HostedZoneId": {
-            "Ref": "HostedZoneDB99F866"
-          }
+          "HostedZoneId": "Z2BJ6XQ5FK7U4H"
+        },
+        "Comment": "Alias to the locally created Global Accelerator",
+        "HostedZoneId": {
+          "Ref": "HostedZoneDB99F866"
         }
-      },
-      "ExistingGlobalAcceleratorAlias7ACF888C": {
-        "Type": "AWS::Route53::RecordSet",
-        "Properties": {
-          "Name": "test-existing.test.public.",
-          "Type": "A",
-          "AliasTarget": {
-            "DNSName": "someexisting.awsglobalaccelerator.com",
-            "HostedZoneId": "Z2BJ6XQ5FK7U4H"
-          },
-          "Comment": "Alias to the an existing Global Accelerator",
-          "HostedZoneId": {
-            "Ref": "HostedZoneDB99F866"
-          }
+      }
+    },
+    "ExistingGlobalAcceleratorAlias7ACF888C": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "Name": "test-existing.test.public.",
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": "someexisting.awsglobalaccelerator.com",
+          "HostedZoneId": "Z2BJ6XQ5FK7U4H"
+        },
+        "Comment": "Alias to the an existing Global Accelerator",
+        "HostedZoneId": {
+          "Ref": "HostedZoneDB99F866"
         }
       }
     }
   }
+}

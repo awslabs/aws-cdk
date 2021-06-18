@@ -115,8 +115,8 @@ function event(nr: number): AWS.CloudFormation.StackEvent {
 }
 
 async function testMonitorWithEventCalls(
-  beforeStopInvocations: Array<(x: AWS.CloudFormation.DescribeStackEventsInput) => AWS.CloudFormation.DescribeStackEventsOutput>,
-  afterStopInvocations: Array<(x: AWS.CloudFormation.DescribeStackEventsInput) => AWS.CloudFormation.DescribeStackEventsOutput> = [],
+    beforeStopInvocations: Array<(x: AWS.CloudFormation.DescribeStackEventsInput) => AWS.CloudFormation.DescribeStackEventsOutput>,
+    afterStopInvocations: Array<(x: AWS.CloudFormation.DescribeStackEventsInput) => AWS.CloudFormation.DescribeStackEventsOutput> = [],
 ) {
   let describeStackEvents = (jest.fn() as jest.Mock<AWS.CloudFormation.DescribeStackEventsOutput, [AWS.CloudFormation.DescribeStackEventsInput]>);
 

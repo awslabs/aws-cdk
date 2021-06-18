@@ -25,7 +25,6 @@ export interface EmrCancelStepProps extends sfn.TaskStateBaseProps {
  *
  */
 export class EmrCancelStep extends sfn.TaskStateBase {
-
   protected readonly taskPolicies?: iam.PolicyStatement[];
   protected readonly taskMetrics?: sfn.TaskMetricsConfig;
 

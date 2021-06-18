@@ -90,7 +90,6 @@ export interface NetworkLoadBalancedFargateServiceProps extends NetworkLoadBalan
  * A Fargate service running on an ECS cluster fronted by a network load balancer.
  */
 export class NetworkLoadBalancedFargateService extends NetworkLoadBalancedServiceBase {
-
   public readonly assignPublicIp: boolean;
   /**
    * The Fargate service in this construct.

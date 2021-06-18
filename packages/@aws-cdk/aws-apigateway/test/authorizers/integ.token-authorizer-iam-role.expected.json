@@ -72,13 +72,13 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "MyAuthorizerFunctionServiceRole8A34C19E",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

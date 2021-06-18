@@ -8,7 +8,6 @@ import * as cdk from '@aws-cdk/core';
 import { ClusterParameterGroup, DatabaseCluster, EngineVersion, InstanceType } from '../lib';
 
 describe('DatabaseCluster', () => {
-
   test('check that instantiation works', () => {
     // GIVEN
     const stack = testStack();

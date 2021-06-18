@@ -245,7 +245,6 @@ export interface GraphWidgetProps extends MetricWidgetProps {
  * A dashboard widget that displays metrics
  */
 export class GraphWidget extends ConcreteWidget {
-
   private readonly props: GraphWidgetProps;
 
   private readonly leftMetrics: IMetric[];

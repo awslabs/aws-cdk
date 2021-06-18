@@ -21,7 +21,6 @@ export interface GlueDataBrewStartJobRunProps extends sfn.TaskStateBaseProps {
  * @see https://docs.aws.amazon.com/step-functions/latest/dg/connect-databrew.html
  */
 export class GlueDataBrewStartJobRun extends sfn.TaskStateBase {
-
   private static readonly SUPPORTED_INTEGRATION_PATTERNS: sfn.IntegrationPattern[] = [
     sfn.IntegrationPattern.REQUEST_RESPONSE,
     sfn.IntegrationPattern.RUN_JOB,

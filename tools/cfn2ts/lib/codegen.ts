@@ -565,7 +565,6 @@ export default class CodeGenerator {
     propSpecs: { [name: string]: schema.Property },
     nameConversionTable: Dictionary<string>,
     allowReturningIResolvable: boolean) {
-
     const factoryName = genspec.fromCfnFactoryName(typeName);
 
     this.code.line();
@@ -814,7 +813,6 @@ export default class CodeGenerator {
       default:
         throw new Error(`Unsupported container ${container}`);
     }
-
   }
 
   private beginNamespace(type: genspec.CodeName): void {

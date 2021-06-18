@@ -38,7 +38,6 @@ describe('api definition', () => {
       expect(stack.resolve(config.s3Location!.bucket)).toEqual({
         Ref: 'AssetParameters68497ac876de4e963fc8f7b5f1b28844c18ecc95e3f7c6e9e0bf250e03c037fbS3Bucket42039E29',
       });
-
     });
 
     test('fails if a directory is given for an asset', () => {
@@ -47,7 +46,6 @@ describe('api definition', () => {
 
       // THEN
       expect(() => defineRestApi(fileAsset)).toThrow(/Asset cannot be a \.zip file or a directory/);
-
     });
 
     test('only one Asset object gets created even if multiple functions use the same AssetApiDefinition', () => {
@@ -71,7 +69,6 @@ describe('api definition', () => {
 
       // API1 has an asset, API2 does not
       expect(synthesized.assets.length).toEqual(1);
-
     });
   });
 
@@ -86,7 +83,6 @@ describe('api definition', () => {
         Ref: 'mybucket15D133BF',
       });
       expect(config.s3Location!.key).toEqual('my-key');
-
     });
   });
 });

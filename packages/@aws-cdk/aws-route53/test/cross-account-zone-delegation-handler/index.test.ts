@@ -173,8 +173,8 @@ test('throws if more than one HostedZones are returnd for the provided ParentHos
 });
 
 function getCfnEvent(
-  event?: Partial<AWSLambda.CloudFormationCustomResourceEvent>,
-  resourceProps?: any,
+    event?: Partial<AWSLambda.CloudFormationCustomResourceEvent>,
+    resourceProps?: any,
 ): Partial<AWSLambda.CloudFormationCustomResourceEvent> {
   return {
     RequestType: 'Create',

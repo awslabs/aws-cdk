@@ -380,7 +380,6 @@ test('pass param to training job', () => {
 });
 
 test('Cannot create a SageMaker train task with both algorithm name and image name missing', () => {
-
   expect(() => new SageMakerCreateTrainingJob(stack, 'SageMakerTrainingTask', {
     trainingJobName: 'myTrainJob',
     algorithmSpecification: {},

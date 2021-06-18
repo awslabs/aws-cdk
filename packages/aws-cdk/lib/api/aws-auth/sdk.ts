@@ -71,7 +71,6 @@ export class SDK implements ISDK {
     region: string,
     httpOptions: ConfigurationOptions = {},
     private readonly sdkOptions: SdkOptions = {}) {
-
     this.config = {
       ...httpOptions,
       ...this.retryOptions,

@@ -57,7 +57,6 @@ export interface SubnetGroupProps {
  * @resource AWS::RDS::DBSubnetGroup
  */
 export class SubnetGroup extends Resource implements ISubnetGroup {
-
   /**
    * Imports an existing subnet group by name.
    */

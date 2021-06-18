@@ -555,7 +555,6 @@ describe('imported keys', () => {
     expect(() => {
       kms.Key.fromKeyArn(stack, 'Imported', 'arn:aws:kms:us-east-1:123456789012:key');
     }).toThrow(/KMS key ARN must be in the format 'arn:aws:kms:<region>:<account>:key\/<keyId>', got: 'arn:aws:kms:us-east-1:123456789012:key'/);
-
   });
 
   testFutureBehavior('can have aliases added to them', flags, cdk.App, (app) => {
@@ -907,7 +906,6 @@ describe('addToResourcePolicy allowNoOp and there is no policy', () => {
       'arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012');
 
     key.addToResourcePolicy(new iam.PolicyStatement({ resources: ['*'], actions: ['*'] }));
-
   });
 
   testFutureBehavior('fails if set to false', flags, cdk.App, (app) => {
@@ -918,7 +916,6 @@ describe('addToResourcePolicy allowNoOp and there is no policy', () => {
     expect(() => {
       key.addToResourcePolicy(new iam.PolicyStatement({ resources: ['*'], actions: ['*'] }), /* allowNoOp */ false);
     }).toThrow('Unable to add statement to IAM resource policy for KMS key: "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"');
-
   });
 });
 

@@ -16,7 +16,6 @@ export interface IUserPoolIdentityProvider extends IResource {
  * User pool third-party identity providers
  */
 export class UserPoolIdentityProvider {
-
   /**
    * Import an existing UserPoolIdentityProvider
    */

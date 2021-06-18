@@ -43,7 +43,6 @@ export interface ClusterResourceProviderProps {
  * @internal
  */
 export class ClusterResourceProvider extends NestedStack {
-
   public static getOrCreate(scope: Construct, props: ClusterResourceProviderProps) {
     const stack = Stack.of(scope);
     const uid = '@aws-cdk/aws-eks.ClusterResourceProvider';

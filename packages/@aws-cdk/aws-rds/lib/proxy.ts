@@ -514,7 +514,7 @@ export class DatabaseProxy extends DatabaseProxyBase
  * ConnectionPoolConfiguration (L2 => L1)
  */
 function toConnectionPoolConfigurationInfo(
-  props: DatabaseProxyProps,
+    props: DatabaseProxyProps,
 ): CfnDBProxyTargetGroup.ConnectionPoolConfigurationInfoFormatProperty {
   return {
     connectionBorrowTimeout: props.borrowTimeout?.toSeconds(),

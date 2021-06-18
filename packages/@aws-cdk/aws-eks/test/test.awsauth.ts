@@ -13,7 +13,6 @@ const CLUSTER_VERSION = KubernetesVersion.V1_16;
 export = {
 
   'throws when adding a role from a different stack'(test: Test) {
-
     const app = new cdk.App();
     const clusterStack = new cdk.Stack(app, 'ClusterStack');
     const roleStack = new cdk.Stack(app, 'RoleStack');
@@ -30,11 +29,9 @@ export = {
     }
 
     test.done();
-
   },
 
   'throws when adding a user from a different stack'(test: Test) {
-
     const app = new cdk.App();
     const clusterStack = new cdk.Stack(app, 'ClusterStack');
     const userStack = new cdk.Stack(app, 'UserStack');
@@ -51,7 +48,6 @@ export = {
     }
 
     test.done();
-
   },
 
   'empty aws-auth'(test: Test) {

@@ -1,7 +1,6 @@
 import { generateSchema, SCHEMAS } from '../scripts/update-schema';
 
 test('if this test fails, run "yarn update-schema"', () => {
-
   // when we compare schemas we ignore changes the
   // description that is generated from the ts docstrings.
   const docStringFields = [
@@ -23,11 +22,9 @@ test('if this test fails, run "yarn update-schema"', () => {
       throw err;
     }
   }
-
 });
 
 function removeStringKeys(obj: any, keys: string[]) {
-
   function _recurse(o: any) {
     for (const prop in o) {
       if (keys.includes(prop) && typeof o[prop] === 'string') {
@@ -42,7 +39,6 @@ function removeStringKeys(obj: any, keys: string[]) {
   _recurse(cloned);
 
   return cloned;
-
 }
 
 function clone(obj: any) {

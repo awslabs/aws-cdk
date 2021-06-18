@@ -114,9 +114,8 @@ export class AssetManifestReader {
     ];
 
     function makeEntries<A, B, C>(
-      assets: Record<string, { source: A, destinations: Record<string, B> }>,
-      ctor: new (id: DestinationIdentifier, source: A, destination: B) => C): C[] {
-
+        assets: Record<string, { source: A, destinations: Record<string, B> }>,
+        ctor: new (id: DestinationIdentifier, source: A, destination: B) => C): C[] {
       const ret = new Array<C>();
       for (const [assetId, asset] of Object.entries(assets)) {
         for (const [destId, destination] of Object.entries(asset.destinations)) {

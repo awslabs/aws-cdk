@@ -336,7 +336,6 @@ nodeunitShim({
 
   // eslint-disable-next-line max-len
   'construct.validate() can be implemented to perform validation, ConstructNode.validate(construct.node) will return all errors from the subtree (DFS)'(test: Test) {
-
     class MyConstruct extends Construct {
       protected validate() {
         return ['my-error1', 'my-error2'];
@@ -391,7 +390,6 @@ nodeunitShim({
   },
 
   'construct.lock() protects against adding children anywhere under this construct (direct or indirect)'(test: Test) {
-
     class LockableConstruct extends Construct {
       public lockMe() {
         (this.node._actualNode as any)._lock();
@@ -502,7 +500,6 @@ nodeunitShim({
       test.throws(() => root.node.defaultChild,
         /Cannot determine default child for . There is both a child with id "Resource" and id "Default"/);
       test.done();
-
     },
   },
 });

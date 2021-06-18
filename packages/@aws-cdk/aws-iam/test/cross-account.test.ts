@@ -157,7 +157,6 @@ test('Immutable role in same account adds no policy and no trust', () => {
   // THEN
   noTrustCreated(stack2);
   noPolicyCreated(stack2);
-
 });
 
 class FakeResource extends cdk.Resource implements iam.IResourceWithPolicy {

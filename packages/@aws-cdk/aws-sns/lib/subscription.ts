@@ -70,7 +70,6 @@ export interface SubscriptionProps extends SubscriptionOptions {
  * this class.
  */
 export class Subscription extends Resource {
-
   /**
    * The DLQ associated with this subscription if present.
    */
@@ -114,7 +113,6 @@ export class Subscription extends Resource {
       region: props.region,
       redrivePolicy: this.buildDeadLetterConfig(this.deadLetterQueue),
     });
-
   }
 
   private buildDeadLetterQueue(props: SubscriptionProps) {

@@ -84,7 +84,6 @@ export interface GitHubRepositoryProps {
  * The GitHubRepository resource
  */
 export class GitHubRepository extends cdk.Resource implements IGitHubRepository {
-
   public readonly owner: string;
   public readonly repo: string;
 

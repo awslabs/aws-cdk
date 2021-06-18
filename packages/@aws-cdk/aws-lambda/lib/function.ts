@@ -347,7 +347,6 @@ export interface FunctionProps extends FunctionOptions {
  * library.
  */
 export class Function extends FunctionBase {
-
   /**
    * Returns a `lambda.Version` which represents the current version of this
    * Lambda function. A new version will be created every time the function's
@@ -813,7 +812,6 @@ export class Function extends FunctionBase {
     description?: string,
     provisionedExecutions?: number,
     asyncInvokeConfig: EventInvokeConfigOptions = {}): Version {
-
     return new Version(this, 'Version' + name, {
       lambda: this,
       codeSha256,

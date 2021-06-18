@@ -226,7 +226,6 @@ export class Context {
  * A single bag of settings
  */
 export class Settings {
-
   /**
    * Parse Settings out of CLI arguments.
    * @param argv the received CLI arguments.

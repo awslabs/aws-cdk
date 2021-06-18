@@ -87,7 +87,6 @@ export interface NetworkMultipleTargetGroupsFargateServiceProps extends NetworkM
  * A Fargate service running on an ECS cluster fronted by a network load balancer.
  */
 export class NetworkMultipleTargetGroupsFargateService extends NetworkMultipleTargetGroupsServiceBase {
-
   /**
    * Determines whether the service will be assigned a public IP address.
    */

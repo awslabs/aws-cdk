@@ -56,7 +56,6 @@ export interface CustomLambdaDeploymentConfigProps {
  * @resource AWS::CodeDeploy::DeploymentGroup
  */
 export class CustomLambdaDeploymentConfig extends Resource implements ILambdaDeploymentConfig {
-
   /**
    * The name of the deployment config
    * @attribute

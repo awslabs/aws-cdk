@@ -21,10 +21,9 @@ export type ProviderMap = {[name: string]: ProviderConstructor};
  * Iterate over the list of missing context values and invoke the appropriate providers from the map to retrieve them
  */
 export async function provideContextValues(
-  missingValues: cxschema.MissingContext[],
-  context: Context,
-  sdk: SdkProvider) {
-
+    missingValues: cxschema.MissingContext[],
+    context: Context,
+    sdk: SdkProvider) {
   for (const missingContext of missingValues) {
     const key = missingContext.key;
     const constructor = availableContextProviders[missingContext.provider];

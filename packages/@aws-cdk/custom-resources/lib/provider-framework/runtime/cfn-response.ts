@@ -53,7 +53,6 @@ export let includeStackTraces = true; // for unit tests
 
 export function safeHandler(block: (event: any) => Promise<void>) {
   return async (event: any) => {
-
     // ignore DELETE event when the physical resource ID is the marker that
     // indicates that this DELETE is a subsequent DELETE to a failed CREATE
     // operation.

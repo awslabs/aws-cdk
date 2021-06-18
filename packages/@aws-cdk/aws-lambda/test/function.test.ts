@@ -836,7 +836,6 @@ describe('function', () => {
   });
 
   describe('grantInvoke', () => {
-
     test('adds iam:InvokeFunction', () => {
       // GIVEN
       const stack = new cdk.Stack();
@@ -1884,7 +1883,6 @@ describe('function', () => {
   });
 
   describe('filesystem', () => {
-
     test('mount efs filesystem', () => {
       // GIVEN
       const stack = new cdk.Stack();
@@ -2171,7 +2169,6 @@ describe('function', () => {
       layers: [layer],
     })).toThrow(/Layers are not supported for container image functions/);
   });
-
 });
 
 function newTestLambda(scope: constructs.Construct) {

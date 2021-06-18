@@ -25,7 +25,6 @@ describe('ec2 task definition', () => {
       });
 
       // test error if no container defs?
-
     });
 
     test('with all properties set', () => {
@@ -91,8 +90,6 @@ describe('ec2 task definition', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly sets placement constraint', () => {
@@ -113,8 +110,6 @@ describe('ec2 task definition', () => {
         ],
 
       });
-
-
     });
 
     test('correctly sets network mode', () => {
@@ -128,8 +123,6 @@ describe('ec2 task definition', () => {
       expect(stack).toHaveResource('AWS::ECS::TaskDefinition', {
         NetworkMode: ecs.NetworkMode.AWS_VPC,
       });
-
-
     });
 
     test('correctly sets ipc mode', () => {
@@ -143,8 +136,6 @@ describe('ec2 task definition', () => {
       expect(stack).toHaveResource('AWS::ECS::TaskDefinition', {
         IpcMode: ecs.IpcMode.TASK,
       });
-
-
     });
 
     test('correctly sets pid mode', () => {
@@ -158,8 +149,6 @@ describe('ec2 task definition', () => {
       expect(stack).toHaveResource('AWS::ECS::TaskDefinition', {
         PidMode: ecs.PidMode.HOST,
       });
-
-
     });
 
     test('correctly sets containers', () => {
@@ -234,8 +223,6 @@ describe('ec2 task definition', () => {
           ],
         },
       });
-
-
     });
 
     test('all container definition options defined', () => {
@@ -436,8 +423,6 @@ describe('ec2 task definition', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly sets containers from ECR repository using all props', () => {
@@ -527,8 +512,6 @@ describe('ec2 task definition', () => {
           Name: 'web',
         }],
       });
-
-
     });
 
     test('correctly sets containers from ECR repository using an image tag', () => {
@@ -685,8 +668,6 @@ describe('ec2 task definition', () => {
 
       // THEN
       expect(stack).toHaveResource('AWS::ECR::Repository', {});
-
-
     });
 
     test('warns when setting containers from ECR repository using fromRegistry method', () => {
@@ -703,7 +684,6 @@ describe('ec2 task definition', () => {
 
       // THEN
       expect(container.node.metadata[0].data).toEqual("Proper policies need to be attached before pulling from ECR repository, or use 'fromEcrRepository'.");
-
     });
 
     test('warns when setting containers from ECR repository by creating a RepositoryImage class', () => {
@@ -722,8 +702,6 @@ describe('ec2 task definition', () => {
 
       // THEN
       expect(container.node.metadata[0].data).toEqual("Proper policies need to be attached before pulling from ECR repository, or use 'fromEcrRepository'.");
-
-
     });
 
     testFutureBehavior('correctly sets containers from asset using default props', { [cxapi.DOCKER_IGNORE_SUPPORT]: true }, cdk.App, (app) => {
@@ -768,8 +746,6 @@ describe('ec2 task definition', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly sets containers from asset using all props', () => {
@@ -784,8 +760,6 @@ describe('ec2 task definition', () => {
         }),
         memoryLimitMiB: 512,
       });
-
-
     });
 
     test('correctly sets scratch space', () => {
@@ -824,8 +798,6 @@ describe('ec2 task definition', () => {
           Name: 'scratch',
         }],
       });
-
-
     });
     test('correctly sets container dependenices', () => {
       // GIVEN
@@ -877,8 +849,6 @@ describe('ec2 task definition', () => {
           }],
         }],
       });
-
-
     });
     test('correctly sets links', () => {
       const stack = new cdk.Stack();
@@ -923,8 +893,6 @@ describe('ec2 task definition', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly set policy statement to the task IAM role', () => {
@@ -951,8 +919,6 @@ describe('ec2 task definition', () => {
           ],
         },
       });
-
-
     });
     test('correctly sets volumes from', () => {
       const stack = new cdk.Stack();
@@ -980,8 +946,6 @@ describe('ec2 task definition', () => {
           ],
         }],
       });
-
-
     });
 
     test('correctly set policy statement to the task execution IAM role', () => {
@@ -1008,8 +972,6 @@ describe('ec2 task definition', () => {
           ],
         },
       });
-
-
     });
 
     test('correctly sets volumes', () => {
@@ -1058,8 +1020,6 @@ describe('ec2 task definition', () => {
           Name: 'scratch',
         }],
       });
-
-
     });
 
     test('correctly sets placement constraints', () => {
@@ -1085,8 +1045,6 @@ describe('ec2 task definition', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly sets taskRole', () => {
@@ -1107,8 +1065,6 @@ describe('ec2 task definition', () => {
       expect(stack).toHaveResourceLike('AWS::ECS::TaskDefinition', {
         TaskRoleArn: stack.resolve(taskDefinition.taskRole.roleArn),
       });
-
-
     });
 
     test('automatically sets taskRole by default', () => {
@@ -1120,8 +1076,6 @@ describe('ec2 task definition', () => {
       expect(stack).toHaveResourceLike('AWS::ECS::TaskDefinition', {
         TaskRoleArn: stack.resolve(taskDefinition.taskRole.roleArn),
       });
-
-
     });
 
     test('correctly sets dockerVolumeConfiguration', () => {
@@ -1161,8 +1115,6 @@ describe('ec2 task definition', () => {
           },
         }],
       });
-
-
     });
 
     test('correctly sets efsVolumeConfiguration', () => {
@@ -1194,8 +1146,6 @@ describe('ec2 task definition', () => {
           },
         }],
       });
-
-
     });
   });
 
@@ -1226,7 +1176,6 @@ describe('ec2 task definition', () => {
           DeviceType: 'eia2.medium',
         }],
       });
-
     });
     test('correctly sets inferenceAccelerators using props and addInferenceAccelerator method', () => {
       // GIVEN

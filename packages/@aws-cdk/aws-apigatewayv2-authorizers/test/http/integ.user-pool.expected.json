@@ -101,10 +101,10 @@
           "Ref": "MyHttpApi8AEAAC21"
         },
         "AuthorizerType": "JWT",
+        "Name": "UserPoolAuthorizer",
         "IdentitySource": [
           "$request.header.Authorization"
         ],
-        "Name": "UserPoolAuthorizer",
         "JwtConfiguration": {
           "Audience": [
             {

@@ -881,7 +881,6 @@ export = {
       },
 
       'does not grant read permissions when variables are not from parameter store'(test: Test) {
-
         // GIVEN
         const stack = new cdk.Stack();
 

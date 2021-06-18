@@ -103,7 +103,6 @@ export enum TreatMissingData {
  * An alarm on a CloudWatch metric
  */
 export class Alarm extends AlarmBase {
-
   /**
    * Import an existing CloudWatch alarm provided an ARN
    *
@@ -322,7 +321,6 @@ export class Alarm extends AlarmBase {
               };
             },
             withExpression(expr, conf) {
-
               const hasSubmetrics = mathExprHasSubmetrics(expr);
 
               if (hasSubmetrics) {

@@ -7,7 +7,6 @@ import * as assert from './vendored/assert';
  * CloudFormation template has expected resources and properties.
  */
 export class TemplateAssertions {
-
   /**
    * Base your assertions on the CloudFormation template synthesized by a CDK `Stack`.
    * @param stack the CDK Stack to run assertions on

@@ -4,7 +4,6 @@ import { BooleanAttribute, CustomAttributeConfig, DateTimeAttribute, ICustomAttr
 import { StandardAttributeNames } from '../lib/private/attr-names';
 
 describe('User Pool Attributes', () => {
-
   describe('mutable', () => {
     test('default', () => {
       // GIVEN

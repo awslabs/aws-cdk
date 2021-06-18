@@ -61,7 +61,6 @@ export interface BundlingProps extends BundlingOptions {
  * Bundling
  */
 export class Bundling implements cdk.BundlingOptions {
-
   public static bundle(options: BundlingProps): AssetCode {
     const bundling = new Bundling(options);
 
@@ -126,7 +125,6 @@ export class Bundling implements cdk.BundlingOptions {
 
     // Local bundling
     if (!props.forcedDockerBundling) { // only if Docker is not forced
-
       const osPlatform = os.platform();
       const createLocalCommand = (outputDir: string) => this.createBundlingCommand(projectRoot, outputDir, osPlatform);
 

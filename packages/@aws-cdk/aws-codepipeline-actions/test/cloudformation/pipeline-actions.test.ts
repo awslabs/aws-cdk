@@ -239,12 +239,12 @@ interface PolicyStatementJson {
 }
 
 function _assertActionMatches(
-  test: Test,
-  stack: cdk.Stack,
-  actions: FullAction[],
-  provider: string,
-  category: string,
-  configuration?: { [key: string]: any }) {
+    test: Test,
+    stack: cdk.Stack,
+    actions: FullAction[],
+    provider: string,
+    category: string,
+    configuration?: { [key: string]: any }) {
   const configurationStr = configuration
     ? `, configuration including ${JSON.stringify(stack.resolve(configuration), null, 2)}`
     : '';
@@ -261,8 +261,8 @@ function _assertActionMatches(
 }
 
 function _hasAction(
-  stack: cdk.Stack, actions: FullAction[], provider: string, category: string,
-  configuration?: { [key: string]: any}) {
+    stack: cdk.Stack, actions: FullAction[], provider: string, category: string,
+    configuration?: { [key: string]: any}) {
   for (const action of actions) {
     if (action.actionProperties.provider !== provider) { continue; }
     if (action.actionProperties.category !== category) { continue; }
@@ -280,12 +280,12 @@ function _hasAction(
 }
 
 function _assertPermissionGranted(
-  test: Test,
-  stack: cdk.Stack,
-  statements: iam.PolicyStatement[],
-  action: string,
-  resource: string,
-  conditions?: any) {
+    test: Test,
+    stack: cdk.Stack,
+    statements: iam.PolicyStatement[],
+    action: string,
+    resource: string,
+    conditions?: any) {
   const conditionStr = conditions
     ? ` with condition(s) ${JSON.stringify(stack.resolve(conditions))}`
     : '';

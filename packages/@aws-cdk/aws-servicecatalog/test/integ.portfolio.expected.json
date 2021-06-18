@@ -1,87 +1,86 @@
 {
-    "Resources": {
-      "TestRole6C9272DF": {
-        "Type": "AWS::IAM::Role",
-        "Properties": {
-          "AssumeRolePolicyDocument": {
-            "Statement": [
-              {
-                "Action": "sts:AssumeRole",
-                "Effect": "Allow",
-                "Principal": {
-                  "AWS": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition"
-                        },
-                        ":iam::",
-                        {
-                          "Ref": "AWS::AccountId"
-                        },
-                        ":root"
-                      ]
+  "Resources": {
+    "TestRole6C9272DF": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
                     ]
-                  }
+                  ]
                 }
               }
-            ],
-            "Version": "2012-10-17"
-          }
+            }
+          ],
+          "Version": "2012-10-17"
         }
-      },
-      "TestGroupAF88660E": {
-        "Type": "AWS::IAM::Group"
-      },
-      "TestPortfolio4AC794EB": {
-        "Type": "AWS::ServiceCatalog::Portfolio",
-        "Properties": {
-          "DisplayName": "TestPortfolio",
-          "ProviderName": "TestProvider",
-          "Description": "This is our Service Catalog Portfolio"
-        }
-      },
-      "TestPortfolioPortolioPrincipalAssociation20e1afa20ac27E1A060D": {
-        "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
-        "Properties": {
-          "PortfolioId": {
-            "Ref": "TestPortfolio4AC794EB"
-          },
-          "PrincipalARN": {
-            "Fn::GetAtt": [
-              "TestRole6C9272DF",
-              "Arn"
-            ]
-          },
-          "PrincipalType": "IAM"
-        }
-      },
-      "TestPortfolioPortolioPrincipalAssociation44a1ca1c23384D6E460B": {
-        "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
-        "Properties": {
-          "PortfolioId": {
-            "Ref": "TestPortfolio4AC794EB"
-          },
-          "PrincipalARN": {
-            "Fn::GetAtt": [
-              "TestGroupAF88660E",
-              "Arn"
-            ]
-          },
-          "PrincipalType": "IAM"
-        }
-      },
-      "TestPortfolioPortfolioSharebf5b82f042508F035880": {
-        "Type": "AWS::ServiceCatalog::PortfolioShare",
-        "Properties": {
-          "AccountId": "123456789012",
-          "PortfolioId": {
-            "Ref": "TestPortfolio4AC794EB"
-          }
+      }
+    },
+    "TestGroupAF88660E": {
+      "Type": "AWS::IAM::Group"
+    },
+    "TestPortfolio4AC794EB": {
+      "Type": "AWS::ServiceCatalog::Portfolio",
+      "Properties": {
+        "DisplayName": "TestPortfolio",
+        "ProviderName": "TestProvider",
+        "Description": "This is our Service Catalog Portfolio"
+      }
+    },
+    "TestPortfolioPortolioPrincipalAssociation20e1afa20ac27E1A060D": {
+      "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
+      "Properties": {
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "PrincipalARN": {
+          "Fn::GetAtt": [
+            "TestRole6C9272DF",
+            "Arn"
+          ]
+        },
+        "PrincipalType": "IAM"
+      }
+    },
+    "TestPortfolioPortolioPrincipalAssociation44a1ca1c23384D6E460B": {
+      "Type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
+      "Properties": {
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "PrincipalARN": {
+          "Fn::GetAtt": [
+            "TestGroupAF88660E",
+            "Arn"
+          ]
+        },
+        "PrincipalType": "IAM"
+      }
+    },
+    "TestPortfolioPortfolioSharebf5b82f042508F035880": {
+      "Type": "AWS::ServiceCatalog::PortfolioShare",
+      "Properties": {
+        "AccountId": "123456789012",
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
         }
       }
     }
   }
-  
+}

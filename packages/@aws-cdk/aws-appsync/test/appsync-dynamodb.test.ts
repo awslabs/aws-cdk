@@ -186,5 +186,4 @@ describe('adding DynamoDb data source from imported api', () => {
       ApiId: { 'Fn::GetAtt': ['baseApiCDA4D43A', 'ApiId'] },
     });
   });
-
 });

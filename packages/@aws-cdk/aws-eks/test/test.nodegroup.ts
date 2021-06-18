@@ -12,7 +12,6 @@ const CLUSTER_VERSION = eks.KubernetesVersion.V1_20;
 export = {
 
   'default ami type is not applied when launch template is configured'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
 
@@ -43,7 +42,6 @@ export = {
   },
 
   'explicit ami type is applied even when launch template is configured'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
 
@@ -74,7 +72,6 @@ export = {
   },
 
   'ami type is taken as is when no instance types are configured'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
 

@@ -39,7 +39,6 @@ abstract class NetworkAclBase extends Resource implements INetworkAcl {
       ...options,
     });
   }
-
 }
 
 /**

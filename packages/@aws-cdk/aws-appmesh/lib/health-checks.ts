@@ -185,5 +185,4 @@ class HealthCheckImpl extends HealthCheck {
       },
     };
   }
-
 }

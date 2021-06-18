@@ -95,14 +95,14 @@
     "VPCPublicSubnet1NATGatewayE0556630": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet1SubnetB4246D30"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet1EIP6AD938E8",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet1SubnetB4246D30"
         },
         "Tags": [
           {
@@ -920,7 +920,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": {
-            "Ref": "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cS3BucketD609D0D9"
+            "Ref": "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18S3BucketE28B2E4D"
           },
           "S3Key": {
             "Fn::Join": [
@@ -933,7 +933,7 @@
                       "Fn::Split": [
                         "||",
                         {
-                          "Ref": "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cS3VersionKey77CF589B"
+                          "Ref": "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18S3VersionKey469B0C03"
                         }
                       ]
                     }
@@ -946,7 +946,7 @@
                       "Fn::Split": [
                         "||",
                         {
-                          "Ref": "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cS3VersionKey77CF589B"
+                          "Ref": "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18S3VersionKey469B0C03"
                         }
                       ]
                     }
@@ -976,17 +976,17 @@
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
       "Default": "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
     },
-    "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cS3BucketD609D0D9": {
+    "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18S3BucketE28B2E4D": {
       "Type": "String",
-      "Description": "S3 bucket for asset \"4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02c\""
+      "Description": "S3 bucket for asset \"185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18\""
     },
-    "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cS3VersionKey77CF589B": {
+    "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18S3VersionKey469B0C03": {
       "Type": "String",
-      "Description": "S3 key for asset version \"4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02c\""
+      "Description": "S3 key for asset version \"185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18\""
     },
-    "AssetParameters4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02cArtifactHash86CFA15D": {
+    "AssetParameters185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18ArtifactHash5840654C": {
       "Type": "String",
-      "Description": "Artifact hash for asset \"4600faecd25ab407ff0a9d16f935c93062aaea5d415e97046bb8befe6c8ec02c\""
+      "Description": "Artifact hash for asset \"185f2b5a6196d451b8cfa7c94e81d10c66dbb1113ef37ae9684fe435811fdc18\""
     }
   }
 }

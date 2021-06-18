@@ -31,7 +31,6 @@ const readWriteActions = [
 ];
 
 test('connections throws if domain is placed inside a vpc', () => {
-
   expect(() => {
     new Domain(stack, 'Domain', {
       version: ElasticsearchVersion.V7_1,
@@ -40,7 +39,6 @@ test('connections throws if domain is placed inside a vpc', () => {
 });
 
 test('subnets and security groups can be provided when vpc is used', () => {
-
   const vpc = new Vpc(stack, 'Vpc');
   const securityGroup = new SecurityGroup(stack, 'CustomSecurityGroup', {
     vpc,
@@ -70,11 +68,9 @@ test('subnets and security groups can be provided when vpc is used', () => {
       ],
     },
   });
-
 });
 
 test('default subnets and security group when vpc is used', () => {
-
   const vpc = new Vpc(stack, 'Vpc');
   const domain = new Domain(stack, 'Domain', {
     version: ElasticsearchVersion.V7_10,
@@ -105,7 +101,6 @@ test('default subnets and security group when vpc is used', () => {
       ],
     },
   });
-
 });
 
 test('default removalpolicy is retain', () => {
@@ -119,7 +114,6 @@ test('default removalpolicy is retain', () => {
 });
 
 test('grants kms permissions if needed', () => {
-
   const key = new kms.Key(stack, 'Key');
 
   new Domain(stack, 'Domain', {
@@ -153,7 +147,6 @@ test('grants kms permissions if needed', () => {
 
   const resources = assert.expect(stack).value.Resources;
   expect(resources.AWS679f53fac002430cb0da5b7982bd2287ServiceRoleDefaultPolicyD28E1A5E.Properties.PolicyDocument).toStrictEqual(expectedPolicy);
-
 });
 
 test('minimal example renders correctly', () => {
@@ -204,7 +197,6 @@ test('can enable version upgrade update policy', () => {
 });
 
 describe('UltraWarm instances', () => {
-
   test('can enable UltraWarm instances', () => {
     new Domain(stack, 'Domain', {
       version: ElasticsearchVersion.V7_1,
@@ -243,11 +235,9 @@ describe('UltraWarm instances', () => {
       },
     });
   });
-
 });
 
 describe('log groups', () => {
-
   test('slowSearchLogEnabled should create a custom log group', () => {
     new Domain(stack, 'Domain', {
       version: ElasticsearchVersion.V7_4,
@@ -627,11 +617,9 @@ describe('log groups', () => {
       },
     });
   });
-
 });
 
 describe('grants', () => {
-
   test('"grantRead" allows read actions associated with this domain resource', () => {
     testGrant(readActions, (p, d) => d.grantRead(p));
   });
@@ -756,11 +744,9 @@ describe('grants', () => {
       ],
     });
   });
-
 });
 
 describe('metrics', () => {
-
   test('Can use metricClusterStatusRed on an Elasticsearch Domain', () => {
     testMetric(
       (domain) => domain.metricClusterStatusRed(),
@@ -882,11 +868,9 @@ describe('metrics', () => {
       'p99',
     );
   });
-
 });
 
 describe('import', () => {
-
   test('static fromDomainEndpoint(endpoint) allows importing an external/existing domain', () => {
     const domainName = 'test-domain-2w2x2u3tifly';
     const domainEndpoint = `https://${domainName}-jcjotrt6f7otem4sqcwbch3c4u.testregion.es.amazonaws.com`;
@@ -912,7 +896,6 @@ describe('import', () => {
 
     expect(stack).not.toHaveResource('AWS::Elasticsearch::Domain');
   });
-
 });
 
 describe('advanced security options', () => {
@@ -1222,11 +1205,9 @@ describe('custom endpoints', () => {
       ],
     });
   });
-
 });
 
 describe('custom error responses', () => {
-
   test('error when availabilityZoneCount does not match vpcOptions.subnets length', () => {
     const vpc = new Vpc(stack, 'Vpc', {
       maxAzs: 1,
@@ -1472,7 +1453,6 @@ describe('custom error responses', () => {
       },
     })).toThrow(/Dedicated master node is required when UltraWarm storage is enabled/);
   });
-
 });
 
 test('can specify future version', () => {
@@ -1610,10 +1590,10 @@ describe('unsigned basic auth', () => {
 
 
 function testGrant(
-  expectedActions: string[],
-  invocation: (user: iam.IPrincipal, domain: Domain) => void,
-  appliesToDomainRoot: Boolean = true,
-  paths: string[] = ['/*'],
+    expectedActions: string[],
+    invocation: (user: iam.IPrincipal, domain: Domain) => void,
+    appliesToDomainRoot: Boolean = true,
+    paths: string[] = ['/*'],
 ) {
   const domain = new Domain(stack, 'Domain', { version: ElasticsearchVersion.V7_4 });
   const user = new iam.User(stack, 'user');
@@ -1665,10 +1645,10 @@ function testGrant(
 }
 
 function testMetric(
-  invocation: (domain: Domain) => Metric,
-  metricName: string,
-  statistic: string = Statistic.SUM,
-  period: Duration = Duration.minutes(5),
+    invocation: (domain: Domain) => Metric,
+    metricName: string,
+    statistic: string = Statistic.SUM,
+    period: Duration = Duration.minutes(5),
 ) {
   const domain = new Domain(stack, 'Domain', { version: ElasticsearchVersion.V7_4 });
 

@@ -166,7 +166,6 @@ class LatestDeploymentResource extends CfnDeployment {
     const hash = [...this.hashComponents];
 
     if (this.api instanceof RestApi || this.api instanceof SpecRestApi) { // Ignore IRestApi that are imported
-
       // Add CfnRestApi to the logical id so a new deployment is triggered when any of its properties change.
       const cfnRestApiCF = (this.api.node.defaultChild as any)._toCloudFormation();
       hash.push(this.stack.resolve(cfnRestApiCF));

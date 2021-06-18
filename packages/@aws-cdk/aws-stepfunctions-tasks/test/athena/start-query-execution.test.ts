@@ -3,7 +3,6 @@ import * as cdk from '@aws-cdk/core';
 import { AthenaStartQueryExecution, EncryptionOption } from '../../lib/athena/start-query-execution';
 
 describe('Start Query Execution', () => {
-
   test('default settings', () => {
     // GIVEN
     const stack = new cdk.Stack();

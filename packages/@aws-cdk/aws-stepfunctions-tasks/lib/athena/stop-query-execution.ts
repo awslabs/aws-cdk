@@ -19,7 +19,6 @@ export interface AthenaStopQueryExecutionProps extends sfn.TaskStateBaseProps {
  * @see https://docs.aws.amazon.com/step-functions/latest/dg/connect-athena.html
  */
 export class AthenaStopQueryExecution extends sfn.TaskStateBase {
-
   private static readonly SUPPORTED_INTEGRATION_PATTERNS: sfn.IntegrationPattern[] = [
     sfn.IntegrationPattern.REQUEST_RESPONSE,
   ];

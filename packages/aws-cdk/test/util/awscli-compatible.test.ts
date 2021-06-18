@@ -28,7 +28,6 @@ test('on an EC2 instance, region lookup queries IMDS', async () => {
 });
 
 test('Use web identity when available', async () => {
-
   // Scrub some environment variables that are maybe set for Ecs Credentials
   delete process.env.ECS_CONTAINER_METADATA_URI_V4;
   delete process.env.ECS_CONTAINER_METADATA_URI;

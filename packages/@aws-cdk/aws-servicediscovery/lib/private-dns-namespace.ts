@@ -35,7 +35,6 @@ export interface PrivateDnsNamespaceAttributes {
  * Define a Service Discovery HTTP Namespace
  */
 export class PrivateDnsNamespace extends Resource implements IPrivateDnsNamespace {
-
   public static fromPrivateDnsNamespaceAttributes(scope: Construct, id: string, attrs: PrivateDnsNamespaceAttributes): IPrivateDnsNamespace {
     class Import extends Resource implements IPrivateDnsNamespace {
       public namespaceName = attrs.namespaceName;

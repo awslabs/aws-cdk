@@ -10,7 +10,6 @@ import { Stream, StreamEncryption } from '../lib';
 /* eslint-disable quote-props */
 
 describe('Kinesis data streams', () => {
-
   test('default stream', () => {
     const stack = new Stack();
 

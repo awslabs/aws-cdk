@@ -43,7 +43,6 @@ export interface EmrModifyInstanceFleetByNameProps extends sfn.TaskStateBaseProp
  *
  */
 export class EmrModifyInstanceFleetByName extends sfn.TaskStateBase {
-
   protected readonly taskPolicies?: iam.PolicyStatement[];
   protected readonly taskMetrics?: sfn.TaskMetricsConfig;
 

@@ -101,9 +101,6 @@
           "Ref": "MyHttpApi8AEAAC21"
         },
         "AuthorizerType": "REQUEST",
-        "IdentitySource": [
-          "$request.header.X-API-Key"
-        ],
         "Name": "my-simple-authorizer",
         "AuthorizerPayloadFormatVersion": "2.0",
         "AuthorizerResultTtlInSeconds": 300,
@@ -130,7 +127,10 @@
             ]
           ]
         },
-        "EnableSimpleResponses": true
+        "EnableSimpleResponses": true,
+        "IdentitySource": [
+          "$request.header.X-API-Key"
+        ]
       }
     },
     "MyHttpApiAuthorizerIntegMyHttpApimysimpleauthorizer0F14A472PermissionF37EF5C8": {

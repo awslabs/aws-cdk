@@ -74,7 +74,6 @@ interface PackageJson {
  * Find the workspace root path. Walk up the directory tree until you find lerna.json
  */
 function findWorkspacePath(): string {
-
   return _findRootPath(process.cwd());
 
   function _findRootPath(part: string): string {
@@ -265,10 +264,10 @@ async function combineRosettaFixtures(libraries: readonly LibraryReference[]) {
 }
 
 async function transformPackage(
-  library: LibraryReference,
-  uberPackageJson: PackageJson,
-  destination: string,
-  allLibraries: readonly LibraryReference[],
+    library: LibraryReference,
+    uberPackageJson: PackageJson,
+    destination: string,
+    allLibraries: readonly LibraryReference[],
 ) {
   await fs.mkdirp(destination);
 

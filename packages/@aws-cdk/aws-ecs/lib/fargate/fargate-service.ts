@@ -97,7 +97,6 @@ export interface FargateServiceAttributes {
  * @resource AWS::ECS::Service
  */
 export class FargateService extends BaseService implements IFargateService {
-
   /**
    * Imports from the specified service ARN.
    */

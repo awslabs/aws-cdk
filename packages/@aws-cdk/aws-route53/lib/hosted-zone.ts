@@ -218,7 +218,6 @@ export interface IPublicHostedZone extends IHostedZone { }
  * @resource AWS::Route53::HostedZone
  */
 export class PublicHostedZone extends HostedZone implements IPublicHostedZone {
-
   /**
    * Import a Route 53 public hosted zone defined either outside the CDK, or in a different CDK stack
    *
@@ -344,7 +343,6 @@ export interface IPrivateHostedZone extends IHostedZone {}
  * @resource AWS::Route53::HostedZone
  */
 export class PrivateHostedZone extends HostedZone implements IPrivateHostedZone {
-
   /**
    * Import a Route 53 private hosted zone defined either outside the CDK, or in a different CDK stack
    *

@@ -1152,7 +1152,6 @@ abstract class DomainBase extends cdk.Resource implements IDomain {
 
     return grant;
   }
-
 }
 
 
@@ -1726,7 +1725,6 @@ export class Domain extends DomainBase implements IDomain, ec2.IConnectable {
       });
 
       if (props.encryptionAtRest?.kmsKey) {
-
         // https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/encryption-at-rest.html
 
         // these permissions are documented as required during domain creation.

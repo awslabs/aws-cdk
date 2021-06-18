@@ -6,7 +6,6 @@ import { ProfilingGroup, ComputePlatform } from '../lib';
 /* eslint-disable quote-props */
 
 describe('profiling group', () => {
-
   test('attach read permission to Profiling group via fromProfilingGroupArn', () => {
     const stack = new Stack();
     // dummy role to test out read permissions on ProfilingGroup
@@ -401,5 +400,4 @@ describe('profiling group', () => {
       },
     });
   });
-
 });

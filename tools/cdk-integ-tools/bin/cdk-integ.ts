@@ -37,7 +37,6 @@ async function main() {
     const dryRun = argv['dry-run'] ?? false;
 
     try {
-
       if (dryRun) {
         console.error('Skipping deployment (--dry-run), updating snapshot.');
       } else {
@@ -54,7 +53,6 @@ async function main() {
 
       await test.writeExpected(actual);
     } finally {
-
       if (!dryRun) {
         if (argv.clean) {
           console.error('Cleaning up.');
@@ -63,7 +61,6 @@ async function main() {
           console.error('Skipping clean up (--no-clean).');
         }
       }
-
     }
   }
 }

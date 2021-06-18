@@ -510,7 +510,7 @@ function fmtObtainCredentialsError(targetAccountId: string, obtainResult: Obtain
  * - Credentials returned from a plugin
  */
 function fmtObtainedCredentials(
-  obtainResult: Exclude<ObtainBaseCredentialsResult, { source: 'none' }>): string {
+    obtainResult: Exclude<ObtainBaseCredentialsResult, { source: 'none' }>): string {
   switch (obtainResult.source) {
     case 'correctDefault':
       return 'current credentials';

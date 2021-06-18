@@ -108,14 +108,14 @@
     "VPCPublicSubnet1NATGatewayE0556630": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet1SubnetB4246D30"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet1EIP6AD938E8",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet1SubnetB4246D30"
         },
         "Tags": [
           {
@@ -221,14 +221,14 @@
     "VPCPublicSubnet2NATGateway3C070193": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet2Subnet74179F39"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet2EIP4947BC00",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet2Subnet74179F39"
         },
         "Tags": [
           {
@@ -334,14 +334,14 @@
     "VPCPublicSubnet3NATGatewayD3048F5C": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VPCPublicSubnet3Subnet631C5E25"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VPCPublicSubnet3EIPAD4BC883",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VPCPublicSubnet3Subnet631C5E25"
         },
         "Tags": [
           {
@@ -775,14 +775,13 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "EKSClusterResourceHandlerServiceRoleFD631254",
             "Arn"
           ]
         },
-        "Runtime": "python3.7",
+        "Handler": "index.handler",
         "Layers": [
           {
             "Fn::GetAtt": [
@@ -792,6 +791,7 @@
           }
         ],
         "MemorySize": 512,
+        "Runtime": "python3.7",
         "Timeout": 900
       },
       "DependsOn": [
@@ -891,14 +891,12 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "EKSClusterResourceHandlerServiceRoleFD631254",
             "Arn"
           ]
         },
-        "Runtime": "python3.7",
         "Environment": {
           "Variables": {
             "CLUSTER_NAME": {
@@ -906,6 +904,7 @@
             }
           }
         },
+        "Handler": "index.handler",
         "Layers": [
           {
             "Fn::GetAtt": [
@@ -915,6 +914,7 @@
           }
         ],
         "MemorySize": 256,
+        "Runtime": "python3.7",
         "Timeout": 900
       },
       "DependsOn": [

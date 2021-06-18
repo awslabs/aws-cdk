@@ -243,7 +243,6 @@ describe('DynamoAttributeValue', () => {
     expect(() => {
       tasks.DynamoAttributeValue.booleanFromJsonPath(m);
     }).toThrow("Data JSON path values must either be exactly equal to '$' or start with '$.'");
-
   });
 
 

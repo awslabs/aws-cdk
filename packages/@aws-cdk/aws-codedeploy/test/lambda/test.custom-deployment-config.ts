@@ -32,7 +32,6 @@ export = {
     cb();
   },
   'custom resource created'(test: Test) {
-
     // WHEN
     const config = new codedeploy.CustomLambdaDeploymentConfig(stack, 'CustomConfig', {
       type: codedeploy.CustomLambdaDeploymentConfigType.CANARY,
@@ -78,7 +77,6 @@ export = {
     test.done();
   },
   'custom resource created with specific name'(test: Test) {
-
     // WHEN
     const config = new codedeploy.CustomLambdaDeploymentConfig(stack, 'CustomConfig', {
       type: codedeploy.CustomLambdaDeploymentConfigType.CANARY,
@@ -101,7 +99,6 @@ export = {
     test.done();
   },
   'can create linear custom config'(test: Test) {
-
     // WHEN
     const config = new codedeploy.CustomLambdaDeploymentConfig(stack, 'CustomConfig', {
       type: codedeploy.CustomLambdaDeploymentConfigType.LINEAR,
@@ -122,7 +119,6 @@ export = {
     test.done();
   },
   'can create canary custom config'(test: Test) {
-
     // WHEN
     const config = new codedeploy.CustomLambdaDeploymentConfig(stack, 'CustomConfig', {
       type: codedeploy.CustomLambdaDeploymentConfigType.CANARY,
@@ -142,7 +138,6 @@ export = {
     test.done();
   },
   'dependency on the config exists to ensure ordering'(test: Test) {
-
     // WHEN
     const config = new codedeploy.CustomLambdaDeploymentConfig(stack, 'CustomConfig', {
       type: codedeploy.CustomLambdaDeploymentConfigType.CANARY,

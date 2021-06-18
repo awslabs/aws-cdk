@@ -95,14 +95,14 @@
     "VpcPublicSubnet1NATGateway4D7517AA": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "VpcPublicSubnet1EIPD7E02669",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
         },
         "Tags": [
           {
@@ -417,22 +417,6 @@
         ]
       }
     },
-    "ScheduledFargateTaskScheduledTaskDefSecurityGroupE075BC19": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "aws-fargate-integ/ScheduledFargateTask/ScheduledTaskDef/SecurityGroup",
-        "SecurityGroupEgress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Allow all outbound traffic by default",
-            "IpProtocol": "-1"
-          }
-        ],
-        "VpcId": {
-          "Ref": "Vpc8378EB38"
-        }
-      }
-    },
     "ScheduledFargateTaskScheduledTaskDefEventsRole6CE19522": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -501,6 +485,22 @@
             "Ref": "ScheduledFargateTaskScheduledTaskDefEventsRole6CE19522"
           }
         ]
+      }
+    },
+    "ScheduledFargateTaskScheduledTaskDefSecurityGroupE075BC19": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "aws-fargate-integ/ScheduledFargateTask/ScheduledTaskDef/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38"
+        }
       }
     }
   }

@@ -3,7 +3,6 @@ import * as cdk from '@aws-cdk/core';
 import * as sfn from '../lib';
 
 describe('Task state', () => {
-
   let stack: cdk.Stack;
   let task: sfn.Task;
 
@@ -94,7 +93,6 @@ describe('Task state', () => {
     // THEN
     verifyMetric(metric, 'TimedOut', 'Sum');
   });
-
 });
 
 function verifyMetric(metric: Metric, metricName: string, statistic: string) {

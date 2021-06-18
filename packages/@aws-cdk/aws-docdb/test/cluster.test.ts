@@ -6,7 +6,6 @@ import * as cdk from '@aws-cdk/core';
 import { ClusterParameterGroup, DatabaseCluster, DatabaseSecret } from '../lib';
 
 describe('DatabaseCluster', () => {
-
   test('check that instantiation works', () => {
     // GIVEN
     const stack = testStack();

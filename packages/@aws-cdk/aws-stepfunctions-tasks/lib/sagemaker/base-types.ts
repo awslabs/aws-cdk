@@ -675,7 +675,6 @@ export interface ContainerDefinitionOptions {
  * @see https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_ContainerDefinition.html
  */
 export class ContainerDefinition implements IContainerDefinition {
-
   constructor(private readonly options: ContainerDefinitionOptions) {}
 
   /**

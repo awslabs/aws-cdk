@@ -15,7 +15,6 @@ beforeEach(() => {
 });
 
 describe('None Data Source configuration', () => {
-
   test('default configuration produces name `NoneCDKDataSource`', () => {
     // WHEN
     api.addNoneDataSource('ds');

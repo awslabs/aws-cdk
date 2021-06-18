@@ -50,5 +50,4 @@ test('sync placeholder substitution', () => {
       },
     },
   });
-
 });

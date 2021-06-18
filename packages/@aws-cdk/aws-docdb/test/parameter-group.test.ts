@@ -3,7 +3,6 @@ import { Stack } from '@aws-cdk/core';
 import { ClusterParameterGroup } from '../lib';
 
 describe('ClusterParameterGroup', () => {
-
   test('check that instantiation works', () => {
     // GIVEN
     const stack = new Stack();
@@ -25,7 +24,6 @@ describe('ClusterParameterGroup', () => {
         key: 'value',
       },
     }));
-
   });
 
   test('check automatically generated descriptions', () => {
@@ -48,6 +46,5 @@ describe('ClusterParameterGroup', () => {
         key: 'value',
       },
     }));
-
   });
 });

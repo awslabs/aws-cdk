@@ -318,8 +318,8 @@ function indexByHierarchicalId(stacks: cxapi.CloudFormationStackArtifact[]): Map
  * Modifies `selectedStacks` in-place.
  */
 function includeDownstreamStacks(
-  selectedStacks: Map<string, cxapi.CloudFormationStackArtifact>,
-  allStacks: Map<string, cxapi.CloudFormationStackArtifact>) {
+    selectedStacks: Map<string, cxapi.CloudFormationStackArtifact>,
+    allStacks: Map<string, cxapi.CloudFormationStackArtifact>) {
   const added = new Array<string>();
 
   let madeProgress;
@@ -347,8 +347,8 @@ function includeDownstreamStacks(
  * Modifies `selectedStacks` in-place.
  */
 function includeUpstreamStacks(
-  selectedStacks: Map<string, cxapi.CloudFormationStackArtifact>,
-  allStacks: Map<string, cxapi.CloudFormationStackArtifact>) {
+    selectedStacks: Map<string, cxapi.CloudFormationStackArtifact>,
+    allStacks: Map<string, cxapi.CloudFormationStackArtifact>) {
   const added = new Array<string>();
   let madeProgress = true;
   while (madeProgress) {

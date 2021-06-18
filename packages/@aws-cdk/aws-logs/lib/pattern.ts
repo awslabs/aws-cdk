@@ -24,7 +24,6 @@ export abstract class JsonPattern implements IFilterPattern {
  * A collection of static methods to generate appropriate ILogPatterns
  */
 export class FilterPattern {
-
   /**
    * Use the given string as log pattern.
    *

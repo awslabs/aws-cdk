@@ -73,7 +73,6 @@ export interface ApiGatewayProps extends TargetBaseProps {
  * Use an API Gateway REST APIs as a target for Amazon EventBridge rules.
  */
 export class ApiGateway implements events.IRuleTarget {
-
   constructor(public readonly restApi: api.RestApi, private readonly props?: ApiGatewayProps) {
   }
 
@@ -118,6 +117,5 @@ export class ApiGateway implements events.IRuleTarget {
       },
     };
   }
-
 }
 

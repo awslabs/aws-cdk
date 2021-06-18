@@ -74,7 +74,6 @@ export class ApplicationLoadBalancer extends BaseLoadBalancer implements IApplic
    */
   public static fromApplicationLoadBalancerAttributes(
     scope: Construct, id: string, attrs: ApplicationLoadBalancerAttributes): IApplicationLoadBalancer {
-
     return new ImportedApplicationLoadBalancer(scope, id, attrs);
   }
 

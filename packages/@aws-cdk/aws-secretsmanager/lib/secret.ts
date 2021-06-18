@@ -325,7 +325,6 @@ abstract class SecretBase extends Resource implements ISecret {
  * Creates a new secret in AWS SecretsManager.
  */
 export class Secret extends SecretBase {
-
   /** @deprecated use `fromSecretCompleteArn` or `fromSecretPartialArn` */
   public static fromSecretArn(scope: Construct, id: string, secretArn: string): ISecret {
     const attrs = arnIsComplete(secretArn) ? { secretCompleteArn: secretArn } : { secretPartialArn: secretArn };
@@ -625,7 +624,6 @@ export interface ISecretTargetAttachment extends ISecret {
  * An attached secret.
  */
 export class SecretTargetAttachment extends SecretBase implements ISecretTargetAttachment {
-
   public static fromSecretTargetAttachmentSecretArn(scope: Construct, id: string, secretTargetAttachmentSecretArn: string): ISecretTargetAttachment {
     class Import extends SecretBase implements ISecretTargetAttachment {
       public encryptionKey?: kms.IKey | undefined;

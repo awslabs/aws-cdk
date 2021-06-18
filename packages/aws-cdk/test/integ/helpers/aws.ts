@@ -241,10 +241,8 @@ export function outputFromStack(key: string, stack: AWS.CloudFormation.Stack): s
 }
 
 function chainableCredentials(region: string): AWS.Credentials | undefined {
-
   const profileName = process.env.AWS_PROFILE;
   if (process.env.CODEBUILD_BUILD_ARN && profileName) {
-
     // in codebuild we must assume the role that the cdk uses
     // otherwise credentials will just be picked up by the normal sdk
     // heuristics and expire after an hour.
@@ -287,5 +285,4 @@ function chainableCredentials(region: string): AWS.Credentials | undefined {
   }
 
   return undefined;
-
 }

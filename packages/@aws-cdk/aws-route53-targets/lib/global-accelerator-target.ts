@@ -31,7 +31,6 @@ export class GlobalAcceleratorDomainTarget implements route53.IAliasRecordTarget
  * Use a Global Accelerator instance domain name as an alias record target.
  */
 export class GlobalAcceleratorTarget extends GlobalAcceleratorDomainTarget {
-
   /**
    * Create an Alias Target for a Global Accelerator instance.
    */

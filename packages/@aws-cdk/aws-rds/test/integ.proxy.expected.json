@@ -95,14 +95,14 @@
     "vpcPublicSubnet1NATGateway9C16659E": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "vpcPublicSubnet1Subnet2E65531E"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "vpcPublicSubnet1EIPDA49DCBE",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "vpcPublicSubnet1Subnet2E65531E"
         },
         "Tags": [
           {
@@ -192,14 +192,14 @@
     "vpcPublicSubnet2NATGateway9B8AE11A": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "vpcPublicSubnet2Subnet009B674F"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "vpcPublicSubnet2EIP9B3743B1",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "vpcPublicSubnet2Subnet009B674F"
         },
         "Tags": [
           {

@@ -38,15 +38,15 @@
           "Code": {
             "ZipFile": "exports.handler = async function(event) {\n          return  {\n            'headers': { 'Content-Type': 'text/plain' },\n            'statusCode': 200\n          }\n        }"
           },
-          "Handler": "index.handler",
           "Role": {
             "Fn::GetAtt": [
               "firstLambdaServiceRoleB6408C31",
               "Arn"
             ]
           },
-          "Runtime": "nodejs10.x",
-          "FunctionName": "FirstLambda"
+          "FunctionName": "FirstLambda",
+          "Handler": "index.handler",
+          "Runtime": "nodejs10.x"
         },
         "DependsOn": [
           "firstLambdaServiceRoleB6408C31"

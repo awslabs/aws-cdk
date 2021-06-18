@@ -45,7 +45,6 @@ class TestBucketDeployment extends cdk.Stack {
       prune: false,
       retainOnDelete: false,
     });
-
   }
 }
 

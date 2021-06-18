@@ -9,7 +9,6 @@ import * as handler from '../lib/oidc-provider/index';
 const arnOfProvider = 'arn:aws:iam::1234567:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/someid';
 
 describe('OpenIdConnectProvider resource', () => {
-
   test('minimal configuration (no clients and no thumbprint)', () => {
     // GIVEN
     const stack = new Stack();
@@ -67,11 +66,9 @@ describe('OpenIdConnectProvider resource', () => {
       ThumbprintList: ['thumb1'],
     });
   });
-
 });
 
 describe('custom resource provider infrastructure', () => {
-
   test('two resources share the same cr provider', () => {
     // GIVEN
     const app = new App();
@@ -375,7 +372,6 @@ describe('custom resource provider handler', () => {
       Url: 'https://new-url',
     });
   });
-
 });
 
 describe('arrayDiff', () => {

@@ -30,7 +30,6 @@ export interface LambdaProxyIntegrationProps {
  * The Lambda Proxy integration resource for HTTP API
  */
 export class LambdaProxyIntegration implements IHttpRouteIntegration {
-
   constructor(private readonly props: LambdaProxyIntegrationProps) {
   }
 

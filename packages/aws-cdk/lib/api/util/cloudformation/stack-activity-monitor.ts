@@ -84,7 +84,6 @@ export interface WithDefaultPrinterProps {
 }
 
 export class StackActivityMonitor {
-
   /**
    * Create a Stack Activity Monitor using a default printer, based on context clues
    */
@@ -564,7 +563,6 @@ export class HistoryActivityPrinter extends ActivityPrinterBase {
     // occurs, after which we can be triggered again.
     this.lastPrintTime = +Infinity;
   }
-
 }
 
 /**

@@ -43,7 +43,6 @@ export interface IVpcEndpointService extends IResource {
  *
  */
 export class VpcEndpointService extends Resource implements IVpcEndpointService {
-
   /**
    * One or more network load balancers to host the service.
    * @attribute

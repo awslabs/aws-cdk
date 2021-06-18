@@ -44,7 +44,6 @@ export interface PublicKeyProps {
  * @resource AWS::CloudFront::PublicKey
  */
 export class PublicKey extends Resource implements IPublicKey {
-
   /** Imports a Public Key from its id. */
   public static fromPublicKeyId(scope: Construct, id: string, publicKeyId: string): IPublicKey {
     return new class extends Resource implements IPublicKey {

@@ -6,7 +6,6 @@ import { Construct } from 'constructs';
 import * as actions from '../lib';
 
 class CognitoStack extends Stack {
-
   /// !hide
   constructor(scope: Construct, id: string) {
     super(scope, id);

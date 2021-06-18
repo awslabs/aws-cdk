@@ -54,7 +54,6 @@ export interface HttpOriginProps extends cloudfront.OriginProps {
  * An Origin for an HTTP server or S3 bucket configured for website hosting.
  */
 export class HttpOrigin extends cloudfront.OriginBase {
-
   constructor(domainName: string, private readonly props: HttpOriginProps = {}) {
     super(domainName, props);
 

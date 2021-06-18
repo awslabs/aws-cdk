@@ -37,13 +37,13 @@
         "Code": {
           "ZipFile": "foo"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "myfnServiceRole7822DC24",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

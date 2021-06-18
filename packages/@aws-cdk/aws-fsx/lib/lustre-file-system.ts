@@ -105,7 +105,6 @@ export interface LustreFileSystemProps extends FileSystemProps {
  * @resource AWS::FSx::FileSystem
  */
 export class LustreFileSystem extends FileSystemBase {
-
   /**
    * Import an existing FSx for Lustre file system from the given properties.
    */

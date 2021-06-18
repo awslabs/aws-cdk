@@ -193,7 +193,6 @@ abstract class DatabaseClusterBase extends Resource implements IDatabaseCluster 
  * @resource AWS::DocDB::DBCluster
  */
 export class DatabaseCluster extends DatabaseClusterBase {
-
   /**
    * The default number of instances in the DocDB cluster if none are
    * specified

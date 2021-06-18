@@ -12,8 +12,8 @@
             "CookiesConfig": {
               "CookieBehavior": "none"
             },
-            "EnableAcceptEncodingGzip": false,
             "EnableAcceptEncodingBrotli": false,
+            "EnableAcceptEncodingGzip": false,
             "HeadersConfig": {
               "HeaderBehavior": "none"
             },

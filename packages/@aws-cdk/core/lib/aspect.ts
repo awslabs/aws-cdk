@@ -17,7 +17,6 @@ export interface IAspect {
  * synthesis.
  */
 export class Aspects {
-
   /**
    * Returns the `Aspects` object associated with a construct scope.
    * @param scope The scope for which these aspects will apply.

@@ -7,7 +7,6 @@ import { calculateFunctionHash, trimFromStart } from '../lib/function-hash';
 
 describe('function hash', () => {
   describe('trimFromStart', () => {
-
     test('trim not needed', () => {
       expect(trimFromStart('foo', 100)).toEqual('foo');
       expect(trimFromStart('foo', 3)).toEqual('foo');
@@ -124,7 +123,6 @@ describe('function hash', () => {
   });
 
   describe('impact of env variables order on hash', () => {
-
     test('without "currentVersion", we preserve old behavior to avoid unnecessary invalidation of templates', () => {
       const stack1 = new Stack();
       const fn1 = new lambda.Function(stack1, 'MyFunction', {

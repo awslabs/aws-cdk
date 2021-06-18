@@ -81,7 +81,6 @@ export class KubernetesObjectValue extends CoreConstruct {
         TimeoutSeconds: (props?.timeout ?? Duration.minutes(5)).toSeconds(),
       },
     });
-
   }
 
   /**

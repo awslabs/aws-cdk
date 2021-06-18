@@ -37,7 +37,6 @@ expect.extend({
     actual: cxapi.CloudFormationStackArtifact | core.Stack,
     template: any,
     matchStyle?: MatchStyle) {
-
     const assertion = matchTemplate(template, matchStyle);
     const inspector = ourExpect(actual);
     const pass = assertion.assertUsing(inspector);
@@ -59,7 +58,6 @@ expect.extend({
     resourceType: string,
     properties?: any,
     comparison?: ResourcePart) {
-
     const assertion = new HaveResourceAssertion(resourceType, properties, comparison, false);
     return applyAssertion(assertion, actual);
   },
@@ -69,7 +67,6 @@ expect.extend({
     resourceType: string,
     properties?: any,
     comparison?: ResourcePart) {
-
     const assertion = new HaveResourceAssertion(resourceType, properties, comparison, true);
     return applyAssertion(assertion, actual);
   },
@@ -77,7 +74,6 @@ expect.extend({
   toHaveOutput(
     actual: cxapi.CloudFormationStackArtifact | core.Stack,
     props: HaveOutputProperties) {
-
     return applyAssertion(haveOutput(props), actual);
   },
 
@@ -85,7 +81,6 @@ expect.extend({
     actual: cxapi.CloudFormationStackArtifact | core.Stack,
     resourceType: string,
     count = 1) {
-
     return applyAssertion(countResources(resourceType, count), actual);
   },
 });

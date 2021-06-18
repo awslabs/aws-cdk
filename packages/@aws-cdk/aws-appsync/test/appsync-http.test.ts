@@ -18,7 +18,6 @@ beforeEach(() => {
 });
 
 describe('Http Data Source configuration', () => {
-
   test('default configuration produces name `HttpCDKDataSource`', () => {
     // WHEN
     api.addHttpDataSource('ds', endpoint);
@@ -164,7 +163,6 @@ describe('Http Data Source configuration', () => {
       api.addHttpDataSource('ds', endpoint);
     }).toThrow("There is already a Construct with name 'ds' in GraphqlApi [baseApi]");
   });
-
 });
 
 describe('adding http data source from imported api', () => {

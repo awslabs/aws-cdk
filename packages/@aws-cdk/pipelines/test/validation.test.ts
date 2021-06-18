@@ -458,7 +458,6 @@ test('run ShellScriptAction with specified environment variables', () => {
       ],
     }),
   });
-
 });
 
 class AppWithStackOutput extends Stage {

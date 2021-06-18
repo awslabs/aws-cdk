@@ -122,7 +122,6 @@ test('CertificateValidation.fromEmail', () => {
 });
 
 describe('CertificateValidation.fromDns', () => {
-
   test('without a hosted zone', () => {
     const stack = new Stack();
 
@@ -232,7 +231,6 @@ describe('CertificateValidation.fromDns', () => {
       ValidationMethod: 'DNS',
     });
   });
-
 });
 
 test('CertificateValidation.fromDnsMultiZone', () => {

@@ -42,7 +42,6 @@ export interface KeyGroupProps {
  * @resource AWS::CloudFront::KeyGroup
  */
 export class KeyGroup extends Resource implements IKeyGroup {
-
   /** Imports a Key Group from its id. */
   public static fromKeyGroupId(scope: Construct, id: string, keyGroupId: string): IKeyGroup {
     return new class extends Resource implements IKeyGroup {

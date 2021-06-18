@@ -320,7 +320,6 @@ nodeunitShim({
   },
 
   'addDependency adds all dependencyElements of dependent constructs'(test: Test) {
-
     class C1 extends Construct {
       public readonly r1: CfnResource;
       public readonly r2: CfnResource;

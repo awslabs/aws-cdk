@@ -5,7 +5,6 @@ import { debug } from '../logging';
 import { ContextProviderPlugin } from './provider';
 
 export class HostedZoneContextProviderPlugin implements ContextProviderPlugin {
-
   constructor(private readonly aws: SdkProvider) {
   }
 
@@ -38,7 +37,6 @@ export class HostedZoneContextProviderPlugin implements ContextProviderPlugin {
   private async filterZones(
     r53: AWS.Route53, zones: AWS.Route53.HostedZone[],
     props: cxschema.HostedZoneContextQuery): Promise<AWS.Route53.HostedZone[]> {
-
     let candidates: AWS.Route53.HostedZone[] = [];
     const domainName = props.domainName.endsWith('.') ? props.domainName : `${props.domainName}.`;
     debug(`Found the following zones ${JSON.stringify(zones)}`);

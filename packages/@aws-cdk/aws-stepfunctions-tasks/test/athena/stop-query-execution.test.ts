@@ -2,7 +2,6 @@ import * as cdk from '@aws-cdk/core';
 import { AthenaStopQueryExecution } from '../../lib/athena/stop-query-execution';
 
 describe('Stop Query Execution', () => {
-
   test('default settings', () => {
     // GIVEN
     const stack = new cdk.Stack();

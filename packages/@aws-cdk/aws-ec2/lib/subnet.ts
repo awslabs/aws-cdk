@@ -7,7 +7,6 @@ import { ISubnet } from './vpc';
  * endpoints, EC2 instances, etc.
  */
 export abstract class SubnetFilter {
-
   /**
    * Chooses subnets which are in one of the given availability zones.
   */
@@ -41,7 +40,6 @@ export abstract class SubnetFilter {
  * Chooses subnets which are in one of the given availability zones.
  */
 class AvailabilityZoneSubnetFilter extends SubnetFilter {
-
   private readonly availabilityZones: string[];
 
   constructor(availabilityZones: string[]) {
@@ -61,7 +59,6 @@ class AvailabilityZoneSubnetFilter extends SubnetFilter {
  * Chooses subnets such that there is at most one per availability zone.
  */
 class OnePerAZSubnetFilter extends SubnetFilter {
-
   constructor() {
     super();
   }
@@ -87,7 +84,6 @@ class OnePerAZSubnetFilter extends SubnetFilter {
  * Chooses subnets which contain any of the specified IP addresses.
  */
 class ContainsIpAddressesSubnetFilter extends SubnetFilter {
-
   private readonly ipAddresses: string[];
 
   constructor(ipAddresses: string[]) {

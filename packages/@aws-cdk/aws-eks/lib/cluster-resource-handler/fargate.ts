@@ -94,7 +94,6 @@ export class FargateProfileResourceHandler extends ResourceHandler {
     };
 
     try {
-
       this.log({ describeFargateProfile });
       const describeFargateProfileResponse = await this.eks.describeFargateProfile(describeFargateProfile);
       this.log({ describeFargateProfileResponse });

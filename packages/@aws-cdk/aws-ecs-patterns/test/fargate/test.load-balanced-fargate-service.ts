@@ -1009,7 +1009,6 @@ export = {
     }));
 
     test.done();
-
   },
 
   'test ALB load balanced service with docker labels defined'(test: Test) {

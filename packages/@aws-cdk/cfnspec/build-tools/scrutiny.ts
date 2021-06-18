@@ -24,7 +24,6 @@ export function detectScrutinyTypes(spec: schema.Specification) {
       if (propertySpec.ScrutinyType !== undefined) { continue; } // Already assigned
 
       detectPropertyScrutiny(typeName, propertyName, propertySpec);
-
     }
   }
 }

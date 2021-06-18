@@ -2,7 +2,6 @@ import * as cdk from '@aws-cdk/core';
 import { AthenaGetQueryExecution } from '../../lib/athena/get-query-execution';
 
 describe('Get Query Execution', () => {
-
   test('default settings', () => {
     // GIVEN
     const stack = new cdk.Stack();

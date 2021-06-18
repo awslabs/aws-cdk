@@ -170,7 +170,6 @@ export class CertificateValidation {
  * A certificate managed by AWS Certificate Manager
  */
 export class Certificate extends Resource implements ICertificate {
-
   /**
    * Import a certificate
    */

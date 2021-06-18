@@ -151,7 +151,6 @@ export interface ServiceAttributes {
  * Define a CloudMap Service
  */
 export class Service extends ServiceBase {
-
   public static fromServiceAttributes(scope: Construct, id: string, attrs: ServiceAttributes): IService {
     class Import extends ServiceBase {
       public namespace: INamespace = attrs.namespace;

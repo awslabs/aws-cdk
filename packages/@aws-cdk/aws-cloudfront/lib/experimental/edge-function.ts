@@ -35,7 +35,6 @@ export interface EdgeFunctionProps extends lambda.FunctionProps {
  * @resource AWS::Lambda::Function
  */
 export class EdgeFunction extends Resource implements lambda.IVersion {
-
   private static readonly EDGE_REGION: string = 'us-east-1';
 
   public readonly edgeArn: string;

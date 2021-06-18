@@ -72,7 +72,6 @@ export class Bootstrapper {
     environment: cxapi.Environment,
     sdkProvider: SdkProvider,
     options: BootstrapEnvironmentOptions = {}): Promise<DeployStackResult> {
-
     const params = options.parameters ?? {};
 
     const bootstrapTemplate = await this.loadTemplate();
@@ -154,7 +153,6 @@ export class Bootstrapper {
     environment: cxapi.Environment,
     sdkProvider: SdkProvider,
     options: BootstrapEnvironmentOptions = {}): Promise<DeployStackResult> {
-
     // Look at the template, decide whether it's most likely a legacy or modern bootstrap
     // template, and use the right bootstrapper for that.
     const version = bootstrapVersionFromTemplate(await this.loadTemplate());

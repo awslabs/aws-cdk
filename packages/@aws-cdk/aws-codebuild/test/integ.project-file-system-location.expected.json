@@ -95,14 +95,14 @@
     "MyVPCPublicSubnet1NATGateway838228A5": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "MyVPCPublicSubnet1Subnet0C75866A"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "MyVPCPublicSubnet1EIP5EB6147D",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "MyVPCPublicSubnet1Subnet0C75866A"
         },
         "Tags": [
           {

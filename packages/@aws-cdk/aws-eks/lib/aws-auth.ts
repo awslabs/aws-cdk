@@ -103,7 +103,6 @@ export class AwsAuth extends CoreConstruct {
   }
 
   private assertSameStack(construct: IConstruct) {
-
     const thisStack = Stack.of(this);
 
     if (Stack.of(construct) !== thisStack) {

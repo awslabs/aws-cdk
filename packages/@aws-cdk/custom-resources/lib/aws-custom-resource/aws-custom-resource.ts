@@ -37,7 +37,6 @@ export class PhysicalResourceIdReference implements cdk.IResolvable {
  * Physical ID of the custom resource.
  */
 export class PhysicalResourceId {
-
   /**
    * Extract the physical resource id from the path (dot notation) to the data in the API call response.
    */
@@ -179,7 +178,6 @@ export interface SdkCallsPolicyOptions {
  * The IAM Policy that will be applied to the different calls.
  */
 export class AwsCustomResourcePolicy {
-
   /**
    * Use this constant to configure access to any resource.
    */
@@ -314,15 +312,12 @@ export interface AwsCustomResourceProps {
  *
  */
 export class AwsCustomResource extends CoreConstruct implements iam.IGrantable {
-
   private static breakIgnoreErrorsCircuit(sdkCalls: Array<AwsSdkCall | undefined>, caller: string) {
-
     for (const call of sdkCalls) {
       if (call?.ignoreErrorCodesMatching) {
         throw new Error(`\`${caller}\`` + ' cannot be called along with `ignoreErrorCodesMatching`.');
       }
     }
-
   }
 
   public readonly grantPrincipal: iam.IPrincipal;

@@ -69,11 +69,10 @@ async function prepareAsset(asset: cxschema.AssetMetadataEntry, assetManifest: A
 }
 
 function prepareFileAsset(
-  asset: cxschema.FileAssetMetadataEntry,
-  assetManifest: AssetManifestBuilder,
-  toolkitInfo: ToolkitInfo,
-  packaging: cxschema.FileAssetPackaging): Record<string, string> {
-
+    asset: cxschema.FileAssetMetadataEntry,
+    assetManifest: AssetManifestBuilder,
+    toolkitInfo: ToolkitInfo,
+    packaging: cxschema.FileAssetPackaging): Record<string, string> {
   const extension = packaging === cxschema.FileAssetPackaging.ZIP_DIRECTORY ? '.zip' : path.extname(asset.path);
   const baseName = `${asset.sourceHash}${extension}`;
   // Simplify key: assets/abcdef/abcdef.zip is kinda silly and unnecessary, so if they're the same just pick one component.
@@ -99,10 +98,9 @@ function prepareFileAsset(
 }
 
 async function prepareDockerImageAsset(
-  asset: cxschema.ContainerImageAssetMetadataEntry,
-  assetManifest: AssetManifestBuilder,
-  toolkitInfo: ToolkitInfo): Promise<Record<string, string>> {
-
+    asset: cxschema.ContainerImageAssetMetadataEntry,
+    assetManifest: AssetManifestBuilder,
+    toolkitInfo: ToolkitInfo): Promise<Record<string, string>> {
   // Pre-1.21.0, repositoryName can be specified by the user or can be left out, in which case we make
   // a per-asset repository which will get adopted and cleaned up along with the stack.
   // Post-1.21.0, repositoryName will always be specified and it will be a shared repository between

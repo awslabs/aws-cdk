@@ -104,7 +104,6 @@ export class ServiceAccount extends CoreConstruct implements IPrincipal {
         },
       }],
     });
-
   }
 
   /**

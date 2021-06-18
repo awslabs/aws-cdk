@@ -107,13 +107,11 @@ export function testAssembly(assembly: TestAssembly): cxapi.CloudAssembly {
  * @see @aws-cdk/core/lib/stack.ts
  */
 function patchStackTags(metadata: { [path: string]: cxschema.MetadataEntry[] }): { [path: string]: cxschema.MetadataEntry[] } {
-
   const cloned = clone(metadata) as { [path: string]: cxschema.MetadataEntry[] };
 
   for (const metadataEntries of Object.values(cloned)) {
     for (const metadataEntry of metadataEntries) {
       if (metadataEntry.type === cxschema.ArtifactMetadataEntryType.STACK_TAGS && metadataEntry.data) {
-
         const metadataAny = metadataEntry as any;
 
         metadataAny.data = metadataAny.data.map((t: any) => {
@@ -159,11 +157,10 @@ export function instanceMockFrom<A>(ctr: new (...args: any[]) => A): jest.Mocked
  * for that function.
  */
 export async function withMockedClassSingleton<A extends object, K extends keyof A, B>(
-  obj: A,
-  key: K,
-  cb: (mock: A[K] extends jest.Constructable ? jest.Mocked<InstanceType<A[K]>> : never) => Promise<B>,
+    obj: A,
+    key: K,
+    cb: (mock: A[K] extends jest.Constructable ? jest.Mocked<InstanceType<A[K]>> : never) => Promise<B>,
 ): Promise<B> {
-
   const original = obj[key];
   try {
     const mock = instanceMockFrom(original as any);

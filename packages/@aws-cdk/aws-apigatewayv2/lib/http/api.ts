@@ -244,7 +244,6 @@ export interface AddRoutesOptions extends BatchHttpRouteOptions {
 }
 
 abstract class HttpApiBase extends ApiBase implements IHttpApi { // note that this is not exported
-
   public abstract readonly apiId: string;
   public abstract readonly httpApiId: string;
   public abstract readonly apiEndpoint: string;

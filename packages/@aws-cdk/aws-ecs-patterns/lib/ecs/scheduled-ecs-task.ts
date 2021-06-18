@@ -80,7 +80,6 @@ export interface ScheduledEc2TaskDefinitionOptions {
  * A scheduled EC2 task that will be initiated off of CloudWatch Events.
  */
 export class ScheduledEc2Task extends ScheduledTaskBase {
-
   /**
    * The EC2 task definition in this construct.
    */

@@ -202,7 +202,6 @@
               "Arn"
             ]
           },
-          "Runtime": "nodejs14.x",
           "Description": "Lambda to make DynamoDB a global table",
           "Handler": "index.handler",
           "Runtime": "nodejs14.x",

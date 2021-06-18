@@ -33,7 +33,6 @@ export class AwsCliCompatible {
    * 4. Respects $AWS_DEFAULT_PROFILE in addition to $AWS_PROFILE.
    */
   public static async credentialChain(options: CredentialChainOptions = {}) {
-
     // To match AWS CLI behavior, if a profile is explicitly given using --profile,
     // we use that to the exclusion of everything else (note: this does not apply
     // to AWS_PROFILE, environment credentials still take precedence over AWS_PROFILE)

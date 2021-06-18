@@ -140,7 +140,6 @@ export interface LayerVersionAttributes {
  * Defines a new Lambda Layer version.
  */
 export class LayerVersion extends LayerVersionBase {
-
   /**
    * Imports a layer version by ARN. Assumes it is compatible with all Lambda runtimes.
    */

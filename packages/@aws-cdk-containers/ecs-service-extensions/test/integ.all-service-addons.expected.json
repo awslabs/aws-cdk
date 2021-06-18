@@ -102,14 +102,14 @@
     "productionenvironmentvpcPublicSubnet1NATGateway6075E4CA": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "productionenvironmentvpcPublicSubnet1Subnet8D92C089"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "productionenvironmentvpcPublicSubnet1EIP54BA88DB",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "productionenvironmentvpcPublicSubnet1Subnet8D92C089"
         },
         "Tags": [
           {
@@ -199,14 +199,14 @@
     "productionenvironmentvpcPublicSubnet2NATGatewayE1850FCC": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "productionenvironmentvpcPublicSubnet2Subnet298E6C31"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "productionenvironmentvpcPublicSubnet2EIP14CA46AA",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "productionenvironmentvpcPublicSubnet2Subnet298E6C31"
         },
         "Tags": [
           {
@@ -296,14 +296,14 @@
     "productionenvironmentvpcPublicSubnet3NATGateway94604057": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "productionenvironmentvpcPublicSubnet3SubnetC7B5665D"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "productionenvironmentvpcPublicSubnet3EIP53405AED",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "productionenvironmentvpcPublicSubnet3SubnetC7B5665D"
         },
         "Tags": [
           {

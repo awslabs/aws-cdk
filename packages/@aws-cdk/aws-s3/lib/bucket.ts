@@ -1329,7 +1329,6 @@ export interface BucketProps {
  * BucketResource.
  */
 export class Bucket extends BucketBase {
-
   public static fromBucketArn(scope: Construct, id: string, bucketArn: string): IBucket {
     return Bucket.fromBucketAttributes(scope, id, { bucketArn });
   }
@@ -1606,7 +1605,6 @@ export class Bucket extends BucketBase {
     bucketEncryption?: CfnBucket.BucketEncryptionProperty,
     encryptionKey?: kms.IKey
   } {
-
     // default based on whether encryptionKey is specified
     let encryptionType = props.encryption;
     if (encryptionType === undefined) {

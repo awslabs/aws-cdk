@@ -298,7 +298,6 @@ export class CfnCodeDeployBlueGreenHook extends CfnHook {
    */
   public static _fromCloudFormation(scope: Construct, id: string, hookAttributes: any,
     options: FromCloudFormationOptions): CfnCodeDeployBlueGreenHook {
-
     hookAttributes = hookAttributes || {};
     const hookProperties = options.parser.parseValue(hookAttributes.Properties);
     return new CfnCodeDeployBlueGreenHook(scope, id, {

@@ -41,6 +41,5 @@ export function zipDirectory(directory: string, outputFile: string): Promise<voi
     }
 
     await archive.finalize();
-
   });
 }

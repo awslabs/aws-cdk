@@ -37,13 +37,13 @@
         "Code": {
           "ZipFile": "exports.handler = function helloCode(_event, _context, callback) {\n    return callback(undefined, {\n        statusCode: 200,\n        body: 'hello, world!',\n    });\n}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "HelloServiceRole1E55EA16",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

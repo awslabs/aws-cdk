@@ -806,7 +806,6 @@ describe('tests', () => {
         },
       ],
     });
-
   });
 
   test('Can add simple redirect responses with custom values', () => {
@@ -867,7 +866,6 @@ describe('tests', () => {
   });
 
   describe('Throws with bad fixed responses', () => {
-
     test('status code', () => {
       // GIVEN
       const stack = new cdk.Stack();
@@ -905,7 +903,6 @@ describe('tests', () => {
   });
 
   describe('Throws with bad redirect responses', () => {
-
     test('status code', () => {
       // GIVEN
       const stack = new cdk.Stack();

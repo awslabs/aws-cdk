@@ -13,7 +13,6 @@ import { TestStack } from './util';
 
 
 class EksClusterStack extends TestStack {
-
   private cluster: eks.Cluster;
   private vpc: ec2.IVpc;
 
@@ -107,12 +106,9 @@ class EksClusterStack extends TestStack {
 
     // make sure namespace is deployed before the chart
     nginxIngress.node.addDependency(nginxNamespace);
-
-
   }
 
   private assertSimpleCdk8sChart() {
-
     class Chart extends cdk8s.Chart {
       constructor(scope: constructs.Construct, ns: string, cluster: eks.ICluster) {
         super(scope, ns);
@@ -122,7 +118,6 @@ class EksClusterStack extends TestStack {
             clusterName: cluster.clusterName,
           },
         });
-
       }
     }
     const app = new cdk8s.App();
@@ -239,7 +234,6 @@ class EksClusterStack extends TestStack {
       minCapacity: 2,
       machineImageType: eks.MachineImageType.BOTTLEROCKET,
     });
-
   }
   private assertCapacityX86() {
     // add some x86_64 capacity to the cluster. The IAM instance role will
@@ -264,11 +258,9 @@ class EksClusterStack extends TestStack {
     this.cluster.addFargateProfile('default', {
       selectors: [{ namespace: 'default' }],
     });
-
   }
 
   private assertServiceLoadBalancerAddress() {
-
     const serviceName = 'webservice';
     const labels = { app: 'simple-web' };
     const containerPort = 80;
@@ -326,7 +318,6 @@ class EksClusterStack extends TestStack {
     new CfnOutput(this, 'Response', {
       value: pinger.response,
     });
-
   }
 }
 
@@ -345,7 +336,6 @@ const app = new App();
 const stack = new EksClusterStack(app, 'aws-cdk-eks-cluster-test');
 
 if (process.env.CDK_INTEG_ACCOUNT !== '12345678') {
-
   // only validate if we are about to actually deploy.
   // TODO: better way to determine this, right now the 'CDK_INTEG_ACCOUNT' seems like the only way.
 
@@ -356,7 +346,6 @@ if (process.env.CDK_INTEG_ACCOUNT !== '12345678') {
   if (!supportedRegions.includes(stack.region)) {
     throw new Error(`region (${stack.region}) must be configured to one of: ${supportedRegions}`);
   }
-
 }
 
 

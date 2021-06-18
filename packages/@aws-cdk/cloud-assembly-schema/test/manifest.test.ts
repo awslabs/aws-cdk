@@ -11,7 +11,6 @@ function fixture(name: string) {
 }
 
 test('manifest save', () => {
-
   const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-tests'));
   const manifestFile = path.join(outdir, 'manifest.json');
 
@@ -52,7 +51,6 @@ test('manifest load fails on higher major version', () => {
 // once we start introducing minor version bumps that are considered
 // non breaking, this test can be removed.
 test('manifest load fails on higher minor version', () => {
-
   const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-tests'));
   const manifestFile = path.join(outdir, 'manifest.json');
 
@@ -74,7 +72,6 @@ test('manifest load fails on higher minor version', () => {
 // once we start introducing patch version bumps that are considered
 // non breaking, this test can be removed.
 test('manifest load fails on higher patch version', () => {
-
   const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-tests'));
   const manifestFile = path.join(outdir, 'manifest.json');
 
@@ -103,7 +100,6 @@ test('manifest load succeeds on unknown properties', () => {
 });
 
 test('stack-tags are deserialized properly', () => {
-
   const m: AssemblyManifest = Manifest.loadAssemblyManifest(fixture('with-stack-tags'));
 
   if (m.artifacts?.stack?.metadata?.AwsCdkPlaygroundBatch[0].data) {
@@ -112,11 +108,9 @@ test('stack-tags are deserialized properly', () => {
     expect(entry[0].value).toEqual('world');
   }
   expect(m.version).toEqual('0.0.0');
-
 });
 
 test('can access random metadata', () => {
-
   const loaded = Manifest.loadAssemblyManifest(fixture('random-metadata'));
   const randomArray = loaded.artifacts?.stack.metadata?.AwsCdkPlaygroundBatch[0].data;
   const randomNumber = loaded.artifacts?.stack.metadata?.AwsCdkPlaygroundBatch[1].data;
@@ -133,5 +127,4 @@ test('can access random metadata', () => {
   if (randomMap) {
     expect((randomMap as any).key).toEqual('value');
   }
-
 });

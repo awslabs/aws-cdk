@@ -650,7 +650,6 @@ abstract class StreamBase extends Resource implements IStream {
       ...props,
     }).attachTo(this);
   }
-
 }
 
 /**
@@ -703,7 +702,6 @@ export interface StreamProps {
  * A Kinesis stream. Can be encrypted with a KMS key.
  */
 export class Stream extends StreamBase {
-
   /**
    * Import an existing Kinesis Stream provided an ARN
    *
@@ -778,10 +776,8 @@ export class Stream extends StreamBase {
     streamEncryption?: CfnStream.StreamEncryptionProperty | IResolvable
     encryptionKey?: kms.IKey
   } {
-
     // if encryption properties are not set, default to KMS in regions where KMS is available
     if (!props.encryption && !props.encryptionKey) {
-
       const conditionName = 'AwsCdkKinesisEncryptedStreamsUnsupportedRegions';
       const existing = Stack.of(this).node.tryFindChild(conditionName);
 

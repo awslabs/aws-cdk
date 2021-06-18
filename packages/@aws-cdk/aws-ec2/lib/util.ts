@@ -52,7 +52,6 @@ export class ImportSubnetGroup {
     idField: string,
     nameField: string,
     routeTableIdField: string) {
-
     this.subnetIds = subnetIds || [];
     this.routeTableIds = routeTableIds || [];
     this.groups = this.subnetIds.length / this.availabilityZones.length;

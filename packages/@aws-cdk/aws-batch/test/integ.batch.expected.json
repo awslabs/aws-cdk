@@ -95,14 +95,14 @@
     "vpcPublicSubnet1NATGateway9C16659E": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "vpcPublicSubnet1Subnet2E65531E"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "vpcPublicSubnet1EIPDA49DCBE",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "vpcPublicSubnet1Subnet2E65531E"
         },
         "Tags": [
           {
@@ -192,14 +192,14 @@
     "vpcPublicSubnet2NATGateway9B8AE11A": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "vpcPublicSubnet2Subnet009B674F"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "vpcPublicSubnet2EIP9B3743B1",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "vpcPublicSubnet2Subnet009B674F"
         },
         "Tags": [
           {
@@ -289,14 +289,14 @@
     "vpcPublicSubnet3NATGateway82F6CA9E": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "vpcPublicSubnet3Subnet11B92D7C"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "vpcPublicSubnet3EIP2C3B9D91",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "vpcPublicSubnet3Subnet11B92D7C"
         },
         "Tags": [
           {
@@ -566,13 +566,13 @@
     "batchunmanagedcomputeenvED550298": {
       "Type": "AWS::Batch::ComputeEnvironment",
       "Properties": {
+        "Type": "UNMANAGED",
         "ServiceRole": {
           "Fn::GetAtt": [
             "batchunmanagedcomputeenvResourceServiceInstanceRoleCA40AF77",
             "Arn"
           ]
         },
-        "Type": "UNMANAGED",
         "State": "ENABLED"
       }
     },
@@ -817,12 +817,6 @@
     "batchdemandcomputeenvlaunchtemplateF8A5B233": {
       "Type": "AWS::Batch::ComputeEnvironment",
       "Properties": {
-        "ServiceRole": {
-          "Fn::GetAtt": [
-            "batchdemandcomputeenvlaunchtemplateResourceServiceInstanceRole76AD99CC",
-            "Arn"
-          ]
-        },
         "Type": "MANAGED",
         "ComputeResources": {
           "AllocationStrategy": "BEST_FIT",
@@ -863,6 +857,12 @@
             "compute-env-tag": "123XYZ"
           },
           "Type": "EC2"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "batchdemandcomputeenvlaunchtemplateResourceServiceInstanceRole76AD99CC",
+            "Arn"
+          ]
         },
         "State": "ENABLED"
       },
@@ -1143,12 +1143,6 @@
     "batchspotcomputeenv2CE4DFD9": {
       "Type": "AWS::Batch::ComputeEnvironment",
       "Properties": {
-        "ServiceRole": {
-          "Fn::GetAtt": [
-            "batchspotcomputeenvResourceServiceInstanceRole8B0DF5A7",
-            "Arn"
-          ]
-        },
         "Type": "MANAGED",
         "ComputeResources": {
           "AllocationStrategy": "SPOT_CAPACITY_OPTIMIZED",
@@ -1200,6 +1194,12 @@
             }
           ],
           "Type": "SPOT"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "batchspotcomputeenvResourceServiceInstanceRole8B0DF5A7",
+            "Arn"
+          ]
         },
         "State": "ENABLED"
       },

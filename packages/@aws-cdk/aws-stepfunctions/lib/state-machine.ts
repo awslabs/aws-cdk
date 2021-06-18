@@ -133,7 +133,6 @@ export interface StateMachineProps {
  * A new or imported state machine.
  */
 abstract class StateMachineBase extends Resource implements IStateMachine {
-
   /**
    * Import a state machine
    */

@@ -14,7 +14,6 @@ export interface PingerProps {
   readonly vpc?: ec2.IVpc;
 }
 export class Pinger extends CoreConstruct {
-
   private _resource: CustomResource;
 
   constructor(scope: Construct, id: string, props: PingerProps) {
@@ -44,5 +43,4 @@ export class Pinger extends CoreConstruct {
   public get response() {
     return Token.asString(this._resource.getAtt('Value'));
   }
-
 }

@@ -133,7 +133,6 @@ export interface MachineImageConfig {
  * The AMI ID is selected using the values published to the SSM parameter store.
  */
 export class GenericSSMParameterImage implements IMachineImage {
-
   constructor(private readonly parameterName: string, private readonly os: OperatingSystemType, private readonly userData?: UserData) {
   }
 
@@ -253,7 +252,6 @@ export interface AmazonLinuxImageProps {
  * The AMI ID is selected using the values published to the SSM parameter store.
  */
 export class AmazonLinuxImage extends GenericSSMParameterImage {
-
   constructor(props: AmazonLinuxImageProps = {}) {
     const generation = (props && props.generation) || AmazonLinuxGeneration.AMAZON_LINUX;
     const edition = (props && props.edition) || AmazonLinuxEdition.STANDARD;

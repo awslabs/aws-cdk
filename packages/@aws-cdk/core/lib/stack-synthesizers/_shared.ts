@@ -14,11 +14,10 @@ import { Stack } from '../stack';
  * copy/pasting), and jsii will choke on this type.
  */
 export function addStackArtifactToAssembly(
-  session: ISynthesisSession,
-  stack: Stack,
-  stackProps: Partial<cxschema.AwsCloudFormationStackProperties>,
-  additionalStackDependencies: string[]) {
-
+    session: ISynthesisSession,
+    stack: Stack,
+    stackProps: Partial<cxschema.AwsCloudFormationStackProperties>,
+    additionalStackDependencies: string[]) {
   // nested stack tags are applied at the AWS::CloudFormation::Stack resource
   // level and are not needed in the cloud assembly.
   if (stack.tags.hasTags()) {

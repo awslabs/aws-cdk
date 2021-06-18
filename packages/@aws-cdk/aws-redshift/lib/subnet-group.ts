@@ -50,7 +50,6 @@ export interface ClusterSubnetGroupProps {
  * @resource AWS::Redshift::ClusterSubnetGroup
  */
 export class ClusterSubnetGroup extends Resource implements IClusterSubnetGroup {
-
   /**
    * Imports an existing subnet group by name.
    */

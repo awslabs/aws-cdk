@@ -358,13 +358,11 @@ abstract class ServerlessClusterBase extends Resource implements IServerlessClus
  *
  */
 export class ServerlessCluster extends ServerlessClusterBase {
-
   /**
    * Import an existing DatabaseCluster from properties
    */
   public static fromServerlessClusterAttributes(scope: Construct, id: string,
     attrs: ServerlessClusterAttributes): IServerlessCluster {
-
     return new ImportedServerlessCluster(scope, id, attrs);
   }
 

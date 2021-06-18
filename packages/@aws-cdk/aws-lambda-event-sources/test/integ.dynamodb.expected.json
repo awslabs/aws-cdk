@@ -99,8 +99,8 @@
             "StreamArn"
           ]
         },
-        "TumblingWindowInSeconds": 60,
-        "StartingPosition": "TRIM_HORIZON"
+        "StartingPosition": "TRIM_HORIZON",
+        "TumblingWindowInSeconds": 60
       }
     },
     "TD925BC7E": {

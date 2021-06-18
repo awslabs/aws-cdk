@@ -292,7 +292,6 @@ export interface DatabaseClusterAttributes {
  * A new or imported database cluster.
  */
 export abstract class DatabaseClusterBase extends Resource implements IDatabaseCluster {
-
   /**
    * Import an existing DatabaseCluster from properties
    */
@@ -369,7 +368,6 @@ export abstract class DatabaseClusterBase extends Resource implements IDatabaseC
  * @resource AWS::Neptune::DBCluster
  */
 export class DatabaseCluster extends DatabaseClusterBase implements IDatabaseCluster {
-
   /**
    * The default number of instances in the Neptune cluster if none are
    * specified

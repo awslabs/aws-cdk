@@ -99,7 +99,6 @@ export interface IQueue extends IResource {
  * Reference to a new or existing Amazon SQS queue
  */
 export abstract class QueueBase extends Resource implements IQueue {
-
   /**
    * The ARN of this queue
    */

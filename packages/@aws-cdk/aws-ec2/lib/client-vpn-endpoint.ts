@@ -372,8 +372,8 @@ export class ClientVpnEndpoint extends Resource implements IClientVpnEndpoint {
 }
 
 function renderAuthenticationOptions(
-  clientCertificateArn?: string,
-  userBasedAuthentication?: ClientVpnUserBasedAuthentication): CfnClientVpnEndpoint.ClientAuthenticationRequestProperty[] {
+    clientCertificateArn?: string,
+    userBasedAuthentication?: ClientVpnUserBasedAuthentication): CfnClientVpnEndpoint.ClientAuthenticationRequestProperty[] {
   const authenticationOptions: CfnClientVpnEndpoint.ClientAuthenticationRequestProperty[] = [];
 
   if (clientCertificateArn) {

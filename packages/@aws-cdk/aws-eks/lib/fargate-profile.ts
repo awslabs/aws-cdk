@@ -114,7 +114,6 @@ export interface Selector {
  * match a selector in that profile in order to be scheduled onto Fargate.
  */
 export class FargateProfile extends CoreConstruct implements ITaggable {
-
   /**
    * The full Amazon Resource Name (ARN) of the Fargate profile.
    *

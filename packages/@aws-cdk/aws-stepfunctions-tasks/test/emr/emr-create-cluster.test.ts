@@ -557,7 +557,6 @@ test('Create Cluster without Roles', () => {
       ],
     },
   });
-
 });
 
 test('Create Cluster with Instances configuration', () => {

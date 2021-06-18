@@ -372,5 +372,4 @@ export function typeDispatch<T>(resourceContext: CodeName, spec: schema.Property
   } else {
     return visitor.visitAtom(scalarTypes[0]);
   }
-
 }

@@ -45,7 +45,6 @@ export interface LambdaAuthorizerProps {
 }
 
 abstract class LambdaAuthorizer extends Authorizer implements IAuthorizer {
-
   /**
    * The id of the authorizer.
    * @attribute
@@ -158,7 +157,6 @@ export interface TokenAuthorizerProps extends LambdaAuthorizerProps {
  * @resource AWS::ApiGateway::Authorizer
  */
 export class TokenAuthorizer extends LambdaAuthorizer {
-
   public readonly authorizerId: string;
 
   public readonly authorizerArn: string;
@@ -216,7 +214,6 @@ export interface RequestAuthorizerProps extends LambdaAuthorizerProps {
  * @resource AWS::ApiGateway::Authorizer
  */
 export class RequestAuthorizer extends LambdaAuthorizer {
-
   public readonly authorizerId: string;
 
   public readonly authorizerArn: string;

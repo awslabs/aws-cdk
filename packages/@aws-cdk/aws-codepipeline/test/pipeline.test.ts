@@ -30,8 +30,6 @@ describe('', () => {
           ],
         },
       }));
-
-
     });
 
     test('can be imported by ARN', () => {
@@ -42,8 +40,6 @@ describe('', () => {
 
       expect(pipeline.pipelineArn).toEqual('arn:aws:codepipeline:us-east-1:123456789012:MyPipeline');
       expect(pipeline.pipelineName).toEqual('MyPipeline');
-
-
     });
 
     describe('that is cross-region', () => {
@@ -63,8 +59,6 @@ describe('', () => {
         expect(() => {
           sourceStage.addAction(sourceAction);
         }).toThrow(/Source action 'FakeSource' must be in the same region as the pipeline/);
-
-
       });
 
       test('allows passing an Alias in place of the KMS Key in the replication Bucket', () => {
@@ -171,8 +165,6 @@ describe('', () => {
             ],
           },
         });
-
-
       });
 
       test('generates ArtifactStores with the alias ARN as the KeyID', () => {
@@ -237,8 +229,6 @@ describe('', () => {
           'DeletionPolicy': 'Delete',
           'UpdateReplacePolicy': 'Delete',
         }, ResourcePart.CompleteDefinition);
-
-
       });
 
       test('allows passing an imported Bucket and Key for the replication Bucket', () => {
@@ -294,8 +284,6 @@ describe('', () => {
             },
           ],
         });
-
-
       });
 
       test('generates the support stack containing the replication Bucket without the need to bootstrap in that environment', () => {
@@ -334,8 +322,6 @@ describe('', () => {
           'arn:${AWS::Partition}:iam::123456789012:role/cdk-hnb659fds-deploy-role-123456789012-us-west-2');
         expect(supportStackArtifact.cloudFormationExecutionRoleArn).toEqual(
           'arn:${AWS::Partition}:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-west-2');
-
-
       });
     });
 
@@ -361,8 +347,6 @@ describe('', () => {
             account: cdk.Aws.ACCOUNT_ID,
           }));
         }).toThrow(/The 'account' property must be a concrete value \(action: 'FakeBuild'\)/);
-
-
       });
 
       test('does not allow an env-agnostic Pipeline Stack if an Action account has been provided', () => {
@@ -386,8 +370,6 @@ describe('', () => {
             account: '123456789012',
           }));
         }).toThrow(/Pipeline stack which uses cross-environment actions must have an explicitly set account/);
-
-
       });
     });
   });

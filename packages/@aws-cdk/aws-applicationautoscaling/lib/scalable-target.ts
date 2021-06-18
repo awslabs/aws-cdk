@@ -71,7 +71,6 @@ export interface ScalableTargetProps {
  * Define a scalable target
  */
 export class ScalableTarget extends Resource implements IScalableTarget {
-
   public static fromScalableTargetId(scope: Construct, id: string, scalableTargetId: string): IScalableTarget {
     class Import extends Resource implements IScalableTarget {
       public readonly scalableTargetId = scalableTargetId;

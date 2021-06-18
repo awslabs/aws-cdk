@@ -168,7 +168,6 @@ export class CloudFormationInit {
       assetHash: combineAssetHashesOrUndefined(Object.values(configNameToBindResult).map(c => c.assetHash)),
     };
   }
-
 }
 
 /**

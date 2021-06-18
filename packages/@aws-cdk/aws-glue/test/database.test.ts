@@ -26,7 +26,6 @@ test('default database does not create a bucket', () => {
       },
     },
   });
-
 });
 
 test('explicit locationURI', () => {
@@ -53,7 +52,6 @@ test('explicit locationURI', () => {
       },
     },
   });
-
 });
 
 test('fromDatabase', () => {

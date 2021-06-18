@@ -149,7 +149,6 @@ export enum VpnConnectionType {
  * @resource AWS::EC2::VPNGateway
  */
 export class VpnGateway extends Resource implements IVpnGateway {
-
   /**
    * The virtual private gateway Id
    */

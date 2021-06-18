@@ -195,8 +195,6 @@ describe('instance', () => {
     });
 
     expect(stack).toCountResources('Custom::LogRetention', 4);
-
-
   });
 
   test('throws when create database with specific AZ and multiAZ enabled', () => {
@@ -247,8 +245,6 @@ describe('instance', () => {
         Ref: 'OptionGroupACA43DC1',
       },
     });
-
-
   });
 
   test('can specify subnet type', () => {
@@ -280,8 +276,6 @@ describe('instance', () => {
         },
       ],
     });
-
-
   });
 
   describe('DatabaseInstanceFromSnapshot', () => {
@@ -296,8 +290,6 @@ describe('instance', () => {
       expect(stack).toHaveResource('AWS::RDS::DBInstance', {
         DBSnapshotIdentifier: 'my-snapshot',
       });
-
-
     });
 
     test('can generate a new snapshot password', () => {
@@ -327,8 +319,6 @@ describe('instance', () => {
           SecretStringTemplate: '{"username":"admin"}',
         },
       });
-
-
     });
 
     test('fromGeneratedSecret', () => {
@@ -348,8 +338,6 @@ describe('instance', () => {
           'Fn::Join': ['', ['{{resolve:secretsmanager:', { Ref: 'InstanceSecretB6DFA6BE8ee0a797cad8a68dbeb85f8698cdb5bb' }, ':SecretString:password::}}']],
         },
       });
-
-
     });
 
     test('throws if generating a new password without a username', () => {
@@ -359,8 +347,6 @@ describe('instance', () => {
         vpc,
         credentials: { generatePassword: true },
       })).toThrow(/`credentials` `username` must be specified when `generatePassword` is set to true/);
-
-
     });
 
     test('can set a new snapshot password from an existing SecretValue', () => {
@@ -376,8 +362,6 @@ describe('instance', () => {
         MasterUsername: ABSENT,
         MasterUserPassword: 'mysecretpassword',
       });
-
-
     });
 
     test('can set a new snapshot password from an existing Secret', () => {
@@ -398,8 +382,6 @@ describe('instance', () => {
           'Fn::Join': ['', ['{{resolve:secretsmanager:', { Ref: 'DBSecretD58955BC' }, ':SecretString:password::}}']],
         },
       });
-
-
     });
   });
 
@@ -435,8 +417,6 @@ describe('instance', () => {
         Ref: 'ReadReplicaSubnetGroup680C605C',
       },
     });
-
-
   });
 
   test('on event', () => {
@@ -497,8 +477,6 @@ describe('instance', () => {
         },
       ],
     });
-
-
   });
 
   test('on event without target', () => {
@@ -543,8 +521,6 @@ describe('instance', () => {
         ],
       },
     });
-
-
   });
 
   test('can use metricCPUUtilization', () => {
@@ -562,8 +538,6 @@ describe('instance', () => {
       period: cdk.Duration.minutes(5),
       statistic: 'Average',
     });
-
-
   });
 
   test('can resolve endpoint port and socket address', () => {
@@ -587,8 +561,6 @@ describe('instance', () => {
         ],
       ],
     });
-
-
   });
 
   test('can deactivate backup', () => {
@@ -603,8 +575,6 @@ describe('instance', () => {
     expect(stack).toHaveResource('AWS::RDS::DBInstance', {
       BackupRetentionPeriod: 0,
     });
-
-
   });
 
   test('imported instance with imported security group with allowAllOutbound set to false', () => {
@@ -624,8 +594,6 @@ describe('instance', () => {
     expect(stack).toHaveResource('AWS::EC2::SecurityGroupEgress', {
       GroupId: 'sg-123456789',
     });
-
-
   });
 
   test('create an instance with imported monitoring role', () => {
@@ -651,8 +619,6 @@ describe('instance', () => {
         'Fn::GetAtt': ['MonitoringRole90457BF9', 'Arn'],
       },
     }, ResourcePart.Properties);
-
-
   });
 
   test('create an instance with an existing security group', () => {
@@ -688,8 +654,6 @@ describe('instance', () => {
         ],
       },
     });
-
-
   });
 
   test('throws when trying to add rotation to an instance without secret', () => {
@@ -701,8 +665,6 @@ describe('instance', () => {
 
     // THEN
     expect(() => instance.addRotationSingleUser()).toThrow(/without secret/);
-
-
   });
 
   test('throws when trying to add single user rotation multiple times', () => {
@@ -718,8 +680,6 @@ describe('instance', () => {
 
     // THEN
     expect(() => instance.addRotationSingleUser()).toThrow(/A single user rotation was already added to this instance/);
-
-
   });
 
   test('throws when timezone is set for non-sqlserver database engine', () => {
@@ -744,8 +704,6 @@ describe('instance', () => {
         vpc,
       })).toThrow(/timezone property can not be configured for/);
     });
-
-
   });
 
   test('create an instance from snapshot with maximum allocated storage', () => {
@@ -762,8 +720,6 @@ describe('instance', () => {
       DBSnapshotIdentifier: 'my-snapshot',
       MaxAllocatedStorage: 200,
     });
-
-
   });
 
   test('create a DB instance with maximum allocated storage', () => {
@@ -780,8 +736,6 @@ describe('instance', () => {
       BackupRetentionPeriod: 0,
       MaxAllocatedStorage: 250,
     });
-
-
   });
 
   test('iam authentication - off by default', () => {
@@ -793,8 +747,6 @@ describe('instance', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
       EnableIAMDatabaseAuthentication: ABSENT,
     });
-
-
   });
 
   test('createGrant - creates IAM policy and enables IAM auth', () => {
@@ -822,8 +774,6 @@ describe('instance', () => {
         Version: '2012-10-17',
       },
     });
-
-
   });
 
   test('createGrant - throws if IAM auth disabled', () => {
@@ -837,8 +787,6 @@ describe('instance', () => {
     });
 
     expect(() => { instance.grantConnect(role); }).toThrow(/Cannot grant connect when IAM authentication is disabled/);
-
-
   });
 
   test('domain - sets domain property', () => {
@@ -855,8 +803,6 @@ describe('instance', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
       Domain: domain,
     });
-
-
   });
 
   test('domain - uses role if provided', () => {
@@ -876,8 +822,6 @@ describe('instance', () => {
       Domain: domain,
       DomainIAMRoleName: stack.resolve(role.roleName),
     });
-
-
   });
 
   test('domain - creates role if not provided', () => {
@@ -924,8 +868,6 @@ describe('instance', () => {
         },
       ],
     });
-
-
   });
 
   test('throws when domain is set for mariadb database engine', () => {
@@ -952,8 +894,6 @@ describe('instance', () => {
         vpc,
       })).toThrow(expectedError);
     });
-
-
   });
 
   describe('performance insights', () => {
@@ -971,8 +911,6 @@ describe('instance', () => {
         PerformanceInsightsRetentionPeriod: 731,
         PerformanceInsightsKMSKeyId: { 'Fn::GetAtt': ['Key961B73FD', 'Arn'] },
       });
-
-
     });
 
     test('setting performance insights fields enables performance insights', () => {
@@ -986,8 +924,6 @@ describe('instance', () => {
         EnablePerformanceInsights: true,
         PerformanceInsightsRetentionPeriod: 731,
       });
-
-
     });
 
     test('throws if performance insights fields are set but performance insights is disabled', () => {
@@ -999,8 +935,6 @@ describe('instance', () => {
           performanceInsightRetention: rds.PerformanceInsightRetention.DEFAULT,
         });
       }).toThrow(/`enablePerformanceInsights` disabled, but `performanceInsightRetention` or `performanceInsightEncryptionKey` was set/);
-
-
     });
   });
 
@@ -1015,8 +949,6 @@ describe('instance', () => {
       DBSubnetGroupName: 'my-subnet-group',
     });
     expect(stack).toCountResources('AWS::RDS::DBSubnetGroup', 0);
-
-
   });
 
   test('defaultChild returns the DB Instance', () => {
@@ -1027,8 +959,6 @@ describe('instance', () => {
 
     // THEN
     expect(instance.node.defaultChild instanceof rds.CfnDBInstance).toBeTruthy();
-
-
   });
 
   test("PostgreSQL database instance uses a different default master username than 'admin', which is a reserved word", () => {
@@ -1045,8 +975,6 @@ describe('instance', () => {
         SecretStringTemplate: '{"username":"postgres"}',
       },
     });
-
-
   });
 
   describe('S3 Import/Export', () => {
@@ -1103,8 +1031,6 @@ describe('instance', () => {
           Version: '2012-10-17',
         },
       });
-
-
     });
 
     test('throws if using s3 import on unsupported engine', () => {
@@ -1126,8 +1052,6 @@ describe('instance', () => {
           s3ImportRole,
         });
       }).toThrow(/Engine 'mysql-8.0.19' does not support S3 import/);
-
-
     });
 
     test('throws if using s3 export on unsupported engine', () => {
@@ -1149,8 +1073,6 @@ describe('instance', () => {
           s3ExportRole: s3ExportRole,
         });
       }).toThrow(/Engine 'mysql-8.0.19' does not support S3 export/);
-
-
     });
 
     test('throws if provided two different roles for import/export', () => {
@@ -1169,8 +1091,6 @@ describe('instance', () => {
           s3ExportRole,
         });
       }).toThrow(/S3 import and export roles must be the same/);
-
-
     });
   });
 
@@ -1198,8 +1118,6 @@ describe('instance', () => {
         ],
       },
     });
-
-
   });
 
   test('fromPassword', () => {
@@ -1270,8 +1188,6 @@ describe('instance', () => {
     expect(stack).toHaveResource('AWS::RDS::DBInstance', {
       PubliclyAccessible: false,
     });
-
-
   });
 
   test('can set publiclyAccessible to true with private subnets', () => {
@@ -1336,7 +1252,6 @@ describe('instance', () => {
       DBInstanceIdentifier: instanceIdentifier,
     });
   });
-
 });
 
 test.each([

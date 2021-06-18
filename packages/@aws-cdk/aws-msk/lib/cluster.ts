@@ -681,7 +681,6 @@ export class Cluster extends ClusterBase {
       });
     }
     return this._clusterBootstrapBrokers.getResponseField(responseField);
-
   }
   /**
    * Get the list of brokers that a client application can use to bootstrap

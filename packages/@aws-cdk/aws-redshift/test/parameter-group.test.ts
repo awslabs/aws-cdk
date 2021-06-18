@@ -25,5 +25,4 @@ test('create a cluster parameter group', () => {
       },
     ],
   }));
-
 });

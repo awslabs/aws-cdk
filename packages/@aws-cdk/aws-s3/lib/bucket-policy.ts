@@ -22,7 +22,6 @@ export interface BucketPolicyProps {
  * Applies an Amazon S3 bucket policy to an Amazon S3 bucket.
  */
 export class BucketPolicy extends Resource {
-
   /**
    * A policy document containing permissions to add to the specified bucket.
    * For more information, see Access Policy Language Overview in the Amazon
@@ -56,5 +55,4 @@ export class BucketPolicy extends Resource {
   public applyRemovalPolicy(removalPolicy: RemovalPolicy) {
     this.resource.applyRemovalPolicy(removalPolicy);
   }
-
 }

@@ -27,7 +27,6 @@ export abstract class Inspector {
 }
 
 export class StackInspector extends Inspector {
-
   private readonly template: { [key: string]: any };
 
   constructor(public readonly stack: api.CloudFormationStackArtifact | object) {

@@ -149,9 +149,9 @@ export const MOCK_PROPS = {
 export const MOCK_ASSUME_ROLE_ARN = 'assume:role:arn';
 
 export function newRequest<T extends 'Create' | 'Update' | 'Delete'>(
-  requestType: T,
-  props?: Partial<sdk.EKS.CreateClusterRequest>,
-  oldProps?: Partial<sdk.EKS.CreateClusterRequest>) {
+    requestType: T,
+    props?: Partial<sdk.EKS.CreateClusterRequest>,
+    oldProps?: Partial<sdk.EKS.CreateClusterRequest>) {
   return {
     StackId: 'fake-stack-id',
     RequestId: 'fake-request-id',

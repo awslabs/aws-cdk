@@ -25,7 +25,6 @@ test('bucket without notifications', () => {
 });
 
 test('notifications can be added to imported buckets', () => {
-
   const stack = new cdk.Stack();
 
   const bucket = s3.Bucket.fromBucketName(stack, 'MyBucket', 'mybucket');
@@ -50,7 +49,6 @@ test('notifications can be added to imported buckets', () => {
       ],
     },
   });
-
 });
 
 test('when notification are added, a custom resource is provisioned + a lambda handler for it', () => {

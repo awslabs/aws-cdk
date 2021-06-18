@@ -20,7 +20,6 @@ export interface KubectlProviderProps {
 }
 
 export class KubectlProvider extends NestedStack {
-
   public static getOrCreate(scope: Construct, cluster: ICluster) {
     // if this is an "owned" cluster, it has a provider associated with it
     if (cluster instanceof Cluster) {
@@ -112,5 +111,4 @@ export class KubectlProvider extends NestedStack {
     this.serviceToken = provider.serviceToken;
     this.roleArn = cluster.kubectlRole.roleArn;
   }
-
 }

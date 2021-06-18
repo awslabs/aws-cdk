@@ -2,7 +2,6 @@
  * A Condition for use in a Choice state branch
  */
 export abstract class Condition {
-
   /**
    * Matches if variable is present
    */

@@ -62,7 +62,6 @@ export async function invokeFunctionMock(req: AWS.Lambda.InvocationRequest): Pro
   const input = JSON.parse(req.Payload);
 
   try {
-
     let ret;
     switch (req.FunctionName) {
       case MOCK_ON_EVENT_FUNCTION_ARN:

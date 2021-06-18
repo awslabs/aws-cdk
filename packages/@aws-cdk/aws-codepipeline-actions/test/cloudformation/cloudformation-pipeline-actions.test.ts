@@ -196,7 +196,6 @@ nodeunitShim({
     }));
 
     test.done();
-
   },
 
   'fullPermissions leads to admin role and full IAM capabilities with pipeline bucket+key read permissions'(test: Test) {

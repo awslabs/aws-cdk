@@ -72,13 +72,13 @@
             ]
           }
         },
-        "Handler": "index.main",
         "Role": {
           "Fn::GetAtt": [
             "MyLambdaServiceRole4539ECB6",
             "Arn"
           ]
         },
+        "Handler": "index.main",
         "Runtime": "python3.8"
       },
       "DependsOn": [

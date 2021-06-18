@@ -448,7 +448,6 @@ describe('with intercepted network calls', () => {
         // THEN
         expect(needsRefresh).toHaveBeenCalled();
       });
-
     });
 
     test('can assume role with ec2 credentials', async () => {
@@ -466,9 +465,7 @@ describe('with intercepted network calls', () => {
 
         // THEN
         expect(needsRefresh).toHaveBeenCalled();
-
       });
-
     });
 
     test('can assume role with env credentials', async () => {

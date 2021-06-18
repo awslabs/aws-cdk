@@ -121,9 +121,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
     const call: AwsSdkCall | undefined = event.ResourceProperties[event.RequestType];
 
     if (call) {
-
       if (call.assumedRoleArn) {
-
         const timestamp = (new Date()).getTime();
 
         const params = {
@@ -134,7 +132,6 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         AWS.config.credentials = new AWS.ChainableTemporaryCredentials({
           params: params,
         });
-
       }
 
       const awsService = new (AWS as any)[call.service]({

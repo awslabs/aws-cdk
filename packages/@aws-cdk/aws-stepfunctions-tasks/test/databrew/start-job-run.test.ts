@@ -3,7 +3,6 @@ import * as cdk from '@aws-cdk/core';
 import { GlueDataBrewStartJobRun } from '../../lib/databrew/start-job-run';
 
 describe('Start Job Run', () => {
-
   test('default settings', () => {
     // GIVEN
     const stack = new cdk.Stack();

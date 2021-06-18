@@ -36,7 +36,6 @@ describe('image asset', () => {
         sourceHash: 'b2c69bfbfe983b634456574587443159b3b7258849856a118ad3d2772238f1a5',
       },
     ]);
-
   });
 
   testFutureBehavior('with build args', flags, App, (app) => {
@@ -52,7 +51,6 @@ describe('image asset', () => {
     // THEN
     const assetMetadata = stack.node.metadata.find(({ type }) => type === cxschema.ArtifactMetadataEntryType.ASSET);
     expect(assetMetadata && (assetMetadata.data as cxschema.ContainerImageAssetMetadataEntry).buildArgs).toEqual({ a: 'b' });
-
   });
 
   testFutureBehavior('with target', flags, App, (app) => {
@@ -69,7 +67,6 @@ describe('image asset', () => {
     // THEN
     const assetMetadata = stack.node.metadata.find(({ type }) => type === cxschema.ArtifactMetadataEntryType.ASSET);
     expect(assetMetadata && (assetMetadata.data as cxschema.ContainerImageAssetMetadataEntry).target).toEqual('a-target');
-
   });
 
   testFutureBehavior('with file', flags, App, (app) => {
@@ -85,7 +82,6 @@ describe('image asset', () => {
     // THEN
     const assetMetadata = stack.node.metadata.find(({ type }) => type === cxschema.ArtifactMetadataEntryType.ASSET);
     expect(assetMetadata && (assetMetadata.data as cxschema.ContainerImageAssetMetadataEntry).file).toEqual('Dockerfile.Custom');
-
   });
 
   testFutureBehavior('asset.repository.grantPull can be used to grant a principal permissions to use the image', flags, App, (app) => {
@@ -146,8 +142,6 @@ describe('image asset', () => {
         },
       ],
     }));
-
-
   });
 
   test('fails if the directory does not exist', () => {
@@ -158,7 +152,6 @@ describe('image asset', () => {
         directory: `/does/not/exist/${Math.floor(Math.random() * 9999)}`,
       });
     }).toThrow(/Cannot find image directory at/);
-
   });
 
   test('fails if the directory does not contain a Dockerfile', () => {
@@ -169,7 +162,6 @@ describe('image asset', () => {
         directory: __dirname,
       });
     }).toThrow(/Cannot find file at/);
-
   });
 
   test('fails if the file does not exist', () => {
@@ -181,7 +173,6 @@ describe('image asset', () => {
         file: 'doesnt-exist',
       });
     }).toThrow(/Cannot find file at/);
-
   });
 
   testFutureBehavior('docker directory is staged if asset staging is enabled', flags, App, (app) => {
@@ -194,7 +185,6 @@ describe('image asset', () => {
 
     expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'Dockerfile'))).toBeDefined();
     expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'index.py'))).toBeDefined();
-
   });
 
   testFutureBehavior('docker directory is staged without files specified in .dockerignore', flags, App, (app) => {
@@ -224,8 +214,6 @@ describe('image asset', () => {
     expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'one'))).toBeDefined();
     expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'some_dep'))).toBeDefined();
     expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'node_modules', 'some_dep', 'file'))).toBeDefined();
-
-
   });
 
   testFutureBehavior('docker directory is staged without files specified in exclude option', flags, App, (app) => {
@@ -252,8 +240,6 @@ describe('image asset', () => {
       directory: path.join(__dirname, 'demo-image'),
       buildArgs: { key: token },
     })).toThrow(expected);
-
-
   });
 
   test('fails if using token as repositoryName', () => {
@@ -266,8 +252,6 @@ describe('image asset', () => {
       directory: path.join(__dirname, 'demo-image'),
       repositoryName: token,
     })).toThrow(/Cannot use Token as value of 'repositoryName'/);
-
-
   });
 
   testFutureBehavior('docker build options are included in the asset id', flags, App, (app) => {
@@ -290,7 +274,6 @@ describe('image asset', () => {
     expect(asset5.assetHash).toEqual('5775170880e26ba31799745241b90d4340c674bb3b1c01d758e416ee3f1c386f');
     expect(asset6.assetHash).toEqual('ba82fd351a4d3e3f5c5d948b9948e7e829badc3da90f97e00bb7724afbeacfd4');
     expect(asset7.assetHash).toEqual('26ec194928431cab6ec5af24ea9f01af2cf7b20e361128b07b2a7405d2951f95');
-
   });
 });
 
@@ -310,8 +293,6 @@ function testDockerDirectoryIsStagedWithoutFilesSpecifiedInDockerignore(app: App
   expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'foobar.txt'))).toBeDefined();
   expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory'))).toBeDefined();
   expect(fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
-
-
 }
 
 function testDockerDirectoryIsStagedWithoutFilesSpecifiedInExcludeOption(app: App, ignoreMode?: IgnoreMode) {
@@ -330,8 +311,6 @@ function testDockerDirectoryIsStagedWithoutFilesSpecifiedInExcludeOption(app: Ap
   expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'foobar.txt'))).toBeDefined();
   expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory'))).toBeDefined();
   expect(!fs.existsSync(path.join(session.directory, `asset.${image.assetHash}`, 'subdirectory', 'baz.txt'))).toBeDefined();
-
-
 }
 
 testFutureBehavior('nested assemblies share assets: legacy synth edition', flags, App, (app) => {

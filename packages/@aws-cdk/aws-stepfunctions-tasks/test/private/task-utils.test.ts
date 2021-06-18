@@ -24,7 +24,6 @@ describe('Task utils', () => {
   });
 
   describe('integration resource Arn', () => {
-
     let service: string;
     let api: string;
     let stack: cdk.Stack;
@@ -97,5 +96,4 @@ describe('Task utils', () => {
       }).toThrow(/Both 'service' and 'api' must be provided to build the resource ARN./);
     });
   });
-
 });

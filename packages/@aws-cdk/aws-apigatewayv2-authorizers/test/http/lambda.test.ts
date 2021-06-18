@@ -6,7 +6,6 @@ import { Duration, Stack } from '@aws-cdk/core';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '../../lib';
 
 describe('HttpLambdaAuthorizer', () => {
-
   test('default', () => {
     // GIVEN
     const stack = new Stack();

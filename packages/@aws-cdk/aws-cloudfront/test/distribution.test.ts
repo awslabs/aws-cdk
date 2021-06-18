@@ -142,7 +142,6 @@ ellipsis so a user would know there was more to ...`,
 });
 
 describe('multiple behaviors', () => {
-
   test('a second behavior can\'t be specified with the catch-all path pattern', () => {
     const origin = defaultOrigin();
 
@@ -296,7 +295,6 @@ describe('multiple behaviors', () => {
 });
 
 describe('certificates', () => {
-
   test('should fail if using an imported certificate from outside of us-east-1', () => {
     const origin = defaultOrigin();
     const certificate = acm.Certificate.fromCertificateArn(stack, 'Cert', 'arn:aws:acm:eu-west-1:123456789012:certificate/12345678-1234-1234-1234-123456789012');
@@ -368,11 +366,9 @@ describe('certificates', () => {
       },
     });
   });
-
 });
 
 describe('custom error responses', () => {
-
   test('should fail if only the error code is provided', () => {
     const origin = defaultOrigin();
 
@@ -427,7 +423,6 @@ describe('custom error responses', () => {
       },
     });
   });
-
 });
 
 describe('logging', () => {
@@ -731,7 +726,6 @@ describe('with Lambda@Edge functions', () => {
 });
 
 describe('with CloudFront functions', () => {
-
   test('can add a CloudFront function to the default behavior', () => {
     new Distribution(stack, 'MyDist', {
       defaultBehavior: {
@@ -765,7 +759,6 @@ describe('with CloudFront functions', () => {
       },
     });
   });
-
 });
 
 test('price class is included if provided', () => {

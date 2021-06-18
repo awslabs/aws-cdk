@@ -95,14 +95,14 @@
     "StackPublicSubnet1NATGatewayD2E1ABF7": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "StackPublicSubnet1Subnet0AD81D22"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "StackPublicSubnet1EIPBDAAB2A5",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "StackPublicSubnet1Subnet0AD81D22"
         },
         "Tags": [
           {
@@ -192,14 +192,14 @@
     "StackPublicSubnet2NATGatewayA8E03AB3": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "StackPublicSubnet2Subnet3C7D2288"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "StackPublicSubnet2EIP8CDBC8C2",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "StackPublicSubnet2Subnet3C7D2288"
         },
         "Tags": [
           {

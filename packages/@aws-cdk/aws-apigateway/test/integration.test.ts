@@ -20,7 +20,6 @@ describe('integration', () => {
         credentialsRole: role,
       },
     })).toThrow(/'credentialsPassthrough' and 'credentialsRole' are mutually exclusive/);
-
   });
 
   test('integration connectionType VpcLink requires vpcLink to be set', () => {
@@ -31,7 +30,6 @@ describe('integration', () => {
         connectionType: apigw.ConnectionType.VPC_LINK,
       },
     })).toThrow(/'connectionType' of VPC_LINK requires 'vpcLink' prop to be set/);
-
   });
 
   test('uri is self determined from the NLB', () => {
@@ -186,7 +184,6 @@ describe('integration', () => {
   });
 
   test('validates timeout is valid', () => {
-
     expect(() => new apigw.Integration({
       type: apigw.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'ANY',
@@ -205,7 +202,6 @@ describe('integration', () => {
   });
 
   test('sets timeout', () => {
-
     // GIVEN
     const stack = new cdk.Stack();
     const api = new apigw.RestApi(stack, 'restapi');
@@ -227,7 +223,5 @@ describe('integration', () => {
         TimeoutInMillis: 1000,
       },
     });
-
   });
-
 });

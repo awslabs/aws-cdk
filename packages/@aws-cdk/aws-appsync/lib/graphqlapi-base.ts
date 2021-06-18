@@ -137,7 +137,6 @@ export interface IGraphqlApi extends IResource {
  * Base Class for GraphQL API
  */
 export abstract class GraphqlApiBase extends Resource implements IGraphqlApi {
-
   /**
    * an unique AWS AppSync GraphQL API identifier
    * i.e. 'lxz775lwdrgcndgz3nurvac7oa'

@@ -15,12 +15,11 @@ import { print, warning } from './logging';
  * @returns the count of differences that were rendered.
  */
 export function printStackDiff(
-  oldTemplate: any,
-  newTemplate: cxapi.CloudFormationStackArtifact,
-  strict: boolean,
-  context: number,
-  stream?: cfnDiff.FormatStream): number {
-
+    oldTemplate: any,
+    newTemplate: cxapi.CloudFormationStackArtifact,
+    strict: boolean,
+    context: number,
+    stream?: cfnDiff.FormatStream): number {
   const diff = cfnDiff.diffTemplate(oldTemplate, newTemplate.template);
 
   // filter out 'AWS::CDK::Metadata' resources from the template

@@ -311,7 +311,6 @@ export class CloudAssemblyBuilder {
    * @param options
    */
   public buildAssembly(options: AssemblyBuildOptions = { }): CloudAssembly {
-
     // explicitly initializing this type will help us detect
     // breaking changes. (For example adding a required property will break compilation).
     let manifest: cxschema.AssemblyManifest = {

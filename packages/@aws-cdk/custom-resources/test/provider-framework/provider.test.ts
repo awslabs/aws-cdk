@@ -10,7 +10,6 @@ import * as util from '../../lib/provider-framework/util';
 import '@aws-cdk/assert-internal/jest';
 
 test('security groups are applied to all framework functions', () => {
-
   // GIVEN
   const stack = new Stack();
 
@@ -75,11 +74,9 @@ test('security groups are applied to all framework functions', () => {
       ],
     },
   });
-
 });
 
 test('vpc is applied to all framework functions', () => {
-
   // GIVEN
   const stack = new Stack();
 
@@ -130,7 +127,6 @@ test('vpc is applied to all framework functions', () => {
       ],
     },
   });
-
 });
 
 test('minimal setup', () => {

@@ -219,5 +219,4 @@ export class ResponseType {
   private constructor(type: string) {
     this.responseType = type;
   }
-
 }

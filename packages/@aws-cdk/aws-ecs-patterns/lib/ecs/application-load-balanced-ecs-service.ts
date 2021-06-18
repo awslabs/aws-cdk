@@ -69,7 +69,6 @@ export interface ApplicationLoadBalancedEc2ServiceProps extends ApplicationLoadB
  * An EC2 service running on an ECS cluster fronted by an application load balancer.
  */
 export class ApplicationLoadBalancedEc2Service extends ApplicationLoadBalancedServiceBase {
-
   /**
    * The EC2 service in this construct.
    */

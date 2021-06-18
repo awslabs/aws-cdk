@@ -120,7 +120,6 @@ function renderFirelensConfig(firelensConfig: FirelensConfig): CfnTaskDefinition
       },
     };
   }
-
 }
 
 /**
@@ -188,7 +187,6 @@ export function obtainDefaultFluentBitECRImage(task: TaskDefinition, logDriverCo
  * Firelens log router
  */
 export class FirelensLogRouter extends ContainerDefinition {
-
   /**
    * Firelens configuration
    */

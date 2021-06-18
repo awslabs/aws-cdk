@@ -111,11 +111,11 @@ function getModuleSpecifier(node: ts.Node): Import | undefined {
 }
 
 function extractConstructImport(
-  moduleSpecifier: ts.StringLiteral,
-  importedValue: ts.Identifier | ts.NodeArray<ts.ImportSpecifier> | undefined,
-  node: ts.Node,
-  sourceFile: ts.SourceFile,
-  replacements: Replacement[],
+    moduleSpecifier: ts.StringLiteral,
+    importedValue: ts.Identifier | ts.NodeArray<ts.ImportSpecifier> | undefined,
+    node: ts.Node,
+    sourceFile: ts.SourceFile,
+    replacements: Replacement[],
 ): { searchName: string, replacementName: string } | undefined {
   if (moduleSpecifier.text === '@aws-cdk/core' && importedValue) {
     let constructImport: { searchName: string, replacementName: string, newImport: string } | undefined;
@@ -138,9 +138,9 @@ function extractConstructImport(
 }
 
 function extractBarrelConstructImport(
-  importedNames: ts.NodeArray<ts.ImportSpecifier>,
-  sourceFile: ts.SourceFile,
-  replacements: Replacement[],
+    importedNames: ts.NodeArray<ts.ImportSpecifier>,
+    sourceFile: ts.SourceFile,
+    replacements: Replacement[],
 ): { searchName: string, replacementName: string, newImport: string } | undefined {
   // if the imported name is an alias (`{ Construct as CoreConstruct }`), then `name` holds the alias and `propertyName` holds the original name
   // if the imported name is not an alias (`{ Construct }`), then `name` holds the original name and `propertyName` is `undefined`
@@ -179,8 +179,8 @@ function extractBarrelConstructImport(
 }
 
 function extractNamespaceConstructImport(
-  constructNamespace: ts.Identifier,
-  node: ts.Node,
+    constructNamespace: ts.Identifier,
+    node: ts.Node,
 ): { searchName: string, replacementName: string, newImport: string } | undefined {
   const searchName = `${(constructNamespace as ts.Identifier).text}.Construct`;
   const replacementName = 'constructs.Construct';
@@ -258,10 +258,10 @@ function updatedLocationOf(modulePath: string): string | undefined {
 }
 
 function replaceConstruct(
-  { searchName, replacementName }: { searchName: string, replacementName: string },
-  node: ts.Node,
-  sourceFile: ts.SourceFile,
-  replacements: Replacement[],
+    { searchName, replacementName }: { searchName: string, replacementName: string },
+    node: ts.Node,
+    sourceFile: ts.SourceFile,
+    replacements: Replacement[],
 ) {
   if ((ts.isTypeReferenceNode(node) || ts.isPropertyAccessExpression(node)) && node.getText(sourceFile) === searchName) {
     replacements.push({ original: node, updated: replacementName });

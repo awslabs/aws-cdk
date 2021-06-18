@@ -51,13 +51,13 @@
         "Code": {
           "ZipFile": "def main(event, context):\n    import logging as log\n    import cfnresponse\n    log.getLogger().setLevel(log.INFO)\n\n    # This needs to change if there are to be multiple resources in the same stack\n    physical_id = 'TheOnlyCustomResource'\n\n    try:\n        log.info('Input event: %s', event)\n\n        # Check if this is a Create and we're failing Creates\n        if event['RequestType'] == 'Create' and event['ResourceProperties'].get('FailCreate', False):\n            raise RuntimeError('Create failure requested')\n\n        # Do the thing\n        message = event['ResourceProperties']['Message']\n        attributes = {\n            'Response': 'You said \"%s\"' % message\n        }\n\n        cfnresponse.send(event, context, cfnresponse.SUCCESS, attributes, physical_id)\n    except Exception as e:\n        log.exception(e)\n        # cfnresponse's error message is always \"see CloudWatch\"\n        cfnresponse.send(event, context, cfnresponse.FAILED, {}, physical_id)\n"
         },
-        "Handler": "index.main",
         "Role": {
           "Fn::GetAtt": [
             "SingletonLambdaf7d4f7304ee111e89c2dfa7ae01bbebcServiceRoleFE9ABB04",
             "Arn"
           ]
         },
+        "Handler": "index.main",
         "Runtime": "python2.7",
         "Timeout": 300
       },

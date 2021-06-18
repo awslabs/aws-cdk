@@ -45,8 +45,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     testFutureBehavior('grant the pipeline correct access to the target bucket', { [cxapi.S3_GRANT_WRITE_WITHOUT_ACL]: true }, App, (app) => {
@@ -75,8 +73,6 @@ describe('', () => {
           ],
         },
       });
-
-
     });
 
     test('kebab-case CannedACL value', () => {
@@ -99,8 +95,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test('allow customizing cache-control', () => {
@@ -127,8 +121,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test('allow customizing objectKey (deployment path on S3)', () => {
@@ -151,8 +143,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test('correctly makes the action cross-region for a Bucket imported with a different region', () => {
@@ -183,8 +173,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
   });
 });

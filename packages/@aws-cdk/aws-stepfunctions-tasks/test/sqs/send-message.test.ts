@@ -235,5 +235,4 @@ describe('SqsSendMessage', () => {
       });
     }).toThrow(/Unsupported service integration pattern. Supported Patterns: REQUEST_RESPONSE,WAIT_FOR_TASK_TOKEN. Received: RUN_JOB/);
   });
-
 });

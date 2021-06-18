@@ -161,7 +161,6 @@ abstract class EventBusBase extends Resource implements IEventBus {
  * @resource AWS::Events::EventBus
  */
 export class EventBus extends EventBusBase {
-
   /**
    * Import an existing event bus resource
    * @param scope Parent construct

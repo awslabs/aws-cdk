@@ -20,8 +20,8 @@ import { debugModeEnabled } from './debug';
  * @returns the captured stack trace, as an array of stack frames.
  */
 export function captureStackTrace(
-  below: Function = captureStackTrace,
-  limit = Number.MAX_SAFE_INTEGER,
+    below: Function = captureStackTrace,
+    limit = Number.MAX_SAFE_INTEGER,
 ): string[] {
   if (!debugModeEnabled()) {
     return ['stack traces disabled'];

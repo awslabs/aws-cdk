@@ -11,7 +11,6 @@ import { IParameterGroup } from './parameter-group';
  * used for defining {@link DatabaseInstanceProps.instanceType}.
  */
 export class InstanceType {
-
   /**
    * db.r5.large
    */
@@ -198,7 +197,6 @@ export interface DatabaseInstanceProps {
  * @resource AWS::Neptune::DBInstance
  */
 export class DatabaseInstance extends cdk.Resource implements IDatabaseInstance {
-
   /**
    * Import an existing database instance.
    */

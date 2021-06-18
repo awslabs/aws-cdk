@@ -3,10 +3,10 @@
     "MyCnVpcEndpointService7463420F": {
       "Type": "AWS::EC2::VPCEndpointService",
       "Properties": {
+        "AcceptanceRequired": false,
         "NetworkLoadBalancerArns": [
           "arn:aws-cn:elasticloadbalancing:cn-north-1:123456789012:loadbalancer/net/Test/9bn6qkf4e9jrw77a"
-        ],
-        "AcceptanceRequired": false
+        ]
       }
     }
   },

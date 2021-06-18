@@ -24,7 +24,6 @@ export interface KubectlLayerProps {
  * @see https://github.com/aws-samples/aws-lambda-layer-kubectl
  */
 export class KubectlLayer extends Resource implements lambda.ILayerVersion {
-
   /**
    * Gets or create a singleton instance of this construct.
    */

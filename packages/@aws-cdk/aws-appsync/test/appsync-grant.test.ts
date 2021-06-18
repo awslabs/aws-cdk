@@ -25,7 +25,6 @@ beforeEach(() => {
 });
 
 describe('grant Permissions', () => {
-
   test('IamResource throws error when custom is called with no arguments', () => {
     //THEN
     expect(() => {
@@ -252,7 +251,6 @@ describe('grant Permissions', () => {
 });
 
 describe('grantMutation Permissions', () => {
-
   test('grantMutation provides Mutation/* permissions when called with no `fields` argument', () => {
     // WHEN
     api.grantMutation(role);
@@ -357,7 +355,6 @@ describe('grantMutation Permissions', () => {
 });
 
 describe('grantQuery Permissions', () => {
-
   test('grantQuery provides Query/* permissions when called without the `fields` argument', () => {
     // WHEN
     api.grantQuery(role);
@@ -462,7 +459,6 @@ describe('grantQuery Permissions', () => {
 });
 
 describe('grantSubscription Permissions', () => {
-
   test('grantSubscription provides Subscription/* permissions when called without `fields` argument', () => {
     // WHEN
     api.grantSubscription(role);

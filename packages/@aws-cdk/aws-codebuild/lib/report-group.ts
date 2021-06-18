@@ -99,7 +99,6 @@ export interface ReportGroupProps {
  * The ReportGroup resource class.
  */
 export class ReportGroup extends ReportGroupBase {
-
   /**
    * Reference an existing ReportGroup,
    * defined outside of the CDK code,

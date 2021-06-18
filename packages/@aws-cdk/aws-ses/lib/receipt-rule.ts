@@ -108,7 +108,6 @@ export interface ReceiptRuleProps extends ReceiptRuleOptions {
  * A new receipt rule.
  */
 export class ReceiptRule extends Resource implements IReceiptRule {
-
   public static fromReceiptRuleName(scope: Construct, id: string, receiptRuleName: string): IReceiptRule {
     class Import extends Resource implements IReceiptRule {
       public readonly receiptRuleName = receiptRuleName;

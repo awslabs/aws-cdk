@@ -33,7 +33,6 @@ beforeEach(() => {
 });
 
 describe('basic testing schema definition mode `code`', () => {
-
   test('definition mode `code` produces empty schema definition', () => {
     // WHEN
     new appsync.GraphqlApi(stack, 'API', {
@@ -177,7 +176,6 @@ describe('basic testing schema definition mode `code`', () => {
 });
 
 describe('testing schema definition mode `file`', () => {
-
   test('definition mode `file` produces correct output', () => {
     // WHEN
     new appsync.GraphqlApi(stack, 'API', {

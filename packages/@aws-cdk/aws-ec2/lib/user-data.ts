@@ -124,7 +124,6 @@ export abstract class UserData {
    * Adds a command which will send a cfn-signal when the user data script ends
    */
   public abstract addSignalOnExitCommand( resource: Resource ): void;
-
 }
 
 /**

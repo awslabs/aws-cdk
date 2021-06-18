@@ -9,7 +9,6 @@ import { CfnEventSourceMapping } from './lambda.generated';
  * @see https://docs.aws.amazon.com/lambda/latest/dg/API_SourceAccessConfiguration.html#SSS-Type-SourceAccessConfiguration-Type
  */
 export class SourceAccessConfigurationType {
-
   /**
    * (MQ) The Secrets Manager secret that stores your broker credentials.
    */
@@ -241,7 +240,6 @@ export interface IEventSourceMapping extends cdk.IResource {
  * modify the Lambda's execution role so it can consume messages from the queue.
  */
 export class EventSourceMapping extends cdk.Resource implements IEventSourceMapping {
-
   /**
    * Import an event source into this stack from its event source id.
    */

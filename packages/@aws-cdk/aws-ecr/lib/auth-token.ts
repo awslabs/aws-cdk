@@ -27,7 +27,6 @@ export class AuthorizationToken {
  * @see https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth
  */
 export class PublicGalleryAuthorizationToken {
-
   /**
    * Grant access to retrieve an authorization token.
    */
@@ -42,5 +41,4 @@ export class PublicGalleryAuthorizationToken {
 
   private constructor() {
   }
-
 }

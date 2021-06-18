@@ -103,7 +103,6 @@ function calculateTemplateDiff(currentTemplate: { [key: string]: any }, newTempl
     const handler: DiffHandler = DIFF_HANDLERS[key]
                   || ((_diff, oldV, newV) => unknown[key] = impl.diffUnknown(oldV, newV));
     handler(differences, oldValue, newValue);
-
   }
   if (Object.keys(unknown).length > 0) { differences.unknown = new types.DifferenceCollection(unknown); }
 

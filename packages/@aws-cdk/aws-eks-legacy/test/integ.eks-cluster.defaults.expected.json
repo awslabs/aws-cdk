@@ -108,14 +108,14 @@
     "ClusterDefaultVpcPublicSubnet1NATGateway6E21013E": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "ClusterDefaultVpcPublicSubnet1Subnet3BFE1BDA"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "ClusterDefaultVpcPublicSubnet1EIP498E2BD2",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "ClusterDefaultVpcPublicSubnet1Subnet3BFE1BDA"
         },
         "Tags": [
           {
@@ -221,14 +221,14 @@
     "ClusterDefaultVpcPublicSubnet2NATGateway4AF4B728": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "ClusterDefaultVpcPublicSubnet2SubnetC4E9A966"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "ClusterDefaultVpcPublicSubnet2EIP265F4810",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "ClusterDefaultVpcPublicSubnet2SubnetC4E9A966"
         },
         "Tags": [
           {
@@ -334,14 +334,14 @@
     "ClusterDefaultVpcPublicSubnet3NATGatewayEF4BA49A": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "ClusterDefaultVpcPublicSubnet3Subnet1A46184A"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "ClusterDefaultVpcPublicSubnet3EIP0CBF6D05",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "ClusterDefaultVpcPublicSubnet3Subnet1A46184A"
         },
         "Tags": [
           {
@@ -775,14 +775,13 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "ClusterResourceHandlerServiceRole7FB16465",
             "Arn"
           ]
         },
-        "Runtime": "python3.7",
+        "Handler": "index.handler",
         "Layers": [
           {
             "Fn::GetAtt": [
@@ -792,6 +791,7 @@
           }
         ],
         "MemorySize": 512,
+        "Runtime": "python3.7",
         "Timeout": 900
       },
       "DependsOn": [
@@ -891,14 +891,12 @@
             ]
           }
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "ClusterResourceHandlerServiceRole7FB16465",
             "Arn"
           ]
         },
-        "Runtime": "python3.7",
         "Environment": {
           "Variables": {
             "CLUSTER_NAME": {
@@ -906,6 +904,7 @@
             }
           }
         },
+        "Handler": "index.handler",
         "Layers": [
           {
             "Fn::GetAtt": [
@@ -915,6 +914,7 @@
           }
         ],
         "MemorySize": 256,
+        "Runtime": "python3.7",
         "Timeout": 900
       },
       "DependsOn": [

@@ -1,6 +1,6 @@
 import '@aws-cdk/assert-internal/jest';
-import { Stack, Tags } from '@aws-cdk/core';
 import * as iam from '@aws-cdk/aws-iam';
+import { Stack, Tags } from '@aws-cdk/core';
 import * as servicecatalog from '../lib';
 
 describe('Portfolio', () => {

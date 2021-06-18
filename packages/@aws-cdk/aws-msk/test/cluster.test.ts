@@ -64,7 +64,6 @@ describe('MSK Cluster', () => {
   describe('created with authentication enabled', () => {
     describe('with tls auth', () => {
       test('fails if client broker encryption is set to plaintext', () => {
-
         expect(() => new msk.Cluster(stack, 'Cluster', {
           clusterName: 'cluster',
           kafkaVersion: msk.KafkaVersion.V2_6_1,

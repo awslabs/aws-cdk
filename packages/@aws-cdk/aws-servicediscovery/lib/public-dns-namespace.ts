@@ -27,7 +27,6 @@ export interface PublicDnsNamespaceAttributes {
  * Define a Public DNS Namespace
  */
 export class PublicDnsNamespace extends Resource implements IPublicDnsNamespace {
-
   public static fromPublicDnsNamespaceAttributes(scope: Construct, id: string, attrs: PublicDnsNamespaceAttributes): IPublicDnsNamespace {
     class Import extends Resource implements IPublicDnsNamespace {
       public namespaceName = attrs.namespaceName;

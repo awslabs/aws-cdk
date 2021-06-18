@@ -149,7 +149,6 @@ export interface TableProps {
  * A Glue table.
  */
 export class Table extends Resource implements ITable {
-
   public static fromTableArn(scope: Construct, id: string, tableArn: string): ITable {
     const tableName = Fn.select(1, Fn.split('/', Stack.of(scope).parseArn(tableArn).resourceName!));
 

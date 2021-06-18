@@ -4,7 +4,6 @@ import { BootstrapOptions, ICluster, Cluster } from './cluster';
 
 // eslint-disable-next-line max-len
 export function renderAmazonLinuxUserData(cluster: Cluster, autoScalingGroup: autoscaling.AutoScalingGroup, options: BootstrapOptions = {}): string[] {
-
   const stack = Stack.of(autoScalingGroup);
 
   // determine logical id of ASG so we can signal cloudformation

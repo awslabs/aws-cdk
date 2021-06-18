@@ -293,8 +293,7 @@ function roleFromPlaceholderArn(scope: Construct, region: string | undefined,
 function roleFromPlaceholderArn(scope: Construct, region: string | undefined,
   account: string | undefined, arn: string | undefined): iam.IRole | undefined;
 function roleFromPlaceholderArn(scope: Construct, region: string | undefined,
-  account: string | undefined, arn: string | undefined): iam.IRole | undefined {
-
+    account: string | undefined, arn: string | undefined): iam.IRole | undefined {
   if (!arn) { return undefined; }
 
   // Use placeholdered arn as construct ID.

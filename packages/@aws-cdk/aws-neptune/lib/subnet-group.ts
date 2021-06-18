@@ -59,7 +59,6 @@ export interface SubnetGroupProps {
  * @resource AWS::Neptune::DBSubnetGroup
  */
 export class SubnetGroup extends Resource implements ISubnetGroup {
-
   /**
    * Imports an existing subnet group by name.
    */

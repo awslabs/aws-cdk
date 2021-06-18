@@ -193,7 +193,6 @@ abstract class SlackChannelConfigurationBase extends cdk.Resource implements ISl
  * A new Slack channel configuration
  */
 export class SlackChannelConfiguration extends SlackChannelConfigurationBase {
-
   /**
    * Import an existing Slack channel configuration provided an ARN
    * @param scope The parent creating construct
@@ -211,7 +210,6 @@ export class SlackChannelConfiguration extends SlackChannelConfigurationBase {
     }
 
     class Import extends SlackChannelConfigurationBase {
-
       /**
        * @attribute
        */

@@ -27,7 +27,6 @@ export interface HttpNamespaceAttributes {
  * Define an HTTP Namespace
  */
 export class HttpNamespace extends Resource implements IHttpNamespace {
-
   public static fromHttpNamespaceAttributes(scope: Construct, id: string, attrs: HttpNamespaceAttributes): IHttpNamespace {
     class Import extends Resource implements IHttpNamespace {
       public namespaceName = attrs.namespaceName;

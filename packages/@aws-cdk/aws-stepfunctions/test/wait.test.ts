@@ -75,5 +75,4 @@ describe('Wait State', () => {
       },
     });
   });
-
 });

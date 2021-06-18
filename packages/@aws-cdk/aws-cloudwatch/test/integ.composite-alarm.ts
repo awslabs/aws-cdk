@@ -2,7 +2,6 @@ import { App, Stack, StackProps } from '@aws-cdk/core';
 import { Alarm, AlarmRule, AlarmState, CompositeAlarm, Metric } from '../lib';
 
 class CompositeAlarmIntegrationTest extends Stack {
-
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -59,7 +58,6 @@ class CompositeAlarmIntegrationTest extends Stack {
       alarmRule,
     });
   }
-
 }
 
 const app = new App();

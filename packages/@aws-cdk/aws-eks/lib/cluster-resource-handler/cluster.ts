@@ -114,7 +114,6 @@ export class ClusterResourceHandler extends ResourceHandler {
     // a new cluster with the new config. The old cluster will automatically be
     // deleted by cloudformation upon success.
     if (updates.replaceName || updates.replaceRole || updates.replaceVpc) {
-
       // if we are replacing this cluster and the cluster has an explicit
       // physical name, the creation of the new cluster will fail with "there is
       // already a cluster with that name". this is a common behavior for
@@ -270,7 +269,6 @@ export class ClusterResourceHandler extends ResourceHandler {
 }
 
 function parseProps(props: any): aws.EKS.CreateClusterRequest {
-
   const parsed = props?.Config ?? { };
 
   // this is weird but these boolean properties are passed by CFN as a string, and we need them to be booleanic for the SDK.
@@ -285,7 +283,6 @@ function parseProps(props: any): aws.EKS.CreateClusterRequest {
   }
 
   return parsed;
-
 }
 
 interface UpdateMap {

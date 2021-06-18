@@ -87,7 +87,6 @@ export interface ApplicationMultipleTargetGroupsFargateServiceProps extends Appl
  * A Fargate service running on an ECS cluster fronted by an application load balancer.
  */
 export class ApplicationMultipleTargetGroupsFargateService extends ApplicationMultipleTargetGroupsServiceBase {
-
   /**
    * Determines whether the service will be assigned a public IP address.
    */

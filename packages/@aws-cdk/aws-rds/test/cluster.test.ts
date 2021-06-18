@@ -500,8 +500,6 @@ describe('cluster', () => {
       Engine: 'aurora-postgresql',
       EngineVersion: '10.7',
     });
-
-
   });
 
   test('cluster exposes different read and write endpoints', () => {
@@ -558,8 +556,6 @@ describe('cluster', () => {
     });
 
     expect(cluster.clusterIdentifier).toEqual('identifier');
-
-
   });
 
   test('minimal imported cluster throws on accessing attributes for unprovided parameters', () => {
@@ -620,8 +616,6 @@ describe('cluster', () => {
       account: '12345',
       region: 'us-test-1',
     });
-
-
   });
 
   test('cluster with enabled monitoring', () => {
@@ -679,8 +673,6 @@ describe('cluster', () => {
         },
       ],
     });
-
-
   });
 
   test('create a cluster with imported monitoring role', () => {
@@ -717,8 +709,6 @@ describe('cluster', () => {
         'Fn::GetAtt': ['MonitoringRole90457BF9', 'Arn'],
       },
     }, ResourcePart.Properties);
-
-
   });
 
   test('throws when trying to add rotation to a cluster without secret', () => {
@@ -741,8 +731,6 @@ describe('cluster', () => {
 
     // THEN
     expect(() => cluster.addRotationSingleUser()).toThrow(/without secret/);
-
-
   });
 
   test('throws when trying to add single user rotation multiple times', () => {
@@ -763,8 +751,6 @@ describe('cluster', () => {
 
     // THEN
     expect(() => cluster.addRotationSingleUser()).toThrow(/A single user rotation was already added to this cluster/);
-
-
   });
 
   test('create a cluster with s3 import role', () => {
@@ -813,8 +799,6 @@ describe('cluster', () => {
         },
       },
     });
-
-
   });
 
   test('create a cluster with s3 import buckets', () => {
@@ -899,8 +883,6 @@ describe('cluster', () => {
         Version: '2012-10-17',
       },
     });
-
-
   });
 
   test('cluster with s3 import bucket adds supported feature name to IAM role', () => {
@@ -938,8 +920,6 @@ describe('cluster', () => {
         FeatureName: 's3Import',
       }],
     });
-
-
   });
 
   test('throws when s3 import bucket or s3 export bucket is supplied for a Postgres version that does not support it', () => {
@@ -983,8 +963,6 @@ describe('cluster', () => {
         s3ExportBuckets: [bucket],
       });
     }).toThrow(/s3Export is not supported for Postgres version: 10.4. Use a version that supports the s3Export feature./);
-
-
   });
 
   test('cluster with s3 export bucket adds supported feature name to IAM role', () => {
@@ -1022,8 +1000,6 @@ describe('cluster', () => {
         FeatureName: 's3Export',
       }],
     });
-
-
   });
 
   test('create a cluster with s3 export role', () => {
@@ -1072,8 +1048,6 @@ describe('cluster', () => {
         },
       },
     });
-
-
   });
 
   testFutureBehavior('create a cluster with s3 export buckets', { [cxapi.S3_GRANT_WRITE_WITHOUT_ACL]: true }, cdk.App, (app) => {
@@ -1161,8 +1135,6 @@ describe('cluster', () => {
         Version: '2012-10-17',
       },
     });
-
-
   });
 
   test('create a cluster with s3 import and export buckets', () => {
@@ -1225,8 +1197,6 @@ describe('cluster', () => {
         },
       },
     });
-
-
   });
 
   test('create a cluster with s3 import and export buckets and custom parameter group', () => {
@@ -1298,8 +1268,6 @@ describe('cluster', () => {
         },
       },
     });
-
-
   });
 
   test('PostgreSQL cluster with s3 export buckets does not generate custom parameter group and specifies the correct port', () => {
@@ -1340,8 +1308,6 @@ describe('cluster', () => {
     });
 
     expect(stack).not.toHaveResource('AWS::RDS::DBClusterParameterGroup');
-
-
   });
 
   test('unversioned PostgreSQL cluster can be used with s3 import and s3 export buckets', () => {
@@ -1390,8 +1356,6 @@ describe('cluster', () => {
         },
       ],
     });
-
-
   });
 
   test("Aurora PostgreSQL cluster uses a different default master username than 'admin', which is a reserved word", () => {
@@ -1413,8 +1377,6 @@ describe('cluster', () => {
         SecretStringTemplate: '{"username":"postgres"}',
       },
     });
-
-
   });
 
   test('MySQL cluster without S3 exports or imports references the correct default ParameterGroup', () => {
@@ -1441,8 +1403,6 @@ describe('cluster', () => {
     });
 
     expect(stack).not.toHaveResource('AWS::RDS::DBClusterParameterGroup');
-
-
   });
 
   test('throws when s3ExportRole and s3ExportBuckets properties are both specified', () => {
@@ -1469,8 +1429,6 @@ describe('cluster', () => {
       s3ExportRole: exportRole,
       s3ExportBuckets: [exportBucket],
     })).toThrow();
-
-
   });
 
   test('throws when s3ImportRole and s3ImportBuckets properties are both specified', () => {
@@ -1497,8 +1455,6 @@ describe('cluster', () => {
       s3ImportRole: importRole,
       s3ImportBuckets: [importBucket],
     })).toThrow();
-
-
   });
 
   test('can set CloudWatch log exports', () => {
@@ -1524,8 +1480,6 @@ describe('cluster', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBCluster', {
       EnableCloudwatchLogsExports: ['error', 'general', 'slowquery', 'audit'],
     });
-
-
   });
 
   test('can set CloudWatch log retention', () => {
@@ -1569,8 +1523,6 @@ describe('cluster', () => {
       LogGroupName: { 'Fn::Join': ['', ['/aws/rds/cluster/', { Ref: 'DatabaseB269D8BB' }, '/general']] },
       RetentionInDays: 90,
     });
-
-
   });
 
   test('throws if given unsupported CloudWatch log exports', () => {
@@ -1592,8 +1544,6 @@ describe('cluster', () => {
         cloudwatchLogsExports: ['error', 'general', 'slowquery', 'audit', 'thislogdoesnotexist', 'neitherdoesthisone'],
       });
     }).toThrow(/Unsupported logs for the current engine type: thislogdoesnotexist,neitherdoesthisone/);
-
-
   });
 
   test('can set deletion protection', () => {
@@ -1619,8 +1569,6 @@ describe('cluster', () => {
     expect(stack).toHaveResourceLike('AWS::RDS::DBCluster', {
       DeletionProtection: true,
     });
-
-
   });
 
   test('does not throw (but adds a node error) if a (dummy) VPC does not have sufficient subnets', () => {
@@ -1648,8 +1596,6 @@ describe('cluster', () => {
     const art = SynthUtils.synthesize(stack);
     const meta = art.findMetadataByType('aws:cdk:error');
     expect(meta[0].data).toEqual('Cluster requires at least 2 subnets, got 0');
-
-
   });
 
   test('create a cluster from a snapshot', () => {
@@ -1727,8 +1673,6 @@ describe('cluster', () => {
       DBSubnetGroupName: 'my-subnet-group',
     });
     expect(stack).toCountResources('AWS::RDS::DBSubnetGroup', 0);
-
-
   });
 
   test('defaultChild returns the DB Cluster', () => {
@@ -1749,8 +1693,6 @@ describe('cluster', () => {
 
     // THEN
     expect(cluster.node.defaultChild instanceof CfnDBCluster).toBeTruthy();
-
-
   });
 
   test('fromGeneratedSecret', () => {
@@ -1783,8 +1725,6 @@ describe('cluster', () => {
         ],
       },
     });
-
-
   });
 
   test('can set custom name to database secret by fromSecret', () => {
@@ -1854,8 +1794,6 @@ describe('cluster', () => {
       Engine: 'aurora',
       PubliclyAccessible: true,
     });
-
-
   });
 
   test('can set public accessibility for database cluster with instances in public subnet', () => {
@@ -1879,8 +1817,6 @@ describe('cluster', () => {
       Engine: 'aurora',
       PubliclyAccessible: false,
     });
-
-
   });
 
   test('database cluster instances in public subnet should by default have publiclyAccessible set to true', () => {
@@ -1903,8 +1839,6 @@ describe('cluster', () => {
       Engine: 'aurora',
       PubliclyAccessible: true,
     });
-
-
   });
 
   test('changes the case of the cluster identifier if the lowercaseDbIdentifier feature flag is enabled', () => {

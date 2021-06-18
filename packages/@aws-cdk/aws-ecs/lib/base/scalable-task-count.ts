@@ -14,7 +14,6 @@ export interface ScalableTaskCountProps extends appscaling.BaseScalableAttribute
  * The scalable attribute representing task count.
  */
 export class ScalableTaskCount extends appscaling.BaseScalableAttribute {
-
   /**
    * Constructs a new instance of the ScalableTaskCount class.
    */

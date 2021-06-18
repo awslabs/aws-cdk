@@ -27,7 +27,6 @@ describe('servicePrincipal', () => {
         expect(Default.servicePrincipal(`${service}${suffix}`, region, urlSuffix)).toBe(`${service}.amazonaws.com`);
       });
     }
-
   }
 
   test('with an "exotic" DNS suffix (.local)', () => {

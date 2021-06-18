@@ -145,7 +145,6 @@ nodeunitShim({
     });
 
     test.done();
-
   },
 });
 

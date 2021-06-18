@@ -156,7 +156,6 @@ export class CdkToolkit {
       if (requireApproval !== RequireApproval.Never) {
         const currentTemplate = await this.props.cloudFormation.readCurrentTemplate(stack);
         if (printSecurityDiff(currentTemplate, stack, requireApproval)) {
-
           // only talk to user if STDIN is a terminal (otherwise, fail)
           if (!process.stdin.isTTY) {
             throw new Error(
@@ -455,7 +454,6 @@ export class CdkToolkit {
   private assembly(): Promise<CloudAssembly> {
     return this.props.cloudExecutable.synthesize();
   }
-
 }
 
 export interface DiffOptions {

@@ -87,7 +87,6 @@ integTest('context setting', withDefaultFixture(async (fixture) => {
 
     // Test that forced delete of the context key does not throw
     await fixture.cdk(['context', '-f', '--reset', 'contextkey']);
-
   } finally {
     await fs.unlink(path.join(fixture.integTestDir, 'cdk.context.json'));
   }
@@ -425,7 +424,6 @@ integTest('deploy with role', withDefaultFixture(async (fixture) => {
     // Since roles are sticky, if we delete the role before the stack, subsequent DeleteStack
     // operations will fail when CloudFormation tries to assume the role that's already gone.
     await fixture.cdkDestroy('test-2');
-
   } finally {
     await deleteRole();
   }
@@ -696,10 +694,8 @@ integTest('generating and loading assembly', withDefaultFixture(async (fixture) 
   const customDockerFile = path.join(fixture.integTestDir, 'docker', 'Dockerfile.Custom');
   await fs.rename(customDockerFile, `${customDockerFile}~`);
   try {
-
     // deploy a docker image with custom file without synth (uses assets)
     await fixture.cdkDeploy('docker-with-custom-file', { options: ['-a', '.'], cwd: asmOutputDir });
-
   } finally {
     // Rename back to restore fixture to original state
     await fs.rename(`${customDockerFile}~`, customDockerFile);

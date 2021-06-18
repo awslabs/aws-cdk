@@ -18,7 +18,6 @@ export interface MetricFilterProps extends MetricFilterOptions {
  * A filter that extracts information from CloudWatch Logs and emits to CloudWatch Metrics
  */
 export class MetricFilter extends Resource {
-
   private readonly metricName: string;
   private readonly metricNamespace: string;
 

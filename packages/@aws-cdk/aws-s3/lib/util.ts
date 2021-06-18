@@ -3,7 +3,6 @@ import { IConstruct } from 'constructs';
 import { BucketAttributes } from './bucket';
 
 export function parseBucketArn(construct: IConstruct, props: BucketAttributes): string {
-
   // if we have an explicit bucket ARN, use it.
   if (props.bucketArn) {
     return props.bucketArn;
@@ -24,7 +23,6 @@ export function parseBucketArn(construct: IConstruct, props: BucketAttributes): 
 }
 
 export function parseBucketName(construct: IConstruct, props: BucketAttributes): string | undefined {
-
   // if we have an explicit bucket name, use it.
   if (props.bucketName) {
     return props.bucketName;

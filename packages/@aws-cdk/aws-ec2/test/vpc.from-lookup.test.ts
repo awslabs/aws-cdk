@@ -15,7 +15,6 @@ nodeunitShim({
         Vpc.fromLookup(stack, 'Vpc', {
           vpcId: Lazy.string({ produce: () => 'some-id' }),
         });
-
       }, 'All arguments to Vpc.fromLookup() must be concrete');
 
       test.done();
@@ -260,8 +259,8 @@ interface MockVcpContextResponse {
 }
 
 function mockVpcContextProviderWith(
-  test: Test, response: MockVcpContextResponse,
-  paramValidator?: (options: cxschema.VpcContextQuery) => void) {
+    test: Test, response: MockVcpContextResponse,
+    paramValidator?: (options: cxschema.VpcContextQuery) => void) {
   const previous = ContextProvider.getValue;
   ContextProvider.getValue = (_scope: Construct, options: GetContextValueOptions) => {
     // do some basic sanity checks

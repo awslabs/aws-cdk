@@ -29,7 +29,6 @@ testFutureBehavior(
     TemplateAssertions.fromStack(customStack).hasResourceProperties('AWS::EFS::FileSystem', {
       Encrypted: true,
     });
-
   });
 
 testLegacyBehavior('when @aws-cdk/aws-efs:defaultEncryptionAtRest is missing, encryption is disabled by default', App, (app) => {
@@ -43,7 +42,6 @@ testLegacyBehavior('when @aws-cdk/aws-efs:defaultEncryptionAtRest is missing, en
   TemplateAssertions.fromStack(customStack).hasResourceProperties('AWS::EFS::FileSystem', {
     Encrypted: Match.absentProperty(),
   });
-
 });
 
 test('default file system is created correctly', () => {

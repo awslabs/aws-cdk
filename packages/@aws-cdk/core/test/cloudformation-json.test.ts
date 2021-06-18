@@ -29,7 +29,6 @@ test('JSONification of undefined leads to undefined', () => {
 });
 
 describe('tokens that return literals', () => {
-
   test('string tokens can be JSONified and JSONification can be reversed', () => {
     for (const token of tokensThatResolveTo('woof woof')) {
       // GIVEN
@@ -160,7 +159,6 @@ describe('tokens that return literals', () => {
     // THEN
     expect(evaluateCFN(resolved)).toEqual('{"information":"Did you know that Fido says: \\"woof\\""}');
   });
-
 });
 
 describe('tokens returning CloudFormation intrinsics', () => {

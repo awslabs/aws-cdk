@@ -266,9 +266,8 @@ export function changeSetHasNoChanges(description: CloudFormation.DescribeChange
  * @returns     the CloudFormation description of the stabilized stack after the delete attempt
  */
 export async function waitForStackDelete(
-  cfn: CloudFormation,
-  stackName: string): Promise<CloudFormationStack | undefined> {
-
+    cfn: CloudFormation,
+    stackName: string): Promise<CloudFormationStack | undefined> {
   const stack = await stabilizeStack(cfn, stackName);
   if (!stack) { return undefined; }
 
@@ -293,9 +292,8 @@ export async function waitForStackDelete(
  * @returns     the CloudFormation description of the stabilized stack after the update attempt
  */
 export async function waitForStackDeploy(
-  cfn: CloudFormation,
-  stackName: string): Promise<CloudFormationStack | undefined> {
-
+    cfn: CloudFormation,
+    stackName: string): Promise<CloudFormationStack | undefined> {
   const stack = await stabilizeStack(cfn, stackName);
   if (!stack) { return undefined; }
 
@@ -376,7 +374,6 @@ export class ParameterValues {
     private readonly formalParams: Record<string, TemplateParameter>,
     updates: Record<string, string | undefined>,
     previousValues: Record<string, string> = {}) {
-
     const missingRequired = new Array<string>();
 
     for (const [key, formalParam] of Object.entries(this.formalParams)) {

@@ -3,19 +3,19 @@
     "MyVpcEndpointServiceWithNoPrincipals9B24276E": {
       "Type": "AWS::EC2::VPCEndpointService",
       "Properties": {
+        "AcceptanceRequired": false,
         "NetworkLoadBalancerArns": [
           "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/net/Test/9bn6qkf4e9jrw77a"
-        ],
-        "AcceptanceRequired": false
+        ]
       }
     },
     "MyVpcEndpointServiceWithPrincipals41EE2DF2": {
       "Type": "AWS::EC2::VPCEndpointService",
       "Properties": {
+        "AcceptanceRequired": false,
         "NetworkLoadBalancerArns": [
           "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/net/Test/1jd81k39sa421ffs"
-        ],
-        "AcceptanceRequired": false
+        ]
       }
     },
     "MyVpcEndpointServiceWithPrincipalsPermissions29F9BD5A": {

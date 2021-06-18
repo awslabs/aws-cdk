@@ -37,13 +37,13 @@
         "Code": {
           "ZipFile": "exports.handler = function echoHandlerCode(event, _, callback) {\n    return callback(undefined, {\n        isBase64Encoded: false,\n        statusCode: 200,\n        headers: { 'content-type': 'application/json' },\n        body: JSON.stringify(event),\n    });\n}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "BooksHandlerServiceRole5B6A8847",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [
@@ -87,13 +87,13 @@
         "Code": {
           "ZipFile": "exports.handler = function echoHandlerCode(event, _, callback) {\n    return callback(undefined, {\n        isBase64Encoded: false,\n        statusCode: 200,\n        headers: { 'content-type': 'application/json' },\n        body: JSON.stringify(event),\n    });\n}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "BookHandlerServiceRole894768AD",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [
@@ -137,13 +137,13 @@
         "Code": {
           "ZipFile": "exports.handler = function helloCode(_event, _context, callback) {\n    return callback(undefined, {\n        statusCode: 200,\n        body: 'hello, world!',\n    });\n}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "HelloServiceRole1E55EA16",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

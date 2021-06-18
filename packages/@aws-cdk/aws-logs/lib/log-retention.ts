@@ -70,7 +70,6 @@ export interface LogRetentionRetryOptions {
  * specifying `logGroupRegion`
  */
 export class LogRetention extends CoreConstruct {
-
   /**
    * The ARN of the LogGroup.
    */

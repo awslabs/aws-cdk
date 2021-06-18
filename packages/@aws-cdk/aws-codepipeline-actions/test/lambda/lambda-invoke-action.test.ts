@@ -35,8 +35,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test('properly resolves any Tokens passed in userParameters', () => {
@@ -71,8 +69,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test('properly resolves any stringified Tokens passed in userParameters', () => {
@@ -96,8 +92,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
 
     test("assigns the Action's Role with read permissions to the Bucket if it has only inputs", () => {
@@ -135,8 +129,6 @@ describe('', () => {
           ],
         },
       });
-
-
     });
 
     testFutureBehavior("assigns the Action's Role with write permissions to the Bucket if it has only outputs", s3GrantWriteCtx, App, (app) => {
@@ -176,8 +168,6 @@ describe('', () => {
           ],
         },
       });
-
-
     });
 
     testFutureBehavior("assigns the Action's Role with read-write permissions to the Bucket if it has both inputs and outputs", s3GrantWriteCtx, App, (app) => {
@@ -232,8 +222,6 @@ describe('', () => {
           ],
         },
       });
-
-
     });
 
     test('exposes variables for other actions to consume', () => {
@@ -294,8 +282,6 @@ describe('', () => {
           },
         ],
       });
-
-
     });
   });
 });

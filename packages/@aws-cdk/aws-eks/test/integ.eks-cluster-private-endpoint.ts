@@ -40,7 +40,6 @@ class EksClusterStack extends TestStack {
         name: 'config-map',
       },
     });
-
   }
 }
 

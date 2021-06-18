@@ -71,7 +71,6 @@ export class ServiceCatalogDeployActionBeta1 extends Action {
 
   protected bound(_scope: Construct, _stage: codepipeline.IStage, options: codepipeline.ActionBindOptions):
   codepipeline.ActionConfig {
-
     options.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSServiceCatalogAdminFullAccess'));
 
     // Attempt at least privilege; using this alone fails with "invalid template".

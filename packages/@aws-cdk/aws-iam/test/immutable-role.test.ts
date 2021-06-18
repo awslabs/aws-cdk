@@ -91,7 +91,6 @@ describe('ImmutableRole', () => {
   });
 
   test('ignores grants', () => {
-
     iam.Grant.addToPrincipal({
       grantee: immutableRole,
       actions: ['s3:*'],

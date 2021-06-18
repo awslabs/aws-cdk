@@ -158,5 +158,4 @@ export class StateGraph {
       superGraph.registerPolicyStatement(policyStatement);
     }
   }
-
 }

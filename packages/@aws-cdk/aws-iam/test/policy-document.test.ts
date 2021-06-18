@@ -472,7 +472,6 @@ describe('IAM policy document', () => {
   });
 
   describe('CompositePrincipal can be used to represent a principal that has multiple types', () => {
-
     test('with a single principal', () => {
       const stack = new Stack();
       const p = new CompositePrincipal(new ArnPrincipal('i:am:an:arn'));
@@ -657,7 +656,6 @@ describe('IAM policy document', () => {
   });
 
   describe('duplicate statements', () => {
-
     test('without tokens', () => {
       // GIVEN
       const stack = new Stack();

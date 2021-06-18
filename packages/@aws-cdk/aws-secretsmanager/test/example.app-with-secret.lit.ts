@@ -17,7 +17,6 @@ class ExampleStack extends cdk.Stack {
       password: loginSecret.secretValueFromJson('password'),
     });
     /// !hide
-
   }
 }
 

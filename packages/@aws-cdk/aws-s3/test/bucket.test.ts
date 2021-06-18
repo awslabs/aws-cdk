@@ -28,8 +28,6 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   test('CFN properties are type-validated during resolution', () => {
@@ -41,8 +39,6 @@ describe('bucket', () => {
     expect(() => {
       SynthUtils.synthesize(stack);
     }).toThrow(/bucketName: 5 should be a string/);
-
-
   });
 
   test('bucket without encryption', () => {
@@ -60,8 +56,6 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   test('bucket with managed encryption', () => {
@@ -90,7 +84,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('valid bucket names', () => {
@@ -103,8 +96,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket2', {
       bucketName: '124.pp--33',
     })).not.toThrow();
-
-
   });
 
   test('bucket validation skips tokenized values', () => {
@@ -113,8 +104,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket', {
       bucketName: cdk.Lazy.string({ produce: () => '_BUCKET' }),
     })).not.toThrow();
-
-
   });
 
   test('fails with message on invalid bucket names', () => {
@@ -132,8 +121,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket', {
       bucketName: bucket,
     })).toThrow(expectedErrors);
-
-
   });
 
   test('fails if bucket name has less than 3 or more than 63 characters', () => {
@@ -146,8 +133,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket2', {
       bucketName: new Array(65).join('x'),
     })).toThrow(/no more than 63/);
-
-
   });
 
   test('fails if bucket name has invalid characters', () => {
@@ -164,8 +149,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket3', {
       bucketName: 'bučket',
     })).toThrow(/offset: 2/);
-
-
   });
 
   test('fails if bucket name does not start or end with lowercase character or number', () => {
@@ -178,8 +161,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket2', {
       bucketName: 'bucke.',
     })).toThrow(/offset: 5/);
-
-
   });
 
   test('fails only if bucket name has the consecutive symbols (..), (.-), (-.)', () => {
@@ -200,8 +181,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket4', {
       bucketName: 'bu--cket',
     })).not.toThrow();
-
-
   });
 
   test('fails only if bucket name resembles IP address', () => {
@@ -222,8 +201,6 @@ describe('bucket', () => {
     expect(() => new s3.Bucket(stack, 'MyBucket4', {
       bucketName: '1000.2.3.4',
     })).not.toThrow();
-
-
   });
 
   test('fails if encryption key is used with managed encryption', () => {
@@ -234,8 +211,6 @@ describe('bucket', () => {
       encryption: s3.BucketEncryption.KMS_MANAGED,
       encryptionKey: myKey,
     })).toThrow(/encryptionKey is specified, so 'encryption' must be set to KMS/);
-
-
   });
 
   test('fails if encryption key is used with encryption set to unencrypted', () => {
@@ -246,8 +221,6 @@ describe('bucket', () => {
       encryption: s3.BucketEncryption.UNENCRYPTED,
       encryptionKey: myKey,
     })).toThrow(/encryptionKey is specified, so 'encryption' must be set to KMS/);
-
-
   });
 
   test('encryptionKey can specify kms key', () => {
@@ -276,7 +249,6 @@ describe('bucket', () => {
         ],
       },
     });
-
   });
 
   test('enforceSsl can be enabled', () => {
@@ -362,8 +334,6 @@ describe('bucket', () => {
         ],
       },
     });
-
-
   });
 
   test('throws error if bucketKeyEnabled is set, but encryption is not KMS', () => {
@@ -375,7 +345,6 @@ describe('bucket', () => {
     expect(() => {
       new s3.Bucket(stack, 'MyBucket3', { bucketKeyEnabled: true });
     }).toThrow("bucketKeyEnabled is specified, so 'encryption' must be set to KMS (value: NONE)");
-
   });
 
   test('bucket with versioning turned on', () => {
@@ -398,7 +367,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('bucket with block public access set to BlockAll', () => {
@@ -424,7 +392,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('bucket with block public access set to BlockAcls', () => {
@@ -448,7 +415,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('bucket with custom block public access setting', () => {
@@ -471,7 +437,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('bucket with custom canned access control', () => {
@@ -492,11 +457,9 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   describe('permissions', () => {
-
     test('addPermission creates a bucket policy', () => {
       const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
@@ -535,8 +498,6 @@ describe('bucket', () => {
           },
         },
       });
-
-
     });
 
     test('forBucket returns a permission statement associated with the bucket\'s ARN', () => {
@@ -556,8 +517,6 @@ describe('bucket', () => {
         Principal: '*',
         Resource: { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
       });
-
-
     });
 
     test('arnForObjects returns a permission statement associated with objects in the bucket', () => {
@@ -582,12 +541,9 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
 
     test('arnForObjects accepts multiple arguments and FnConcats them', () => {
-
       const stack = new cdk.Stack();
 
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
@@ -620,8 +576,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
   });
 
@@ -641,12 +595,9 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   describe('import/export', () => {
-
     test('static import(ref) allows importing an external/existing bucket', () => {
       const stack = new cdk.Stack();
 
@@ -678,7 +629,6 @@ describe('bucket', () => {
       expect(stack.resolve(bucket.bucketName)).toEqual('my-bucket');
 
       expect(SynthUtils.synthesize(stack).template).toEqual({});
-
     });
 
     test('import does not create any resources', () => {
@@ -692,7 +642,6 @@ describe('bucket', () => {
 
       // at this point we technically didn't create any resources in the consuming stack.
       expect(stack).toMatchTemplate({});
-
     });
 
     test('import can also be used to import arbitrary ARNs', () => {
@@ -736,8 +685,6 @@ describe('bucket', () => {
           },
         },
       });
-
-
     });
 
     test('import can explicitly set bucket region', () => {
@@ -752,8 +699,6 @@ describe('bucket', () => {
 
       expect(bucket.bucketRegionalDomainName).toEqual(`myBucket.s3.eu-west-1.${stack.urlSuffix}`);
       expect(bucket.bucketWebsiteDomainName).toEqual(`myBucket.s3-website-eu-west-1.${stack.urlSuffix}`);
-
-
     });
   });
 
@@ -820,7 +765,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   describe('grantReadWrite', () => {
@@ -891,8 +835,6 @@ describe('bucket', () => {
           },
         },
       });
-
-
     });
 
     test('grant permissions to non-identity principal', () => {
@@ -937,8 +879,6 @@ describe('bucket', () => {
         },
 
       });
-
-
     });
 
     testLegacyBehavior('if an encryption key is included, encrypt/decrypt permissions are also added both ways', cdk.App, (app) => {
@@ -1146,8 +1086,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
   });
 
@@ -1216,8 +1154,6 @@ describe('bucket', () => {
           },
         ],
       });
-
-
     });
 
     testFutureBehavior('does not grant PutObjectAcl when the S3_GRANT_WRITE_WITHOUT_ACL feature is enabled', s3GrantWriteCtx, cdk.App, (app) => {
@@ -1249,8 +1185,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
   });
 
@@ -1280,8 +1214,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
   });
 
@@ -1302,7 +1234,6 @@ describe('bucket', () => {
     expect(actions('WriterDefaultPolicyDC585BCE')).toEqual(['s3:DeleteObject*', 's3:PutObject', 's3:Abort*']);
     expect(actions('PutterDefaultPolicyAB138DD3')).toEqual(['s3:PutObject', 's3:Abort*']);
     expect(actions('DeleterDefaultPolicyCD33B8A0')).toEqual('s3:DeleteObject*');
-
   });
 
   test('grantDelete, with a KMS Key', () => {
@@ -1345,8 +1276,6 @@ describe('bucket', () => {
         'Version': '2012-10-17',
       },
     });
-
-
   });
 
   describe('cross-stack permissions', () => {
@@ -1429,8 +1358,6 @@ describe('bucket', () => {
           },
         },
       });
-
-
     });
 
     test('in different accounts', () => {
@@ -1519,8 +1446,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
 
     test('in different accounts, with a KMS Key', () => {
@@ -1591,8 +1516,6 @@ describe('bucket', () => {
           ],
         },
       });
-
-
     });
   });
 
@@ -1699,8 +1622,6 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   test('s3UrlForObject returns a token with the S3 URL of the token', () => {
@@ -1763,8 +1684,6 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   describe('grantPublicAccess', () => {
@@ -1790,7 +1709,6 @@ describe('bucket', () => {
           'Version': '2012-10-17',
         },
       });
-
     });
 
     test('"keyPrefix" can be used to only grant access to certain objects', () => {
@@ -1815,7 +1733,6 @@ describe('bucket', () => {
           'Version': '2012-10-17',
         },
       });
-
     });
 
     test('"allowedActions" can be used to specify actions explicitly', () => {
@@ -1840,7 +1757,6 @@ describe('bucket', () => {
           'Version': '2012-10-17',
         },
       });
-
     });
 
     test('returns the PolicyStatement which can be then customized', () => {
@@ -1869,7 +1785,6 @@ describe('bucket', () => {
           'Version': '2012-10-17',
         },
       });
-
     });
 
     test('throws when blockPublicPolicy is set to true', () => {
@@ -1881,8 +1796,6 @@ describe('bucket', () => {
 
       // THEN
       expect(() => bucket.grantPublicAccess()).toThrow(/blockPublicPolicy/);
-
-
     });
   });
 
@@ -1897,7 +1810,6 @@ describe('bucket', () => {
           IndexDocument: 'index2.html',
         },
       });
-
     });
     test('fails if only error doc is specified', () => {
       const stack = new cdk.Stack();
@@ -1906,7 +1818,6 @@ describe('bucket', () => {
           websiteErrorDocument: 'error.html',
         });
       }).toThrow(/"websiteIndexDocument" is required if "websiteErrorDocument" is set/);
-
     });
     test('error and index docs', () => {
       const stack = new cdk.Stack();
@@ -1920,7 +1831,6 @@ describe('bucket', () => {
           ErrorDocument: 'error.html',
         },
       });
-
     });
     test('exports the WebsiteURL', () => {
       const stack = new cdk.Stack();
@@ -1928,7 +1838,6 @@ describe('bucket', () => {
         websiteIndexDocument: 'index.html',
       });
       expect(stack.resolve(bucket.bucketWebsiteUrl)).toEqual({ 'Fn::GetAtt': ['Website32962D0B', 'WebsiteURL'] });
-
     });
     test('exports the WebsiteDomain', () => {
       const stack = new cdk.Stack();
@@ -1943,7 +1852,6 @@ describe('bucket', () => {
           },
         ],
       });
-
     });
     test('exports the WebsiteURL for imported buckets', () => {
       const stack = new cdk.Stack();
@@ -1970,7 +1878,6 @@ describe('bucket', () => {
           ],
         ],
       });
-
     });
     test('exports the WebsiteURL for imported buckets with url', () => {
       const stack = new cdk.Stack();
@@ -1980,7 +1887,6 @@ describe('bucket', () => {
       });
       expect(stack.resolve(bucket.bucketWebsiteUrl)).toEqual('http://my-test-bucket.my-test.suffix');
       expect(stack.resolve(bucket.bucketWebsiteDomainName)).toEqual('my-test-bucket.my-test.suffix');
-
     });
     test('adds RedirectAllRequestsTo property', () => {
       const stack = new cdk.Stack();
@@ -1998,7 +1904,6 @@ describe('bucket', () => {
           },
         },
       });
-
     });
     test('fails if websiteRedirect and websiteIndex and websiteError are specified', () => {
       const stack = new cdk.Stack();
@@ -2011,7 +1916,6 @@ describe('bucket', () => {
           },
         });
       }).toThrow(/"websiteIndexDocument", "websiteErrorDocument" and, "websiteRoutingRules" cannot be set if "websiteRedirect" is used/);
-
     });
     test('fails if websiteRedirect and websiteRoutingRules are specified', () => {
       const stack = new cdk.Stack();
@@ -2023,7 +1927,6 @@ describe('bucket', () => {
           },
         });
       }).toThrow(/"websiteIndexDocument", "websiteErrorDocument" and, "websiteRoutingRules" cannot be set if "websiteRedirect" is used/);
-
     });
     test('adds RedirectRules property', () => {
       const stack = new cdk.Stack();
@@ -2055,7 +1958,6 @@ describe('bucket', () => {
           }],
         },
       });
-
     });
     test('fails if routingRule condition object is empty', () => {
       const stack = new cdk.Stack();
@@ -2067,7 +1969,6 @@ describe('bucket', () => {
           }],
         });
       }).toThrow(/The condition property cannot be an empty object/);
-
     });
     describe('isWebsite set properly with', () => {
       test('only index doc', () => {
@@ -2076,7 +1977,6 @@ describe('bucket', () => {
           websiteIndexDocument: 'index2.html',
         });
         expect(bucket.isWebsite).toEqual(true);
-
       });
       test('error and index docs', () => {
         const stack = new cdk.Stack();
@@ -2085,7 +1985,6 @@ describe('bucket', () => {
           websiteErrorDocument: 'error.html',
         });
         expect(bucket.isWebsite).toEqual(true);
-
       });
       test('redirects', () => {
         const stack = new cdk.Stack();
@@ -2096,13 +1995,11 @@ describe('bucket', () => {
           },
         });
         expect(bucket.isWebsite).toEqual(true);
-
       });
       test('no website properties set', () => {
         const stack = new cdk.Stack();
         const bucket = new s3.Bucket(stack, 'Website');
         expect(bucket.isWebsite).toEqual(false);
-
       });
       test('imported website buckets', () => {
         const stack = new cdk.Stack();
@@ -2111,7 +2008,6 @@ describe('bucket', () => {
           isWebsite: true,
         });
         expect(bucket.isWebsite).toEqual(true);
-
       });
       test('imported buckets', () => {
         const stack = new cdk.Stack();
@@ -2119,7 +2015,6 @@ describe('bucket', () => {
           bucketArn: 'arn:aws:s3:::my-bucket',
         });
         expect(bucket.isWebsite).toEqual(false);
-
       });
     });
   });
@@ -2134,7 +2029,6 @@ describe('bucket', () => {
     // THEN
     expect(bucket.bucketName).toEqual('my_corporate_bucket');
     expect(bucket.bucketArn).toEqual('arn:aws:s3:::my_corporate_bucket');
-
   });
 
   test('Bucket.fromBucketName', () => {
@@ -2149,7 +2043,6 @@ describe('bucket', () => {
     expect(stack.resolve(bucket.bucketArn)).toEqual({
       'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':s3:::my-bucket-name']],
     });
-
   });
 
   test('if a kms key is specified, it implies bucket is encrypted with kms (dah)', () => {
@@ -2159,7 +2052,6 @@ describe('bucket', () => {
 
     // THEN
     new s3.Bucket(stack, 'b', { encryptionKey: key });
-
   });
 
   test('Bucket with Server Access Logs', () => {
@@ -2180,8 +2072,6 @@ describe('bucket', () => {
         },
       },
     });
-
-
   });
 
   test('Bucket with Server Access Logs with Prefix', () => {
@@ -2204,8 +2094,6 @@ describe('bucket', () => {
         LogFilePrefix: 'hello',
       },
     });
-
-
   });
 
   test('Access log prefix given without bucket', () => {
@@ -2222,7 +2110,6 @@ describe('bucket', () => {
         LogFilePrefix: 'hello',
       },
     });
-
   });
 
   test('Bucket Allow Log delivery changes bucket Access Control should fail', () => {
@@ -2240,8 +2127,6 @@ describe('bucket', () => {
         accessControl: s3.BucketAccessControl.AUTHENTICATED_READ,
       }),
     ).toThrow(/Cannot enable log delivery to this bucket because the bucket's ACL has been set and can't be changed/);
-
-
   });
 
   test('Defaults for an inventory bucket', () => {
@@ -2291,8 +2176,6 @@ describe('bucket', () => {
         })),
       },
     });
-
-
   });
 
   test('Bucket with objectOwnership set to BUCKET_OWNER_PREFERRED', () => {
@@ -2318,7 +2201,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('Bucket with objectOwnership set to OBJECT_WRITER', () => {
@@ -2344,7 +2226,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('Bucket with objectOwnerships set to undefined', () => {
@@ -2361,7 +2242,6 @@ describe('bucket', () => {
         },
       },
     });
-
   });
 
   test('with autoDeleteObjects', () => {
@@ -2442,8 +2322,6 @@ describe('bucket', () => {
         'MyBucketPolicyE7FBAC7B',
       ],
     }, ResourcePart.CompleteDefinition);
-
-
   });
 
   test('with autoDeleteObjects on multiple buckets', () => {
@@ -2460,8 +2338,6 @@ describe('bucket', () => {
     });
 
     expect(stack).toCountResources('AWS::Lambda::Function', 1);
-
-
   });
 
   test('autoDeleteObjects throws if RemovalPolicy is not DESTROY', () => {

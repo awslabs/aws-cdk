@@ -225,7 +225,6 @@ export abstract class Backend {
  * Represents the properties needed to define a Virtual Service backend
  */
 class VirtualServiceBackend extends Backend {
-
   constructor (private readonly virtualService: IVirtualService,
     private readonly tlsClientPolicy: TlsClientPolicy | undefined) {
     super();

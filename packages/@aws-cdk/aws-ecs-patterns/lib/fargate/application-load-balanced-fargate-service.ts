@@ -97,7 +97,6 @@ export interface ApplicationLoadBalancedFargateServiceProps extends ApplicationL
  * A Fargate service running on an ECS cluster fronted by an application load balancer.
  */
 export class ApplicationLoadBalancedFargateService extends ApplicationLoadBalancedServiceBase {
-
   /**
    * Determines whether the service will be assigned a public IP address.
    */

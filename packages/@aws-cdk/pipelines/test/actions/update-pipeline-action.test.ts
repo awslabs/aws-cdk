@@ -46,5 +46,4 @@ test('self-update project role has proper permissions', () => {
       ),
     },
   });
-
 });

@@ -37,7 +37,6 @@ enum Operator {
  * Class with static functions to build AlarmRule for Composite Alarms.
  */
 export class AlarmRule {
-
   /**
    * function to join all provided AlarmRules with AND operator.
    *

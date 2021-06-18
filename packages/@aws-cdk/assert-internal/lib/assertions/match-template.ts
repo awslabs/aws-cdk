@@ -20,8 +20,8 @@ export function beASupersetOfTemplate(template: { [key: string]: any }) {
 }
 
 export function matchTemplate(
-  template: { [key: string]: any },
-  matchStyle: MatchStyle = MatchStyle.EXACT): Assertion<StackInspector> {
+    template: { [key: string]: any },
+    matchStyle: MatchStyle = MatchStyle.EXACT): Assertion<StackInspector> {
   return new StackMatchesTemplateAssertion(template, matchStyle);
 }
 

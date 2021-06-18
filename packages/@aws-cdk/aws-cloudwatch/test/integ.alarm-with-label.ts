@@ -2,7 +2,6 @@ import { App, Stack, StackProps } from '@aws-cdk/core';
 import { Alarm, Metric } from '../lib';
 
 class AlarmWithLabelIntegrationTest extends Stack {
-
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 

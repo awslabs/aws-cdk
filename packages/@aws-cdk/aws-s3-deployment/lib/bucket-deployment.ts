@@ -237,7 +237,6 @@ export class BucketDeployment extends CoreConstruct {
         DistributionPaths: props.distributionPaths,
       },
     });
-
   }
 
   private renderSingletonUuid(memoryLimit?: number) {
@@ -291,7 +290,6 @@ function mapSystemMetadata(metadata: BucketDeploymentProps) {
  * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
  */
 export class CacheControl {
-
   /**
    * Sets 'must-revalidate'.
    */

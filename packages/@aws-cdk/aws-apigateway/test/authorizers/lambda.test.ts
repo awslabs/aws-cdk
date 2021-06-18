@@ -111,8 +111,6 @@ describe('lambda authorizer', () => {
     });
 
     expect(auth.authorizerArn.endsWith(`/authorizers/${auth.authorizerId}`)).toBeTruthy();
-
-
   });
 
   test('invalid request authorizer config', () => {

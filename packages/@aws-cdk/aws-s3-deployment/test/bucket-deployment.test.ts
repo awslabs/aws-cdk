@@ -200,7 +200,6 @@ test('deploy from a local .zip file', () => {
     sources: [s3deploy.Source.asset(path.join(__dirname, 'my-website.zip'))],
     destinationBucket: bucket,
   });
-
 });
 
 test('honors passed asset options', () => {
@@ -436,7 +435,6 @@ test('invalidation can happen without distributionPaths provided', () => {
       Ref: 'DistributionCFDistribution882A7313',
     },
   });
-
 });
 
 test('fails if distribution paths provided but not distribution ID', () => {
@@ -450,7 +448,6 @@ test('fails if distribution paths provided but not distribution ID', () => {
     destinationBucket: bucket,
     distributionPaths: ['/images/*'],
   })).toThrow(/Distribution must be specified if distribution paths are specified/);
-
 });
 
 testFutureBehavior('lambda execution role gets permissions to read from the source bucket and read/write in destination', s3GrantWriteCtx, cdk.App, (app) => {
@@ -581,7 +578,6 @@ test('memoryLimit can be used to specify the memory limit for the deployment res
 });
 
 test('deployment allows custom role to be supplied', () => {
-
   // GIVEN
   const stack = new cdk.Stack();
   const bucket = new s3.Bucket(stack, 'Dest');
@@ -610,7 +606,6 @@ test('deployment allows custom role to be supplied', () => {
 });
 
 test('deploy without deleting missing files from destination', () => {
-
   // GIVEN
   const stack = new cdk.Stack();
   const bucket = new s3.Bucket(stack, 'Dest');
@@ -628,7 +623,6 @@ test('deploy without deleting missing files from destination', () => {
 });
 
 test('deployment allows vpc to be implicitly supplied to lambda', () => {
-
   // GIVEN
   const stack = new cdk.Stack();
   const bucket = new s3.Bucket(stack, 'Dest');
@@ -664,7 +658,6 @@ test('deployment allows vpc to be implicitly supplied to lambda', () => {
 });
 
 test('deployment allows vpc and subnets to be implicitly supplied to lambda', () => {
-
   // GIVEN
   const stack = new cdk.Stack();
   const bucket = new s3.Bucket(stack, 'Dest');

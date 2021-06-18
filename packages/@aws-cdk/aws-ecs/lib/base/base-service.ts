@@ -315,7 +315,6 @@ export interface IBaseService extends IService {
  */
 export abstract class BaseService extends Resource
   implements IBaseService, elbv2.IApplicationLoadBalancerTarget, elbv2.INetworkLoadBalancerTarget, elb.ILoadBalancerTarget {
-
   /**
    * The security groups which manage the allowed network traffic for the service.
    */

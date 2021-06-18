@@ -24,10 +24,10 @@ export const ABSENT = '{{ABSENT}}';
  *                     allowed to be supersets of the reference values. Meaningless if properties is a function.
  */
 export function haveResource(
-  resourceType: string,
-  properties?: any,
-  comparison?: ResourcePart,
-  allowValueExtension: boolean = false): Assertion<StackInspector> {
+    resourceType: string,
+    properties?: any,
+    comparison?: ResourcePart,
+    allowValueExtension: boolean = false): Assertion<StackInspector> {
   return new HaveResourceAssertion(resourceType, properties, comparison, allowValueExtension);
 }
 
@@ -35,9 +35,9 @@ export function haveResource(
  * Sugar for calling ``haveResource`` with ``allowValueExtension`` set to ``true``.
  */
 export function haveResourceLike(
-  resourceType: string,
-  properties?: any,
-  comparison?: ResourcePart) {
+    resourceType: string,
+    properties?: any,
+    comparison?: ResourcePart) {
   return haveResource(resourceType, properties, comparison, true);
 }
 

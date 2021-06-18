@@ -39,7 +39,6 @@ describe('State Machine', () => {
       StateMachineType: 'STANDARD',
       DefinitionString: '{"StartAt":"Pass","States":{"Pass":{"Type":"Pass","End":true}}}',
     });
-
   }),
 
   test('Instantiate Express State Machine', () => {
@@ -59,7 +58,6 @@ describe('State Machine', () => {
       StateMachineType: 'EXPRESS',
       DefinitionString: '{"StartAt":"Pass","States":{"Pass":{"Type":"Pass","End":true}}}',
     });
-
   }),
 
   test('State Machine with invalid name', () => {

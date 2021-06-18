@@ -8,7 +8,6 @@ const certArn = 'arn:aws:acm:us-east-1:111111111111:certificate';
 
 describe('ApiMapping', () => {
   test('default stage', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -32,7 +31,6 @@ describe('ApiMapping', () => {
   });
 
   test('beta stage mapping', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api', {
       createDefaultStage: false,
@@ -65,7 +63,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - empty string not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -84,7 +81,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - single slash not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -103,7 +99,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - prefix slash not allowd', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -122,7 +117,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - slash in the middle not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -141,7 +135,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - trailing slash not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -160,7 +153,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - special character in the prefix not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -179,7 +171,6 @@ describe('ApiMapping', () => {
   });
 
   test('apiMappingKey validation - multiple special character not allowed', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 
@@ -198,7 +189,6 @@ describe('ApiMapping', () => {
   });
 
   test('import mapping', () => {
-
     const stack = new Stack();
     const api = new HttpApi(stack, 'Api');
 

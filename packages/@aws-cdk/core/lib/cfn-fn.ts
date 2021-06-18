@@ -576,7 +576,6 @@ class FnSub extends FnBase {
  * the UserData property.
  */
 class FnBase64 extends FnBase {
-
   /**
    * Creates an ``Fn::Base64`` function.
    * @param data The string value you want to convert to Base64.

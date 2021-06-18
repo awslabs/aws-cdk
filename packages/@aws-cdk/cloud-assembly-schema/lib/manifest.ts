@@ -83,7 +83,6 @@ export class Manifest {
   public static load(filePath: string): assembly.AssemblyManifest { return this.loadAssemblyManifest(filePath); }
 
   private static validate(manifest: { version: string }, schema: jsonschema.Schema) {
-
     function parseVersion(version: string) {
       const ver = semver.valid(version);
       if (!ver) {
@@ -115,7 +114,6 @@ export class Manifest {
     if (!result.valid) {
       throw new Error(`Invalid assembly manifest:\n${result}`);
     }
-
   }
 
   private static saveManifest(manifest: any, filePath: string, schema: jsonschema.Schema, preprocess?: (obj: any) => any) {

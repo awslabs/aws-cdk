@@ -146,7 +146,6 @@ export interface SecurityConfigurationProps {
  * - Attach a security configuration to a development endpoint to write encrypted Amazon S3 targets.
  */
 export class SecurityConfiguration extends cdk.Resource implements ISecurityConfiguration {
-
   /**
    * Creates a Connection construct that represents an external security configuration.
    *
@@ -156,7 +155,6 @@ export class SecurityConfiguration extends cdk.Resource implements ISecurityConf
    */
   public static fromSecurityConfigurationName(scope: constructs.Construct, id: string,
     securityConfigurationName: string): ISecurityConfiguration {
-
     class Import extends cdk.Resource implements ISecurityConfiguration {
       public readonly securityConfigurationName = securityConfigurationName;
     }

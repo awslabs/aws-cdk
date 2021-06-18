@@ -773,13 +773,13 @@
         "Code": {
           "ZipFile": "\n    exports.handler = function () {\n      console.log(\"Hello, world!\");\n    };\n  "
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "LambdaFunServiceRoleF0979767",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

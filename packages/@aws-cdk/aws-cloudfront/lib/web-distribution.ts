@@ -707,7 +707,6 @@ export interface CloudFrontWebDistributionAttributes {
  * @resource AWS::CloudFront::Distribution
  */
 export class CloudFrontWebDistribution extends cdk.Resource implements IDistribution {
-
   /**
    * Creates a construct that represents an external (imported) distribution.
    */

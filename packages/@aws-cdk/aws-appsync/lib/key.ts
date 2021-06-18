@@ -4,7 +4,6 @@ import { BaseKeyCondition, BeginsWith, Between, BinaryCondition } from './privat
  * Factory class for DynamoDB key conditions.
  */
 export class KeyCondition {
-
   /**
    * Condition k = arg, true if the key attribute k is equal to the Query argument
    */

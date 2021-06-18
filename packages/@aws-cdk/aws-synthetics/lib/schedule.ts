@@ -4,7 +4,6 @@ import { Duration } from '@aws-cdk/core';
  * Schedule for canary runs
  */
 export class Schedule {
-
   /**
    * The canary will be executed once.
    */

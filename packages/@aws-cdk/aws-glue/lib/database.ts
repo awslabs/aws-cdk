@@ -47,7 +47,6 @@ export interface DatabaseProps {
  * A Glue database.
  */
 export class Database extends Resource implements IDatabase {
-
   public static fromDatabaseArn(scope: Construct, id: string, databaseArn: string): IDatabase {
     const stack = Stack.of(scope);
 

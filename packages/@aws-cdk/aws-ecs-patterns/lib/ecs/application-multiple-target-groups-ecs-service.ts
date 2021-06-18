@@ -64,7 +64,6 @@ export interface ApplicationMultipleTargetGroupsEc2ServiceProps extends Applicat
  * An EC2 service running on an ECS cluster fronted by an application load balancer.
  */
 export class ApplicationMultipleTargetGroupsEc2Service extends ApplicationMultipleTargetGroupsServiceBase {
-
   /**
    * The EC2 service in this construct.
    */

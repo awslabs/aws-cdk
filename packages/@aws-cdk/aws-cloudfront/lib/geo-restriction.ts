@@ -2,7 +2,6 @@
  * Controls the countries in which content is distributed.
  */
 export class GeoRestriction {
-
   /**
    * Allow specific countries which you want CloudFront to distribute your content.
    *

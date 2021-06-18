@@ -6,9 +6,9 @@ import { Artifact } from '../artifact';
  * Validation function that checks if the number of artifacts is within the given bounds
  */
 export function validateArtifactBounds(
-  type: string, artifacts: Artifact[],
-  min: number, max: number,
-  category: string, provider: string): string[] {
+    type: string, artifacts: Artifact[],
+    min: number, max: number,
+    category: string, provider: string): string[] {
   const ret: string[] = [];
 
   if (artifacts.length < min) {

@@ -305,7 +305,6 @@ export interface SecureStringParameterAttributes extends CommonStringParameterAt
  * @resource AWS::SSM::Parameter
  */
 export class StringParameter extends ParameterBase implements IStringParameter {
-
   /**
    * Imports an external string parameter by name.
    */
@@ -460,7 +459,6 @@ export class StringParameter extends ParameterBase implements IStringParameter {
  * @resource AWS::SSM::Parameter
  */
 export class StringListParameter extends ParameterBase implements IStringListParameter {
-
   /**
    * Imports an external parameter of type string list.
    * Returns a token and should not be parsed.

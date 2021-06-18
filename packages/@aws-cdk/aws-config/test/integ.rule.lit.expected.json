@@ -49,13 +49,13 @@
         "Code": {
           "ZipFile": "exports.handler = (event) => console.log(event);"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "CustomFunctionServiceRoleD3F73B79",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

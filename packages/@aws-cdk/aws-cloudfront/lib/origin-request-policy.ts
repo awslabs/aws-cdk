@@ -55,7 +55,6 @@ export interface OriginRequestPolicyProps {
  * @resource AWS::CloudFront::OriginRequestPolicy
  */
 export class OriginRequestPolicy extends Resource implements IOriginRequestPolicy {
-
   /** This policy includes only the User-Agent and Referer headers. It doesn’t include any query strings or cookies. */
   public static readonly USER_AGENT_REFERER_HEADERS = OriginRequestPolicy.fromManagedOriginRequestPolicy('acba4595-bd28-49b8-b9fe-13317c0390fa');
   /** This policy includes the header that enables cross-origin resource sharing (CORS) requests when the origin is a custom origin. */

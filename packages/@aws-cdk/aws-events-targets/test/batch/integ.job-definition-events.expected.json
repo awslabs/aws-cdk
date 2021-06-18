@@ -34,13 +34,13 @@
     "ComputeEnvironmentC570994D": {
       "Type": "AWS::Batch::ComputeEnvironment",
       "Properties": {
+        "Type": "UNMANAGED",
         "ServiceRole": {
           "Fn::GetAtt": [
             "ComputeEnvironmentResourceServiceInstanceRoleDC6D4445",
             "Arn"
           ]
         },
-        "Type": "UNMANAGED",
         "State": "ENABLED"
       }
     },

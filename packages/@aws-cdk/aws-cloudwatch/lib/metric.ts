@@ -598,7 +598,6 @@ export class MathExpression implements IMetric {
       });
     }
   }
-
 }
 
 const VALID_VARIABLE = new RegExp('^[a-z][a-zA-Z0-9_]*$');

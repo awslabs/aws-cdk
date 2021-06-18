@@ -238,7 +238,6 @@ export interface TaskDefinitionAttributes extends CommonTaskDefinitionAttributes
 }
 
 abstract class TaskDefinitionBase extends Resource implements ITaskDefinition {
-
   public abstract readonly compatibility: Compatibility;
   public abstract readonly networkMode: NetworkMode;
   public abstract readonly taskDefinitionArn: string;
@@ -271,7 +270,6 @@ abstract class TaskDefinitionBase extends Resource implements ITaskDefinition {
  * The base class for all task definitions.
  */
 export class TaskDefinition extends TaskDefinitionBase {
-
   /**
    * Imports a task definition from the specified task definition ARN.
    *

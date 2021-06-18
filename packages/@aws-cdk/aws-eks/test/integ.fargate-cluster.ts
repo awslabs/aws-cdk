@@ -7,7 +7,6 @@ const CLUSTER_VERSION = eks.KubernetesVersion.V1_20;
 
 
 class EksFargateClusterStack extends TestStack {
-
   constructor(scope: App, id: string) {
     super(scope, id);
 

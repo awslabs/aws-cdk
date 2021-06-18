@@ -11,5 +11,4 @@ describe('Endpoint', () => {
       expect(endpoint.port).toBe(port);
     }
   });
-
 });

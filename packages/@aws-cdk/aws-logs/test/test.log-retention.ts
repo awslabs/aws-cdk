@@ -57,7 +57,6 @@ export = {
     }));
 
     test.done();
-
   },
 
   'with imported role'(test: Test) {
@@ -96,7 +95,6 @@ export = {
     expect(stack).to(countResources('AWS::IAM::Role', 0));
 
     test.done();
-
   },
 
   'with RetentionPeriod set to Infinity'(test: Test) {

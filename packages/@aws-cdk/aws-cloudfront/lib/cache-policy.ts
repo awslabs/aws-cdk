@@ -87,7 +87,6 @@ export interface CachePolicyProps {
  * @resource AWS::CloudFront::CachePolicy
  */
 export class CachePolicy extends Resource implements ICachePolicy {
-
   /**
    * Optimize cache efficiency by minimizing the values that CloudFront includes in the cache key.
    * Query strings and cookies are not included in the cache key, and only the normalized 'Accept-Encoding' header is included.

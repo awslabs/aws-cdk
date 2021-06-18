@@ -132,7 +132,6 @@ test('creates a secret when master credentials are not specified', () => {
 });
 
 describe('node count', () => {
-
   test('Single Node Clusters do not define node count', () => {
     // WHEN
     new Cluster(stack, 'Redshift', {
@@ -278,7 +277,6 @@ test('cluster with parameter group', () => {
   cdkExpect(stack).to(haveResource('AWS::Redshift::Cluster', {
     ClusterParameterGroupName: { Ref: 'ParamsA8366201' },
   }));
-
 });
 
 test('publicly accessible cluster', () => {
@@ -356,7 +354,6 @@ test('throws when trying to add rotation to a cluster without secret', () => {
   expect(() => {
     cluster.addRotationSingleUser();
   }).toThrowError();
-
 });
 
 test('throws validation error when trying to set encryptionKey without enabling encryption', () => {
@@ -377,7 +374,6 @@ test('throws validation error when trying to set encryptionKey without enabling 
   expect(() => {
     new Cluster(stack, 'Redshift', props );
   }).toThrowError();
-
 });
 
 test('throws when trying to add single user rotation multiple times', () => {

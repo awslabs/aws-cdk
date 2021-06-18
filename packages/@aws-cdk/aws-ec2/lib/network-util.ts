@@ -15,7 +15,6 @@ export class InvalidCidrRangeError extends Error {
  * NetworkUtils contains helpers to work with network constructs (subnets/ranges)
  */
 export class NetworkUtils {
-
   /**
    * Validates an IPv4 string
    *
@@ -90,7 +89,6 @@ export class NetworkUtils {
  * Creates a network based on a CIDR Block to build contained subnets
  */
 export class NetworkBuilder {
-
   /**
    * The CIDR range used when creating the network
    */
@@ -169,7 +167,6 @@ export class NetworkBuilder {
  * A block of IP address space with a given bit prefix
  */
 export class CidrBlock {
-
   /**
    * Calculates the netmask for a given CIDR mask
    *

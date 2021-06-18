@@ -34,8 +34,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('add a container using all props', () => {
@@ -223,8 +221,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('throws when MemoryLimit is less than MemoryReservationLimit', () => {
@@ -241,8 +237,6 @@ describe('container definition', () => {
           memoryReservationMiB: 1024,
         });
       }).toThrow(/MemoryLimitMiB should not be less than MemoryReservationMiB./);
-
-
     });
 
     describe('With network mode AwsVpc', () => {
@@ -265,8 +259,6 @@ describe('container definition', () => {
             hostPort: 8081,
           });
         }).toThrow();
-
-
       });
 
       test('Host port is the same as container port', () => {
@@ -287,7 +279,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raised
-
       });
 
       test('Host port can be empty ', () => {
@@ -308,7 +299,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raised
-
       });
     });
 
@@ -332,8 +322,6 @@ describe('container definition', () => {
             hostPort: 8081,
           });
         }).toThrow();
-
-
       });
 
       test('when host port is the same as container port', () => {
@@ -354,7 +342,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raised
-
       });
 
       test('Host port can be empty ', () => {
@@ -375,7 +362,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raised
-
       });
 
       test('errors when adding links', () => {
@@ -399,8 +385,6 @@ describe('container definition', () => {
         expect(() => {
           container.addLink(logger);
         }).toThrow();
-
-
       });
     });
 
@@ -422,7 +406,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raises
-
       });
 
       test('when Host port is not empty ', () => {
@@ -443,7 +426,6 @@ describe('container definition', () => {
         });
 
         // THEN no exception raises
-
       });
 
       test('allows adding links', () => {
@@ -465,8 +447,6 @@ describe('container definition', () => {
 
         // THEN
         container.addLink(logger);
-
-
       });
     });
 
@@ -490,8 +470,6 @@ describe('container definition', () => {
           inspection.failureReason = 'CF template should not have NetworkMode defined for a task definition that relies on NAT network mode.';
           return false;
         });
-
-
       });
     });
   });
@@ -522,7 +500,6 @@ describe('container definition', () => {
       // THEN
       const expected = 8080;
       expect(actual).toEqual(expected);
-
     });
 
     test('throws when calling containerPort with no PortMappings', () => {
@@ -543,8 +520,6 @@ describe('container definition', () => {
         const expected = 8080;
         expect(actual).toEqual(expected);
       }).toThrow(/Container MyContainer hasn't defined any ports. Call addPortMappings()./);
-
-
     });
   });
 
@@ -571,7 +546,6 @@ describe('container definition', () => {
         // THEN
         const expected = 8080;
         expect(actual).toEqual(expected);
-
       });
 
       test('throws when calling ingressPort with no PortMappings', () => {
@@ -592,8 +566,6 @@ describe('container definition', () => {
           const expected = 8080;
           expect(actual).toEqual(expected);
         }).toThrow(/Container MyContainer hasn't defined any ports. Call addPortMappings()./);
-
-
       });
     });
 
@@ -619,7 +591,6 @@ describe('container definition', () => {
         // THEN
         const expected = 8080;
         expect(actual).toEqual( expected);
-
       });
     });
 
@@ -646,7 +617,6 @@ describe('container definition', () => {
         // THEN
         const expected = 8081;
         expect(actual).toEqual( expected);
-
       });
 
       test('Ingress port should be 0 if not supplied', () => {
@@ -670,7 +640,6 @@ describe('container definition', () => {
         // THEN
         const expected = 0;
         expect(actual).toEqual(expected);
-
       });
     });
   });
@@ -700,8 +669,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('can add port mappings to the container definition by props', () => {
@@ -815,8 +782,6 @@ describe('container definition', () => {
             },
           ],
         });
-
-
       });
       test('can add s3 bucket environment file to the container definition', () => {
         // GIVEN
@@ -855,8 +820,6 @@ describe('container definition', () => {
             },
           ],
         });
-
-
       });
     });
     describe('with Fargate task definitions', () => {
@@ -920,8 +883,6 @@ describe('container definition', () => {
             },
           ],
         });
-
-
       });
       test('can add s3 bucket environment file to the container definition', () => {
         // GIVEN
@@ -960,8 +921,6 @@ describe('container definition', () => {
             },
           ],
         });
-
-
       });
     });
   });
@@ -993,8 +952,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
   });
 
@@ -1040,8 +997,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
     test('correctly adds resource requirements to container definition using both props and addInferenceAcceleratorResource method', () => {
       // GIVEN
@@ -1096,7 +1051,6 @@ describe('container definition', () => {
           },
         ],
       });
-
     });
     test('throws when the value of inference accelerator resource does not match any inference accelerators defined in the Task Definition', () => {
       // GIVEN
@@ -1274,8 +1228,6 @@ describe('container definition', () => {
         Version: '2012-10-17',
       },
     });
-
-
   });
 
   test('use a specific secret JSON key as environment variable', () => {
@@ -1317,8 +1269,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('use a specific secret JSON field as environment variable for a Fargate task', () => {
@@ -1360,8 +1310,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('can add AWS logging to container definition', () => {
@@ -1404,8 +1352,6 @@ describe('container definition', () => {
         Version: '2012-10-17',
       },
     });
-
-
   });
 
   test('can set Health Check with defaults', () => {
@@ -1436,8 +1382,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('throws when setting Health Check with no commands', () => {
@@ -1469,8 +1413,6 @@ describe('container definition', () => {
         ],
       });
     }).toThrow(/At least one argument must be supplied for health check command./);
-
-
   });
 
   test('can specify Health Check values in shell form', () => {
@@ -1505,8 +1447,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('can specify Health Check values in array form starting with CMD-SHELL', () => {
@@ -1541,8 +1481,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('can specify Health Check values in array form starting with CMD', () => {
@@ -1577,8 +1515,6 @@ describe('container definition', () => {
         },
       ],
     });
-
-
   });
 
   test('can specify private registry credentials', () => {
@@ -1623,8 +1559,6 @@ describe('container definition', () => {
         ],
       },
     });
-
-
   });
 
   describe('_linkContainer works properly', () => {
@@ -1642,8 +1576,6 @@ describe('container definition', () => {
 
       // THEN
       expect(taskDefinition.defaultContainer).toEqual( container);
-
-
     });
 
     test('when the props passed in is not an essential container', () => {
@@ -1660,8 +1592,6 @@ describe('container definition', () => {
 
       // THEN
       expect(taskDefinition.defaultContainer).toEqual( undefined);
-
-
     });
   });
 
@@ -1691,8 +1621,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('before calling addContainer', () => {
@@ -1731,8 +1659,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('after calling addContainer', () => {
@@ -1773,8 +1699,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('with one or more host devices', () => {
@@ -1815,8 +1739,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
 
     test('with the tmpfs mount for a container', () => {
@@ -1859,8 +1781,6 @@ describe('container definition', () => {
           },
         ],
       });
-
-
     });
   });
 
@@ -1927,7 +1847,6 @@ describe('container definition', () => {
         Version: '2012-10-17',
       },
     });
-
   });
 
   testFutureBehavior('docker image asset options can be used when using container image', { '@aws-cdk/aws-ecr-assets:dockerIgnoreSupport': true }, cdk.App, (app) => {
@@ -1956,6 +1875,5 @@ describe('container definition', () => {
       target: 'build-target',
       file: 'index.py',
     });
-
   });
 });

@@ -8,7 +8,6 @@ import { Construct } from '@aws-cdk/core';
  * The code the canary should execute
  */
 export abstract class Code {
-
   /**
    * Specify code inline.
    *
@@ -152,7 +151,6 @@ export class InlineCode extends Code {
   }
 
   public bind(_scope: Construct, handler: string): CodeConfig {
-
     if (handler !== 'index.handler') {
       throw new Error(`The handler for inline code must be "index.handler" (got "${handler}")`);
     }

@@ -12,7 +12,6 @@ const testMetric = new Metric({
 export = {
 
   'alarm does not accept a math expression with more than 10 metrics'(test: Test) {
-
     const stack = new Stack();
 
     const usingMetrics: Record<string, IMetric> = {};
@@ -31,19 +30,16 @@ export = {
     });
 
     test.throws(() => {
-
       new Alarm(stack, 'Alarm', {
         metric: math,
         threshold: 1000,
         evaluationPeriods: 3,
       });
-
     }, /Alarms on math expressions cannot contain more than 10 individual metrics/);
 
     test.done();
   },
   'non ec2 instance related alarm does not accept EC2 action'(test: Test) {
-
     const stack = new Stack();
     const alarm = new Alarm(stack, 'Alarm', {
       metric: testMetric,

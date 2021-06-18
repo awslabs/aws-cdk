@@ -63,7 +63,6 @@ export class S3File extends CoreConstruct {
 }
 
 class S3FileProvider extends CoreConstruct {
-
   /**
    * Returns the singleton provider.
    */

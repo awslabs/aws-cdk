@@ -448,7 +448,6 @@ export class FederatedPrincipal extends PrincipalBase {
  * Facebook, Google, etc.
  */
 export class WebIdentityPrincipal extends FederatedPrincipal {
-
   /**
    *
    * @param identityProvider identity provider (i.e. 'cognito-identity.amazonaws.com' for users authenticated through Cognito)
@@ -472,7 +471,6 @@ export class WebIdentityPrincipal extends FederatedPrincipal {
  * A principal that represents a federated identity provider as from a OpenID Connect provider.
  */
 export class OpenIdConnectPrincipal extends WebIdentityPrincipal {
-
   /**
    *
    * @param openIdConnectProvider OpenID Connect provider

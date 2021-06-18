@@ -828,7 +828,6 @@ abstract class TableBase extends Resource implements ITable {
    * You can customize this by using the `statistic` and `period` properties.
    */
   public metricSystemErrorsForOperations(props?: SystemErrorsForOperationsMetricOptions): cloudwatch.IMetric {
-
     if (props?.dimensions?.Operation) {
       throw new Error("The Operation dimension is not supported. Use the 'operations' property.");
     }
@@ -861,7 +860,6 @@ abstract class TableBase extends Resource implements ITable {
    */
   private createMetricsForOperations(metricName: string, operations: Operation[],
     props?: cloudwatch.MetricOptions, metricNameMapper?: (op: Operation) => string): Record<string, cloudwatch.IMetric> {
-
     const metrics: Record<string, cloudwatch.IMetric> = {};
 
     const mapper = metricNameMapper ?? (op => op.toLowerCase());
@@ -871,7 +869,6 @@ abstract class TableBase extends Resource implements ITable {
     }
 
     for (const operation of operations) {
-
       const metric = this.metric(metricName, {
         ...props,
         dimensions: {
@@ -998,9 +995,7 @@ export class Table extends TableBase {
    * @param attrs A `TableAttributes` object.
    */
   public static fromTableAttributes(scope: Construct, id: string, attrs: TableAttributes): ITable {
-
     class Import extends TableBase {
-
       public readonly tableName: string;
       public readonly tableArn: string;
       public readonly tableStreamArn?: string;

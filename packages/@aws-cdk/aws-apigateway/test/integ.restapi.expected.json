@@ -651,13 +651,13 @@
         "Code": {
           "ZipFile": "exports.handler = function handlerCode(event, _, callback) {\n            return callback(undefined, {\n                isBase64Encoded: false,\n                statusCode: 200,\n                headers: { 'content-type': 'application/json' },\n                body: JSON.stringify(event),\n            });\n        }"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "MyHandlerServiceRoleFFA06653",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

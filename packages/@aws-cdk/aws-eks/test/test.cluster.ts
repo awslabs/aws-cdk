@@ -22,7 +22,6 @@ const CLUSTER_VERSION = eks.KubernetesVersion.V1_20;
 export = {
 
   'can specify custom environment to cluster resource handler'(test: Test) {
-
     const { stack } = testFixture();
 
     new eks.Cluster(stack, 'Cluster', {
@@ -36,7 +35,6 @@ export = {
 
     test.deepEqual(expect(nested).value.Resources.OnEventHandler42BEBAE0.Properties.Environment, { Variables: { foo: 'bar' } });
     test.done();
-
   },
 
   'throws when trying to place cluster handlers in a vpc with no private subnets'(test: Test) {
@@ -120,7 +118,6 @@ export = {
   })(),
 
   'throws when accessing cluster security group for imported cluster without cluster security group id'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = eks.Cluster.fromClusterAttributes(stack, 'Cluster', {
@@ -129,11 +126,9 @@ export = {
 
     test.throws(() => cluster.clusterSecurityGroup, /"clusterSecurityGroup" is not defined for this imported cluster/);
     test.done();
-
   },
 
   'can place cluster handlers in the cluster vpc'(test: Test) {
-
     const { stack } = testFixture();
 
     new eks.Cluster(stack, 'Cluster', {
@@ -160,7 +155,6 @@ export = {
   },
 
   'can access cluster security group for imported cluster with cluster security group id'(test: Test) {
-
     const { stack } = testFixture();
 
     const clusterSgId = 'cluster-sg-id';
@@ -177,7 +171,6 @@ export = {
   },
 
   'cluster security group is attached when adding self-managed nodes'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -197,11 +190,9 @@ export = {
       { 'Fn::GetAtt': ['Cluster9EE0221C', 'ClusterSecurityGroupId'] },
     ]);
     test.done();
-
   },
 
   'security group of self-managed asg is not tagged with owned'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -219,11 +210,9 @@ export = {
       { Key: 'Name', Value: 'Stack/Cluster/self-managed' },
     ]);
     test.done();
-
   },
 
   'cluster security group is attached when connecting self-managed nodes'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -247,11 +236,9 @@ export = {
       { 'Fn::GetAtt': ['Cluster9EE0221C', 'ClusterSecurityGroupId'] },
     ]);
     test.done();
-
   },
 
   'spot interrupt handler is not added if spotInterruptHandler is false when connecting self-managed nodes'(test: Test) {
-
     // GIVEN
     const { stack, vpc } = testFixture();
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -276,7 +263,6 @@ export = {
   },
 
   'throws when a non cdk8s chart construct is added as cdk8s chart'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -289,11 +275,9 @@ export = {
 
     test.throws(() => cluster.addCdk8sChart('chart', someConstruct), /Invalid cdk8s chart. Must contain a \'toJson\' method, but found undefined/);
     test.done();
-
   },
 
   'throws when a core construct is added as cdk8s chart'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -306,11 +290,9 @@ export = {
 
     test.throws(() => cluster.addCdk8sChart('chart', someConstruct), /Invalid cdk8s chart. Must contain a \'toJson\' method, but found undefined/);
     test.done();
-
   },
 
   'cdk8s chart can be added to cluster'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -354,7 +336,6 @@ export = {
   },
 
   'cluster connections include both control plane and cluster security group'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = new eks.Cluster(stack, 'Cluster', {
@@ -368,11 +349,9 @@ export = {
     ]);
 
     test.done();
-
   },
 
   'can declare a security group from a different stack'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -388,7 +367,6 @@ export = {
     }
 
     class NetworkStack extends cdk.Stack {
-
       public readonly securityGroup: ec2.ISecurityGroup;
       public readonly vpc: ec2.IVpc;
 
@@ -397,7 +375,6 @@ export = {
         this.vpc = new ec2.Vpc(this, 'Vpc');
         this.securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', { vpc: this.vpc });
       }
-
     }
 
     const { app } = testFixture();
@@ -411,7 +388,6 @@ export = {
   },
 
   'can declare a manifest with a token from a different stack than the cluster that depends on the cluster stack'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -463,7 +439,6 @@ export = {
   },
 
   'can declare a chart with a token from a different stack than the cluster that depends on the cluster stack'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -506,7 +481,6 @@ export = {
   },
 
   'can declare a HelmChart in a different stack than the cluster'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -525,7 +499,6 @@ export = {
 
         const resource = new cdk.CfnResource(this, 'resource', { type: 'MyType' });
         new eks.HelmChart(this, `chart-${id}`, { cluster: props.cluster, chart: resource.ref });
-
       }
     }
 
@@ -540,7 +513,6 @@ export = {
   },
 
   'throws when declaring an ASG role in a different stack than the cluster'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -554,7 +526,6 @@ export = {
     }
 
     class CapacityStack extends cdk.Stack {
-
       public group: asg.AutoScalingGroup;
 
       constructor(scope: constructs.Construct, id: string, props: cdk.StackProps & { cluster: eks.Cluster }) {
@@ -587,7 +558,6 @@ export = {
   },
 
   'can declare a ServiceAccount in a different stack than the cluster'(test: Test) {
-
     class ClusterStack extends cdk.Stack {
       public eksCluster: eks.Cluster;
 
@@ -901,7 +871,6 @@ export = {
   },
 
   'import cluster with new kubectl private subnets'(test: Test) {
-
     const { stack, vpc } = testFixture();
 
     const cluster = eks.Cluster.fromClusterAttributes(stack, 'Cluster', {
@@ -920,7 +889,6 @@ export = {
     ]);
 
     test.done();
-
   },
 
   'exercise export/import'(test: Test) {
@@ -2084,7 +2052,6 @@ export = {
   },
 
   'kubectl provider passes security group to provider'(test: Test) {
-
     const { stack } = testFixture();
 
     new eks.Cluster(stack, 'Cluster1', {
@@ -2105,7 +2072,6 @@ export = {
   },
 
   'kubectl provider passes environment to lambda'(test: Test) {
-
     const { stack } = testFixture();
 
     const cluster = new eks.Cluster(stack, 'Cluster1', {
@@ -2144,7 +2110,6 @@ export = {
   'endpoint access': {
 
     'public restricted'(test: Test) {
-
       test.throws(() => {
         eks.EndpointAccess.PUBLIC.onlyFrom('1.2.3.4/32');
       }, /Cannot restric public access to endpoint when private access is disabled. Use PUBLIC_AND_PRIVATE.onlyFrom\(\) instead./);
@@ -2173,7 +2138,6 @@ export = {
     },
 
     'public non restricted with private subnets'(test: Test) {
-
       const { stack } = testFixture();
 
       new eks.Cluster(stack, 'Cluster', {
@@ -2190,7 +2154,6 @@ export = {
       test.equal(template.Resources.Handler886CB40B.Properties.VpcConfig, undefined);
 
       test.done();
-
     },
 
     'private without private subnets'(test: Test) {
@@ -2209,7 +2172,6 @@ export = {
     },
 
     'private with private subnets'(test: Test) {
-
       const { stack } = testFixture();
 
       new eks.Cluster(stack, 'Cluster', {
@@ -2226,7 +2188,6 @@ export = {
       test.ok(template.Resources.Handler886CB40B.Properties.VpcConfig.SecurityGroupIds.length !== 0);
 
       test.done();
-
     },
 
     'private and non restricted public without private subnets'(test: Test) {
@@ -2303,7 +2264,6 @@ export = {
     },
 
     'private endpoint access selects only private subnets from looked up vpc'(test: Test) {
-
       const vpcId = 'vpc-12345';
       // can't use the regular fixture because it also adds a VPC to the stack, which prevents
       // us from setting context.
@@ -2365,7 +2325,6 @@ export = {
     },
 
     'private endpoint access selects only private subnets from looked up vpc with concrete subnet selection'(test: Test) {
-
       const vpcId = 'vpc-12345';
       // can't use the regular fixture because it also adds a VPC to the stack, which prevents
       // us from setting context.
@@ -2433,7 +2392,6 @@ export = {
     },
 
     'private endpoint access selects only private subnets from managed vpc with concrete subnet selection'(test: Test) {
-
       const { stack } = testFixture();
 
       const vpc = new ec2.Vpc(stack, 'Vpc');
@@ -2486,7 +2444,6 @@ export = {
       ]);
 
       test.done();
-
     },
 
     'can configure private endpoint access'(test: Test) {
@@ -2501,7 +2458,6 @@ export = {
     },
 
     'kubectl provider chooses only private subnets'(test: Test) {
-
       const { stack } = testFixture();
 
       const vpc = new ec2.Vpc(stack, 'Vpc', {
@@ -2561,7 +2517,6 @@ export = {
     },
 
     'kubectl provider limits number of subnets to 16'(test: Test) {
-
       const { stack } = testFixture();
 
       const subnetConfiguration: ec2.SubnetConfiguration[] = [];
@@ -2611,7 +2566,6 @@ export = {
     },
 
     'kubectl provider considers vpc subnet selection'(test: Test) {
-
       const { stack } = testFixture();
 
       const subnetConfiguration: ec2.SubnetConfiguration[] = [];
@@ -2684,7 +2638,6 @@ export = {
     },
 
     'throw when private access is configured without dns support enabled for the VPC'(test: Test) {
-
       const { stack } = testFixture();
 
       test.throws(() => {
@@ -2700,7 +2653,6 @@ export = {
     },
 
     'throw when private access is configured without dns hostnames enabled for the VPC'(test: Test) {
-
       const { stack } = testFixture();
 
       test.throws(() => {
@@ -2716,7 +2668,6 @@ export = {
     },
 
     'throw when cidrs are configured without public access endpoint'(test: Test) {
-
       test.throws(() => {
         eks.EndpointAccess.PRIVATE.onlyFrom('1.2.3.4/5');
       }, /CIDR blocks can only be configured when public access is enabled/);
@@ -2726,7 +2677,6 @@ export = {
   },
 
   'getServiceLoadBalancerAddress'(test: Test) {
-
     const { stack } = testFixture();
     const cluster = new eks.Cluster(stack, 'Cluster1', { version: CLUSTER_VERSION, prune: false });
 

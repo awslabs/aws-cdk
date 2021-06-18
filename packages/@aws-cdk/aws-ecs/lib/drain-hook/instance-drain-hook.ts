@@ -54,7 +54,6 @@ export interface InstanceDrainHookProps {
  * A hook to drain instances from ECS traffic before they're terminated
  */
 export class InstanceDrainHook extends CoreConstruct {
-
   /**
    * Constructs a new instance of the InstanceDrainHook class.
    */

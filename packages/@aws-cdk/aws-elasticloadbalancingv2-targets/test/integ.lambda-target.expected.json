@@ -95,14 +95,14 @@
     "StackPublicSubnet1NATGatewayD2E1ABF7": {
       "Type": "AWS::EC2::NatGateway",
       "Properties": {
+        "SubnetId": {
+          "Ref": "StackPublicSubnet1Subnet0AD81D22"
+        },
         "AllocationId": {
           "Fn::GetAtt": [
             "StackPublicSubnet1EIPBDAAB2A5",
             "AllocationId"
           ]
-        },
-        "SubnetId": {
-          "Ref": "StackPublicSubnet1Subnet0AD81D22"
         },
         "Tags": [
           {
@@ -457,13 +457,13 @@
         "Code": {
           "ZipFile": "\ndef handler(event, context):\n  return {\n    \"isBase64Encoded\": False,\n    \"statusCode\": 200,\n    \"statusDescription\": \"200 OK\",\n    \"headers\": {\n        \"Set-cookie\": \"cookies\",\n        \"Content-Type\": \"application/json\"\n    },\n    \"body\": \"Hello from Lambda\"\n  }\n      "
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "FunServiceRole3CC876D7",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "python3.6"
       },
       "DependsOn": [

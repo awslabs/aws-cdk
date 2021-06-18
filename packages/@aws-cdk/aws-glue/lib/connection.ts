@@ -10,7 +10,6 @@ import { CfnConnection } from './glue.generated';
  * can instantiate a `ConnectionType` object, e.g: `new ConnectionType('NEW_TYPE')`.
  */
 export class ConnectionType {
-
   /**
    * Designates a connection to a database through Java Database Connectivity (JDBC).
    */
@@ -122,7 +121,6 @@ export interface ConnectionProps extends ConnectionOptions {
  * An AWS Glue connection to a data source.
  */
 export class Connection extends cdk.Resource implements IConnection {
-
   /**
    * Creates a Connection construct that represents an external connection.
    *

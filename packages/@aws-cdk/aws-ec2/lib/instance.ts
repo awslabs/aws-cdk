@@ -236,7 +236,6 @@ export interface InstanceProps {
  * This represents a single EC2 instance
  */
 export class Instance extends Resource implements IInstance {
-
   /**
    * The type of OS the instance is running.
    */

@@ -231,7 +231,6 @@ export interface TagManagerOptions {
  * TagManager facilitates a common implementation of tagging for Constructs.
  */
 export class TagManager {
-
   /**
    * Check whether the given construct is Taggable
    */

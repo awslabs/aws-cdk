@@ -29,7 +29,6 @@ class TestBucketDeployment extends cdk.Stack {
       distributionPaths: ['/images/*.png'],
       retainOnDelete: false, // default is true, which will block the integration test cleanup
     });
-
   }
 }
 

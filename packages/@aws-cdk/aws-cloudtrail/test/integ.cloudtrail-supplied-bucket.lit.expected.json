@@ -42,13 +42,13 @@
         "Code": {
           "ZipFile": "exports.handler = {}"
         },
-        "Handler": "hello.handler",
         "Role": {
           "Fn::GetAtt": [
             "LambdaFunctionServiceRoleC555A460",
             "Arn"
           ]
         },
+        "Handler": "hello.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

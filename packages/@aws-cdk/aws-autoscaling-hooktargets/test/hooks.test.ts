@@ -124,5 +124,4 @@ describe('given an AutoScalingGroup', () => {
       },
     });
   });
-
 });

@@ -308,7 +308,6 @@ export interface SelectedSubnets {
  * A new or imported VPC
  */
 abstract class VpcBase extends Resource implements IVpc {
-
   /**
    * Identifier for this VPC
    */
@@ -488,7 +487,6 @@ abstract class VpcBase extends Resource implements IVpc {
 
     if (selection.subnetGroupName !== undefined) { // Select by name
       subnets = this.selectSubnetObjectsByName(selection.subnetGroupName);
-
     } else { // Or specify by type
       const type = selection.subnetType || SubnetType.PRIVATE;
       subnets = this.selectSubnetObjectsByType(type);
@@ -548,7 +546,6 @@ abstract class VpcBase extends Resource implements IVpc {
    * PUBLIC (in that order) that has any subnets.
    */
   private reifySelectionDefaults(placement: SubnetSelection): SubnetSelection {
-
     if (placement.subnetName !== undefined) {
       if (placement.subnetGroupName !== undefined) {
         throw new Error('Please use only \'subnetGroupName\' (\'subnetName\' is deprecated and has the same behavior)');
@@ -1463,7 +1460,6 @@ export interface SubnetProps {
  * @resource AWS::EC2::Subnet
  */
 export class Subnet extends Resource implements ISubnet {
-
   public static isVpcSubnet(x: any): x is Subnet {
     return VPC_SUBNET_SYMBOL in x;
   }
@@ -1755,7 +1751,6 @@ export interface PublicSubnetAttributes extends SubnetAttributes { }
  * Represents a public VPC subnet resource
  */
 export class PublicSubnet extends Subnet implements IPublicSubnet {
-
   public static fromPublicSubnetAttributes(scope: Construct, id: string, attrs: PublicSubnetAttributes): IPublicSubnet {
     return new ImportedSubnet(scope, id, attrs);
   }
@@ -1793,7 +1788,6 @@ export interface PrivateSubnetAttributes extends SubnetAttributes { }
  * Represents a private VPC subnet resource
  */
 export class PrivateSubnet extends Subnet implements IPrivateSubnet {
-
   public static fromPrivateSubnetAttributes(scope: Construct, id: string, attrs: PrivateSubnetAttributes): IPrivateSubnet {
     return new ImportedSubnet(scope, id, attrs);
   }

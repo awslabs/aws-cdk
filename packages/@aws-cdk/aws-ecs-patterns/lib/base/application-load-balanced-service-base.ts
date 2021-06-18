@@ -445,7 +445,6 @@ export abstract class ApplicationLoadBalancedServiceBase extends CoreConstruct {
     this.targetGroup = this.listener.addTargets('ECS', targetProps);
 
     if (protocol === ApplicationProtocol.HTTPS) {
-
       if (props.certificate !== undefined) {
         this.certificate = props.certificate;
       } else {

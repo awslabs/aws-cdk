@@ -87,7 +87,6 @@ export interface IDomainName extends IResource {
 }
 
 export class DomainName extends Resource implements IDomainName {
-
   /**
    * Imports an existing domain name.
    */

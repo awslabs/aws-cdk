@@ -33,7 +33,6 @@ class CnVpcEndpointServiceStack extends cdk.Stack {
       value: service1.vpcEndpointServiceName,
       description: 'Give this to service consumers so they can connect via VPC Endpoint',
     });
-
   }
 }
 

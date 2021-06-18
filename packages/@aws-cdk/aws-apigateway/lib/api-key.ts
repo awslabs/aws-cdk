@@ -135,7 +135,6 @@ abstract class ApiKeyBase extends Resource implements IApiKey {
  * for Method resources that require an Api Key.
  */
 export class ApiKey extends ApiKeyBase {
-
   /**
    * Import an ApiKey by its Id
    */

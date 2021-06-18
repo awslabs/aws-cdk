@@ -106,8 +106,8 @@
             "Arn"
           ]
         },
-        "TumblingWindowInSeconds": 60,
-        "StartingPosition": "TRIM_HORIZON"
+        "StartingPosition": "TRIM_HORIZON",
+        "TumblingWindowInSeconds": 60
       }
     },
     "Q63C6E3AB": {

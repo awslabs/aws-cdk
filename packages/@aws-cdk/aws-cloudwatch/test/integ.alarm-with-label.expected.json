@@ -1,50 +1,50 @@
 {
-    "Resources": {
-        "Alarm1F9009D71": {
-            "Type": "AWS::CloudWatch::Alarm",
-            "Properties": {
-                "Metrics": [
-                    {
-                        "Id": "m1",
-                        "Label": "Metric [AVG: ${AVG}]",
-                        "MetricStat": {
-                            "Metric": {
-                                "MetricName": "Metric",
-                                "Namespace": "CDK/Test"
-                            },
-                            "Period": 300,
-                            "Stat": "Average"
-                        },
-                        "ReturnData": true
-                    }
-                ],
-                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "EvaluationPeriods": 3,
-                "Threshold": 100
-            }
-        },
-        "Alarm2A7122E13": {
-            "Type": "AWS::CloudWatch::Alarm",
-            "Properties": {
-                "Metrics": [
-                    {
-                        "Id": "m1",
-                        "Label": "Metric [AVG: ${AVG}]",
-                        "MetricStat": {
-                            "Metric": {
-                                "MetricName": "Metric",
-                                "Namespace": "CDK/Test"
-                            },
-                            "Period": 300,
-                            "Stat": "Average"
-                        },
-                        "ReturnData": true
-                    }
-                ],
-                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-                "EvaluationPeriods": 3,
-                "Threshold": 100
-            }
-        }
+  "Resources": {
+    "Alarm1F9009D71": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 3,
+        "Metrics": [
+          {
+            "Id": "m1",
+            "Label": "Metric [AVG: ${AVG}]",
+            "MetricStat": {
+              "Metric": {
+                "MetricName": "Metric",
+                "Namespace": "CDK/Test"
+              },
+              "Period": 300,
+              "Stat": "Average"
+            },
+            "ReturnData": true
+          }
+        ],
+        "Threshold": 100
+      }
+    },
+    "Alarm2A7122E13": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 3,
+        "Metrics": [
+          {
+            "Id": "m1",
+            "Label": "Metric [AVG: ${AVG}]",
+            "MetricStat": {
+              "Metric": {
+                "MetricName": "Metric",
+                "Namespace": "CDK/Test"
+              },
+              "Period": 300,
+              "Stat": "Average"
+            },
+            "ReturnData": true
+          }
+        ],
+        "Threshold": 100
+      }
     }
+  }
 }

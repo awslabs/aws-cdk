@@ -279,7 +279,6 @@ export function isTagPropertyStandard(prop: Property): prop is TagPropertyStanda
     (prop as TagPropertyStandard).ItemType === 'ElasticFileSystemTag' ||
     (prop as TagPropertyStandard).ItemType === 'HostedZoneTag'
   );
-
 }
 
 export function isTagPropertyAutoScalingGroup(prop: Property): prop is TagPropertyAutoScalingGroup {

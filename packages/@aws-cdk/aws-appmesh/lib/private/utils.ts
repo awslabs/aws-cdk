@@ -37,7 +37,8 @@ export interface ConnectionPoolConfig {
  *
  */
 export function renderTlsClientPolicy(scope: Construct, tlsClientPolicy: TlsClientPolicy | undefined,
-  extractor: (c: TlsValidationTrustConfig) => CfnVirtualNode.TlsValidationContextTrustProperty): CfnVirtualNode.ClientPolicyTlsProperty | undefined {
+    extractor: (c: TlsValidationTrustConfig) => CfnVirtualNode.TlsValidationContextTrustProperty): CfnVirtualNode.ClientPolicyTlsProperty |
+    undefined {
   return tlsClientPolicy
     ? {
       ports: tlsClientPolicy.ports,

@@ -54,7 +54,6 @@ export interface PublishToTopicProps {
  * @deprecated Use `SnsPublish`
  */
 export class PublishToTopic implements sfn.IStepFunctionsTask {
-
   private readonly integrationPattern: sfn.ServiceIntegrationPattern;
 
   constructor(private readonly topic: sns.ITopic, private readonly props: PublishToTopicProps) {

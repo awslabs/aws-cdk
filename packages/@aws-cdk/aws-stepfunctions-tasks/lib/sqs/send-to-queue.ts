@@ -60,7 +60,6 @@ export interface SendToQueueProps {
  * @deprecated Use `SqsSendMessage`
  */
 export class SendToQueue implements sfn.IStepFunctionsTask {
-
   private readonly integrationPattern: sfn.ServiceIntegrationPattern;
 
   constructor(private readonly queue: sqs.IQueue, private readonly props: SendToQueueProps) {

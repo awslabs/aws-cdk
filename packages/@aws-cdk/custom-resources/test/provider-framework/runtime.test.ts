@@ -104,9 +104,7 @@ test('fails gracefully if "onEvent" throws an error', async () => {
 });
 
 describe('PhysicalResourceId', () => {
-
   describe('if not omitted from onEvent result', () => {
-
     it('defaults to RequestId for CREATE', async () => {
       // WHEN
       mocks.onEventImplMock = async () => undefined;
@@ -184,7 +182,6 @@ describe('PhysicalResourceId', () => {
     expectNoWaiter();
     expectCloudFormationFailed('DELETE: cannot change the physical resource ID from "CurrentPhysicalId" to "NewPhysicalId" during deletion');
   });
-
 });
 
 test('isComplete always returns "false" and then a timeout occurs', async () => {
@@ -243,7 +240,6 @@ test('fails if user handler returns a non-object response', async () => {
 });
 
 describe('if CREATE fails, the subsequent DELETE will be ignored', () => {
-
   it('FAILED response sets PhysicalResourceId to a special marker', async () => {
     // WHEN
     mocks.onEventImplMock = async () => { throw new Error('CREATE FAILED'); };
@@ -271,7 +267,6 @@ describe('if CREATE fails, the subsequent DELETE will be ignored', () => {
     // THEN
     expectCloudFormationSuccess();
   });
-
 });
 
 // -----------------------------------------------------------------------------------------------------------------------

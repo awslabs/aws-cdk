@@ -72,7 +72,6 @@ export interface FargateTaskDefinitionAttributes extends CommonTaskDefinitionAtt
  * @resource AWS::ECS::TaskDefinition
  */
 export class FargateTaskDefinition extends TaskDefinition implements IFargateTaskDefinition {
-
   /**
    * Imports a task definition from the specified task definition ARN.
    */

@@ -109,7 +109,6 @@ function resolveValue(consumer: Stack, reference: CfnReference): IResolvable {
 function findAllReferences(root: IConstruct) {
   const result = new Array<{ source: CfnElement, value: CfnReference }>();
   for (const consumer of root.node.findAll()) {
-
     // include only CfnElements (i.e. resources)
     if (!CfnElement.isCfnElement(consumer)) {
       continue;
@@ -121,7 +120,6 @@ function findAllReferences(root: IConstruct) {
       // iterate over all the tokens (e.g. intrinsic functions, lazies, etc) that
       // were found in the cloudformation representation of this resource.
       for (const token of tokens) {
-
         // include only CfnReferences (i.e. "Ref" and "Fn::GetAtt")
         if (!CfnReference.isCfnReference(token)) {
           continue;

@@ -121,7 +121,6 @@ export interface Ec2ServiceAttributes {
  * @resource AWS::ECS::Service
  */
 export class Ec2Service extends BaseService implements IEc2Service {
-
   /**
    * Imports from the specified service ARN.
    */

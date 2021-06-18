@@ -85,7 +85,6 @@ nodeunitShim({
     },
 
     'dns getters correspond to CFN properties': (() => {
-
       const tests: any = { };
 
       const inputs = [
@@ -96,9 +95,7 @@ nodeunitShim({
       ];
 
       for (const input of inputs) {
-
         tests[`[dnsSupport=${input.dnsSupport},dnsHostnames=${input.dnsHostnames}]`] = (test: Test) => {
-
           const stack = getTestStack();
           const vpc = new Vpc(stack, 'TheVPC', {
             cidr: '192.168.0.0/16',
@@ -117,7 +114,6 @@ nodeunitShim({
           test.equal(input.dnsSupport, vpc.dnsSupportEnabled);
           test.equal(input.dnsHostnames, vpc.dnsHostnamesEnabled);
           test.done();
-
         };
       }
 
@@ -548,7 +544,6 @@ nodeunitShim({
         });
       }, /make sure you don't configure any PRIVATE subnets/);
       test.done();
-
     },
 
     'natGateway = 0 defaults with ISOLATED subnet'(test: Test) {

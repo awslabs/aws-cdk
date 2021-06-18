@@ -22,7 +22,6 @@ export interface KinesisFirehoseStreamProps {
  * Customize the Firehose Stream Event Target
  */
 export class KinesisFirehoseStream implements events.IRuleTarget {
-
   constructor(private readonly stream: firehose.CfnDeliveryStream, private readonly props: KinesisFirehoseStreamProps = {}) {
   }
 

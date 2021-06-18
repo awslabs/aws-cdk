@@ -58,13 +58,13 @@
         "Code": {
           "ZipFile": "exports.handler =  async function(event, context) { console.log(\"Hello from CDK! with Alias Provisioned Concurrent Exec!\");}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "MyLambdaAliasPCEServiceRoleF7C9F212",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [
@@ -166,13 +166,13 @@
         "Code": {
           "ZipFile": "exports.handler =  async function(event, context) { console.log(\"Hello from CDK! with Version Provisioned Concurrent Exec!\");}"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "MyLambdaVersionPCEServiceRole2ACFB73E",
             "Arn"
           ]
         },
+        "Handler": "index.handler",
         "Runtime": "nodejs10.x"
       },
       "DependsOn": [

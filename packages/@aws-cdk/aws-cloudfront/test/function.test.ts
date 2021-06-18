@@ -5,7 +5,6 @@ import { App, Stack } from '@aws-cdk/core';
 import { Function, FunctionCode } from '../lib';
 
 describe('CloudFront Function', () => {
-
   test('minimal example', () => {
     const app = new App();
     const stack = new Stack(app, 'Stack', {

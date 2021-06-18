@@ -224,7 +224,6 @@ export interface DistributionProps {
  * A CloudFront distribution with associated origin(s) and caching behavior(s).
  */
 export class Distribution extends Resource implements IDistribution {
-
   /**
    * Creates a Distribution construct that represents an external (imported) distribution.
    */

@@ -39,7 +39,6 @@ export class CodeBuildProject implements events.IRuleTarget {
    * Allows using build projects as event rule targets.
    */
   public bind(_rule: events.IRule, _id?: string): events.RuleTargetConfig {
-
     if (this.props.deadLetterQueue) {
       addToDeadLetterQueueResourcePolicy(_rule, this.props.deadLetterQueue);
     }

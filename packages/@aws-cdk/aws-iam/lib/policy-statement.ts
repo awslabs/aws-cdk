@@ -23,7 +23,6 @@ const ensureArrayOrUndefined = (field: any) => {
  * Represents a statement in an IAM policy document.
  */
 export class PolicyStatement {
-
   /**
    * Creates a new PolicyStatement based on the object provided.
    * This will accept an object created from the `.toJSON()` call
@@ -72,7 +71,6 @@ export class PolicyStatement {
   constructor(props: PolicyStatementProps = {}) {
     // Validate actions
     for (const action of [...props.actions || [], ...props.notActions || []]) {
-
       if (!/^(\*|[a-zA-Z0-9-]+:[a-zA-Z0-9*]+)$/.test(action) && !cdk.Token.isUnresolved(action)) {
         throw new Error(`Action '${action}' is invalid. An action string consists of a service namespace, a colon, and the name of an action. Action names can include wildcards.`);
       }
@@ -337,7 +335,6 @@ export class PolicyStatement {
     });
 
     function _norm(values: any, { unique }: { unique: boolean } = { unique: false }) {
-
       if (typeof(values) === 'undefined') {
         return undefined;
       }

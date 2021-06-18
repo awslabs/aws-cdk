@@ -287,7 +287,6 @@ export class CloudFormationDeployments {
     requiresBootstrapStackVersion: number | undefined,
     bootstrapStackVersionSsmParameter: string | undefined,
     toolkitInfo: ToolkitInfo) {
-
     if (requiresBootstrapStackVersion === undefined) { return; }
 
     try {

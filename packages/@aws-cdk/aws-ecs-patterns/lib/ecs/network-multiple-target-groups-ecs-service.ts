@@ -63,7 +63,6 @@ export interface NetworkMultipleTargetGroupsEc2ServiceProps extends NetworkMulti
  * An EC2 service running on an ECS cluster fronted by a network load balancer.
  */
 export class NetworkMultipleTargetGroupsEc2Service extends NetworkMultipleTargetGroupsServiceBase {
-
   /**
    * The EC2 service in this construct.
    */

@@ -44,7 +44,10 @@
           [
             "https://",
             {
-              "Fn::GetAtt": ["MyBucketF68F3FF0", "RegionalDomainName"]
+              "Fn::GetAtt": [
+                "MyBucketF68F3FF0",
+                "RegionalDomainName"
+              ]
             },
             "/myfolder/myfile.txt"
           ]
@@ -58,7 +61,10 @@
           [
             "https://",
             {
-              "Fn::GetAtt": ["MyBucketF68F3FF0", "DomainName"]
+              "Fn::GetAtt": [
+                "MyBucketF68F3FF0",
+                "DomainName"
+              ]
             },
             "/myfolder/myfile.txt"
           ]

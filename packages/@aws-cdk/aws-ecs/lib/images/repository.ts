@@ -29,7 +29,6 @@ export interface RepositoryImageProps {
  * [EcrImage](https://docs.aws.amazon.com/AmazonECR/latest/userguide/images.html).
  */
 export class RepositoryImage extends ContainerImage {
-
   /**
    * Constructs a new instance of the RepositoryImage class.
    */

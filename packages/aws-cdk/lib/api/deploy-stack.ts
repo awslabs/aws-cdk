@@ -321,11 +321,10 @@ export async function deployStack(options: DeployStackOptions): Promise<DeploySt
  * @param toolkitInfo information about the toolkit stack
  */
 async function makeBodyParameter(
-  stack: cxapi.CloudFormationStackArtifact,
-  resolvedEnvironment: cxapi.Environment,
-  assetManifest: AssetManifestBuilder,
-  toolkitInfo: ToolkitInfo): Promise<TemplateBodyParameter> {
-
+    stack: cxapi.CloudFormationStackArtifact,
+    resolvedEnvironment: cxapi.Environment,
+    assetManifest: AssetManifestBuilder,
+    toolkitInfo: ToolkitInfo): Promise<TemplateBodyParameter> {
   // If the template has already been uploaded to S3, just use it from there.
   if (stack.stackTemplateAssetObjectUrl) {
     return { TemplateURL: restUrlFromManifest(stack.stackTemplateAssetObjectUrl, resolvedEnvironment) };
@@ -406,10 +405,9 @@ export async function destroyStack(options: DestroyStackOptions) {
  * do anything.
  */
 async function canSkipDeploy(
-  deployStackOptions: DeployStackOptions,
-  cloudFormationStack: CloudFormationStack,
-  parameterChanges: boolean): Promise<boolean> {
-
+    deployStackOptions: DeployStackOptions,
+    cloudFormationStack: CloudFormationStack,
+    parameterChanges: boolean): Promise<boolean> {
   const deployName = deployStackOptions.deployName || deployStackOptions.stack.stackName;
   debug(`${deployName}: checking if we can skip deploy`);
 

@@ -97,19 +97,19 @@
         "Code": {
           "ZipFile": "foo"
         },
-        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "MyLayeredLambdaServiceRole1A7DC118",
             "Arn"
           ]
         },
-        "Runtime": "nodejs10.x",
+        "Handler": "index.handler",
         "Layers": [
           {
             "Ref": "MyLayer38944FA5"
           }
-        ]
+        ],
+        "Runtime": "nodejs10.x"
       },
       "DependsOn": [
         "MyLayeredLambdaServiceRole1A7DC118"

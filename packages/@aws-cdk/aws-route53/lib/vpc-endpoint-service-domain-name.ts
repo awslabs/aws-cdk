@@ -39,7 +39,6 @@ export interface VpcEndpointServiceDomainNameProps {
  * A Private DNS configuration for a VPC endpoint service.
  */
 export class VpcEndpointServiceDomainName extends CoreConstruct {
-
   // Track all domain names created, so someone doesn't accidentally associate two domains with a single service
   private static readonly endpointServices: IVpcEndpointService[] = [];
 
@@ -90,7 +89,6 @@ export class VpcEndpointServiceDomainName extends CoreConstruct {
    * returning the values to use in a TxtRecord, which AWS uses to verify domain ownership.
    */
   private getPrivateDnsConfiguration(serviceUniqueId: string, serviceId: string, privateDnsName: string): PrivateDnsConfiguration {
-
     // The custom resource which tells AWS to enable Private DNS on the given service, using the given domain name
     // AWS will generate a name/value pair for use in a TxtRecord, which is used to verify domain ownership.
     const enablePrivateDnsAction = {

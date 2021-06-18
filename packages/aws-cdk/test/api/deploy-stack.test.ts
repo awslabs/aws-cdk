@@ -57,7 +57,6 @@ beforeEach(() => {
     updateTerminationProtection: jest.fn((_o) => ({ StackId: 'stack-id' })),
   };
   sdk.stubCloudFormation(cfnMocks as any);
-
 });
 
 function standardDeployStackArguments() {

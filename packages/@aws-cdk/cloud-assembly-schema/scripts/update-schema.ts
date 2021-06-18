@@ -87,12 +87,9 @@ export function generateSchema(schemaName: string, saveToFile: boolean = true) {
  * 'description' of the property.
  */
 function augmentDescription(schema: any) {
-
   function _recurse(o: any) {
     for (const prop in o) {
-
       if (prop === 'description' && typeof o[prop] === 'string') {
-
         const description = o[prop];
         const defaultValue = o.default;
 
@@ -106,7 +103,6 @@ function augmentDescription(schema: any) {
 
         delete o.default;
         o[prop] = descriptionWithDefault;
-
       } else if (typeof o[prop] === 'object') {
         _recurse(o[prop]);
       }
@@ -114,7 +110,6 @@ function augmentDescription(schema: any) {
   }
 
   _recurse(schema);
-
 }
 
 /**

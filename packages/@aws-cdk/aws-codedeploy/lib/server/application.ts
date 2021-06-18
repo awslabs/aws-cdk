@@ -54,7 +54,6 @@ export class ServerApplication extends Resource implements IServerApplication {
     }
 
     return new Import(scope, id);
-
   }
 
   public readonly applicationArn: string;

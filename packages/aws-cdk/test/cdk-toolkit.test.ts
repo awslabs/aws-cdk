@@ -22,7 +22,6 @@ beforeEach(() => {
       stacks: [MockStack.MOCK_STACK_C],
     }],
   });
-
 });
 
 function defaultToolkitSetup() {

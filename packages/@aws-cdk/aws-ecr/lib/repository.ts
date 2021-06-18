@@ -391,7 +391,6 @@ export class Repository extends RepositoryBase {
   }
 
   public static fromRepositoryArn(scope: Construct, id: string, repositoryArn: string): IRepository {
-
     // if repositoryArn is a token, the repository name is also required. this is because
     // repository names can include "/" (e.g. foo/bar/myrepo) and it is impossible to
     // parse the name from an ARN using CloudFormation's split/select.

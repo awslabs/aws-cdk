@@ -66,7 +66,6 @@ export class OriginAccessIdentity extends OriginAccessIdentityBase implements IO
     scope: Construct,
     id: string,
     originAccessIdentityName: string): IOriginAccessIdentity {
-
     class Import extends OriginAccessIdentityBase {
       public readonly originAccessIdentityName = originAccessIdentityName;
       public readonly grantPrincipal = new iam.ArnPrincipal(this.arn());

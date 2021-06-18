@@ -485,7 +485,6 @@ export interface StandardAttributesMask {
  * A set of attributes, useful to set Read and Write attributes
  */
 export class ClientAttributes {
-
   /**
    * The set of attributes
    */

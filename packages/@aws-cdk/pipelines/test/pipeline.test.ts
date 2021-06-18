@@ -455,7 +455,6 @@ test('changing CLI version leads to a different pipeline structure (restarting i
   });
 
   expect(JSON.stringify(structure2.capturedValue)).not.toEqual(JSON.stringify(structure3.capturedValue));
-
 });
 
 test('add another action to an existing stage', () => {

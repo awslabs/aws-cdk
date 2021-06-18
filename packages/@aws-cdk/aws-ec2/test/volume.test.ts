@@ -65,7 +65,6 @@ describe('volume', () => {
     expect(volume.volumeId).toEqual(volumeId);
     expect(volume.availabilityZone).toEqual(availabilityZone);
     expect(volume.encryptionKey).toEqual(encryptionKey);
-
   });
 
   test('tagged volume', () => {
@@ -90,8 +89,6 @@ describe('volume', () => {
         Value: 'TagValue',
       }],
     }, ResourcePart.Properties));
-
-
   });
 
   test('autoenableIO', () => {
@@ -109,8 +106,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       AutoEnableIO: true,
     }, ResourcePart.Properties));
-
-
   });
 
   test('encryption', () => {
@@ -128,8 +123,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       Encrypted: true,
     }, ResourcePart.Properties));
-
-
   });
 
   test('encryption with kms', () => {
@@ -207,8 +200,6 @@ describe('volume', () => {
         ],
       },
     }));
-
-
   });
 
   // only enable for legacy behaviour
@@ -242,8 +233,6 @@ describe('volume', () => {
         ],
       },
     }));
-
-
   });
 
   test('iops', () => {
@@ -263,8 +252,6 @@ describe('volume', () => {
       Iops: 500,
       VolumeType: 'io1',
     }, ResourcePart.Properties));
-
-
   });
 
   test('multi-attach', () => {
@@ -284,8 +271,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       MultiAttachEnabled: true,
     }, ResourcePart.Properties));
-
-
   });
 
   test('snapshotId', () => {
@@ -302,8 +287,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       SnapshotId: 'snap-00000000',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: standard', () => {
@@ -321,8 +304,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'standard',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: io1', () => {
@@ -341,8 +322,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'io1',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: io2', () => {
@@ -361,8 +340,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'io2',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: gp2', () => {
@@ -380,8 +357,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'gp2',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: gp3', () => {
@@ -399,8 +374,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'gp3',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: st1', () => {
@@ -418,8 +391,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'st1',
     }, ResourcePart.Properties));
-
-
   });
 
   test('volume: sc1', () => {
@@ -437,8 +408,6 @@ describe('volume', () => {
     cdkExpect(stack).to(haveResourceLike('AWS::EC2::Volume', {
       VolumeType: 'sc1',
     }, ResourcePart.Properties));
-
-
   });
 
   test('grantAttachVolume to any instance', () => {
@@ -508,11 +477,9 @@ describe('volume', () => {
         }],
       },
     }));
-
   });
 
   describe('grantAttachVolume to any instance with encryption', () => {
-
     // This exact assertions here are only applicable when 'aws-kms:defaultKeyPolicies' feature flag is disabled.
     // See subsequent test case for the updated behaviour
     testLegacyBehavior('legacy', cdk.App, (app) => {
@@ -572,8 +539,6 @@ describe('volume', () => {
           ],
         },
       }));
-
-
     });
 
     testFutureBehavior('with future flag aws-kms:defaultKeyPolicies', { [cxapi.KMS_DEFAULT_KEY_POLICIES]: true }, cdk.App, (app) => {
@@ -626,10 +591,7 @@ describe('volume', () => {
           }),
         },
       }));
-
-
     });
-
   });
 
   test('grantAttachVolume to any instance with KMS.fromKeyArn() encryption', () => {
@@ -703,8 +665,6 @@ describe('volume', () => {
         ],
       },
     }));
-
-
   });
 
   test('grantAttachVolume to specific instances', () => {
@@ -791,8 +751,6 @@ describe('volume', () => {
         }],
       },
     }));
-
-
   });
 
   test('grantAttachVolume to instance self', () => {
@@ -868,8 +826,6 @@ describe('volume', () => {
         },
       ],
     }, ResourcePart.Properties));
-
-
   });
 
   test('grantAttachVolume to instance self with suffix', () => {
@@ -945,7 +901,6 @@ describe('volume', () => {
         },
       ],
     }, ResourcePart.Properties));
-
   });
 
   test('grantDetachVolume to any instance', () => {
@@ -1015,7 +970,6 @@ describe('volume', () => {
         }],
       },
     }));
-
   });
 
   test('grantDetachVolume from specific instance', () => {
@@ -1102,8 +1056,6 @@ describe('volume', () => {
         }],
       },
     }));
-
-
   });
 
   test('grantDetachVolume from instance self', () => {
@@ -1179,8 +1131,6 @@ describe('volume', () => {
         },
       ],
     }, ResourcePart.Properties));
-
-
   });
 
   test('grantDetachVolume from instance self with suffix', () => {
@@ -1256,7 +1206,6 @@ describe('volume', () => {
         },
       ],
     }, ResourcePart.Properties));
-
   });
 
   test('validation fromVolumeAttributes', () => {
@@ -1293,7 +1242,6 @@ describe('volume', () => {
         availabilityZone: 'us-east-1a',
       });
     }).toThrow('`volumeId` does not match expected pattern. Expected `vol-<hexadecmial value>` (ex: `vol-05abe246af`) or a Token');
-
   });
 
   test('validation required props', () => {
@@ -1351,8 +1299,6 @@ describe('volume', () => {
         encryptionKey: key,
       });
     }).not.toThrow();
-
-
   });
 
   test('validation snapshotId', () => {
@@ -1390,8 +1336,6 @@ describe('volume', () => {
         snapshotId: 'snap-1234 ', // trailing extra character(s)
       });
     }).toThrow('`snapshotId` does match expected pattern. Expected `snap-<hexadecmial value>` (ex: `snap-05abe246af`) or Token');
-
-
   });
 
   test('validation iops', () => {
@@ -1514,8 +1458,6 @@ describe('volume', () => {
         });
       }).toThrow(/iops has a maximum ratio of/);
     }
-
-
   });
 
   test('validation multi-attach', () => {
@@ -1559,8 +1501,6 @@ describe('volume', () => {
         }).toThrow(/multi-attach is supported exclusively/);
       }
     }
-
-
   });
 
   test('validation size in range', () => {
@@ -1627,8 +1567,5 @@ describe('volume', () => {
         });
       }).toThrow(/volumes must be between/);
     }
-
-
   });
-
 });

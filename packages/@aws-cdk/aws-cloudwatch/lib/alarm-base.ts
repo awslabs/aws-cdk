@@ -36,7 +36,6 @@ export interface IAlarm extends IAlarmRule, IResource {
  * The base class for Alarm and CompositeAlarm resources.
  */
 export abstract class AlarmBase extends Resource implements IAlarm {
-
   /**
    * @attribute
    */
@@ -92,5 +91,4 @@ export abstract class AlarmBase extends Resource implements IAlarm {
 
     this.okActionArns.push(...actions.map(a => a.bind(this, this).alarmActionArn));
   }
-
 }

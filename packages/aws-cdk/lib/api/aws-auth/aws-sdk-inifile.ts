@@ -39,7 +39,6 @@ export class PatchedSharedIniFileCredentials extends AWS.SharedIniFileCredential
     creds: Record<string, Record<string, string>>,
     roleProfile: Record<string, string>,
     callback: (err?: Error, data?: any) => void) {
-
     // Need to duplicate the whole implementation here -- the function is long and has been written in
     // such a way that there are no small monkey patches possible.
 
@@ -121,7 +120,6 @@ export class PatchedSharedIniFileCredentials extends AWS.SharedIniFileCredential
   }
 
   private sourceProfileCredentials(sourceProfile: string, profiles: Record<string, Record<string, string>>) {
-
     var sourceProfileExistanceTest = profiles[sourceProfile];
 
     if (typeof sourceProfileExistanceTest !== 'object') {
@@ -138,13 +136,11 @@ export class PatchedSharedIniFileCredentials extends AWS.SharedIniFileCredential
         preferStaticCredentials: true,
       }),
     );
-
   }
 
   // the aws-sdk for js does not support 'credential_source' (https://github.com/aws/aws-sdk-js/issues/1916)
   // so unfortunately we need to implement this ourselves.
   private credentialSourceCredentials(sourceCredential: string) {
-
     // see https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-credential_source.html
     switch (sourceCredential) {
       case 'Environment': {
@@ -160,7 +156,6 @@ export class PatchedSharedIniFileCredentials extends AWS.SharedIniFileCredential
         throw new Error(`credential_source ${sourceCredential} in profile ${this.profile} is unsupported. choose one of [Environment, Ec2InstanceMetadata, EcsContainer]`);
       }
     }
-
   }
 }
 

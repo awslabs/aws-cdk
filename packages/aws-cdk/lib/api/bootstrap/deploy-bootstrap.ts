@@ -62,7 +62,6 @@ export class BootstrapStack {
     parameters: Record<string, string | undefined>,
     options: Omit<BootstrapEnvironmentOptions, 'parameters'>,
   ): Promise<DeployStackResult> {
-
     const newVersion = bootstrapVersionFromTemplate(template);
     if (this.currentToolkitInfo.found && newVersion < this.currentToolkitInfo.version && !options.force) {
       throw new Error(`Not downgrading existing bootstrap stack from version '${this.currentToolkitInfo.version}' to version '${newVersion}'. Use --force to force.`);

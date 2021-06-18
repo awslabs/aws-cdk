@@ -28,10 +28,10 @@ export interface FormatStream extends NodeJS.WritableStream {
  * @param context          the number of context lines to use in arbitrary JSON diff (defaults to 3).
  */
 export function formatDifferences(
-  stream: FormatStream,
-  templateDiff: TemplateDiff,
-  logicalToPathMap: { [logicalId: string]: string } = { },
-  context: number = 3) {
+    stream: FormatStream,
+    templateDiff: TemplateDiff,
+    logicalToPathMap: { [logicalId: string]: string } = { },
+    context: number = 3) {
   const formatter = new Formatter(stream, logicalToPathMap, templateDiff, context);
 
   if (templateDiff.awsTemplateFormatVersion || templateDiff.transform || templateDiff.description) {
@@ -57,10 +57,10 @@ export function formatDifferences(
  * Renders a diff of security changes to the given stream
  */
 export function formatSecurityChanges(
-  stream: NodeJS.WriteStream,
-  templateDiff: TemplateDiff,
-  logicalToPathMap: {[logicalId: string]: string} = {},
-  context?: number) {
+    stream: NodeJS.WriteStream,
+    templateDiff: TemplateDiff,
+    logicalToPathMap: {[logicalId: string]: string} = {},
+    context?: number) {
   const formatter = new Formatter(stream, logicalToPathMap, templateDiff, context);
 
   formatSecurityChangesWithBanner(formatter, templateDiff);
@@ -105,7 +105,6 @@ class Formatter {
     entryType: string,
     collection: DifferenceCollection<V, T>,
     formatter: (type: string, id: string, diff: T) => void = this.formatDifference.bind(this)) {
-
     if (collection.differenceCount === 0) {
       return;
     }

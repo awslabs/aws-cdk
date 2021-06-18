@@ -6,7 +6,6 @@ import { debug } from '../logging';
 import { ContextProviderPlugin } from './provider';
 
 export class VpcNetworkContextProviderPlugin implements ContextProviderPlugin {
-
   constructor(private readonly aws: SdkProvider) {
   }
 
@@ -305,5 +304,4 @@ function flatMap<T, U>(xs: T[], fn: (x: T) => U[]): U[] {
 function collapse<T>(xs: T[]): T[] | undefined {
   if (xs.length > 0) { return xs; }
   return undefined;
-
 }

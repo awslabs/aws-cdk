@@ -66,7 +66,6 @@ export interface QueueProcessingEc2ServiceProps extends QueueProcessingServiceBa
  * Class to create a queue processing EC2 service.
  */
 export class QueueProcessingEc2Service extends QueueProcessingServiceBase {
-
   /**
    * The EC2 service in this construct.
    */

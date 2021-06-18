@@ -80,7 +80,6 @@ test('unpartitioned JSON table', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('partitioned JSON table', () => {
@@ -158,7 +157,6 @@ test('partitioned JSON table', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('compressed table', () => {
@@ -224,7 +222,6 @@ test('compressed table', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('table.node.defaultChild', () => {
@@ -326,7 +323,6 @@ test('encrypted table: SSE-S3', () => {
       ],
     },
   }));
-
 });
 
 test('encrypted table: SSE-KMS (implicitly created key)', () => {
@@ -414,7 +410,6 @@ test('encrypted table: SSE-KMS (implicitly created key)', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('encrypted table: SSE-KMS (explicitly created key)', () => {
@@ -507,7 +502,6 @@ test('encrypted table: SSE-KMS (explicitly created key)', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('encrypted table: SSE-KMS_MANAGED', () => {
@@ -586,7 +580,6 @@ test('encrypted table: SSE-KMS_MANAGED', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('encrypted table: CSE-KMS (implicitly created key)', () => {
@@ -655,7 +648,6 @@ test('encrypted table: CSE-KMS (implicitly created key)', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('encrypted table: CSE-KMS (explicitly created key)', () => {
@@ -730,7 +722,6 @@ test('encrypted table: CSE-KMS (explicitly created key)', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('encrypted table: CSE-KMS (explicitly passed bucket and key)', () => {
@@ -807,7 +798,6 @@ test('encrypted table: CSE-KMS (explicitly passed bucket and key)', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('explicit s3 bucket and prefix', () => {
@@ -875,7 +865,6 @@ test('explicit s3 bucket and prefix', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('explicit s3 bucket and with empty prefix', () => {
@@ -943,7 +932,6 @@ test('explicit s3 bucket and with empty prefix', () => {
       TableType: 'EXTERNAL_TABLE',
     },
   }));
-
 });
 
 test('grants: read only', () => {
@@ -1049,7 +1037,6 @@ test('grants: read only', () => {
       },
     ],
   }));
-
 });
 
 testFutureBehavior('grants: write only', s3GrantWriteCtx, cdk.App, (app) => {
@@ -1152,7 +1139,6 @@ testFutureBehavior('grants: write only', s3GrantWriteCtx, cdk.App, (app) => {
       },
     ],
   }));
-
 });
 
 testFutureBehavior('grants: read and write', s3GrantWriteCtx, cdk.App, (app) => {
@@ -1265,7 +1251,6 @@ testFutureBehavior('grants: read and write', s3GrantWriteCtx, cdk.App, (app) => 
       },
     ],
   }));
-
 });
 
 test('validate: at least one column', () => {
@@ -1275,7 +1260,6 @@ test('validate: at least one column', () => {
       tableName: 'name',
     });
   }).toThrowError('you must specify at least one column for the table');
-
 });
 
 test('validate: unique column names', () => {
@@ -1291,7 +1275,6 @@ test('validate: unique column names', () => {
       }],
     });
   }).toThrowError("column names and partition keys must be unique, but 'col1' is duplicated");
-
 });
 
 test('validate: unique partition keys', () => {
@@ -1311,7 +1294,6 @@ test('validate: unique partition keys', () => {
       }],
     });
   }).toThrowError("column names and partition keys must be unique, but 'p1' is duplicated");
-
 });
 
 test('validate: column names and partition keys are all unique', () => {
@@ -1328,7 +1310,6 @@ test('validate: column names and partition keys are all unique', () => {
       }],
     });
   }).toThrowError("column names and partition keys must be unique, but 'col1' is duplicated");
-
 });
 
 test('validate: can not specify an explicit bucket and encryption', () => {

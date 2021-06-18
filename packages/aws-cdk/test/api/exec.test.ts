@@ -60,7 +60,6 @@ function createApp(): cdk.App {
 }
 
 test('cli throws when manifest version > schema version', async () => {
-
   const app = createApp();
   const currentSchemaVersion = cxschema.Manifest.version();
   const mockManifestVersion = semver.inc(currentSchemaVersion, 'major');
@@ -80,22 +79,18 @@ test('cli throws when manifest version > schema version', async () => {
   config.settings.set(['app'], 'cdk.out');
 
   await expect(execProgram(sdkProvider, config)).rejects.toEqual(new Error(expectedError));
-
 }, TEN_SECOND_TIMEOUT);
 
 test('cli does not throw when manifest version = schema version', async () => {
-
   const app = createApp();
   app.synth();
 
   config.settings.set(['app'], 'cdk.out');
 
   await execProgram(sdkProvider, config);
-
 }, TEN_SECOND_TIMEOUT);
 
 test('cli does not throw when manifest version < schema version', async () => {
-
   const app = createApp();
   const currentSchemaVersion = cxschema.Manifest.version();
 
@@ -111,7 +106,6 @@ test('cli does not throw when manifest version < schema version', async () => {
   } finally {
     mockVersionNumber.restore();
   }
-
 }, TEN_SECOND_TIMEOUT);
 
 test('validates --app key is present', async () => {
@@ -119,7 +113,6 @@ test('validates --app key is present', async () => {
   await expect(execProgram(sdkProvider, config)).rejects.toThrow(
     '--app is required either in command-line, in cdk.json or in ~/.cdk.json',
   );
-
 });
 
 test('bypasses synth when app points to a cloud assembly', async () => {

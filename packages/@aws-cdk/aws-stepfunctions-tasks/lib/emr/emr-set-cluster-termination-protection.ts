@@ -25,7 +25,6 @@ export interface EmrSetClusterTerminationProtectionProps extends sfn.TaskStateBa
  *
  */
 export class EmrSetClusterTerminationProtection extends sfn.TaskStateBase {
-
   protected readonly taskPolicies?: iam.PolicyStatement[];
   protected readonly taskMetrics?: sfn.TaskMetricsConfig;
 

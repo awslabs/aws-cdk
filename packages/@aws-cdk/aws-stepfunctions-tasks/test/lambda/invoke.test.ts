@@ -7,7 +7,6 @@ import { LambdaInvocationType, LambdaInvoke } from '../../lib';
 /* eslint-disable quote-props */
 
 describe('LambdaInvoke', () => {
-
   let stack: Stack;
   let lambdaFunction: lambda.Function;
 
