@@ -108,6 +108,13 @@ export class LambdaInvoke extends sfn.TaskStateBase {
       );
     }
 
+    if (this.props.payloadResponseOnly &&
+      this.props.payload?.value !== undefined && typeof(this.props.payload?.value) !== 'object') {
+      throw Error(
+        `Invalid LambdaInvoke payload value for 'payloadResponseOnly' invocation. Expected 'object' or 'undefined', got '${typeof(this.props.payload?.value)}'.`,
+      );
+    }
+
     this.taskMetrics = {
       metricPrefixSingular: 'LambdaFunction',
       metricPrefixPlural: 'LambdaFunctions',
@@ -142,7 +149,9 @@ export class LambdaInvoke extends sfn.TaskStateBase {
    * @internal
    */
   protected _renderTask(): any {
-    if (this.props.payloadResponseOnly) {
+    // TaskInput payload may be an object, a string, or undefined, but renderObject does not allow strings
+    if (this.props.payloadResponseOnly &&
+      (this.props.payload?.value === undefined || typeof(this.props.payload?.value) === 'object')) {
       return {
         Resource: this.props.lambdaFunction.functionArn,
         ...this.props.payload && { Parameters: sfn.FieldUtils.renderObject(this.props.payload.value) },

@@ -3,7 +3,7 @@ import { JsonPath } from './fields';
 /**
  * Type union for task classes that accept multiple types of payload
  */
-export class TaskInput {
+export class TaskInput<ValueType=string | { [key: string]: any; }> {
   /**
    * Use a literal string as task input
    *
@@ -62,7 +62,7 @@ export class TaskInput {
    * @param value payload for the corresponding input type.
    * It can be a JSON-encoded object, context, data, etc.
    */
-  private constructor(public readonly type: InputType, public readonly value: any) {}
+  private constructor(public readonly type: InputType, public readonly value: ValueType) {}
 }
 
 /**
