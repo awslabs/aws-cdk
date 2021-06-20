@@ -167,6 +167,27 @@ describe('DatabaseCluster', () => {
     }));
   });
 
+  test('can configure cluster deletion protection', () => {
+    // GIVEN
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+
+    // WHEN
+    new DatabaseCluster(stack, 'Database', {
+      masterUser: {
+        username: 'admin',
+      },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      vpc,
+      deletionProtection: true,
+    });
+
+    // THEN
+    expectCDK(stack).to(haveResource('AWS::DocDB::DBCluster', {
+      DeletionProtection: true,
+    }));
+  });
+
   test('cluster with parameter group', () => {
     // GIVEN
     const stack = testStack();
