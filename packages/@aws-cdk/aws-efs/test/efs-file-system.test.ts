@@ -1,4 +1,4 @@
-import { ABSENT, expect as expectCDK, haveResource, ResourcePart, countResources } from '@aws-cdk/assert-internal';
+import { TemplateAssertions, Match } from '@aws-cdk/assertions';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as kms from '@aws-cdk/aws-kms';
 import { App, RemovalPolicy, Size, Stack, Tags } from '@aws-cdk/core';
@@ -26,9 +26,9 @@ testFutureBehavior(
       vpc: customVpc,
     });
 
-    expectCDK(customStack).to(haveResource('AWS::EFS::FileSystem', {
+    TemplateAssertions.fromStack(customStack).hasResourceProperties('AWS::EFS::FileSystem', {
       Encrypted: true,
-    }));
+    });
 
   });
 
@@ -40,9 +40,9 @@ testLegacyBehavior('when @aws-cdk/aws-efs:defaultEncryptionAtRest is missing, en
     vpc: customVpc,
   });
 
-  expectCDK(customStack).to(haveResource('AWS::EFS::FileSystem', {
-    Encrypted: ABSENT,
-  }));
+  TemplateAssertions.fromStack(customStack).hasResourceProperties('AWS::EFS::FileSystem', {
+    Encrypted: Match.absentProperty(),
+  });
 
 });
 
@@ -52,12 +52,13 @@ test('default file system is created correctly', () => {
     vpc,
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  const assertions = TemplateAssertions.fromStack(stack);
+  assertions.hasResourceDefinition('AWS::EFS::FileSystem', {
     DeletionPolicy: 'Retain',
     UpdateReplacePolicy: 'Retain',
-  }, ResourcePart.CompleteDefinition));
-  expectCDK(stack).to(haveResource('AWS::EFS::MountTarget'));
-  expectCDK(stack).to(haveResource('AWS::EC2::SecurityGroup'));
+  });
+  assertions.resourceCountIs('AWS::EFS::MountTarget', 2);
+  assertions.resourceCountIs('AWS::EC2::SecurityGroup', 1);
 });
 
 test('unencrypted file system is created correctly with default KMS', () => {
@@ -67,9 +68,9 @@ test('unencrypted file system is created correctly with default KMS', () => {
     encrypted: false,
   });
   // THEN
-  expectCDK(stack).notTo(haveResource('AWS::EFS::FileSystem', {
-    Encrypted: true,
-  }));
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
+    Encrypted: false,
+  });
 });
 
 test('encrypted file system is created correctly with default KMS', () => {
@@ -79,9 +80,9 @@ test('encrypted file system is created correctly with default KMS', () => {
     encrypted: true,
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     Encrypted: true,
-  }));
+  });
 });
 
 test('encrypted file system is created correctly with custom KMS', () => {
@@ -101,7 +102,7 @@ test('encrypted file system is created correctly with custom KMS', () => {
    * in generated CDK, hence hardcoding the MD5 hash here for assertion. Assumption is that the path of the Key wont
    * change in this UT. Checked the unique id by generating the cloud formation stack.
    */
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     Encrypted: true,
     KmsKeyId: {
       'Fn::GetAtt': [
@@ -109,7 +110,7 @@ test('encrypted file system is created correctly with custom KMS', () => {
         'Arn',
       ],
     },
-  }));
+  });
 });
 
 test('file system is created correctly with a life cycle property', () => {
@@ -119,11 +120,11 @@ test('file system is created correctly with a life cycle property', () => {
     lifecyclePolicy: LifecyclePolicy.AFTER_7_DAYS,
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     LifecyclePolicies: [{
       TransitionToIA: 'AFTER_7_DAYS',
     }],
-  }));
+  });
 });
 
 test('file system is created correctly with performance mode', () => {
@@ -133,9 +134,9 @@ test('file system is created correctly with performance mode', () => {
     performanceMode: PerformanceMode.MAX_IO,
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     PerformanceMode: 'maxIO',
-  }));
+  });
 });
 
 test('file system is created correctly with bursting throughput mode', () => {
@@ -145,9 +146,9 @@ test('file system is created correctly with bursting throughput mode', () => {
     throughputMode: ThroughputMode.BURSTING,
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     ThroughputMode: 'bursting',
-  }));
+  });
 });
 
 test('Exception when throughput mode is set to PROVISIONED, but provisioned throughput is not set', () => {
@@ -185,10 +186,10 @@ test('file system is created correctly with provisioned throughput mode', () => 
     provisionedThroughputPerSecond: Size.mebibytes(5),
   });
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     ThroughputMode: 'provisioned',
     ProvisionedThroughputInMibps: 5,
-  }));
+  });
 });
 
 test('existing file system is imported correctly', () => {
@@ -203,9 +204,9 @@ test('existing file system is imported correctly', () => {
   fs.connections.allowToAnyIpv4(ec2.Port.tcp(443));
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EC2::SecurityGroupEgress', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EC2::SecurityGroupEgress', {
     GroupId: 'sg-123456789',
-  }));
+  });
 });
 
 test('support tags', () => {
@@ -216,11 +217,11 @@ test('support tags', () => {
   Tags.of(fileSystem).add('Name', 'LookAtMeAndMyFancyTags');
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     FileSystemTags: [
       { Key: 'Name', Value: 'LookAtMeAndMyFancyTags' },
     ],
-  }));
+  });
 });
 
 test('file system is created correctly when given a name', () => {
@@ -231,11 +232,11 @@ test('file system is created correctly when given a name', () => {
   });
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     FileSystemTags: [
       { Key: 'Name', Value: 'MyNameableFileSystem' },
     ],
-  }));
+  });
 });
 
 test('auto-named if none provided', () => {
@@ -245,11 +246,11 @@ test('auto-named if none provided', () => {
   });
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     FileSystemTags: [
       { Key: 'Name', Value: fileSystem.node.path },
     ],
-  }));
+  });
 });
 
 test('removalPolicy is DESTROY', () => {
@@ -257,10 +258,10 @@ test('removalPolicy is DESTROY', () => {
   new FileSystem(stack, 'EfsFileSystem', { vpc, removalPolicy: RemovalPolicy.DESTROY });
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceDefinition('AWS::EFS::FileSystem', {
     DeletionPolicy: 'Delete',
     UpdateReplacePolicy: 'Delete',
-  }, ResourcePart.CompleteDefinition));
+  });
 });
 
 test('can specify backup policy', () => {
@@ -268,11 +269,11 @@ test('can specify backup policy', () => {
   new FileSystem(stack, 'EfsFileSystem', { vpc, enableAutomaticBackups: true });
 
   // THEN
-  expectCDK(stack).to(haveResource('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::FileSystem', {
     BackupPolicy: {
       Status: 'ENABLED',
     },
-  }));
+  });
 });
 
 test('can create when using a VPC with multiple subnets per availability zone', () => {
@@ -286,5 +287,5 @@ test('can create when using a VPC with multiple subnets per availability zone', 
     vpc: oneAzVpc,
   });
   // make sure only one mount target is created.
-  expectCDK(stack).to(countResources('AWS::EFS::MountTarget', 1));
+  TemplateAssertions.fromStack(stack).resourceCountIs('AWS::EFS::MountTarget', 1);
 });

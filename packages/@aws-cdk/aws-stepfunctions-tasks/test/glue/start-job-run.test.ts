@@ -91,7 +91,7 @@ test('job arguments can reference state input', () => {
   const task = new GlueStartJobRun(stack, 'Task', {
     glueJobName,
     integrationPattern: sfn.IntegrationPattern.RUN_JOB,
-    arguments: sfn.TaskInput.fromDataAt('$.input'),
+    arguments: sfn.TaskInput.fromJsonPathAt('$.input'),
   });
   new sfn.StateMachine(stack, 'SM', {
     definition: task,

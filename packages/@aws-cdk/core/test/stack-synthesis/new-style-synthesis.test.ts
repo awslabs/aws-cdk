@@ -76,7 +76,7 @@ nodeunitShim({
     test.deepEqual(assertions.length, 1);
     test.deepEqual(assertions[0].Assert, {
       'Fn::Not': [
-        { 'Fn::Contains': [['1', '2', '3'], { Ref: 'BootstrapVersion' }] },
+        { 'Fn::Contains': [['1', '2', '3', '4', '5'], { Ref: 'BootstrapVersion' }] },
       ],
     });
 

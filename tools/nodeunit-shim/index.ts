@@ -11,36 +11,36 @@ export class Test {
   constructor(private readonly cb: () => void) {
   }
 
-  public equal(a: any, b: any, _message?: string) {
-    expect(a).toEqual(b);
+  public equal(actual: any, expected: any, _message?: string) {
+    expect(actual).toEqual(expected);
   }
 
-  public notEqual(a: any, b: any, _message?: string) {
-    expect(a).not.toEqual(b);
+  public notEqual(actual: any, expected: any, _message?: string) {
+    expect(actual).not.toEqual(expected);
   }
 
-  public equals(a: any, b: any, _message?: string) {
-    expect(a).toEqual(b);
+  public equals(actual: any, expected: any, _message?: string) {
+    expect(actual).toEqual(expected);
   }
 
-  public strictEqual(a: any, b: any, _message?: string) {
-    expect(a).toEqual(b);
+  public strictEqual(actual: any, expected: any, _message?: string) {
+    expect(actual).toEqual(expected);
   }
 
-  public deepEqual(a: any, b: any, _message?: string) {
-    expect(a).toEqual(b);
+  public deepEqual(actual: any, expected: any, _message?: string) {
+    expect(actual).toEqual(expected);
   }
 
-  public notDeepEqual(a: any, b: any, _message?: string) {
-    expect(a).not.toEqual(b);
+  public notDeepEqual(actual: any, expected: any, _message?: string) {
+    expect(actual).not.toEqual(expected);
   }
 
-  public ok(a: any, _message?: string) {
-    expect(a).toBeTruthy();
+  public ok(actual: any, _message?: string) {
+    expect(actual).toBeTruthy();
   }
 
-  public same(a: any, b: any) {
-    expect(a).toBe(b);
+  public same(actual: any, expected: any) {
+    expect(actual).toBe(expected);
   }
 
   public throws(block: () => any, error?: string | RegExp | ErrorConstructor, _message?: string) {

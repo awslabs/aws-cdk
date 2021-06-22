@@ -8,6 +8,7 @@ const lambda = require('@aws-cdk/aws-lambda');
 const docker = require('@aws-cdk/aws-ecr-assets');
 const core = require('@aws-cdk/core')
 const { StackWithNestedStack, StackWithNestedStackUsingParameters } = require('./nested-stack');
+const { Annotations } = require('@aws-cdk/core');
 
 const stackPrefix = process.env.STACK_NAME_PREFIX;
 if (!stackPrefix) {
@@ -136,7 +137,22 @@ class ProvidingStack extends cdk.Stack {
   }
 }
 
+class StackWithError extends cdk.Stack {
+  constructor(parent, id, props) {
+    super(parent, id, props);
 
+    this.topic = new sns.Topic(this, 'BogusTopic'); // Some filler
+    Annotations.of(this).addError('This is an error');
+  }
+}
+
+class StageWithError extends cdk.Stage {
+  constructor(parent, id, props) {
+    super(parent, id, props);
+
+    new StackWithError(this, 'Stack');
+  }
+}
 
 class ConsumingStack extends cdk.Stack {
   constructor(parent, id, props) {
@@ -333,6 +349,11 @@ switch (stackSet) {
     new StageUsingContext(app, `${stackPrefix}-stage-using-context`, {
       env: defaultEnv,
     });
+    break;
+
+  case 'stage-with-errors':
+    const stage = new StageWithError(app, `${stackPrefix}-stage-with-errors`);
+    stage.synth({ validateOnSynthesis: true });
     break;
 
   default:

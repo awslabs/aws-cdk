@@ -53,6 +53,9 @@
       "Type": "AWS::Amplify::App",
       "Properties": {
         "Name": "App",
+        "BasicAuthConfig": {
+          "EnableBasicAuth": false
+        },
         "IAMServiceRole": {
           "Fn::GetAtt": [
             "AppRole1AF9B530",

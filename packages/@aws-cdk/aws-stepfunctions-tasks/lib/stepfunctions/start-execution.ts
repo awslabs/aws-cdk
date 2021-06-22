@@ -73,7 +73,7 @@ export class StepFunctionsStartExecution extends sfn.TaskStateBase {
     return {
       Resource: `${integrationResourceArn('states', 'startExecution', this.integrationPattern)}${suffix}`,
       Parameters: sfn.FieldUtils.renderObject({
-        Input: this.props.input ? this.props.input.value : sfn.TaskInput.fromDataAt('$').value,
+        Input: this.props.input ? this.props.input.value : sfn.TaskInput.fromJsonPathAt('$').value,
         StateMachineArn: this.props.stateMachine.stateMachineArn,
         Name: this.props.name,
       }),

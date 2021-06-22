@@ -1,4 +1,5 @@
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
@@ -341,6 +342,46 @@ class PipelineDouble extends cdk.Resource implements codepipeline.IPipeline {
     throw new Error('Method not implemented.');
   }
   public onStateChange(_id: string, _options: events.OnEventOptions): events.Rule {
+    throw new Error('Method not implemented.');
+  }
+  public notifyOn(
+    _id: string,
+    _target: notifications.INotificationRuleTarget,
+    _options: codepipeline.PipelineNotifyOnOptions,
+  ): notifications.NotificationRule {
+    throw new Error('Method not implemented.');
+  }
+  public notifyOnExecutionStateChange(
+    _id: string,
+    _target: notifications.INotificationRuleTarget,
+    _options?: notifications.NotificationRuleOptions,
+  ): notifications.NotificationRule {
+    throw new Error('Method not implemented.');
+  }
+  public notifyOnAnyStageStateChange(
+    _id: string,
+    _target: notifications.INotificationRuleTarget,
+    _options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    throw new Error('Method not implemented.');
+  }
+  public notifyOnAnyActionStateChange(
+    _id: string,
+    _target: notifications.INotificationRuleTarget,
+    _options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    throw new Error('Method not implemented.');
+  }
+  public notifyOnAnyManualApprovalStateChange(
+    _id: string,
+    _target: notifications.INotificationRuleTarget,
+    _options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    throw new Error('Method not implemented.');
+  }
+  public bindAsNotificationRuleSource(
+    _scope: constructs.Construct,
+  ): notifications.NotificationRuleSourceConfig {
     throw new Error('Method not implemented.');
   }
 }

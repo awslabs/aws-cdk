@@ -27,3 +27,4 @@ jest.config.js
 junit.xml
 
 test/
+!*.lit.ts

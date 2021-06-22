@@ -670,7 +670,7 @@ describe('User Pool Client', () => {
           accessTokenValidity: validity,
           refreshTokenValidity: Duration.hours(1),
         });
-      }).toThrow(`accessTokenValidity: Must be a duration between 5 minutes and 60 minutes (inclusive); received ${validity.toHumanString()}.`);
+      }).toThrow(`accessTokenValidity: Must be a duration between 5 minutes and 1 hour (inclusive); received ${validity.toHumanString()}.`);
     });
 
     test.each([
@@ -686,7 +686,7 @@ describe('User Pool Client', () => {
           idTokenValidity: validity,
           refreshTokenValidity: Duration.hours(1),
         });
-      }).toThrow(`idTokenValidity: Must be a duration between 5 minutes and 60 minutes (inclusive); received ${validity.toHumanString()}.`);
+      }).toThrow(`idTokenValidity: Must be a duration between 5 minutes and 1 hour (inclusive); received ${validity.toHumanString()}.`);
     });
 
     test.each([
@@ -694,7 +694,7 @@ describe('User Pool Client', () => {
       Duration.minutes(59),
       Duration.days(10 * 365).plus(Duration.minutes(1)),
       Duration.days(10 * 365 + 1),
-    ])('validates refreshTokenValidity is a duration between 60 minutes and 10 years', (validity) => {
+    ])('validates refreshTokenValidity is a duration between 1 hour and 10 years', (validity) => {
       const stack = new Stack();
       const pool = new UserPool(stack, 'Pool');
       expect(() => {
@@ -702,7 +702,7 @@ describe('User Pool Client', () => {
           userPoolClientName: 'Client1',
           refreshTokenValidity: validity,
         });
-      }).toThrow(`refreshTokenValidity: Must be a duration between 60 minutes and 3650 days (inclusive); received ${validity.toHumanString()}.`);
+      }).toThrow(`refreshTokenValidity: Must be a duration between 1 hour and 3650 days (inclusive); received ${validity.toHumanString()}.`);
     });
 
     test.each([
@@ -758,7 +758,7 @@ describe('User Pool Client', () => {
       Duration.minutes(120),
       Duration.days(365),
       Duration.days(10 * 365),
-    ])('validates refreshTokenValidity is a duration between 60 minutes and 10 years (valid)', (validity) => {
+    ])('validates refreshTokenValidity is a duration between 1 hour and 10 years (valid)', (validity) => {
       const stack = new Stack();
       const pool = new UserPool(stack, 'Pool');
 

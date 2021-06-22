@@ -1,6 +1,7 @@
 import { ResourcePart, SynthUtils } from '@aws-cdk/assert-internal';
 import '@aws-cdk/assert-internal/jest';
 
+import * as acmpca from '@aws-cdk/aws-acmpca';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as kms from '@aws-cdk/aws-kms';
 import * as logs from '@aws-cdk/aws-logs';
@@ -64,20 +65,26 @@ describe('MSK Cluster', () => {
   describe('created with authentication enabled', () => {
     describe('with tls auth', () => {
       test('fails if client broker encryption is set to plaintext', () => {
-
-        expect(() => new msk.Cluster(stack, 'Cluster', {
-          clusterName: 'cluster',
-          kafkaVersion: msk.KafkaVersion.V2_6_1,
-          vpc,
-          encryptionInTransit: {
-            clientBroker: msk.ClientBrokerEncryption.PLAINTEXT,
-          },
-          clientAuthentication: msk.ClientAuthentication.tls({
-            certificateAuthorityArns: [
-              'arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111',
-            ],
-          }),
-        })).toThrow(
+        expect(
+          () =>
+            new msk.Cluster(stack, 'Cluster', {
+              clusterName: 'cluster',
+              kafkaVersion: msk.KafkaVersion.V2_6_1,
+              vpc,
+              encryptionInTransit: {
+                clientBroker: msk.ClientBrokerEncryption.PLAINTEXT,
+              },
+              clientAuthentication: msk.ClientAuthentication.tls({
+                certificateAuthorities: [
+                  acmpca.CertificateAuthority.fromCertificateAuthorityArn(
+                    stack,
+                    'CertificateAuthority',
+                    'arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111',
+                  ),
+                ],
+              }),
+            }),
+        ).toThrow(
           'To enable client authentication, you must enabled TLS-encrypted traffic between clients and brokers.',
         );
       });
@@ -408,8 +415,12 @@ describe('MSK Cluster', () => {
         clientBroker: msk.ClientBrokerEncryption.TLS,
       },
       clientAuthentication: msk.ClientAuthentication.tls({
-        certificateAuthorityArns: [
-          'arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111',
+        certificateAuthorities: [
+          acmpca.CertificateAuthority.fromCertificateAuthorityArn(
+            stack,
+            'CertificateAuthority',
+            'arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111',
+          ),
         ],
       }),
       monitoring: {

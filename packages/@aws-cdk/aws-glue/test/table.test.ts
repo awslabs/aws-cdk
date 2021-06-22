@@ -1189,7 +1189,6 @@ testFutureBehavior('grants: read and write', s3GrantWriteCtx, cdk.App, (app) => 
             'glue:GetTableVersion',
             'glue:GetTableVersions',
             'glue:BatchCreatePartition',
-            'glue:BatchDeletePartition',
             'glue:CreatePartition',
             'glue:DeletePartition',
             'glue:UpdatePartition',

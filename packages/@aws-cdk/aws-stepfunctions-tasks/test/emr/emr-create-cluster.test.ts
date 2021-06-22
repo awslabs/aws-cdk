@@ -131,7 +131,7 @@ test('Create Cluster with clusterConfiguration Name from payload', () => {
   const task = new EmrCreateCluster(stack, 'Task', {
     instances: {},
     clusterRole,
-    name: sfn.TaskInput.fromDataAt('$.ClusterName').value,
+    name: sfn.TaskInput.fromJsonPathAt('$.ClusterName').value,
     serviceRole,
     autoScalingRole,
     integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,

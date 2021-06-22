@@ -8,7 +8,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as logs from '@aws-cdk/aws-logs';
 import * as route53 from '@aws-cdk/aws-route53';
-import { App, Stack, Duration, SecretValue } from '@aws-cdk/core';
+import { App, Stack, Duration, SecretValue, CfnParameter } from '@aws-cdk/core';
 import { Domain, ElasticsearchVersion } from '../lib';
 
 let app: App;
@@ -900,7 +900,7 @@ describe('import', () => {
 
   test('static fromDomainAttributes(attributes) allows importing an external/existing domain', () => {
     const domainName = 'test-domain-2w2x2u3tifly';
-    const domainArn = `es:testregion:1234:domain/${domainName}`;
+    const domainArn = `arn:aws:es:testregion:1234:domain/${domainName}`;
     const domainEndpoint = `https://${domainName}-jcjotrt6f7otem4sqcwbch3c4u.testregion.es.amazonaws.com`;
     const imported = Domain.fromDomainAttributes(stack, 'Domain', {
       domainArn,
@@ -913,6 +913,43 @@ describe('import', () => {
     expect(stack).not.toHaveResource('AWS::Elasticsearch::Domain');
   });
 
+  test('static fromDomainAttributes(attributes) allows importing with token arn and endpoint', () => {
+    const domainArn = new CfnParameter(stack, 'domainArn', { type: 'String' }).valueAsString;
+    const domainEndpoint = new CfnParameter(stack, 'domainEndpoint', { type: 'String' }).valueAsString;
+    const imported = Domain.fromDomainAttributes(stack, 'Domain', {
+      domainArn,
+      domainEndpoint,
+    });
+    const expectedDomainName = {
+      'Fn::Select': [
+        1,
+        {
+          'Fn::Split': [
+            '/',
+            {
+              'Fn::Select': [
+                5,
+                {
+                  'Fn::Split': [
+                    ':',
+                    {
+                      Ref: 'domainArn',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(stack.resolve(imported.domainName)).toEqual(expectedDomainName);
+    expect(imported.domainArn).toEqual(domainArn);
+    expect(imported.domainEndpoint).toEqual(domainEndpoint);
+
+    expect(stack).not.toHaveResource('AWS::Elasticsearch::Domain');
+  });
 });
 
 describe('advanced security options', () => {

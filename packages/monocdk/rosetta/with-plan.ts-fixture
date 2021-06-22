@@ -1,0 +1,16 @@
+// Fixture with packages imported, but nothing else
+import { Duration, RemovalPolicy, Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as backup from '@aws-cdk/aws-backup';
+import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import * as events from '@aws-cdk/aws-events';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const plan = backup.BackupPlan.dailyWeeklyMonthly5YearRetention(this, 'Plan');
+
+    /// here
+  }
+}

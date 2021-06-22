@@ -210,7 +210,7 @@ describe('LambdaInvoke', () => {
     // WHEN
     const task = new LambdaInvoke(stack, 'Task', {
       lambdaFunction,
-      payload: sfn.TaskInput.fromDataAt('$.foo'),
+      payload: sfn.TaskInput.fromJsonPathAt('$.foo'),
     });
 
     // THEN

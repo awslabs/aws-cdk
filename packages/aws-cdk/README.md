@@ -221,6 +221,24 @@ Specify an outputs file to write to by supplying the `--outputs-file` parameter
 $ cdk deploy --outputs-file outputs.json
 ```
 
+Alternatively, the `outputsFile` key can be specified in the project config (`cdk.json`).
+
+The following shows a sample `cdk.json` where the `outputsFile` key is set to *outputs.json*.
+
+```json
+{
+  "app": "npx ts-node bin/myproject.ts",
+  "context": {
+    "@aws-cdk/core:enableStackNameDuplicates": "true",
+    "aws-cdk:enableDiffNoFail": "true",
+    "@aws-cdk/core:stackRelativeExports": "true"
+  },
+  "outputsFile": "outputs.json"
+}
+```
+
+The `outputsFile` key can also be specified as a user setting (`~/.cdk.json`)
+
 When the stack finishes deployment, `outputs.json` would look like this:
 
 ```json
@@ -291,7 +309,7 @@ For more control over when stack changes are deployed, the CDK can generate a
 CloudFormation change set but not execute it. The default name of the generated
 change set is *cdk-deploy-change-set*, and a previous change set with that
 name will be overwritten. The change set will always be created, even if it
-is empty. A name can also be given to the change set to make it easier to later 
+is empty. A name can also be given to the change set to make it easier to later
 execute.
 
 ```console

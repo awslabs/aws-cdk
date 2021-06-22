@@ -541,8 +541,8 @@ describe('DatabaseCluster', () => {
     // THEN
     expectCDK(stack).to(haveResource('AWS::Serverless::Application', {
       Location: {
-        ApplicationId: 'arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerMongoDBRotationSingleUser',
-        SemanticVersion: '1.1.60',
+        ApplicationId: { 'Fn::FindInMap': ['DatabaseRotationSingleUserSARMapping9AEB3E55', { Ref: 'AWS::Partition' }, 'applicationId'] },
+        SemanticVersion: { 'Fn::FindInMap': ['DatabaseRotationSingleUserSARMapping9AEB3E55', { Ref: 'AWS::Partition' }, 'semanticVersion'] },
       },
       Parameters: {
         endpoint: {
@@ -653,8 +653,8 @@ describe('DatabaseCluster', () => {
     // THEN
     expectCDK(stack).to(haveResource('AWS::Serverless::Application', {
       Location: {
-        ApplicationId: 'arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerMongoDBRotationMultiUser',
-        SemanticVersion: '1.1.60',
+        ApplicationId: { 'Fn::FindInMap': ['DatabaseRotationSARMappingE46CFA92', { Ref: 'AWS::Partition' }, 'applicationId'] },
+        SemanticVersion: { 'Fn::FindInMap': ['DatabaseRotationSARMappingE46CFA92', { Ref: 'AWS::Partition' }, 'semanticVersion'] },
       },
       Parameters: {
         endpoint: {

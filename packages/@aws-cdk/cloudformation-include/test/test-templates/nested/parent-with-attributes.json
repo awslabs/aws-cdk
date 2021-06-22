@@ -1,9 +1,20 @@
 {
+  "Parameters": {
+    "ArrayParam": {
+      "Type": "CommaDelimitedList"
+    }
+  },
   "Resources": {
     "ChildStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://cfn-templates-set.s3.amazonaws.com/child-import-stack.json"
+        "TemplateURL": "https://cfn-templates-set.s3.amazonaws.com/child-import-stack.json",
+        "NotificationARNs": { "Ref": "ArrayParam" },
+        "TimeoutInMinutes": {
+          "Fn::Select": [0, {
+            "Ref": "ArrayParam"
+          }]
+        }
       },
       "DependsOn": [
         "AnotherChildStack"

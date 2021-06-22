@@ -69,3 +69,24 @@ test('can have multiple subscriptions use the same Lambda', () => {
     Principal: 'logs.amazonaws.com',
   });
 });
+
+test('lambda permissions are not added when addPermissions is false', () => {
+  // WHEN
+  new logs.SubscriptionFilter(stack, 'Subscription', {
+    logGroup,
+    destination: new dests.LambdaDestination(fn, { addPermissions: false }),
+    filterPattern: logs.FilterPattern.allEvents(),
+  });
+
+  // THEN: subscription target is Lambda
+  expect(stack).toHaveResource('AWS::Logs::SubscriptionFilter', {
+    DestinationArn: { 'Fn::GetAtt': ['MyLambdaCCE802FB', 'Arn'] },
+  });
+
+  // THEN: Lambda does not have permissions to be invoked by CWL
+  expect(stack).not.toHaveResource('AWS::Lambda::Permission', {
+    Action: 'lambda:InvokeFunction',
+    FunctionName: { 'Fn::GetAtt': ['MyLambdaCCE802FB', 'Arn'] },
+    Principal: 'logs.amazonaws.com',
+  });
+});

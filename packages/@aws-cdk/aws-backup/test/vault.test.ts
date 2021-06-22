@@ -135,6 +135,95 @@ test('defaults to all notifications', () => {
   });
 });
 
+test('import from arn', () => {
+  // WHEN
+  const vaultArn = stack.formatArn({
+    service: 'backup',
+    resource: 'backup-vault',
+    resourceName: 'myVaultName',
+    sep: ':',
+  });
+  const vault = BackupVault.fromBackupVaultArn(stack, 'Vault', vaultArn);
+
+  // THEN
+  expect(vault.backupVaultName).toEqual('myVaultName');
+  expect(vault.backupVaultArn).toEqual(vaultArn);
+});
+
+test('import from name', () => {
+  // WHEN
+  const vaultName = 'myVaultName';
+  const vault = BackupVault.fromBackupVaultName(stack, 'Vault', vaultName);
+
+  // THEN
+  expect(vault.backupVaultName).toEqual(vaultName);
+  expect(vault.backupVaultArn).toEqual(stack.formatArn({
+    service: 'backup',
+    resource: 'backup-vault',
+    resourceName: 'myVaultName',
+    sep: ':',
+  }));
+});
+
+test('grant action', () => {
+  // GIVEN
+  const vaultName = 'myVaultName';
+  const vault = BackupVault.fromBackupVaultName(stack, 'Vault', vaultName);
+  const role = new iam.Role(stack, 'role', { assumedBy: new iam.ServicePrincipal('lambda') });
+
+  // WHEN
+  vault.grant(role, 'backup:StartBackupJob');
+
+  // THEN
+  expect(stack).toHaveResource('AWS::IAM::Policy', {
+    PolicyDocument: {
+      Statement: [
+        {
+          Action: 'backup:StartBackupJob',
+          Effect: 'Allow',
+          Resource: {
+            'Fn::Join': [
+              '',
+              [
+                'arn:',
+                {
+                  Ref: 'AWS::Partition',
+                },
+                ':backup:',
+                {
+                  Ref: 'AWS::Region',
+                },
+                ':',
+                {
+                  Ref: 'AWS::AccountId',
+                },
+                ':backup-vault:myVaultName',
+              ],
+            ],
+          },
+        },
+      ],
+      Version: '2012-10-17',
+    },
+    PolicyName: 'roleDefaultPolicy7C980EBA',
+    Roles: [
+      {
+        Ref: 'roleC7B7E775',
+      },
+    ],
+  });
+});
+
+test('throw when grant action includes wildcard', () => {
+  // GIVEN
+  const vaultName = 'myVaultName';
+  const vault = BackupVault.fromBackupVaultName(stack, 'Vault', vaultName);
+  const role = new iam.Role(stack, 'role', { assumedBy: new iam.ServicePrincipal('lambda') });
+
+  // WHEN
+  expect(() => vault.grant(role, 'backup:*')).toThrow(/AWS Backup access policies don't support a wildcard in the Action key\./);
+});
+
 test('throws with invalid name', () => {
   expect(() => new BackupVault(stack, 'Vault', {
     backupVaultName: 'Hello!Inv@lid',

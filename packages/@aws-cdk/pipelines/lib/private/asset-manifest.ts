@@ -1,7 +1,7 @@
 // FIXME: copied from `ckd-assets`, because this tool needs to read the asset manifest aswell.
 import * as fs from 'fs';
 import * as path from 'path';
-import { AssetManifest, DockerImageDestination, DockerImageSource, FileDestination, FileSource, Manifest } from '@aws-cdk/cloud-assembly-schema';
+import { AssetManifest, AwsDestination, DockerImageDestination, DockerImageSource, FileDestination, FileSource, Manifest } from '@aws-cdk/cloud-assembly-schema';
 
 /**
  * A manifest of assets
@@ -154,7 +154,7 @@ export interface IManifestEntry {
   /**
    * Type-dependent destination data
    */
-  readonly genericDestination: unknown;
+  readonly destination: AwsDestination;
 }
 
 /**
@@ -162,7 +162,6 @@ export interface IManifestEntry {
  */
 export class FileManifestEntry implements IManifestEntry {
   public readonly genericSource: unknown;
-  public readonly genericDestination: unknown;
   public readonly type = 'file';
 
   constructor(
@@ -174,7 +173,6 @@ export class FileManifestEntry implements IManifestEntry {
     public readonly destination: FileDestination,
   ) {
     this.genericSource = source;
-    this.genericDestination = destination;
   }
 }
 
@@ -183,7 +181,6 @@ export class FileManifestEntry implements IManifestEntry {
  */
 export class DockerImageManifestEntry implements IManifestEntry {
   public readonly genericSource: unknown;
-  public readonly genericDestination: unknown;
   public readonly type = 'docker-image';
 
   constructor(
@@ -195,7 +192,6 @@ export class DockerImageManifestEntry implements IManifestEntry {
     public readonly destination: DockerImageDestination,
   ) {
     this.genericSource = source;
-    this.genericDestination = destination;
   }
 }
 

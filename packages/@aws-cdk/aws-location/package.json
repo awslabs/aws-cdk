@@ -77,7 +77,7 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.22",
+    "@types/jest": "^26.0.23",
     "@aws-cdk/assert-internal": "0.0.0",
     "cdk-build-tools": "0.0.0",
     "cfn2ts": "0.0.0",

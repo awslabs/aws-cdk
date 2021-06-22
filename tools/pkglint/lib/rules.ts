@@ -1055,6 +1055,7 @@ export class NpmIgnoreForJsiiModules extends ValidationRule {
       '*.ts',
       '!*.d.ts',
       '!*.js',
+      '!*.lit.ts', // <- This is part of the module's documentation!
       'coverage',
       '.nyc_output',
       '*.tgz',

@@ -11,7 +11,7 @@ import * as cloudmap from '@aws-cdk/aws-servicediscovery';
 import * as cdk from '@aws-cdk/core';
 import { nodeunitShim, Test } from 'nodeunit-shim';
 import * as ecs from '../../lib';
-import { DeploymentControllerType, LaunchType } from '../../lib/base/base-service';
+import { DeploymentControllerType, LaunchType, PropagatedTagSource } from '../../lib/base/base-service';
 
 nodeunitShim({
   'When creating a Fargate Service': {
@@ -2946,6 +2946,30 @@ nodeunitShim({
         },
       }));
 
+      test.done();
+    },
+
+    'with both propagateTags and propagateTaskTagsFrom defined'(test: Test) {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const vpc = new ec2.Vpc(stack, 'MyVpc', {});
+      const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+      const taskDefinition = new ecs.FargateTaskDefinition(stack, 'FargateTaskDef');
+
+      taskDefinition.addContainer('web', {
+        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        memoryLimitMiB: 512,
+      });
+
+      // THEN
+      test.throws(() => {
+        new ecs.FargateService(stack, 'FargateService', {
+          cluster,
+          taskDefinition,
+          propagateTags: PropagatedTagSource.SERVICE,
+          propagateTaskTagsFrom: PropagatedTagSource.SERVICE,
+        });
+      }, /You can only specify either propagateTags or propagateTaskTagsFrom. Alternatively, you can leave both blank/);
       test.done();
     },
   },

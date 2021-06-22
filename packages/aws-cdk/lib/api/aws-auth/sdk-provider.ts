@@ -205,7 +205,7 @@ export class SdkProvider {
     const account = env.account !== cxapi.UNKNOWN_ACCOUNT ? env.account : (await this.defaultAccount())?.accountId;
 
     if (!account) {
-      throw new Error('Unable to resolve AWS account to use. It must be either configured when you define your CDK or through the environment');
+      throw new Error('Unable to resolve AWS account to use. It must be either configured when you define your CDK Stack, or through the environment');
     }
 
     return {

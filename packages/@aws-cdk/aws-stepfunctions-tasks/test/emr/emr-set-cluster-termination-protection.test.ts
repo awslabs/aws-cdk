@@ -87,7 +87,7 @@ test('Set termination protection with static ClusterId and TerminationProtected 
   // WHEN
   const task = new tasks.EmrSetClusterTerminationProtection(stack, 'Task', {
     clusterId: 'ClusterId',
-    terminationProtected: sfn.TaskInput.fromDataAt('$.TerminationProtected').value,
+    terminationProtected: sfn.TaskInput.fromJsonPathAt('$.TerminationProtected').value,
   });
 
   // THEN
@@ -116,7 +116,7 @@ test('Set termination protection with static ClusterId and TerminationProtected 
 test('Set termination protection with ClusterId from payload and static TerminationProtected', () => {
   // WHEN
   const task = new tasks.EmrSetClusterTerminationProtection(stack, 'Task', {
-    clusterId: sfn.TaskInput.fromDataAt('$.ClusterId').value,
+    clusterId: sfn.TaskInput.fromJsonPathAt('$.ClusterId').value,
     terminationProtected: false,
   });
 

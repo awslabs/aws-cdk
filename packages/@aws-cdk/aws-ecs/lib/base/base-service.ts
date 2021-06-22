@@ -160,6 +160,15 @@ export interface BaseServiceOptions {
   readonly propagateTags?: PropagatedTagSource;
 
   /**
+   * Specifies whether to propagate the tags from the task definition or the service to the tasks in the service.
+   * Tags can only be propagated to the tasks within the service during service creation.
+   *
+   * @deprecated Use `propagateTags` instead.
+   * @default PropagatedTagSource.NONE
+   */
+  readonly propagateTaskTagsFrom?: PropagatedTagSource;
+
+  /**
    * Specifies whether to enable Amazon ECS managed tags for the tasks within the service. For more information, see
    * [Tagging Your Amazon ECS Resources](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html)
    *
@@ -373,12 +382,18 @@ export abstract class BaseService extends Resource
       physicalName: props.serviceName,
     });
 
+    if (props.propagateTags && props.propagateTaskTagsFrom) {
+      throw new Error('You can only specify either propagateTags or propagateTaskTagsFrom. Alternatively, you can leave both blank');
+    }
+
     this.taskDefinition = taskDefinition;
 
     // launchType will set to undefined if using external DeploymentController or capacityProviderStrategies
     const launchType = props.deploymentController?.type === DeploymentControllerType.EXTERNAL ||
       props.capacityProviderStrategies !== undefined ?
       undefined : props.launchType;
+
+    const propagateTagsFromSource = props.propagateTaskTagsFrom ?? props.propagateTags ?? PropagatedTagSource.NONE;
 
     this.resource = new CfnService(this, 'Service', {
       desiredCount: props.desiredCount,
@@ -392,7 +407,7 @@ export abstract class BaseService extends Resource
           rollback: props.circuitBreaker.rollback ?? false,
         } : undefined,
       },
-      propagateTags: props.propagateTags === PropagatedTagSource.NONE ? undefined : props.propagateTags,
+      propagateTags: propagateTagsFromSource === PropagatedTagSource.NONE ? undefined : props.propagateTags,
       enableEcsManagedTags: props.enableECSManagedTags ?? false,
       deploymentController: props.circuitBreaker ? {
         type: DeploymentControllerType.ECS,

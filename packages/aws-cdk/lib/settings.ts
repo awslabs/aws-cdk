@@ -268,6 +268,7 @@ export class Settings {
       versionReporting: argv.versionReporting,
       staging: argv.staging,
       output: argv.output,
+      outputsFile: argv.outputsFile,
       progress: argv.progress,
       bundlingStacks,
       lookups: argv.lookups,

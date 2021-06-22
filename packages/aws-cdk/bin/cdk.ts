@@ -70,6 +70,7 @@ async function parseCommandLineArguments() {
     )
     .command(['synthesize [STACKS..]', 'synth [STACKS..]'], 'Synthesizes and prints the CloudFormation template for this stack', yargs => yargs
       .option('exclusively', { type: 'boolean', alias: 'e', desc: 'Only synthesize requested stacks, don\'t include dependencies' })
+      .option('validation', { type: 'boolean', desc: 'After synthesis, validate stacks with the "validateOnSynth" attribute set (can also be controlled with CDK_VALIDATION)', default: true })
       .option('quiet', { type: 'boolean', alias: 'q', desc: 'Do not output CloudFormation Template to stdout', default: false }))
     .command('bootstrap [ENVIRONMENTS..]', 'Deploys the CDK toolkit stack into an AWS environment', yargs => yargs
       .option('bootstrap-bucket-name', { type: 'string', alias: ['b', 'toolkit-bucket-name'], desc: 'The name of the CDK toolkit bucket; bucket will be created and must not exist', default: undefined })
@@ -312,7 +313,7 @@ async function initCommandLine() {
           force: args.force,
           parameters: parameterMap,
           usePreviousParameters: args['previous-parameters'],
-          outputsFile: args.outputsFile,
+          outputsFile: configuration.settings.get(['outputsFile']),
           progress: configuration.settings.get(['progress']),
           ci: args.ci,
         });
@@ -328,9 +329,9 @@ async function initCommandLine() {
       case 'synthesize':
       case 'synth':
         if (args.exclusively) {
-          return cli.synth(args.STACKS, args.exclusively, args.quiet);
+          return cli.synth(args.STACKS, args.exclusively, args.quiet, args.validation);
         } else {
-          return cli.synth(args.STACKS, true, args.quiet);
+          return cli.synth(args.STACKS, true, args.quiet, args.validation);
         }
 
 

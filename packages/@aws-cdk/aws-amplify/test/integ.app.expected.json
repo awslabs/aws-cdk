@@ -31,6 +31,9 @@
       "Properties": {
         "Name": "App",
         "AutoBranchCreationConfig": {
+          "BasicAuthConfig": {
+            "EnableBasicAuth": false
+          },
           "EnableAutoBranchCreation": true,
           "EnableAutoBuild": true,
           "EnablePullRequestPreview": true

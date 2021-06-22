@@ -15,9 +15,8 @@ let us know if it's not up-to-date (even better, submit a PR with your  correcti
   - [Step 1: Find something to work on](#step-1-find-something-to-work-on)
   - [Step 2: Design (optional)](#step-2-design-optional)
   - [Step 3: Work your Magic](#step-3-work-your-magic)
-  - [Step 4: Commit](#step-4-commit)
-  - [Step 5: Pull Request](#step-5-pull-request)
-  - [Step 6: Merge](#step-6-merge)
+  - [Step 4: Pull Request](#step-5-pull-request)
+  - [Step 5: Merge](#step-5-merge)
 - [Breaking Changes](#breaking-changes)
 - [Documentation](#documentation)
   - [rosetta](#rosetta)
@@ -279,46 +278,51 @@ $ cd packages/@aws-cdk/aws-iam
 $ yarn watch & # runs in the background
 ```
 
-### Step 4: Commit
+### Step 4: Pull Request
 
-Create a commit with the proposed changes:
+* Create a commit with your changes and push them to a
+  [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+  > Note: CDK core members can push to a branch on the AWS CDK repo (naming convention: `<user>/<feature-bug-name>`).
 
-* Commit title and message (and PR title and description) must adhere to [conventionalcommits](https://www.conventionalcommits.org).
+* Create a [pull request on
+  Github](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
+
+* Pull request title and message (and PR title and description) must adhere to
+  [conventionalcommits](https://www.conventionalcommits.org).
   * The title must begin with `feat(module): title`, `fix(module): title`, `refactor(module): title` or
     `chore(module): title`.
   * Title should be lowercase.
   * No period at the end of the title.
 
-* Commit message should describe _motivation_. Think about your code reviewers and what information they need in
+* Pull request message should describe _motivation_. Think about your code reviewers and what information they need in
   order to understand what you did. If it's a big commit (hopefully not), try to provide some good entry points so
   it will be easier to follow.
 
-* Commit message should indicate which issues are fixed: `fixes #<issue>` or `closes #<issue>`.
+* Pull request message should indicate which issues are fixed: `fixes #<issue>` or `closes #<issue>`.
 
 * Shout out to collaborators.
 
 * If not obvious (i.e. from unit tests), describe how you verified that your change works.
 
-* If this commit includes breaking changes, they must be listed at the end in the following format (notice how multiple breaking changes should be formatted):
+* If this PR includes breaking changes, they must be listed at the end in the following format
+  (notice how multiple breaking changes should be formatted):
 
-```
-BREAKING CHANGE: Description of what broke and how to achieve this behavior now
-* **module-name:** Another breaking change
-* **module-name:** Yet another breaking change
-```
+  ```
+  BREAKING CHANGE: Description of what broke and how to achieve this behavior now
+  * **module-name:** Another breaking change
+  * **module-name:** Yet another breaking change
+  ```
 
-### Step 5: Pull Request
+* Once the pull request is submitted, a reviewer will be assigned by the maintainers.
 
-* Push to a GitHub fork.
-  * CDK core members can push to a branch on the AWS CDK repo (naming convention: `<user>/<feature-bug-name>`).
-* Submit a Pull Request on GitHub. A reviewer will later be assigned by the maintainers.
 * Discuss review comments and iterate until you get at least one "Approve". When iterating, push new commits to the
   same branch. Usually all these are going to be squashed when you merge to master. The commit messages should be hints
   for you when you finalize your merge commit message.
+
 * Make sure to update the PR title/description if things change. The PR title/description are going to be used as the
   commit title/message and will appear in the CHANGELOG, so maintain them all the way throughout the process.
 
-### Step 6: Merge
+### Step 5: Merge
 
 * Make sure your PR builds successfully (we have CodeBuild setup to automatically build all PRs).
 * Once approved and tested, one of our bots will squash-merge to master and will use your PR title/description as the

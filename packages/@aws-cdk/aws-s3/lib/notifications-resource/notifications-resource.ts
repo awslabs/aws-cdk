@@ -1,5 +1,6 @@
+import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
-import { Bucket, EventType, NotificationKeyFilter } from '../bucket';
+import { IBucket, EventType, NotificationKeyFilter, Bucket } from '../bucket';
 import { BucketNotificationDestinationType, IBucketNotificationDestination } from '../destination';
 import { NotificationsResourceHandler } from './notifications-resource-handler';
 
@@ -10,11 +11,8 @@ import { Construct } from '@aws-cdk/core';
 interface NotificationsProps {
   /**
    * The bucket to manage notifications for.
-   *
-   * This cannot be an `IBucket` because the bucket maintains the 1:1
-   * relationship with this resource.
    */
-  bucket: Bucket;
+  bucket: IBucket;
 }
 
 /**
@@ -37,7 +35,7 @@ export class BucketNotifications extends Construct {
   private readonly queueNotifications = new Array<QueueConfiguration>();
   private readonly topicNotifications = new Array<TopicConfiguration>();
   private resource?: cdk.CfnResource;
-  private readonly bucket: Bucket;
+  private readonly bucket: IBucket;
 
   constructor(scope: Construct, id: string, props: NotificationsProps) {
     super(scope, id);
@@ -104,14 +102,24 @@ export class BucketNotifications extends Construct {
    */
   private createResourceOnce() {
     if (!this.resource) {
-      const handlerArn = NotificationsResourceHandler.singleton(this);
+      const handler = NotificationsResourceHandler.singleton(this);
+
+      const managed = this.bucket instanceof Bucket;
+
+      if (!managed) {
+        handler.role.addToPolicy(new iam.PolicyStatement({
+          actions: ['s3:GetBucketNotification'],
+          resources: ['*'],
+        }));
+      }
 
       this.resource = new cdk.CfnResource(this, 'Resource', {
         type: 'Custom::S3BucketNotifications',
         properties: {
-          ServiceToken: handlerArn,
+          ServiceToken: handler.functionArn,
           BucketName: this.bucket.bucketName,
           NotificationConfiguration: cdk.Lazy.any({ produce: () => this.renderNotificationConfiguration() }),
+          Managed: managed,
         },
       });
     }

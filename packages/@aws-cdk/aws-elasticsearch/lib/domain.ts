@@ -1211,7 +1211,7 @@ export class Domain extends DomainBase implements IDomain, ec2.IConnectable {
    */
   public static fromDomainAttributes(scope: Construct, id: string, attrs: DomainAttributes): IDomain {
     const { domainArn, domainEndpoint } = attrs;
-    const domainName = extractNameFromEndpoint(domainEndpoint);
+    const domainName = cdk.Stack.of(scope).parseArn(domainArn).resourceName ?? extractNameFromEndpoint(domainEndpoint);
 
     return new class extends DomainBase {
       public readonly domainArn = domainArn;

@@ -182,6 +182,26 @@ export class EventBus extends EventBusBase {
    * Import an existing event bus resource
    * @param scope Parent construct
    * @param id Construct ID
+   * @param eventBusName Name of imported event bus
+   */
+  public static fromEventBusName(scope: Construct, id: string, eventBusName: string): IEventBus {
+    const eventBusArn = Stack.of(scope).formatArn({
+      resource: 'event-bus',
+      service: 'events',
+      resourceName: eventBusName,
+    });
+
+    return EventBus.fromEventBusAttributes(scope, id, {
+      eventBusName: eventBusName,
+      eventBusArn: eventBusArn,
+      eventBusPolicy: '',
+    });
+  }
+
+  /**
+   * Import an existing event bus resource
+   * @param scope Parent construct
+   * @param id Construct ID
    * @param attrs Imported event bus properties
    */
   public static fromEventBusAttributes(scope: Construct, id: string, attrs: EventBusAttributes): IEventBus {

@@ -813,8 +813,24 @@
       "Type": "AWS::Serverless::Application",
       "Properties": {
         "Location": {
-          "ApplicationId": "arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSOracleRotationSingleUser",
-          "SemanticVersion": "1.1.60"
+          "ApplicationId": {
+            "Fn::FindInMap": [
+              "InstanceRotationSingleUserSARMappingFEA0C86E",
+              {
+                "Ref": "AWS::Partition"
+              },
+              "applicationId"
+            ]
+          },
+          "SemanticVersion": {
+            "Fn::FindInMap": [
+              "InstanceRotationSingleUserSARMappingFEA0C86E",
+              {
+                "Ref": "AWS::Partition"
+              },
+              "semanticVersion"
+            ]
+          }
         },
         "Parameters": {
           "endpoint": {
@@ -1121,6 +1137,18 @@
     "AssetParameters884431e2bc651d2b61bd699a29dc9684b0f66911f06bd3ed0635f854bf18e147ArtifactHash717FC602": {
       "Type": "String",
       "Description": "Artifact hash for asset \"884431e2bc651d2b61bd699a29dc9684b0f66911f06bd3ed0635f854bf18e147\""
+    }
+  },
+  "Mappings": {
+    "InstanceRotationSingleUserSARMappingFEA0C86E": {
+      "aws": {
+        "applicationId": "arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSOracleRotationSingleUser",
+        "semanticVersion": "1.1.60"
+      },
+      "aws-cn": {
+        "applicationId": "arn:aws-cn:serverlessrepo:cn-north-1:193023089310:applications/SecretsManagerRDSOracleRotationSingleUser",
+        "semanticVersion": "1.1.37"
+      }
     }
   }
 }

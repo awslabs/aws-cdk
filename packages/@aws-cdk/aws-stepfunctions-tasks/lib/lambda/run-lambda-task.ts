@@ -95,7 +95,7 @@ export class RunLambdaTask implements sfn.IStepFunctionsTask {
       metricDimensions: { LambdaFunctionArn: this.lambdaFunction.functionArn },
       parameters: {
         FunctionName: this.lambdaFunction.functionName,
-        Payload: this.props.payload ? this.props.payload.value : sfn.TaskInput.fromDataAt('$').value,
+        Payload: this.props.payload ? this.props.payload.value : sfn.TaskInput.fromJsonPathAt('$').value,
         InvocationType: this.props.invocationType,
         ClientContext: this.props.clientContext,
         Qualifier: this.props.qualifier,

@@ -209,6 +209,8 @@ If you use assets for files or Docker images, every asset will get its own uploa
 By setting the value `singlePublisherPerType` to `true`, only one action for files and one action for 
 Docker images is created that handles all assets of the respective type.
 
+If you need to run commands to setup proxies, mirrors, etc you can supply them using the `assetPreInstallCommands`.
+
 ## Initial pipeline deployment
 
 You provision this pipeline by making sure the target environment has been

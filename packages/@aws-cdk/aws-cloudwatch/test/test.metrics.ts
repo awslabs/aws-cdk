@@ -1,8 +1,8 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { expect, haveResource, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
-import { Metric } from '../lib';
+import { Alarm, Metric } from '../lib';
 
 export = {
   'metric grant'(test: Test) {
@@ -100,6 +100,24 @@ export = {
     test.done();
   },
 
+  'cannot use long dimension values in dimensionsMap'(test: Test) {
+    const arr = new Array(256);
+    const invalidDimensionValue = arr.fill('A', 0).join('');
+
+    test.throws(() => {
+      new Metric({
+        namespace: 'Test',
+        metricName: 'ACount',
+        period: cdk.Duration.minutes(10),
+        dimensionsMap: {
+          DimensionWithLongValue: invalidDimensionValue,
+        },
+      });
+    }, `Dimension value must be at least 1 and no more than 255 characters; received ${invalidDimensionValue}`);
+
+    test.done();
+  },
+
   'throws error when there are more than 10 dimensions'(test: Test) {
     test.throws(() => {
       new Metric({
@@ -121,6 +139,95 @@ export = {
         },
       } );
     }, /The maximum number of dimensions is 10, received 11/);
+
+    test.done();
+  },
+
+  'throws error when there are more than 10 dimensions in dimensionsMap'(test: Test) {
+    test.throws(() => {
+      new Metric({
+        namespace: 'Test',
+        metricName: 'ACount',
+        period: cdk.Duration.minutes(10),
+        dimensionsMap: {
+          dimensionA: 'value1',
+          dimensionB: 'value2',
+          dimensionC: 'value3',
+          dimensionD: 'value4',
+          dimensionE: 'value5',
+          dimensionF: 'value6',
+          dimensionG: 'value7',
+          dimensionH: 'value8',
+          dimensionI: 'value9',
+          dimensionJ: 'value10',
+          dimensionK: 'value11',
+        },
+      } );
+    }, /The maximum number of dimensions is 10, received 11/);
+
+    test.done();
+  },
+
+  'can create metric with dimensionsMap property'(test: Test) {
+    const stack = new cdk.Stack();
+    const metric = new Metric({
+      namespace: 'Test',
+      metricName: 'Metric',
+      dimensionsMap: {
+        dimensionA: 'value1',
+        dimensionB: 'value2',
+      },
+    });
+
+    new Alarm(stack, 'Alarm', {
+      metric: metric,
+      threshold: 10,
+      evaluationPeriods: 1,
+    });
+
+    test.deepEqual(metric.dimensions, {
+      dimensionA: 'value1',
+      dimensionB: 'value2',
+    });
+    expect(stack).to(haveResourceLike('AWS::CloudWatch::Alarm', {
+      Namespace: 'Test',
+      MetricName: 'Metric',
+      Dimensions: [
+        {
+          Name: 'dimensionA',
+          Value: 'value1',
+        },
+        {
+          Name: 'dimensionB',
+          Value: 'value2',
+        },
+      ],
+      Threshold: 10,
+      EvaluationPeriods: 1,
+    }));
+
+    test.done();
+  },
+
+  '"with" with a different dimensions property'(test: Test) {
+    const dims = {
+      dimensionA: 'value1',
+    };
+
+    const metric = new Metric({
+      namespace: 'Test',
+      metricName: 'Metric',
+      period: cdk.Duration.minutes(10),
+      dimensionsMap: dims,
+    });
+
+    const newDims = {
+      dimensionB: 'value2',
+    };
+
+    test.deepEqual(metric.with({
+      dimensionsMap: newDims,
+    }).dimensions, newDims);
 
     test.done();
   },

@@ -1859,13 +1859,14 @@ nodeunitShim({
         memoryLimitMiB: 512,
       });
 
-      test.throws(() => new ecs.Ec2Service(stack, 'Ec2Service', {
-        cluster,
-        taskDefinition,
-        propagateTags: PropagatedTagSource.SERVICE,
-        propagateTaskTagsFrom: PropagatedTagSource.SERVICE,
-      }));
-
+      test.throws(() => {
+        new ecs.Ec2Service(stack, 'Ec2Service', {
+          cluster,
+          taskDefinition,
+          propagateTags: PropagatedTagSource.SERVICE,
+          propagateTaskTagsFrom: PropagatedTagSource.SERVICE,
+        });
+      }, /You can only specify either propagateTags or propagateTaskTagsFrom. Alternatively, you can leave both blank/);
       test.done();
     },
 

@@ -215,7 +215,9 @@ export class App extends Resource implements IApp, iam.IGrantable {
       accessToken: sourceCodeProviderOptions?.accessToken?.toString(),
       autoBranchCreationConfig: props.autoBranchCreation && {
         autoBranchCreationPatterns: props.autoBranchCreation.patterns,
-        basicAuthConfig: props.autoBranchCreation.basicAuth && props.autoBranchCreation.basicAuth.bind(this, 'BranchBasicAuth'),
+        basicAuthConfig: props.autoBranchCreation.basicAuth
+          ? props.autoBranchCreation.basicAuth.bind(this, 'BranchBasicAuth')
+          : { enableBasicAuth: false },
         buildSpec: props.autoBranchCreation.buildSpec && props.autoBranchCreation.buildSpec.toBuildSpec(),
         enableAutoBranchCreation: true,
         enableAutoBuild: props.autoBranchCreation.autoBuild ?? true,
@@ -225,7 +227,9 @@ export class App extends Resource implements IApp, iam.IGrantable {
         stage: props.autoBranchCreation.stage,
       },
       enableBranchAutoDeletion: props.autoBranchDeletion,
-      basicAuthConfig: props.basicAuth && props.basicAuth.bind(this, 'AppBasicAuth'),
+      basicAuthConfig: props.basicAuth
+        ? props.basicAuth.bind(this, 'AppBasicAuth')
+        : { enableBasicAuth: false },
       buildSpec: props.buildSpec && props.buildSpec.toBuildSpec(),
       customRules: Lazy.any({ produce: () => this.customRules }, { omitEmptyArray: true }),
       description: props.description,

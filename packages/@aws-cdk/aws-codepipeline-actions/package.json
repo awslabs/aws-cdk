@@ -70,6 +70,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@aws-cdk/aws-cloudtrail": "0.0.0",
+    "@aws-cdk/aws-codestarnotifications": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
     "@types/lodash": "^4.14.170",
     "cdk-build-tools": "0.0.0",

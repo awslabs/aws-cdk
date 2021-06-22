@@ -57,8 +57,8 @@ if [ $(echo $app_v | grep -c -E "1\.8\.[0-9].*") -eq 1 ]
 then
     echo "Ok"
 else
-    # 11 or 14 or 15
-    if [ $(echo $app_v | grep -c -E "1[145]\.[0-9]\.[0-9].*") -eq 1 ]
+    # 11 or 14 or 15 or 16
+    if [ $(echo $app_v | grep -c -E "1[1-6]\.[0-9]\.[0-9].*") -eq 1 ]
     then
         echo "Ok"
     else

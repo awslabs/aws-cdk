@@ -152,7 +152,7 @@ export class LambdaInvoke extends sfn.TaskStateBase {
         Resource: integrationResourceArn('lambda', 'invoke', this.integrationPattern),
         Parameters: sfn.FieldUtils.renderObject({
           FunctionName: this.props.lambdaFunction.functionArn,
-          Payload: this.props.payload ? this.props.payload.value : sfn.TaskInput.fromDataAt('$').value,
+          Payload: this.props.payload ? this.props.payload.value : sfn.TaskInput.fromJsonPathAt('$').value,
           InvocationType: this.props.invocationType,
           ClientContext: this.props.clientContext,
           Qualifier: this.props.qualifier,

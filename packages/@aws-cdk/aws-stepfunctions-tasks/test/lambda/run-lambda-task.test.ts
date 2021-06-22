@@ -133,7 +133,7 @@ test('Lambda function is invoked with the state input as payload by default', ()
 test('Lambda function can be provided with the state input as the payload', () => {
   const task = new sfn.Task(stack, 'Task', {
     task: new tasks.RunLambdaTask(fn, {
-      payload: sfn.TaskInput.fromDataAt('$'),
+      payload: sfn.TaskInput.fromJsonPathAt('$'),
     }),
   });
   new sfn.StateMachine(stack, 'SM', {

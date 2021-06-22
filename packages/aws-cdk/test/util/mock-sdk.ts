@@ -1,6 +1,7 @@
 import * as cxapi from '@aws-cdk/cx-api';
 import * as AWS from 'aws-sdk';
 import { Account, ISDK, SDK, SdkProvider } from '../../lib/api/aws-auth';
+import { Mode } from '../../lib/api/aws-auth/credentials';
 import { ToolkitInfo } from '../../lib/api/toolkit-info';
 import { CloudFormationStack } from '../../lib/api/util/cloudformation';
 
@@ -41,6 +42,10 @@ export class MockSdkProvider extends SdkProvider {
     } else {
       this.sdk = new MockSdk();
     }
+  }
+
+  async baseCredentialsPartition(_environment: cxapi.Environment, _mode: Mode): Promise<string | undefined> {
+    return undefined;
   }
 
   public defaultAccount(): Promise<Account | undefined> {

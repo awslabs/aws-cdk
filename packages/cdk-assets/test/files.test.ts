@@ -69,6 +69,39 @@ beforeEach(() => {
         },
       },
     }),
+    '/types/cdk.out/assets.json': JSON.stringify({
+      version: Manifest.version(),
+      files: {
+        theTextAsset: {
+          source: {
+            path: 'plain_text.txt',
+          },
+          destinations: {
+            theDestination: {
+              region: 'us-north-50',
+              assumeRoleArn: 'arn:aws:role',
+              bucketName: 'some_bucket',
+              objectKey: 'some_key.txt',
+            },
+          },
+        },
+        theImageAsset: {
+          source: {
+            path: 'image.png',
+          },
+          destinations: {
+            theDestination: {
+              region: 'us-north-50',
+              assumeRoleArn: 'arn:aws:role',
+              bucketName: 'some_bucket',
+              objectKey: 'some_key.png',
+            },
+          },
+        },
+      },
+    }),
+    '/types/cdk.out/plain_text.txt': 'FILE_CONTENTS',
+    '/types/cdk.out/image.png': 'FILE_CONTENTS',
   });
 
   aws = mockAws();
@@ -114,6 +147,30 @@ test('upload file if new (list returns other key)', async () => {
   expect(aws.mockS3.upload).toHaveBeenCalledWith(expect.objectContaining({
     Bucket: 'some_bucket',
     Key: 'some_key',
+    ContentType: 'application/octet-stream',
+  }));
+
+  // We'll just have to assume the contents are correct
+});
+
+test('correctly looks up content type', async () => {
+  const pub = new AssetPublishing(AssetManifest.fromPath('/types/cdk.out'), { aws });
+
+  aws.mockS3.listObjectsV2 = mockedApiResult({ Contents: [{ Key: 'some_key.but_not_the_one' }] });
+  aws.mockS3.upload = mockUpload('FILE_CONTENTS');
+
+  await pub.publish();
+
+  expect(aws.mockS3.upload).toHaveBeenCalledWith(expect.objectContaining({
+    Bucket: 'some_bucket',
+    Key: 'some_key.txt',
+    ContentType: 'text/plain',
+  }));
+
+  expect(aws.mockS3.upload).toHaveBeenCalledWith(expect.objectContaining({
+    Bucket: 'some_bucket',
+    Key: 'some_key.png',
+    ContentType: 'image/png',
   }));
 
   // We'll just have to assume the contents are correct

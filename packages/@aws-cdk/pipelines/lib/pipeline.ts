@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
-import { Annotations, App, Aws, CfnOutput, PhysicalName, Stack, Stage } from '@aws-cdk/core';
+import { Annotations, App, Aws, CfnOutput, Fn, Lazy, PhysicalName, Stack, Stage } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { AssetType, DeployCdkStackAction, PublishAssetsAction, UpdatePipelineAction } from './actions';
 import { appOf, assemblyBuilderOf } from './private/construct-internals';
@@ -129,6 +129,14 @@ export interface CdkPipelineProps {
   readonly singlePublisherPerType?: boolean;
 
   /**
+   * Additional commands to run before installing cdk-assets during the asset publishing step
+   * Use this to setup proxies or npm mirrors
+   *
+   * @default -
+   */
+  readonly assetPreInstallCommands?: string[];
+
+  /**
    * Whether the pipeline needs to build Docker images in the UpdatePipeline stage.
    *
    * If the UpdatePipeline stage tries to build a Docker image and this flag is not
@@ -237,6 +245,7 @@ export class CdkPipeline extends CoreConstruct {
       vpc: props.vpc,
       subnetSelection: props.subnetSelection,
       singlePublisherPerType: props.singlePublisherPerType,
+      preInstallCommands: props.assetPreInstallCommands,
     });
   }
 
@@ -387,6 +396,7 @@ interface AssetPublishingProps {
   readonly vpc?: ec2.IVpc;
   readonly subnetSelection?: ec2.SubnetSelection;
   readonly singlePublisherPerType?: boolean;
+  readonly preInstallCommands?: string[];
 }
 
 /**
@@ -398,6 +408,7 @@ class AssetPublishing extends CoreConstruct {
 
   private readonly publishers: Record<string, PublishAssetsAction> = {};
   private readonly assetRoles: Record<string, iam.IRole> = {};
+  private readonly assetPublishingRoles: Record<string, Set<string>> = {};
   private readonly myCxAsmRoot: string;
 
   private readonly lastStageBeforePublishing?: codepipeline.IStage;
@@ -440,6 +451,7 @@ class AssetPublishing extends CoreConstruct {
     if (!this.assetRoles[command.assetType]) {
       this.generateAssetRole(command.assetType);
     }
+    this.assetPublishingRoles[command.assetType] = (this.assetPublishingRoles[command.assetType] ?? new Set()).add(command.assetPublishingRoleArn);
 
     const publisherKey = this.props.singlePublisherPerType ? command.assetType.toString() : command.assetId;
 
@@ -484,6 +496,7 @@ class AssetPublishing extends CoreConstruct {
         vpc: this.props.vpc,
         subnetSelection: this.props.subnetSelection,
         createBuildspecFile: this.props.singlePublisherPerType,
+        preInstallCommands: this.props.preInstallCommands,
       });
       this.stages[stageIndex].addAction(action);
     }
@@ -546,12 +559,11 @@ class AssetPublishing extends CoreConstruct {
     }));
 
     // Publishing role access
-    const rolePattern = assetType === AssetType.DOCKER_IMAGE
-      ? 'arn:*:iam::*:role/*-image-publishing-role-*'
-      : 'arn:*:iam::*:role/*-file-publishing-role-*';
+    // The ARNs include raw AWS pseudo parameters (e.g., ${AWS::Partition}), which need to be substituted.
+    // Lazy-evaluated so all asset publishing roles are included.
     assetRole.addToPolicy(new iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
-      resources: [rolePattern],
+      resources: Lazy.list({ produce: () => [...this.assetPublishingRoles[assetType]].map(arn => Fn.sub(arn)) }),
     }));
 
     // Artifact access

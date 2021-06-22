@@ -116,7 +116,7 @@ test('task policies are generated', () => {
 test('Terminate cluster with ClusterId from payload', () => {
   // WHEN
   const task = new tasks.EmrTerminateCluster(stack, 'Task', {
-    clusterId: sfn.TaskInput.fromDataAt('$.ClusterId').value,
+    clusterId: sfn.TaskInput.fromJsonPathAt('$.ClusterId').value,
     integrationPattern: sfn.IntegrationPattern.RUN_JOB,
   });
 

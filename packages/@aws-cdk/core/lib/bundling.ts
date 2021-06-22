@@ -186,6 +186,9 @@ export class BundlingDockerImage {
 
     const dockerArgs: string[] = [
       'run', '--rm',
+      ...options.securityOpt
+        ? ['--security-opt', options.securityOpt]
+        : [],
       ...options.user
         ? ['-u', options.user]
         : [],
@@ -405,6 +408,14 @@ export interface DockerRunOptions {
    * @default - root or image default
    */
   readonly user?: string;
+
+  /**
+   * [Security configuration](https://docs.docker.com/engine/reference/run/#security-configuration)
+   * when running the docker container.
+   *
+   * @default - no secutiy options
+   */
+  readonly securityOpt?: string;
 }
 
 /**

@@ -120,7 +120,7 @@ describe('SqsSendMessage', () => {
     // WHEN
     const task = new SqsSendMessage(stack, 'Send', {
       queue,
-      messageBody: sfn.TaskInput.fromDataAt('$.theMessage'),
+      messageBody: sfn.TaskInput.fromJsonPathAt('$.theMessage'),
     });
 
     // THEN

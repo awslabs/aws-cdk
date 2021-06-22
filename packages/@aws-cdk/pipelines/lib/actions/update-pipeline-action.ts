@@ -3,6 +3,7 @@ import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as cpactions from '@aws-cdk/aws-codepipeline-actions';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
+import { Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { embeddedAsmPath } from '../private/construct-internals';
 
@@ -97,7 +98,12 @@ export class UpdatePipelineAction extends CoreConstruct implements codepipeline.
     // allow the self-mutating project permissions to assume the bootstrap Action role
     selfMutationProject.addToRolePolicy(new iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
-      resources: ['arn:*:iam::*:role/*-deploy-role-*', 'arn:*:iam::*:role/*-publishing-role-*'],
+      resources: [`arn:*:iam::${Stack.of(this).account}:role/*`],
+      conditions: {
+        'ForAnyValue:StringEquals': {
+          'iam:ResourceTag/aws-cdk:bootstrap-role': ['image-publishing', 'file-publishing', 'deploy'],
+        },
+      },
     }));
     selfMutationProject.addToRolePolicy(new iam.PolicyStatement({
       actions: ['cloudformation:DescribeStacks'],

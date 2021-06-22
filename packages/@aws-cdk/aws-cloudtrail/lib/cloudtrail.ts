@@ -98,7 +98,7 @@ export interface TrailProps {
   readonly snsTopic?: sns.ITopic;
 
   /**
-   * The name of the trail. We recoomend customers do not set an explicit name.
+   * The name of the trail. We recommend customers do not set an explicit name.
    *
    * @default - AWS CloudFormation generated name.
    */

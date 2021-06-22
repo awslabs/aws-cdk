@@ -100,7 +100,7 @@ test('Message body can come from state', () => {
   // WHEN
   const task = new sfn.Task(stack, 'Send', {
     task: new tasks.SendToQueue(queue, {
-      messageBody: sfn.TaskInput.fromDataAt('$.theMessage'),
+      messageBody: sfn.TaskInput.fromJsonPathAt('$.theMessage'),
     }),
   });
 

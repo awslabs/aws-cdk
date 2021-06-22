@@ -246,7 +246,7 @@ export class CdkStage extends CoreConstruct {
         if (entry instanceof DockerImageManifestEntry) {
           assetType = AssetType.DOCKER_IMAGE;
         } else if (entry instanceof FileManifestEntry) {
-          // Don't publishg the template for this stack
+          // Don't publish the template for this stack
           if (entry.source.packaging === 'file' && entry.source.path === stackArtifact.templateFile) {
             continue;
           }
@@ -256,11 +256,16 @@ export class CdkStage extends CoreConstruct {
           throw new Error(`Unrecognized asset type: ${entry.type}`);
         }
 
+        if (!entry.destination.assumeRoleArn) {
+          throw new Error('assumeRoleArn is missing on asset and required');
+        }
+
         this.host.publishAsset({
           assetManifestPath: manifestArtifact.file,
           assetId: entry.id.assetId,
           assetSelector: entry.id.toString(),
           assetType,
+          assetPublishingRoleArn: entry.destination.assumeRoleArn,
         });
       }
     }
@@ -357,6 +362,11 @@ export interface AssetPublishingCommand {
    * Type of asset to publish
    */
   readonly assetType: AssetType;
+
+  /**
+   * ARN of the IAM Role used to publish this asset.
+   */
+  readonly assetPublishingRoleArn: string;
 }
 
 /**

@@ -1,7 +1,7 @@
 import * as ec2 from '@aws-cdk/aws-ec2';
 import { Lazy, Resource, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
-import { BaseService, BaseServiceOptions, DeploymentControllerType, IBaseService, IService, LaunchType, PropagatedTagSource } from '../base/base-service';
+import { BaseService, BaseServiceOptions, DeploymentControllerType, IBaseService, IService, LaunchType } from '../base/base-service';
 import { fromServiceAtrributes } from '../base/from-service-attributes';
 import { NetworkMode, TaskDefinition } from '../base/task-definition';
 import { ICluster } from '../cluster';
@@ -82,15 +82,6 @@ export interface Ec2ServiceProps extends BaseServiceOptions {
    * @default false
    */
   readonly daemon?: boolean;
-
-  /**
-   * Specifies whether to propagate the tags from the task definition or the service to the tasks in the service.
-   * Tags can only be propagated to the tasks within the service during service creation.
-   *
-   * @deprecated Use `propagateTags` instead.
-   * @default PropagatedTagSource.NONE
-   */
-  readonly propagateTaskTagsFrom?: PropagatedTagSource;
 }
 
 /**
@@ -173,15 +164,9 @@ export class Ec2Service extends BaseService implements IEc2Service {
       throw new Error('Supplied TaskDefinition is not configured for compatibility with EC2');
     }
 
-    if (props.propagateTags && props.propagateTaskTagsFrom) {
-      throw new Error('You can only specify either propagateTags or propagateTaskTagsFrom. Alternatively, you can leave both blank');
-    }
-
     if (props.securityGroup !== undefined && props.securityGroups !== undefined) {
       throw new Error('Only one of SecurityGroup or SecurityGroups can be populated.');
     }
-
-    const propagateTagsFromSource = props.propagateTaskTagsFrom ?? props.propagateTags ?? PropagatedTagSource.NONE;
 
     super(scope, id, {
       ...props,
@@ -189,7 +174,6 @@ export class Ec2Service extends BaseService implements IEc2Service {
       maxHealthyPercent: props.daemon && props.maxHealthyPercent === undefined ? 100 : props.maxHealthyPercent,
       minHealthyPercent: props.daemon && props.minHealthyPercent === undefined ? 0 : props.minHealthyPercent,
       launchType: LaunchType.EC2,
-      propagateTags: propagateTagsFromSource,
       enableECSManagedTags: props.enableECSManagedTags,
     },
     {

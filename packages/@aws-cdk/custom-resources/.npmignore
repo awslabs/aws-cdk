@@ -26,3 +26,4 @@ jest.config.js
 **/cdk.out
 junit.xml
 test/
+!*.lit.ts

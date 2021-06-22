@@ -78,7 +78,7 @@
     "cdk-integ-tools": "0.0.0",
     "cfn2ts": "0.0.0",
     "pkglint": "0.0.0",
-    "@aws-cdk/assert-internal": "0.0.0"
+    "@aws-cdk/assertions": "0.0.0"
   },
   "dependencies": {
     "@aws-cdk/core": "0.0.0",

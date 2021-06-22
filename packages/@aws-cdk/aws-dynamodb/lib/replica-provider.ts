@@ -27,23 +27,8 @@ export class ReplicaProvider extends NestedStack {
    */
   public static getOrCreate(scope: Construct, props: ReplicaProviderProps = {}) {
     const stack = Stack.of(scope);
-    this.checkManagedPoliciesLimit(stack);
     const uid = '@aws-cdk/aws-dynamodb.ReplicaProvider';
     return stack.node.tryFindChild(uid) as ReplicaProvider ?? new ReplicaProvider(stack, uid, props);
-  }
-
-  // Map of getOrCreate() calls per stack
-  private static getOrCreateCalls = new Map<string, number>();
-
-  private static checkManagedPoliciesLimit(stack: Stack): void {
-    // The custom resource implementation uses IAM managed policies. There's
-    // a limit of 10 managed policies per role in IAM. Throw if we reach this
-    // limit.
-    const calls = this.getOrCreateCalls.get(stack.stackName) ?? 0;
-    if (calls >= 10) {
-      throw new Error('You currently cannot have more than 10 global tables in a single stack. Consider splitting your tables across multiple stacks.');
-    }
-    this.getOrCreateCalls.set(stack.stackName, calls + 1);
   }
 
   /**

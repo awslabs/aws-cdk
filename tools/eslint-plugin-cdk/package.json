@@ -24,7 +24,7 @@
     "typescript": "~3.9.9"
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^4.26.1",
+    "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
     "fs-extra": "^9.1.0"
   },

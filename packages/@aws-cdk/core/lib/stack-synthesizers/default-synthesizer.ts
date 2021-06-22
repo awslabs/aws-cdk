@@ -19,7 +19,7 @@ export const BOOTSTRAP_QUALIFIER_CONTEXT = '@aws-cdk/core:bootstrapQualifier';
 /**
  * The minimum bootstrap stack version required by this app.
  */
-const MIN_BOOTSTRAP_STACK_VERSION = 4;
+const MIN_BOOTSTRAP_STACK_VERSION = 6;
 
 /**
  * Configuration properties for DefaultStackSynthesizer

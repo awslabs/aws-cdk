@@ -1,5 +1,5 @@
 import { Schedule } from '@aws-cdk/aws-applicationautoscaling';
-import { IVpc, SubnetSelection, SubnetType } from '@aws-cdk/aws-ec2';
+import { ISecurityGroup, IVpc, SubnetSelection, SubnetType } from '@aws-cdk/aws-ec2';
 import { AwsLogDriver, Cluster, ContainerImage, ICluster, LogDriver, Secret, TaskDefinition } from '@aws-cdk/aws-ecs';
 import { Rule } from '@aws-cdk/aws-events';
 import { EcsTask } from '@aws-cdk/aws-events-targets';
@@ -68,6 +68,13 @@ export interface ScheduledTaskBaseProps {
    * @default Private subnets
    */
   readonly subnetSelection?: SubnetSelection;
+
+  /**
+   * Existing security groups to use for your service.
+   *
+   * @default - a new security group will be created.
+   */
+  readonly securityGroups?: ISecurityGroup[]
 }
 
 export interface ScheduledTaskImageProps {
@@ -139,6 +146,11 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
   public readonly eventRule: Rule;
 
   /**
+   * The security group to use for the ECS Task.
+   */
+  private readonly _securityGroups?: ISecurityGroup[];
+
+  /**
    * Constructs a new instance of the ScheduledTaskBase class.
    */
   constructor(scope: Construct, id: string, props: ScheduledTaskBaseProps) {
@@ -150,6 +162,7 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
     }
     this.desiredTaskCount = props.desiredTaskCount || 1;
     this.subnetSelection = props.subnetSelection || { subnetType: SubnetType.PRIVATE };
+    this._securityGroups = props.securityGroups;
 
     // An EventRule that describes the event trigger (in this case a scheduled run)
     this.eventRule = new Rule(this, 'ScheduledEventRule', {
@@ -171,6 +184,7 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
       taskDefinition,
       taskCount: this.desiredTaskCount,
       subnetSelection: this.subnetSelection,
+      securityGroups: this._securityGroups,
     });
 
     this.addTaskAsTarget(eventRuleTarget);

@@ -277,7 +277,8 @@ export class SageMakerCreateTrainingJob extends sfn.TaskStateBase implements iam
     return {
       ResourceConfig: {
         InstanceCount: config.instanceCount,
-        InstanceType: 'ml.' + config.instanceType,
+        InstanceType: sfn.JsonPath.isEncodedJsonPath(config.instanceType.toString())
+          ? config.instanceType.toString() : `ml.${config.instanceType}`,
         VolumeSizeInGB: config.volumeSize.toGibibytes(),
         ...(config.volumeEncryptionKey ? { VolumeKmsKeyId: config.volumeEncryptionKey.keyArn } : {}),
       },

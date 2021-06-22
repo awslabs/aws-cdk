@@ -227,6 +227,9 @@ Resources:
               - Ref: AWS::NoValue
       RoleName:
         Fn::Sub: cdk-${Qualifier}-file-publishing-role-${AWS::AccountId}-${AWS::Region}
+      Tags:
+        - Key: aws-cdk:bootstrap-role
+          Value: file-publishing
   ImagePublishingRole:
     Type: AWS::IAM::Role
     Properties:
@@ -247,6 +250,9 @@ Resources:
               - Ref: AWS::NoValue
       RoleName:
         Fn::Sub: cdk-${Qualifier}-image-publishing-role-${AWS::AccountId}-${AWS::Region}
+      Tags:
+        - Key: aws-cdk:bootstrap-role
+          Value: image-publishing
   LookupRole:
     Type: AWS::IAM::Role
     Properties:
@@ -379,30 +385,50 @@ Resources:
       Policies:
         - PolicyDocument:
             Statement:
-              - Action:
-                  # Permissions needed in CodePipeline.
-                  # S3 and KMS are needed on '*',
-                  # as we don't know the IDs of the CodePipeline's bucket and key in advance
+              - Sid: CloudFormationPermissions
+                Effect: Allow
+                Action:
                   - cloudformation:CreateChangeSet
                   - cloudformation:DeleteChangeSet
                   - cloudformation:DescribeChangeSet
                   - cloudformation:DescribeStacks
                   - cloudformation:ExecuteChangeSet
+                  - cloudformation:CreateStack
+                  - cloudformation:UpdateStack
+                Resource: "*"
+              - Sid: PipelineCrossAccountArtifactsBucket
+                # Read/write buckets in different accounts. Permissions to buckets in
+                # same account are granted by bucket policies.
+                #
+                # Write permissions necessary to write outputs to the cross-region artifact replication bucket
+                # https://aws.amazon.com/premiumsupport/knowledge-center/codepipeline-deploy-cloudformation/.
+                Effect: Allow
+                Action:
                   - s3:GetObject*
                   - s3:GetBucket*
                   - s3:List*
                   - s3:Abort*
                   - s3:DeleteObject*
                   - s3:PutObject*
-                  # Necessary to write to the cross-region artifact replication bucket
-                  # https://aws.amazon.com/premiumsupport/knowledge-center/codepipeline-deploy-cloudformation/.
+                Resource: "*"
+                Condition:
+                    StringNotEquals:
+                        s3:ResourceAccount:
+                            Ref: 'AWS::AccountId'
+              - Sid: PipelineCrossAccountArtifactsKey
+                # Use keys only for the purposes of reading encrypted files from S3.
+                Effect: Allow
+                Action:
                   - kms:Decrypt
                   - kms:DescribeKey
                   - kms:Encrypt
                   - kms:ReEncrypt*
                   - kms:GenerateDataKey*
                 Resource: "*"
-                Effect: Allow
+                Condition:
+                  StringEquals:
+                    kms:ViaService:
+                      Fn::Sub: s3.${AWS::Region}.amazonaws.com
               - Action: iam:PassRole
                 Resource:
                   Fn::Sub: "${CloudFormationExecutionRole.Arn}"
@@ -420,6 +446,15 @@ Resources:
                   - sts:GetCallerIdentity
                 Resource: "*"
                 Effect: Allow
+              - Sid: CliStagingBucket
+                Effect: Allow
+                Action:
+                  - s3:GetObject*
+                  - s3:GetBucket*
+                  - s3:List*
+                Resource:
+                  - Fn::Sub: ${StagingBucket.Arn}
+                  - Fn::Sub: ${StagingBucket.Arn}/*
               - Sid: ReadVersion
                 Effect: Allow
                 Action:
@@ -430,6 +465,9 @@ Resources:
           PolicyName: default
       RoleName:
         Fn::Sub: cdk-${Qualifier}-deploy-role-${AWS::AccountId}-${AWS::Region}
+      Tags:
+        - Key: aws-cdk:bootstrap-role
+          Value: deploy
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
     Properties:

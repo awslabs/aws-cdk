@@ -87,7 +87,10 @@ export class CloudExecutable {
         if (tryLookup) {
           debug('Some context information is missing. Fetching...');
 
-          await contextproviders.provideContextValues(assembly.manifest.missing, this.props.configuration.context, this.props.sdkProvider);
+          await contextproviders.provideContextValues(
+            assembly.manifest.missing,
+            this.props.configuration.context,
+            this.props.sdkProvider);
 
           // Cache the new context to disk
           await this.props.configuration.saveContext();

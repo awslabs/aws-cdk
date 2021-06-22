@@ -1,0 +1,15 @@
+// Fixture with packages imported, but nothing else
+import { Duration, RemovalPolicy, Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import * as backup from '@aws-cdk/aws-backup';
+import * as iam from '@aws-cdk/aws-iam';
+import * as kms from '@aws-cdk/aws-kms';
+import * as sns from '@aws-cdk/aws-sns';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}

@@ -12,6 +12,8 @@ import { Construct } from '@aws-cdk/core';
 
 export type DimensionHash = {[dim: string]: any};
 
+export type DimensionsMap = { [dim: string]: string };
+
 /**
  * Options shared by most methods accepting metric options
  */
@@ -43,8 +45,17 @@ export interface CommonMetricOptions {
    * Dimensions of the metric
    *
    * @default - No dimensions.
+   *
+   * @deprecated Use 'dimensionsMap' instead.
    */
   readonly dimensions?: DimensionHash;
+
+  /**
+   * Dimensions of the metric
+   *
+   * @default - No dimensions.
+   */
+  readonly dimensionsMap?: DimensionsMap;
 
   /**
    * Unit used to filter the metric stream
@@ -216,10 +227,7 @@ export class Metric implements IMetric {
     if (periodSec !== 1 && periodSec !== 5 && periodSec !== 10 && periodSec !== 30 && periodSec % 60 !== 0) {
       throw new Error(`'period' must be 1, 5, 10, 30, or a multiple of 60 seconds, received ${periodSec}`);
     }
-    if (props.dimensions) {
-      this.validateDimensions(props.dimensions);
-    }
-    this.dimensions = props.dimensions;
+    this.dimensions = this.validateDimensions(props.dimensionsMap ?? props.dimensions);
     this.namespace = props.namespace;
     this.metricName = props.metricName;
     // Try parsing, this will throw if it's not a valid stat
@@ -249,12 +257,14 @@ export class Metric implements IMetric {
       // For these we're not going to do deep equality, misses some opportunity for optimization
       // but that's okay.
       && (props.dimensions === undefined)
+      && (props.dimensionsMap === undefined)
       && (props.period === undefined || props.period.toSeconds() === this.period.toSeconds())) {
       return this;
     }
 
     return new Metric({
       dimensions: ifUndefined(props.dimensions, this.dimensions),
+      dimensionsMap: props.dimensionsMap,
       namespace: this.namespace,
       metricName: this.metricName,
       period: ifUndefined(props.period, this.period),
@@ -398,7 +408,11 @@ export class Metric implements IMetric {
     return list;
   }
 
-  private validateDimensions(dims: DimensionHash): void {
+  private validateDimensions(dims?: DimensionHash): DimensionHash | undefined {
+    if (!dims) {
+      return dims;
+    }
+
     var dimsArray = Object.keys(dims);
     if (dimsArray?.length > 10) {
       throw new Error(`The maximum number of dimensions is 10, received ${dimsArray.length}`);
@@ -416,6 +430,8 @@ export class Metric implements IMetric {
         throw new Error(`Dimension value must be at least 1 and no more than 255 characters; received ${dims[key]}`);
       };
     });
+
+    return dims;
   }
 }
 

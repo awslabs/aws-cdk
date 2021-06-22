@@ -442,7 +442,6 @@
                 "glue:GetTableVersion",
                 "glue:GetTableVersions",
                 "glue:BatchCreatePartition",
-                "glue:BatchDeletePartition",
                 "glue:CreatePartition",
                 "glue:DeletePartition",
                 "glue:UpdatePartition"
@@ -520,7 +519,6 @@
                 "glue:GetTableVersion",
                 "glue:GetTableVersions",
                 "glue:BatchCreatePartition",
-                "glue:BatchDeletePartition",
                 "glue:CreatePartition",
                 "glue:DeletePartition",
                 "glue:UpdatePartition"
@@ -633,7 +631,6 @@
                 "glue:GetTableVersion",
                 "glue:GetTableVersions",
                 "glue:BatchCreatePartition",
-                "glue:BatchDeletePartition",
                 "glue:CreatePartition",
                 "glue:DeletePartition",
                 "glue:UpdatePartition"
@@ -711,7 +708,6 @@
                 "glue:GetTableVersion",
                 "glue:GetTableVersions",
                 "glue:BatchCreatePartition",
-                "glue:BatchDeletePartition",
                 "glue:CreatePartition",
                 "glue:DeletePartition",
                 "glue:UpdatePartition"
@@ -756,7 +752,6 @@
                 "glue:GetTableVersion",
                 "glue:GetTableVersions",
                 "glue:BatchCreatePartition",
-                "glue:BatchDeletePartition",
                 "glue:CreatePartition",
                 "glue:DeletePartition",
                 "glue:UpdatePartition"

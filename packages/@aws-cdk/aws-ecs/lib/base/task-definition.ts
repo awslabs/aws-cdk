@@ -1,6 +1,6 @@
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
-import { IResource, Lazy, Names, Resource } from '@aws-cdk/core';
+import { IResource, Lazy, Names, PhysicalName, Resource } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { ContainerDefinition, ContainerDefinitionOptions, PortMapping, Protocol } from '../container-definition';
 import { CfnTaskDefinition } from '../ecs.generated';
@@ -584,7 +584,7 @@ export class TaskDefinition extends TaskDefinitionBase {
   }
 
   /**
-   * Adds the specified extention to the task definition.
+   * Adds the specified extension to the task definition.
    *
    * Extension can be used to apply a packaged modification to
    * a task definition.
@@ -610,6 +610,8 @@ export class TaskDefinition extends TaskDefinitionBase {
     if (!this._executionRole) {
       this._executionRole = new iam.Role(this, 'ExecutionRole', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+        // needed for cross-account access with TagParameterContainerImage
+        roleName: PhysicalName.GENERATE_IF_NEEDED,
       });
     }
     return this._executionRole;

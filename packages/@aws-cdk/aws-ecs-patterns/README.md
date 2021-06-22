@@ -293,7 +293,9 @@ when queue not provided by user, CDK will create a primary queue and a dead lett
 
 ## Scheduled Tasks
 
-To define a task that runs periodically, instantiate an `ScheduledEc2Task`:
+To define a task that runs periodically, there are 2 options:
+
+* `ScheduledEc2Task`
 
 ```ts
 // Instantiate an Amazon EC2 Task to run at a scheduled interval
@@ -307,6 +309,20 @@ const ecsScheduledTask = new ScheduledEc2Task(stack, 'ScheduledTask', {
   schedule: events.Schedule.expression('rate(1 minute)'),
   enabled: true,
   ruleName: 'sample-scheduled-task-rule'
+});
+```
+
+* `ScheduledFargateTask`
+
+```ts
+const scheduledFargateTask = new ScheduledFargateTask(stack, 'ScheduledFargateTask', {
+  cluster,
+  scheduledFargateTaskImageOptions: {
+    image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+    memoryLimitMiB: 512,
+  },
+  schedule: events.Schedule.expression('rate(1 minute)'),
+  platformVersion: ecs.FargatePlatformVersion.LATEST,
 });
 ```
 
@@ -496,6 +512,25 @@ const scheduledFargateTask = new ScheduledFargateTask(stack, 'ScheduledFargateTa
   },
   schedule: events.Schedule.expression('rate(1 minute)'),
   platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
+});
+```
+
+### Set SecurityGroups for ScheduledFargateTask
+
+```ts
+const stack = new cdk.Stack();
+const vpc = new ec2.Vpc(stack, 'Vpc', { maxAzs: 1 });
+const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+const securityGroup = new ec2.SecurityGroup(stack, 'SG', { vpc });
+
+const scheduledFargateTask = new ScheduledFargateTask(stack, 'ScheduledFargateTask', {
+  cluster,
+  scheduledFargateTaskImageOptions: {
+    image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+    memoryLimitMiB: 512,
+  },
+  schedule: events.Schedule.expression('rate(1 minute)'),
+  securityGroups: [securityGroup],
 });
 ```
 

@@ -36,40 +36,39 @@ The Hitchhikers Guide to the Galaxy
 The below code defines a canary that will hit the `books/topbook` endpoint every 5 minutes:
 
 ```ts
-import * as synthetics from '@aws-cdk/aws-synthetics';
-
 const canary = new synthetics.Canary(this, 'MyCanary', {
   schedule: synthetics.Schedule.rate(Duration.minutes(5)),
-  test: Test.custom({
+  test: synthetics.Test.custom({
     code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
     handler: 'index.handler',
   }),
   runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_1,
+  environmentVariables: {
+      stage: 'prod',
+  },
 });
 ```
 
 The following is an example of an `index.js` file which exports the `handler` function:
 
 ```js
-var synthetics = require('Synthetics');
+const synthetics = require('Synthetics');
 const log = require('SyntheticsLogger');
 
 const pageLoadBlueprint = async function () {
+    // Configure the stage of the API using environment variables
+    const url = `https://api.example.com/${process.env.stage}/user/books/topbook/`;
 
-    // INSERT URL here
-    const URL = "https://api.example.com/user/books/topbook/";
-
-    let page = await synthetics.getPage();
-    const response = await page.goto(URL, {waitUntil: 'domcontentloaded', timeout: 30000});
-    //Wait for page to render.
-    //Increase or decrease wait time based on endpoint being monitored.
+    const page = await synthetics.getPage();
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Wait for page to render. Increase or decrease wait time based on endpoint being monitored.
     await page.waitFor(15000);
-    // This will take a screenshot that will be included in test output artifacts
+    // This will take a screenshot that will be included in test output artifacts.
     await synthetics.takeScreenshot('loaded', 'loaded');
-    let pageTitle = await page.title();
+    const pageTitle = await page.title();
     log.info('Page title: ' + pageTitle);
     if (response.status() !== 200) {
-        throw "Failed to load page!";
+        throw 'Failed to load page!';
     }
 };
 
@@ -102,8 +101,8 @@ Using the `Code` class static initializers:
 
 ```ts
 // To supply the code inline:
-const canary = new Canary(this, 'MyCanary', {
-  test: Test.custom({
+new synthetics.Canary(this, 'Inline Canary', {
+  test: synthetics.Test.custom({
     code: synthetics.Code.fromInline('/* Synthetics handler code */'),
     handler: 'index.handler', // must be 'index.handler'
   }),
@@ -111,8 +110,8 @@ const canary = new Canary(this, 'MyCanary', {
 });
 
 // To supply the code from your local filesystem:
-const canary = new Canary(this, 'MyCanary', {
-  test: Test.custom({
+new synthetics.Canary(this, 'Asset Canary', {
+  test: synthetics.Test.custom({
     code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
     handler: 'index.handler', // must end with '.handler'
   }),
@@ -120,8 +119,10 @@ const canary = new Canary(this, 'MyCanary', {
 });
 
 // To supply the code from a S3 bucket:
-const canary = new Canary(this, 'MyCanary', {
-  test: Test.custom({
+import * as s3 from '@aws-cdk/aws-s3';
+const bucket = new s3.Bucket(this, 'Code Bucket');
+new synthetics.Canary(this, 'Bucket Canary', {
+  test: synthetics.Test.custom({
     code: synthetics.Code.fromBucket(bucket, 'canary.zip'),
     handler: 'index.handler', // must end with '.handler'
   }),
@@ -150,7 +151,8 @@ You can configure a CloudWatch Alarm on a canary metric. Metrics are emitted by 
 
 Create an alarm that tracks the canary metric:
 
-```ts
+```ts fixture=canary
+import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 new cloudwatch.Alarm(this, 'CanaryAlarm', {
   metric: canary.metricSuccessPercent(),
   evaluationPeriods: 2,

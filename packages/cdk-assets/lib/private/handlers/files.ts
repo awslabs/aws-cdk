@@ -1,6 +1,7 @@
 import { createReadStream, promises as fs } from 'fs';
 import * as path from 'path';
 import { FileAssetPackaging, FileSource } from '@aws-cdk/cloud-assembly-schema';
+import * as mime from 'mime';
 import { FileManifestEntry } from '../../asset-manifest';
 import { EventType } from '../../progress';
 import { zipDirectory } from '../archive';
@@ -78,7 +79,8 @@ export class FileAssetHandler implements IAssetHandler {
       await zipDirectory(fullPath, packagedPath);
       return { packagedPath, contentType };
     } else {
-      return { packagedPath: fullPath };
+      const contentType = mime.getType(fullPath) ?? 'application/octet-stream';
+      return { packagedPath: fullPath, contentType };
     }
   }
 

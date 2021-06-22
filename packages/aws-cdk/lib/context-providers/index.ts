@@ -1,13 +1,14 @@
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import * as cxapi from '@aws-cdk/cx-api';
 import { SdkProvider } from '../api';
+import { replaceEnvPlaceholders } from '../api/cloudformation-deployments';
 import { debug } from '../logging';
 import { Context, TRANSIENT_CONTEXT_KEY } from '../settings';
 import { AmiContextProviderPlugin } from './ami';
 import { AZContextProviderPlugin } from './availability-zones';
 import { EndpointServiceAZContextProviderPlugin } from './endpoint-service-availability-zones';
 import { HostedZoneContextProviderPlugin } from './hosted-zones';
-import { LoadBalancerListenerContextProviderPlugin, LoadBalancerContextProviderPlugin } from './load-balancers';
+import { LoadBalancerContextProviderPlugin, LoadBalancerListenerContextProviderPlugin } from './load-balancers';
 import { ContextProviderPlugin } from './provider';
 import { SecurityGroupContextProviderPlugin } from './security-groups';
 import { SSMContextProviderPlugin } from './ssm-parameters';
@@ -36,7 +37,14 @@ export async function provideContextValues(
 
     let value;
     try {
-      value = await provider.getValue(missingContext.props);
+      const environment = cxapi.EnvironmentUtils.make(missingContext.props.account, missingContext.props.region);
+      const resolvedEnvironment = await sdk.resolveEnvironment(environment);
+
+      const arns = await replaceEnvPlaceholders({
+        lookupRoleArn: missingContext.props.lookupRoleArn,
+      }, resolvedEnvironment, sdk);
+
+      value = await provider.getValue({ ...missingContext.props, lookupRoleArn: arns.lookupRoleArn });
     } catch (e) {
       // Set a specially formatted provider value which will be interpreted
       // as a lookup failure in the toolkit.

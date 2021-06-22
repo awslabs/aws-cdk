@@ -309,12 +309,11 @@ class TimeUnit {
 
 function convert(amount: number, fromUnit: TimeUnit, toUnit: TimeUnit, { integral = true }: TimeConversionOptions) {
   if (fromUnit.inMillis === toUnit.inMillis) { return amount; }
-  const multiplier = fromUnit.inMillis / toUnit.inMillis;
 
   if (Token.isUnresolved(amount)) {
     throw new Error(`Unable to perform time unit conversion on un-resolved token ${amount}.`);
   }
-  const value = amount * multiplier;
+  const value = (amount * fromUnit.inMillis) / toUnit.inMillis;
   if (!Number.isInteger(value) && integral) {
     throw new Error(`'${amount} ${fromUnit}' cannot be converted into a whole number of ${toUnit}.`);
   }

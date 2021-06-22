@@ -1,5 +1,7 @@
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as iam from '@aws-cdk/aws-iam';
 import { IResource, Resource, Token } from '@aws-cdk/core';
+import * as constructs from 'constructs';
 import { TopicPolicy } from './policy';
 import { ITopicSubscription } from './subscriber';
 import { Subscription } from './subscription';
@@ -11,7 +13,7 @@ import { Construct } from '@aws-cdk/core';
 /**
  * Represents an SNS topic
  */
-export interface ITopic extends IResource {
+export interface ITopic extends IResource, notifications.INotificationRuleTarget {
   /**
    * The ARN of the topic
    *
@@ -122,6 +124,20 @@ export abstract class TopicBase extends Resource implements ITopic {
       resourceArns: [this.topicArn],
       resource: this,
     });
+  }
+
+  /**
+   * Represents a notification target
+   * That allows SNS topic to associate with this rule target.
+   */
+  public bindAsNotificationRuleTarget(_scope: constructs.Construct): notifications.NotificationRuleTargetConfig {
+    // SNS topic need to grant codestar-notifications service to publish
+    // @see https://docs.aws.amazon.com/dtconsole/latest/userguide/set-up-sns.html
+    this.grantPublish(new iam.ServicePrincipal('codestar-notifications.amazonaws.com'));
+    return {
+      targetType: 'SNS',
+      targetAddress: this.topicArn,
+    };
   }
 
   private nextTokenId(scope: Construct) {

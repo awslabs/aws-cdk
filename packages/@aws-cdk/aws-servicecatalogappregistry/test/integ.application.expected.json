@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "TestApplication2FBC585F": {
+      "Type": "AWS::ServiceCatalogAppRegistry::Application",
+      "Properties": {
+        "Name": "myApplicationtest",
+        "Description": "my application description"
+      }
+    }
+  }
+}

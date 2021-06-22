@@ -1,3 +1,4 @@
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
@@ -7,7 +8,7 @@ import {
   IStackSynthesizer, Lazy, Names, PhysicalName, RemovalPolicy, Resource, Stack, Token,
 } from '@aws-cdk/core';
 import { Construct } from 'constructs';
-import { ActionCategory, IAction, IPipeline, IStage } from './action';
+import { ActionCategory, IAction, IPipeline, IStage, PipelineNotificationEvents, PipelineNotifyOnOptions } from './action';
 import { CfnPipeline } from './codepipeline.generated';
 import { CrossRegionSupportConstruct, CrossRegionSupportStack } from './private/cross-region-support-stack';
 import { FullActionDescriptor } from './private/full-action-descriptor';
@@ -162,6 +163,89 @@ abstract class PipelineBase extends Resource implements IPipeline {
     return rule;
   }
 
+  public bindAsNotificationRuleSource(_scope: Construct): notifications.NotificationRuleSourceConfig {
+    return {
+      sourceArn: this.pipelineArn,
+    };
+  }
+
+  public notifyOn(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options: PipelineNotifyOnOptions,
+  ): notifications.INotificationRule {
+    return new notifications.NotificationRule(this, id, {
+      ...options,
+      source: this,
+      targets: [target],
+    });
+  }
+
+  public notifyOnExecutionStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    return this.notifyOn(id, target, {
+      ...options,
+      events: [
+        PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED,
+        PipelineNotificationEvents.PIPELINE_EXECUTION_CANCELED,
+        PipelineNotificationEvents.PIPELINE_EXECUTION_STARTED,
+        PipelineNotificationEvents.PIPELINE_EXECUTION_RESUMED,
+        PipelineNotificationEvents.PIPELINE_EXECUTION_SUCCEEDED,
+        PipelineNotificationEvents.PIPELINE_EXECUTION_SUPERSEDED,
+      ],
+    });
+  }
+
+  public notifyOnAnyStageStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    return this.notifyOn(id, target, {
+      ...options,
+      events: [
+        PipelineNotificationEvents.STAGE_EXECUTION_CANCELED,
+        PipelineNotificationEvents.STAGE_EXECUTION_FAILED,
+        PipelineNotificationEvents.STAGE_EXECUTION_RESUMED,
+        PipelineNotificationEvents.STAGE_EXECUTION_STARTED,
+        PipelineNotificationEvents.STAGE_EXECUTION_SUCCEEDED,
+      ],
+    });
+  }
+
+  public notifyOnAnyActionStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    return this.notifyOn(id, target, {
+      ...options,
+      events: [
+        PipelineNotificationEvents.ACTION_EXECUTION_CANCELED,
+        PipelineNotificationEvents.ACTION_EXECUTION_FAILED,
+        PipelineNotificationEvents.ACTION_EXECUTION_STARTED,
+        PipelineNotificationEvents.ACTION_EXECUTION_SUCCEEDED,
+      ],
+    });
+  }
+
+  public notifyOnAnyManualApprovalStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule {
+    return this.notifyOn(id, target, {
+      ...options,
+      events: [
+        PipelineNotificationEvents.MANUAL_APPROVAL_FAILED,
+        PipelineNotificationEvents.MANUAL_APPROVAL_NEEDED,
+        PipelineNotificationEvents.MANUAL_APPROVAL_SUCCEEDED,
+      ],
+    });
+  }
 }
 
 /**

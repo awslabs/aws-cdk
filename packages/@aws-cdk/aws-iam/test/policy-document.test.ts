@@ -334,6 +334,40 @@ describe('IAM policy document', () => {
     });
   });
 
+  test('addResources()/addActions() will not add duplicates', () => {
+    const stack = new Stack();
+
+    const statement = new PolicyStatement();
+    statement.addActions('a');
+    statement.addActions('a');
+
+    statement.addResources('x');
+    statement.addResources('x');
+
+    expect(stack.resolve(statement.toStatementJson())).toEqual({
+      Effect: 'Allow',
+      Action: ['a'],
+      Resource: ['x'],
+    });
+  });
+
+  test('addNotResources()/addNotActions() will not add duplicates', () => {
+    const stack = new Stack();
+
+    const statement = new PolicyStatement();
+    statement.addNotActions('a');
+    statement.addNotActions('a');
+
+    statement.addNotResources('x');
+    statement.addNotResources('x');
+
+    expect(stack.resolve(statement.toStatementJson())).toEqual({
+      Effect: 'Allow',
+      NotAction: ['a'],
+      NotResource: ['x'],
+    });
+  });
+
   test('addCanonicalUserPrincipal can be used to add cannonical user principals', () => {
     const stack = new Stack();
     const p = new PolicyDocument();

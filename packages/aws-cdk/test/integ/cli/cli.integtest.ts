@@ -536,6 +536,25 @@ integTest('cdk ls', withDefaultFixture(async (fixture) => {
   }
 }));
 
+integTest('synthing a stage with errors leads to failure', withDefaultFixture(async (fixture) => {
+  const output = await fixture.cdk(['synth'], {
+    allowErrExit: true,
+    modEnv: {
+      INTEG_STACK_SET: 'stage-with-errors',
+    },
+  });
+
+  expect(output).toContain('This is an error');
+}));
+
+integTest('synthing a stage with errors can be suppressed', withDefaultFixture(async (fixture) => {
+  await fixture.cdk(['synth', '--no-validation'], {
+    modEnv: {
+      INTEG_STACK_SET: 'stage-with-errors',
+    },
+  });
+}));
+
 integTest('deploy stack without resource', withDefaultFixture(async (fixture) => {
   // Deploy the stack without resources
   await fixture.cdkDeploy('conditional-resource', { modEnv: { NO_RESOURCE: 'TRUE' } });

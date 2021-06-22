@@ -30,6 +30,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-cdk/alexa-ask": "0.0.0",
+    "@aws-cdk/assertions": "0.0.0",
     "@aws-cdk/assets": "0.0.0",
     "@aws-cdk/aws-accessanalyzer": "0.0.0",
     "@aws-cdk/aws-acmpca": "0.0.0",

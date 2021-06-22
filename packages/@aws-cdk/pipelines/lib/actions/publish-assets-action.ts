@@ -8,11 +8,11 @@ import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import { Lazy, ISynthesisSession, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
+import { toPosixPath } from '../private/fs';
 
 // v2 - keep this import as a separate section to reduce merge conflict when forward merging with the v2 branch.
 // eslint-disable-next-line
 import { Construct as CoreConstruct } from '@aws-cdk/core';
-import { toPosixPath } from '../private/fs';
 
 /**
  * Type of the asset that is being published
@@ -92,6 +92,14 @@ export interface PublishAssetsActionProps {
    * @default false
    */
   readonly createBuildspecFile?: boolean;
+
+  /**
+   * Additional commands to run before installing cdk-assert
+   * Use this to setup proxies or npm mirrors
+   *
+   * @default -
+   */
+  readonly preInstallCommands?: string[];
 }
 
 /**
@@ -113,12 +121,13 @@ export class PublishAssetsAction extends CoreConstruct implements codepipeline.I
     super(scope, id);
 
     const installSuffix = props.cdkCliVersion ? `@${props.cdkCliVersion}` : '';
+    const installCommand = `npm install -g cdk-assets${installSuffix}`;
 
     this.buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
       phases: {
         install: {
-          commands: `npm install -g cdk-assets${installSuffix}`,
+          commands: props.preInstallCommands ? [...props.preInstallCommands, installCommand] : installCommand,
         },
         build: {
           commands: Lazy.list({ produce: () => this.commands }),
@@ -137,15 +146,6 @@ export class PublishAssetsAction extends CoreConstruct implements codepipeline.I
       buildSpec: props.createBuildspecFile ? codebuild.BuildSpec.fromSourceFilename(this.getBuildSpecFileName()) : this.buildSpec,
       role: props.role,
     });
-
-    const rolePattern = props.assetType === AssetType.DOCKER_IMAGE
-      ? 'arn:*:iam::*:role/*-image-publishing-role-*'
-      : 'arn:*:iam::*:role/*-file-publishing-role-*';
-
-    project.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['sts:AssumeRole'],
-      resources: [rolePattern],
-    }));
 
     this.action = new codepipeline_actions.CodeBuildAction({
       actionName: props.actionName,

@@ -1,5 +1,5 @@
 import { nodeunitShim, Test } from 'nodeunit-shim';
-import { Arn, ArnComponents, Aws, CfnOutput, ScopedAws, Stack, Token } from '../lib';
+import { Arn, ArnComponents, ArnFormat, Aws, CfnOutput, ScopedAws, Stack, Token } from '../lib';
 import { Intrinsic } from '../lib/private/intrinsic';
 import { evaluateCFN } from './evaluate-cfn';
 import { toCloudFormation } from './util';
@@ -128,8 +128,13 @@ nodeunitShim({
     },
 
     'various successful parses'(test: Test) {
+      interface TestArnComponents extends ArnComponents {
+        /** @default true */
+        checkCfnEncoding?: boolean;
+      }
+
       const stack = new Stack();
-      const tests: { [arn: string]: ArnComponents } = {
+      const tests: { [arn: string]: TestArnComponents } = {
         'arn:aws:a4b:region:accountid:resourcetype/resource': {
           partition: 'aws',
           service: 'a4b',
@@ -138,6 +143,7 @@ nodeunitShim({
           resource: 'resourcetype',
           resourceName: 'resource',
           sep: '/',
+          arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
         },
         'arn:aws:apigateway:us-east-1::a123456789012bc3de45678901f23a45:/test/mydemoresource/*': {
           partition: 'aws',
@@ -147,6 +153,7 @@ nodeunitShim({
           resource: 'a123456789012bc3de45678901f23a45',
           sep: ':',
           resourceName: '/test/mydemoresource/*',
+          arnFormat: ArnFormat.COLON_RESOURCE_NAME,
         },
         'arn:aws-cn:cloud9::123456789012:environment:81e900317347585a0601e04c8d52eaEX': {
           partition: 'aws-cn',
@@ -156,6 +163,7 @@ nodeunitShim({
           resource: 'environment',
           resourceName: '81e900317347585a0601e04c8d52eaEX',
           sep: ':',
+          arnFormat: ArnFormat.COLON_RESOURCE_NAME,
         },
         'arn:aws:cognito-sync:::identitypool/us-east-1:1a1a1a1a-ffff-1111-9999-12345678:bla': {
           service: 'cognito-sync',
@@ -165,6 +173,19 @@ nodeunitShim({
           resource: 'identitypool',
           resourceName: 'us-east-1:1a1a1a1a-ffff-1111-9999-12345678:bla',
           sep: '/',
+          arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
+          // ToDo: does not work currently, because we split on ':' first, which are present in resourceName here
+          checkCfnEncoding: false,
+        },
+        'arn:aws:servicecatalog:us-east-1:123456789012:/applications/0aqmvxvgmry0ecc4mjhwypun6i': {
+          resource: 'applications',
+          resourceName: '0aqmvxvgmry0ecc4mjhwypun6i',
+          sep: '/',
+          service: 'servicecatalog',
+          region: 'us-east-1',
+          account: '123456789012',
+          partition: 'aws',
+          arnFormat: ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME,
         },
         'arn:aws:s3:::my_corporate_bucket': {
           partition: 'aws',
@@ -172,13 +193,41 @@ nodeunitShim({
           region: '',
           account: '',
           resource: 'my_corporate_bucket',
+          arnFormat: ArnFormat.NO_RESOURCE_NAME,
+        },
+        'arn:aws:s3:::my_corporate_bucket/object.zip': {
+          partition: 'aws',
+          service: 's3',
+          region: '',
+          account: '',
+          resource: 'my_corporate_bucket/object.zip',
+          arnFormat: ArnFormat.NO_RESOURCE_NAME,
         },
       };
 
-      Object.keys(tests).forEach(arn => {
-        const expected = tests[arn];
-        test.deepEqual(stack.parseArn(arn), expected, arn);
-      });
+      for (const [arn, expectedComponents] of Object.entries(tests)) {
+        const skipCheckingCfnEncoding = expectedComponents.checkCfnEncoding === false;
+        // delete the extra field so it doesn't screw up the equality comparison
+        delete expectedComponents.checkCfnEncoding;
+
+        // test the basic case
+        const parsedComponents = stack.splitArn(arn, expectedComponents.arnFormat!);
+        test.deepEqual(parsedComponents, expectedComponents, arn);
+
+        // test the round-trip
+        test.equal(stack.formatArn(parsedComponents), arn);
+
+        // test that the CloudFormation functions we generate evaluate to the correct value
+        if (skipCheckingCfnEncoding) {
+          continue;
+        }
+        const tokenArnComponents = stack.splitArn(
+          Token.asString(new Intrinsic({ Ref: 'TheArn' })),
+          parsedComponents.arnFormat!);
+        const cfnArnComponents = stack.resolve(tokenArnComponents);
+        const evaluatedArnComponents = evaluateCFN(cfnArnComponents, { TheArn: arn });
+        test.deepEqual(evaluatedArnComponents, parsedComponents);
+      }
 
       test.done();
     },
@@ -250,6 +299,7 @@ nodeunitShim({
         resource: 'role',
         resourceName: 'abc123',
         sep: '/',
+        arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
       };
 
       test.deepEqual(stack.parseArn(arn), expected, arn);

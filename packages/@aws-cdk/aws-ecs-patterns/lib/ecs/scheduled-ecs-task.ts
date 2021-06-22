@@ -1,4 +1,5 @@
 import { Ec2TaskDefinition } from '@aws-cdk/aws-ecs';
+import { EcsTask } from '@aws-cdk/aws-events-targets';
 import { Construct } from 'constructs';
 import { ScheduledTaskBase, ScheduledTaskBaseProps, ScheduledTaskImageProps } from '../base/scheduled-task-base';
 
@@ -86,6 +87,11 @@ export class ScheduledEc2Task extends ScheduledTaskBase {
   public readonly taskDefinition: Ec2TaskDefinition;
 
   /**
+   * The ECS task in this construct.
+   */
+  public readonly task: EcsTask;
+
+  /**
    * Constructs a new instance of the ScheduledEc2Task class.
    */
   constructor(scope: Construct, id: string, props: ScheduledEc2TaskProps) {
@@ -113,6 +119,6 @@ export class ScheduledEc2Task extends ScheduledTaskBase {
       throw new Error('You must specify a taskDefinition or image');
     }
 
-    this.addTaskDefinitionToEventTarget(this.taskDefinition);
+    this.task = this.addTaskDefinitionToEventTarget(this.taskDefinition);
   }
 }

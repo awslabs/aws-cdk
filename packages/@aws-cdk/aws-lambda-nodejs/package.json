@@ -69,7 +69,7 @@
     "cdk-build-tools": "0.0.0",
     "cdk-integ-tools": "0.0.0",
     "delay": "5.0.0",
-    "esbuild": "^0.12.8",
+    "esbuild": "^0.12.9",
     "pkglint": "0.0.0",
     "@aws-cdk/assert-internal": "0.0.0"
   },

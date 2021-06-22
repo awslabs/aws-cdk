@@ -866,6 +866,19 @@ but `notifyEmails` were,
 a new SNS Topic will be created
 (and accessible through the `notificationTopic` property of the Action).
 
+If you want to grant a principal permissions to approve the changes,
+you can invoke the method `grantManualApproval` passing it a `IGrantable`:
+
+```ts
+const manualApprovalAction = new codepipeline_actions.ManualApprovalAction({
+  actionName: 'Approve',
+});
+approveStage.addAction(manualApprovalAction);
+
+const role = iam.Role.fromRoleArn(this, 'Admin', Arn.format({ service: 'iam', resource: 'role', resourceName: 'Admin' }, stack));
+manualApprovalAction.grantManualApproval(role);
+```
+
 ### AWS Lambda
 
 This module contains an Action that allows you to invoke a Lambda function in a Pipeline:

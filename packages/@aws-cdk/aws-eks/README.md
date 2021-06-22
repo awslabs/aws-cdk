@@ -199,6 +199,22 @@ cluster.addNodegroupCapacity('custom-node-group', {
 });
 ```
 
+To set node taints, you can set `taints` option.
+
+```ts
+cluster.addNodegroupCapacity('custom-node-group', {
+  instanceTypes: [new ec2.InstanceType('m5.large')],
+  taints: [
+    {
+      effect: TaintEffect.NO_SCHEDULE,
+      key: 'foo',
+      value: 'bar',
+    }
+  ]
+  ...
+});
+```
+
 #### Spot Instances Support
 
 Use `capacityType` to create managed node groups comprised of spot instances. To maximize the availability of your applications while using

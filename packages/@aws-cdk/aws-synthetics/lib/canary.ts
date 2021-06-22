@@ -245,6 +245,14 @@ export interface CanaryProps {
    */
   readonly test: Test;
 
+  /**
+   * Key-value pairs that the Synthetics caches and makes available for your canary scripts. Use environment variables
+   * to apply configuration changes, such as test and production environment configurations, without changing your
+   * Canary script source code.
+   *
+   * @default - No environment variables.
+   */
+  readonly environmentVariables?: { [key: string]: string };
 }
 
 /**
@@ -306,6 +314,7 @@ export class Canary extends cdk.Resource {
       failureRetentionPeriod: props.failureRetentionPeriod?.toDays(),
       successRetentionPeriod: props.successRetentionPeriod?.toDays(),
       code: this.createCode(props),
+      runConfig: this.createRunConfig(props),
     });
 
     this.canaryId = resource.attrId;
@@ -407,6 +416,15 @@ export class Canary extends cdk.Resource {
     return {
       durationInSeconds: String(`${props.timeToLive?.toSeconds() ?? 0}`),
       expression: props.schedule?.expressionString ?? 'rate(5 minutes)',
+    };
+  }
+
+  private createRunConfig(props: CanaryProps): CfnCanary.RunConfigProperty | undefined {
+    if (!props.environmentVariables) {
+      return undefined;
+    }
+    return {
+      environmentVariables: props.environmentVariables,
     };
   }
 

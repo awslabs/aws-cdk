@@ -23,3 +23,10 @@ account: '856666278305'
 account: '840364872350'
 account: '422531588944'
 account: '924023996002'
+
+# The account IDs of password rotation applications of Serverless Application Repository
+# https://docs.aws.amazon.com/secretsmanager/latest/userguide/enable-rotation-rds.html
+# partition aws
+account: '297356227824'
+# partition aws-cn
+account: '193023089310'

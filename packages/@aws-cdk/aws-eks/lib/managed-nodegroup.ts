@@ -88,6 +88,48 @@ export interface LaunchTemplateSpec {
 }
 
 /**
+ * Effect types of kubernetes node taint.
+ */
+export enum TaintEffect {
+  /**
+   * NoSchedule
+   */
+  NO_SCHEDULE = 'NO_SCHEDULE',
+  /**
+   * PreferNoSchedule
+   */
+  PREFER_NO_SCHEDULE = 'PREFER_NO_SCHEDULE',
+  /**
+   * NoExecute
+   */
+  NO_EXECUTE = 'NO_EXECUTE',
+}
+
+/**
+ * Taint interface
+ */
+export interface TaintSpec {
+  /**
+   * Effect type
+   *
+   * @default - None
+   */
+  readonly effect?: TaintEffect;
+  /**
+   * Taint key
+   *
+   * @default - None
+   */
+  readonly key?: string;
+  /**
+   * Taint value
+   *
+   * @default - None
+   */
+  readonly value?: string;
+}
+
+/**
  * The Nodegroup Options for addNodeGroup() method
  */
 export interface NodegroupOptions {
@@ -132,7 +174,7 @@ export interface NodegroupOptions {
    */
   readonly maxSize?: number;
   /**
-   * The minimum number of worker nodes that the managed node group can scale in to. This number must be greater than zero.
+   * The minimum number of worker nodes that the managed node group can scale in to. This number must be greater than or equal to zero.
    *
    * @default 1
    */
@@ -167,6 +209,12 @@ export interface NodegroupOptions {
    * @default - None
    */
   readonly labels?: { [name: string]: string };
+  /**
+   * The Kubernetes taints to be applied to the nodes in the node group when they are created.
+   *
+   * @default - None
+   */
+  readonly taints?: TaintSpec[];
   /**
    * The IAM role to associate with your node group. The Amazon EKS worker node kubelet daemon
    * makes calls to AWS APIs on your behalf. Worker nodes receive permissions for these API calls through
@@ -337,6 +385,7 @@ export class Nodegroup extends Resource implements INodegroup {
       // because this doesn't have a default value, meaning the user had to explicitly configure this.
       instanceTypes: instanceTypes?.map(t => t.toString()),
       labels: props.labels,
+      taints: props.taints,
       launchTemplate: props.launchTemplateSpec,
       releaseVersion: props.releaseVersion,
       remoteAccess: props.remoteAccess ? {

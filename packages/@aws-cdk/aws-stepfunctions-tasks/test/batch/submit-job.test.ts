@@ -177,7 +177,7 @@ test('supports passing task input into payload', () => {
     jobDefinitionArn: batchJobDefinition.jobDefinitionArn,
     jobQueueArn: batchJobQueue.jobQueueArn,
     jobName: sfn.JsonPath.stringAt('$.jobName'),
-    payload: sfn.TaskInput.fromDataAt('$.foo'),
+    payload: sfn.TaskInput.fromJsonPathAt('$.foo'),
   });
 
   // THEN

@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { IResource, Names, Resource, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnFunction } from './cloudfront.generated';
@@ -9,7 +10,7 @@ export abstract class FunctionCode {
 
   /**
    * Inline code for function
-   * @returns `InlineCode` with inline code.
+   * @returns code object with inline code.
    * @param code The actual function code
    */
   public static fromInline(code: string): FunctionCode {
@@ -17,9 +18,28 @@ export abstract class FunctionCode {
   }
 
   /**
+   * Code from external file for function
+   * @returns code object with contents from file.
+   * @param options the options for the external file
+   */
+  public static fromFile(options: FileCodeOptions): FunctionCode {
+    return new FileCode(options);
+  }
+
+  /**
    * renders the function code
    */
   public abstract render(): string;
+}
+
+/**
+ * Options when reading the function's code from an external file
+ */
+export interface FileCodeOptions {
+  /**
+   * The path of the file to read the code from
+   */
+  readonly filePath: string;
 }
 
 /**
@@ -33,6 +53,21 @@ class InlineCode extends FunctionCode {
 
   public render(): string {
     return this.code;
+  }
+}
+
+
+/**
+ * Represents the function's source code loaded from an external file
+ */
+class FileCode extends FunctionCode {
+
+  constructor(private options: FileCodeOptions) {
+    super();
+  }
+
+  public render(): string {
+    return fs.readFileSync(this.options.filePath, { encoding: 'utf-8' });
   }
 }
 

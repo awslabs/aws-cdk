@@ -43,6 +43,9 @@ test('create an app connected to a GitHub repository', () => {
     },
     OauthToken: 'secret',
     Repository: 'https://github.com/aws/aws-cdk',
+    BasicAuthConfig: {
+      EnableBasicAuth: false,
+    },
   });
 
   expect(stack).toHaveResource('AWS::IAM::Role', {
@@ -355,6 +358,9 @@ test('with auto branch creation', () => {
   // THEN
   expect(stack).toHaveResource('AWS::Amplify::App', {
     AutoBranchCreationConfig: {
+      BasicAuthConfig: {
+        EnableBasicAuth: false,
+      },
       EnableAutoBranchCreation: true,
       EnableAutoBuild: true,
       EnablePullRequestPreview: true,

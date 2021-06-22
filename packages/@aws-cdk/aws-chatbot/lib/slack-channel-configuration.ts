@@ -1,4 +1,5 @@
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as iam from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import * as sns from '@aws-cdk/aws-sns';
@@ -105,7 +106,7 @@ export enum LoggingLevel {
 /**
  * Represents a Slack channel configuration
  */
-export interface ISlackChannelConfiguration extends cdk.IResource, iam.IGrantable {
+export interface ISlackChannelConfiguration extends cdk.IResource, iam.IGrantable, notifications.INotificationRuleTarget {
 
   /**
    * The ARN of the Slack channel configuration
@@ -178,6 +179,13 @@ abstract class SlackChannelConfigurationBase extends cdk.Resource implements ISl
       metricName,
       ...props,
     });
+  }
+
+  public bindAsNotificationRuleTarget(_scope: Construct): notifications.NotificationRuleTargetConfig {
+    return {
+      targetType: 'AWSChatbotSlack',
+      targetAddress: this.slackChannelConfigurationArn,
+    };
   }
 }
 

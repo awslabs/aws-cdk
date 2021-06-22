@@ -408,6 +408,8 @@ new cloudfront.Distribution(stack, 'distro', {
 
 It will auto-generate the name of the function and deploy it to the `live` stage.
 
+Additionally, you can load the function's code from a file using the `FunctionCode.fromFile()` method.
+
 ### Logging
 
 You can configure CloudFront to create log files that contain detailed information about every user request that CloudFront receives.

@@ -82,6 +82,7 @@ To enable client authentication with TLS set the `certificateAuthorityArns` prop
 
 ```typescript
 import * as msk from "@aws-cdk/aws-msk"
+import * as acmpca from "@aws-cdk/aws-acmpca"
 
 const cluster = new msk.Cluster(this, 'Cluster', {
     ...
@@ -89,8 +90,12 @@ const cluster = new msk.Cluster(this, 'Cluster', {
       clientBroker: msk.ClientBrokerEncryption.TLS,
     },
     clientAuthentication: msk.ClientAuthentication.tls({
-      certificateAuthorityArns: [
-        'arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111',
+      certificateAuthorities: [
+        acmpca.CertificateAuthority.fromCertificateAuthorityArn(
+          stack,
+          "CertificateAuthority",
+          "arn:aws:acm-pca:us-west-2:1234567890:certificate-authority/11111111-1111-1111-1111-111111111111"
+        ),
       ],
     }),
   });

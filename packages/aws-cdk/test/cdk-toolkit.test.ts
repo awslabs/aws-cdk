@@ -178,22 +178,32 @@ describe('synth', () => {
     process.env.STACKS_TO_VALIDATE = undefined;
   });
 
-  test('stack has error and is flagged for validation', async() => {
-    cloudExecutable = new MockCloudExecutable({
-      stacks: [
-        MockStack.MOCK_STACK_A,
-        MockStack.MOCK_STACK_B,
-      ],
-      nestedAssemblies: [{
+  describe('stack with error and flagged for validation', () => {
+    beforeEach(() => {
+      cloudExecutable = new MockCloudExecutable({
         stacks: [
-          { properties: { validateOnSynth: true }, ...MockStack.MOCK_STACK_WITH_ERROR },
+          MockStack.MOCK_STACK_A,
+          MockStack.MOCK_STACK_B,
         ],
-      }],
+        nestedAssemblies: [{
+          stacks: [
+            { properties: { validateOnSynth: true }, ...MockStack.MOCK_STACK_WITH_ERROR },
+          ],
+        }],
+      });
     });
 
-    const toolkit = defaultToolkitSetup();
+    test('causes synth to fail if autoValidate=true', async() => {
+      const toolkit = defaultToolkitSetup();
+      const autoValidate = true;
+      await expect(toolkit.synth([], false, true, autoValidate)).rejects.toBeDefined();
+    });
 
-    await expect(toolkit.synth([], false, true)).rejects.toBeDefined();
+    test('causes synth to succeed if autoValidate=false', async() => {
+      const toolkit = defaultToolkitSetup();
+      const autoValidate = false;
+      await expect(toolkit.synth([], false, true, autoValidate)).resolves.toBeUndefined();
+    });
   });
 
   test('stack has error and was explicitly selected', async() => {

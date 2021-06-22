@@ -75,24 +75,33 @@
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "cdk-build-tools": "0.0.0",
+    "cdk-integ-tools": "0.0.0",
     "cfn2ts": "0.0.0",
     "pkglint": "0.0.0",
     "@aws-cdk/assert-internal": "0.0.0"
   },
   "dependencies": {
+    "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
+    "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
+  "awslint": {
+    "exclude": [
+      "resource-attribute:@aws-cdk/aws-servicecatalog.Portfolio.portfolioName",
+      "props-physical-name:@aws-cdk/aws-servicecatalog.PortfolioProps"
+    ]
+  },
+  "maturity": "experimental",
   "stability": "experimental",
-  "maturity": "cfn-only",
   "awscdkio": {
     "announce": false
   },

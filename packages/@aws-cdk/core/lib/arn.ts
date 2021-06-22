@@ -3,6 +3,50 @@ import { Stack } from './stack';
 import { Token } from './token';
 import { filterUndefined } from './util';
 
+/**
+ * An enum representing the various ARN formats that different services use.
+ */
+export enum ArnFormat {
+  /**
+   * This represents a format where there is no 'resourceName' part.
+   * This format is used for S3 resources,
+   * like 'arn:aws:s3:::bucket'.
+   * Everything after the last colon is considered the 'resource',
+   * even if it contains slashes,
+   * like in 'arn:aws:s3:::bucket/object.zip'.
+   */
+  NO_RESOURCE_NAME = 'arn:aws:service:region:account:resource',
+
+  /**
+   * This represents a format where the 'resource' and 'resourceName'
+   * parts are separated with a colon.
+   * Like in: 'arn:aws:service:region:account:resource:resourceName'.
+   * Everything after the last colon is considered the 'resourceName',
+   * even if it contains slashes,
+   * like in 'arn:aws:apigateway:region:account:resource:/test/mydemoresource/*'.
+   */
+  COLON_RESOURCE_NAME = 'arn:aws:service:region:account:resource:resourceName',
+
+  /**
+   * This represents a format where the 'resource' and 'resourceName'
+   * parts are separated with a slash.
+   * Like in: 'arn:aws:service:region:account:resource/resourceName'.
+   * Everything after the separating slash is considered the 'resourceName',
+   * even if it contains colons,
+   * like in 'arn:aws:cognito-sync:region:account:identitypool/us-east-1:1a1a1a1a-ffff-1111-9999-12345678:bla'.
+   */
+  SLASH_RESOURCE_NAME = 'arn:aws:service:region:account:resource/resourceName',
+
+  /**
+   * This represents a format where the 'resource' and 'resourceName'
+   * parts are seperated with a slash,
+   * but there is also an additional slash after the colon separating 'account' from 'resource'.
+   * Like in: 'arn:aws:service:region:account:/resource/resourceName'.
+   * Note that the leading slash is _not_ included in the parsed 'resource' part.
+   */
+  SLASH_RESOURCE_SLASH_RESOURCE_NAME = 'arn:aws:service:region:account:/resource/resourceName',
+}
+
 export interface ArnComponents {
   /**
    * The partition that the resource is in. For standard AWS regions, the
@@ -48,6 +92,8 @@ export interface ArnComponents {
    *
    * Can be either '/', ':' or an empty string. Will only be used if resourceName is defined.
    * @default '/'
+   *
+   * @deprecated use arnFormat instead
    */
   readonly sep?: string;
 
@@ -56,6 +102,14 @@ export interface ArnComponents {
    * a wildcard such as ``"*"``. This is service-dependent.
    */
   readonly resourceName?: string;
+
+  /**
+   * The specific ARN format to use for this ARN value.
+   *
+   * @default - uses value of `sep` as the separator for formatting,
+   *   `ArnFormat.SLASH_RESOURCE_NAME` if that property was also not provided
+   */
+  readonly arnFormat?: ArnFormat;
 }
 
 export class Arn {
@@ -80,9 +134,13 @@ export class Arn {
     const partition = components.partition ?? stack.partition;
     const region = components.region ?? stack.region;
     const account = components.account ?? stack.account;
-    const sep = components.sep ?? '/';
+    const sep = components.sep ?? (components.arnFormat === ArnFormat.COLON_RESOURCE_NAME ? ':' : '/');
 
-    const values = ['arn', ':', partition, ':', components.service, ':', region, ':', account, ':', components.resource];
+    const values = [
+      'arn', ':', partition, ':', components.service, ':', region, ':', account, ':',
+      ...(components.arnFormat === ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME ? ['/'] : []),
+      components.resource,
+    ];
 
     if (sep !== '/' && sep !== ':' && sep !== '') {
       throw new Error('resourcePathSep may only be ":", "/" or an empty string');
@@ -133,11 +191,33 @@ export class Arn {
    *
    * @returns an ArnComponents object which allows access to the various
    *      components of the ARN.
+   *
+   * @deprecated use split instead
    */
   public static parse(arn: string, sepIfToken: string = '/', hasName: boolean = true): ArnComponents {
+    let arnFormat: ArnFormat;
+    if (!hasName) {
+      arnFormat = ArnFormat.NO_RESOURCE_NAME;
+    } else {
+      arnFormat = sepIfToken === '/' ? ArnFormat.SLASH_RESOURCE_NAME : ArnFormat.COLON_RESOURCE_NAME;
+    }
+    return this.split(arn, arnFormat);
+  }
+
+  /**
+   * Splits the provided ARN into its components.
+   * Works both if 'arn' is a string like 'arn:aws:s3:::bucket',
+   * and a Token representing a dynamic CloudFormation expression
+   * (in which case the returned components will also be dynamic CloudFormation expressions,
+   * encoded as Tokens).
+   *
+   * @param arn the ARN to split into its components
+   * @param arnFormat the expected format of 'arn' - depends on what format the service 'arn' represents uses
+   */
+  public static split(arn: string, arnFormat: ArnFormat): ArnComponents {
     const components = parseArnShape(arn);
     if (components === 'token') {
-      return parseToken(arn, sepIfToken, hasName);
+      return parseTokenArn(arn, arnFormat);
     }
 
     const [, partition, service, region, account, resourceTypeOrName, ...rest] = components;
@@ -145,18 +225,41 @@ export class Arn {
     let resource: string;
     let resourceName: string | undefined;
     let sep: string | undefined;
+    let resourcePartStartIndex = 0;
+    let detectedArnFormat: ArnFormat;
 
-    let sepIndex = resourceTypeOrName.indexOf('/');
-    if (sepIndex !== -1) {
-      sep = '/';
+    let slashIndex = resourceTypeOrName.indexOf('/');
+    if (slashIndex === 0) {
+      // new-style ARNs are of the form 'arn:aws:s4:us-west-1:12345:/resource-type/resource-name'
+      slashIndex = resourceTypeOrName.indexOf('/', 1);
+      resourcePartStartIndex = 1;
+      detectedArnFormat = ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME;
+    }
+    if (slashIndex !== -1) {
+      // the slash is only a separator if ArnFormat is not NO_RESOURCE_NAME
+      if (arnFormat === ArnFormat.NO_RESOURCE_NAME) {
+        sep = undefined;
+        slashIndex = -1;
+        detectedArnFormat = ArnFormat.NO_RESOURCE_NAME;
+      } else {
+        sep = '/';
+        detectedArnFormat = resourcePartStartIndex === 0
+          ? ArnFormat.SLASH_RESOURCE_NAME
+          // need to repeat this here, as otherwise the compiler thinks 'detectedArnFormat' is not initialized in all paths
+          : ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME;
+      }
     } else if (rest.length > 0) {
       sep = ':';
-      sepIndex = -1;
+      slashIndex = -1;
+      detectedArnFormat = ArnFormat.COLON_RESOURCE_NAME;
+    } else {
+      sep = undefined;
+      detectedArnFormat = ArnFormat.NO_RESOURCE_NAME;
     }
 
-    if (sepIndex !== -1) {
-      resource = resourceTypeOrName.substr(0, sepIndex);
-      resourceName = resourceTypeOrName.substr(sepIndex + 1);
+    if (slashIndex !== -1) {
+      resource = resourceTypeOrName.substring(resourcePartStartIndex, slashIndex);
+      resourceName = resourceTypeOrName.substring(slashIndex + 1);
     } else {
       resource = resourceTypeOrName;
     }
@@ -182,6 +285,7 @@ export class Arn {
       account,
       resourceName,
       sep,
+      arnFormat: detectedArnFormat,
     });
   }
 
@@ -232,32 +336,18 @@ export class Arn {
  * subexpressions of the ARN, not string literals.
  *
  * WARNING: this function cannot properly parse the complete final
- * resourceName (path) out of ARNs that use '/' to both separate the
- * 'resource' from the 'resourceName' AND to subdivide the resourceName
- * further. For example, in S3 ARNs:
- *
- *    arn:aws:s3:::my_corporate_bucket/path/to/exampleobject.png
- *
- * After parsing the resourceName will not contain 'path/to/exampleobject.png'
- * but simply 'path'. This is a limitation because there is no slicing
- * functionality in CloudFormation templates.
+ * 'resourceName' part if it contains colons,
+ * like 'arn:aws:cognito-sync:region:account:identitypool/us-east-1:1a1a1a1a-ffff-1111-9999-12345678:bla'.
  *
  * @param arnToken The input token that contains an ARN
- * @param sep The separator used to separate resource from resourceName
- * @param hasName Whether there is a name component in the ARN at all.
- * For example, SNS Topics ARNs have the 'resource' component contain the
- * topic name, and no 'resourceName' component.
- * @returns an ArnComponents object which allows access to the various
- * components of the ARN.
+ * @param arnFormat the expected format of 'arn' - depends on what format the service the ARN represents uses
  */
-function parseToken(arnToken: string, sep: string = '/', hasName: boolean = true): ArnComponents {
-  // Arn ARN looks like:
-  // arn:partition:service:region:account-id:resource
-  // arn:partition:service:region:account-id:resourcetype/resource
-  // arn:partition:service:region:account-id:resourcetype:resource
-
-  // We need the 'hasName' argument because {Fn::Select}ing a nonexistent field
-  // throws an error.
+function parseTokenArn(arnToken: string, arnFormat: ArnFormat): ArnComponents {
+  // ARN looks like:
+  // arn:partition:service:region:account:resource
+  // arn:partition:service:region:account:resource:resourceName
+  // arn:partition:service:region:account:resource/resourceName
+  // arn:partition:service:region:account:/resource/resourceName
 
   const components = Fn.split(':', arnToken);
 
@@ -265,22 +355,39 @@ function parseToken(arnToken: string, sep: string = '/', hasName: boolean = true
   const service = Fn.select(2, components).toString();
   const region = Fn.select(3, components).toString();
   const account = Fn.select(4, components).toString();
+  let resource: string;
+  let resourceName: string | undefined;
+  let sep: string | undefined;
 
-  if (sep === ':') {
-    const resource = Fn.select(5, components).toString();
-    const resourceName = hasName ? Fn.select(6, components).toString() : undefined;
-
-    return { partition, service, region, account, resource, resourceName, sep };
+  if (arnFormat === ArnFormat.NO_RESOURCE_NAME || arnFormat === ArnFormat.COLON_RESOURCE_NAME) {
+    // we know that the 'resource' part will always be the 6th segment in this case
+    resource = Fn.select(5, components);
+    if (arnFormat === ArnFormat.COLON_RESOURCE_NAME) {
+      resourceName = Fn.select(6, components);
+      sep = ':';
+    } else {
+      resourceName = undefined;
+      sep = undefined;
+    }
   } else {
-    const lastComponents = Fn.split(sep, Fn.select(5, components));
+    // we know that the 'resource' and 'resourceName' parts are separated by slash here,
+    // so we split the 6th segment from the colon-separated ones with a slash
+    const lastComponents = Fn.split('/', Fn.select(5, components));
 
-    const resource = Fn.select(0, lastComponents).toString();
-    const resourceName = hasName ? Fn.select(1, lastComponents).toString() : undefined;
-
-    return { partition, service, region, account, resource, resourceName, sep };
+    if (arnFormat === ArnFormat.SLASH_RESOURCE_NAME) {
+      resource = Fn.select(0, lastComponents);
+      resourceName = Fn.select(1, lastComponents);
+    } else {
+      // arnFormat is ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME,
+      // which means there's an extra slash there at the beginning that we need to skip
+      resource = Fn.select(1, lastComponents);
+      resourceName = Fn.select(2, lastComponents);
+    }
+    sep = '/';
   }
-}
 
+  return { partition, service, region, account, resource, resourceName, sep, arnFormat };
+}
 
 /**
  * Validate that a string is either unparseable or looks mostly like an ARN

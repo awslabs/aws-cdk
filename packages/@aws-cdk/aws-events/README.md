@@ -202,8 +202,8 @@ bus.archive('MyArchive', {
 
 ## Granting PutEvents to an existing EventBus
 
-To import an existing EventBus into your CDK application, use `EventBus.fromEventBusArn` or `EventBus.fromEventBusAttributes`
-factory method.
+To import an existing EventBus into your CDK application, use `EventBus.fromEventBusArn`, `EventBus.fromEventBusAttributes`
+or `EventBus.fromEventBusName` factory method.
 
 Then, you can use the `grantPutEventsTo` method to grant `event:PutEvents` to the eventBus.
 

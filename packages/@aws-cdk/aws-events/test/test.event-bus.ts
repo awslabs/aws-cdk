@@ -79,6 +79,19 @@ export = {
     test.done();
   },
 
+  'imported event bus from name'(test: Test) {
+    const stack = new Stack();
+
+    const eventBus = new EventBus(stack, 'Bus', { eventBusName: 'test-bus-to-import-by-name' });
+
+    const importEB = EventBus.fromEventBusName(stack, 'ImportBus', eventBus.eventBusName);
+
+    // WHEN
+    test.deepEqual(stack.resolve(eventBus.eventBusName), stack.resolve(importEB.eventBusName));
+
+    test.done();
+  },
+
   'same account imported event bus has right resource env'(test: Test) {
     const stack = new Stack();
 

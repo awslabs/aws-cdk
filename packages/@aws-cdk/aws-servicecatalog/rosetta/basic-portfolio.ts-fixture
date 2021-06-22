@@ -1,0 +1,16 @@
+// Fixture with packages imported, but nothing else
+import { Construct, Stack } from '@aws-cdk/core';
+import * as servicecatalog from '@aws-cdk/aws-servicecatalog';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const portfolio = new servicecatalog.Portfolio(this, "MyFirstPortfolio", {
+      displayName: "MyFirstPortfolio",
+      providerName: "MyTeam",
+    });
+
+    /// here
+  }
+}

@@ -84,8 +84,8 @@ export class EcsRunTaskBase implements ec2.IConnectable, sfn.IStepFunctionsTask 
     }
 
     if (this.integrationPattern === sfn.ServiceIntegrationPattern.WAIT_FOR_TASK_TOKEN
-      && !sfn.FieldUtils.containsTaskToken(props.containerOverrides)) {
-      throw new Error('Task Token is missing in containerOverrides (pass JsonPath.taskToken somewhere in containerOverrides)');
+      && !sfn.FieldUtils.containsTaskToken(props.containerOverrides?.map(override => override.environment))) {
+      throw new Error('Task Token is required in at least one `containerOverrides.environment` for callback. Use JsonPath.taskToken to set the token.');
     }
 
     for (const override of this.props.containerOverrides || []) {

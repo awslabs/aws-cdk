@@ -38,7 +38,7 @@ const hostedZone = new route53.HostedZone(this, 'MyHostedZone', { zoneName: "exa
 const metric = new Metric({
   namespace: 'AWS/Route53',
   metricName: 'DNSQueries',
-  dimensions: {
+  dimensionsMap: {
     HostedZoneId: hostedZone.hostedZoneId
   }
 })
@@ -53,7 +53,7 @@ you can instantiate a `Metric` object to represent it. For example:
 const metric = new Metric({
   namespace: 'MyNamespace',
   metricName: 'MyMetric',
-  dimensions: {
+  dimensionsMap: {
     ProcessingStep: 'Download'
   }
 });

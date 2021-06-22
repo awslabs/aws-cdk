@@ -16,8 +16,7 @@ export class TaskInput {
   /**
    * Use an object as task input
    *
-   * This object may contain Data and Context fields
-   * as object values, if desired.
+   * This object may contain JSON path fields as object values, if desired.
    */
   public static fromObject(obj: { [key: string]: any }) {
     return new TaskInput(InputType.OBJECT, obj);
@@ -40,6 +39,8 @@ export class TaskInput {
    * Use this when you want to use a subobject or string from
    * the current state machine execution as complete payload
    * to a task.
+   *
+   * @deprecated Use `fromJsonPathAt`.
    */
   public static fromDataAt(path: string) {
     return new TaskInput(InputType.TEXT, JsonPath.stringAt(path));
@@ -51,6 +52,8 @@ export class TaskInput {
    * Use this when you want to use a subobject or string from
    * the current task context as complete payload
    * to a task.
+   *
+   * @deprecated Use `fromJsonPathAt`.
    */
   public static fromContextAt(path: string) {
     return new TaskInput(InputType.TEXT, JsonPath.stringAt(path));

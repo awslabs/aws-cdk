@@ -1,7 +1,7 @@
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as serverless from '@aws-cdk/aws-sam';
-import { Duration, Names, Stack, Token } from '@aws-cdk/core';
+import { Duration, Names, Stack, Token, CfnMapping, Aws } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { ISecret } from './secret';
 
@@ -20,6 +20,7 @@ export interface SecretRotationApplicationOptions {
    */
   readonly isMultiUser?: boolean;
 }
+
 /**
  * A secret rotation serverless application.
  */
@@ -110,11 +111,15 @@ export class SecretRotationApplication {
 
   /**
    * The application identifier of the rotation application
+   *
+   * @deprecated only valid when deploying to the 'aws' partition. Use `applicationArnForPartition` instead.
    */
   public readonly applicationId: string;
 
   /**
    * The semantic version of the rotation application
+   *
+   * @deprecated only valid when deploying to the 'aws' partition. Use `semanticVersionForPartition` instead.
    */
   public readonly semanticVersion: string;
 
@@ -123,10 +128,44 @@ export class SecretRotationApplication {
    */
   public readonly isMultiUser?: boolean;
 
+  /**
+   * The application name of the rotation application
+   */
+  private readonly applicationName: string;
+
   constructor(applicationId: string, semanticVersion: string, options?: SecretRotationApplicationOptions) {
     this.applicationId = `arn:aws:serverlessrepo:us-east-1:297356227824:applications/${applicationId}`;
     this.semanticVersion = semanticVersion;
+    this.applicationName = applicationId;
     this.isMultiUser = options && options.isMultiUser;
+  }
+
+  /**
+   * Returns the application ARN for the current partition.
+   * Can be used in combination with a `CfnMapping` to automatically select the correct ARN based on the current partition.
+   */
+  public applicationArnForPartition(partition: string) {
+    if (partition === 'aws') {
+      return this.applicationId;
+    } else if (partition === 'aws-cn') {
+      return `arn:aws-cn:serverlessrepo:cn-north-1:193023089310:applications/${this.applicationName}`;
+    } else {
+      throw new Error(`unsupported partition: ${partition}`);
+    }
+  }
+
+  /**
+   * The semantic version of the app for the current partition.
+   * Can be used in combination with a `CfnMapping` to automatically select the correct version based on the current partition.
+   */
+  public semanticVersionForPartition(partition: string) {
+    if (partition === 'aws') {
+      return this.semanticVersion;
+    } else if (partition === 'aws-cn') {
+      return '1.1.37';
+    } else {
+      throw new Error(`unsupported partition: ${partition}`);
+    }
   }
 }
 
@@ -255,8 +294,23 @@ export class SecretRotation extends CoreConstruct {
       }
     }
 
+    const sarMapping = new CfnMapping(this, 'SARMapping', {
+      mapping: {
+        'aws': {
+          applicationId: props.application.applicationArnForPartition('aws'),
+          semanticVersion: props.application.semanticVersionForPartition('aws'),
+        },
+        'aws-cn': {
+          applicationId: props.application.applicationArnForPartition('aws-cn'),
+          semanticVersion: props.application.semanticVersionForPartition('aws-cn'),
+        },
+      },
+    });
     const application = new serverless.CfnApplication(this, 'Resource', {
-      location: props.application,
+      location: {
+        applicationId: sarMapping.findInMap(Aws.PARTITION, 'applicationId'),
+        semanticVersion: sarMapping.findInMap(Aws.PARTITION, 'semanticVersion'),
+      },
       parameters,
     });
 

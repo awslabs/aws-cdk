@@ -1,3 +1,4 @@
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
@@ -119,6 +120,18 @@ export interface ActionConfig {
 }
 
 /**
+ * Additional options to pass to the notification rule.
+ */
+export interface PipelineNotifyOnOptions extends notifications.NotificationRuleOptions {
+  /**
+   * A list of event types associated with this notification rule for CodePipeline Pipeline.
+   * For a complete list of event types and IDs, see Notification concepts in the Developer Tools Console User Guide.
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#concepts-api
+   */
+  readonly events: PipelineNotificationEvents[];
+}
+
+/**
  * A Pipeline Action.
  * If you want to implement this interface,
  * consider extending the {@link Action} class,
@@ -157,7 +170,7 @@ export interface IAction {
  * It extends {@link events.IRuleTarget},
  * so this interface can be used as a Target for CloudWatch Events.
  */
-export interface IPipeline extends IResource {
+export interface IPipeline extends IResource, notifications.INotificationRuleSource {
   /**
    * The name of the Pipeline.
    *
@@ -188,6 +201,81 @@ export interface IPipeline extends IResource {
    * @param options Additional options to pass to the event rule.
    */
   onStateChange(id: string, options?: events.OnEventOptions): events.Rule;
+
+  /**
+   * Defines a CodeStar notification rule triggered when the pipeline
+   * events emitted by you specified, it very similar to `onEvent` API.
+   *
+   * You can also use the methods `notifyOnExecutionStateChange`, `notifyOnAnyStageStateChange`,
+   * `notifyOnAnyActionStateChange` and `notifyOnAnyManualApprovalStateChange`
+   * to define rules for these specific event emitted.
+   *
+   * @param id The id of the CodeStar notification rule
+   * @param target The target to register for the CodeStar Notifications destination.
+   * @param options Customization options for CodeStar notification rule
+   * @returns CodeStar notification rule associated with this build project.
+   */
+  notifyOn(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options: PipelineNotifyOnOptions,
+  ): notifications.INotificationRule;
+
+  /**
+   * Define an notification rule triggered by the set of the "Pipeline execution" events emitted from this pipeline.
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline
+   *
+   * @param id Identifier for this notification handler.
+   * @param target The target to register for the CodeStar Notifications destination.
+   * @param options Additional options to pass to the notification rule.
+   */
+  notifyOnExecutionStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule;
+
+  /**
+   * Define an notification rule triggered by the set of the "Stage execution" events emitted from this pipeline.
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline
+   *
+   * @param id Identifier for this notification handler.
+   * @param target The target to register for the CodeStar Notifications destination.
+   * @param options Additional options to pass to the notification rule.
+   */
+  notifyOnAnyStageStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule;
+
+  /**
+   * Define an notification rule triggered by the set of the "Action execution" events emitted from this pipeline.
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline
+   *
+   * @param id Identifier for this notification handler.
+   * @param target The target to register for the CodeStar Notifications destination.
+   * @param options Additional options to pass to the notification rule.
+   */
+  notifyOnAnyActionStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule;
+
+  /**
+   * Define an notification rule triggered by the set of the "Manual approval" events emitted from this pipeline.
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline
+   *
+   * @param id Identifier for this notification handler.
+   * @param target The target to register for the CodeStar Notifications destination.
+   * @param options Additional options to pass to the notification rule.
+   */
+  notifyOnAnyManualApprovalStateChange(
+    id: string,
+    target: notifications.INotificationRuleTarget,
+    options?: notifications.NotificationRuleOptions,
+  ): notifications.INotificationRule;
 }
 
 /**
@@ -378,4 +466,100 @@ export abstract class Action implements IAction {
       throw new Error('Action must be added to a stage that is part of a pipeline first');
     }
   }
+}
+
+/**
+ * The list of event types for AWS Codepipeline Pipeline
+ * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline
+ */
+export enum PipelineNotificationEvents {
+  /**
+   * Trigger notification when pipeline execution failed
+   */
+  PIPELINE_EXECUTION_FAILED = 'codepipeline-pipeline-pipeline-execution-failed',
+
+  /**
+   * Trigger notification when pipeline execution canceled
+   */
+  PIPELINE_EXECUTION_CANCELED = 'codepipeline-pipeline-pipeline-execution-canceled',
+
+  /**
+   * Trigger notification when pipeline execution started
+   */
+  PIPELINE_EXECUTION_STARTED = 'codepipeline-pipeline-pipeline-execution-started',
+
+  /**
+   * Trigger notification when pipeline execution resumed
+   */
+  PIPELINE_EXECUTION_RESUMED = 'codepipeline-pipeline-pipeline-execution-resumed',
+
+  /**
+   * Trigger notification when pipeline execution succeeded
+   */
+  PIPELINE_EXECUTION_SUCCEEDED = 'codepipeline-pipeline-pipeline-execution-succeeded',
+
+  /**
+   * Trigger notification when pipeline execution superseded
+   */
+  PIPELINE_EXECUTION_SUPERSEDED = 'codepipeline-pipeline-pipeline-execution-superseded',
+
+  /**
+   * Trigger notification when pipeline stage execution started
+   */
+  STAGE_EXECUTION_STARTED = 'codepipeline-pipeline-stage-execution-started',
+
+  /**
+  * Trigger notification when pipeline stage execution succeeded
+  */
+  STAGE_EXECUTION_SUCCEEDED = 'codepipeline-pipeline-stage-execution-succeeded',
+
+  /**
+  * Trigger notification when pipeline stage execution resumed
+  */
+  STAGE_EXECUTION_RESUMED = 'codepipeline-pipeline-stage-execution-resumed',
+
+  /**
+  * Trigger notification when pipeline stage execution canceled
+  */
+  STAGE_EXECUTION_CANCELED = 'codepipeline-pipeline-stage-execution-canceled',
+
+  /**
+  * Trigger notification when pipeline stage execution failed
+  */
+  STAGE_EXECUTION_FAILED = 'codepipeline-pipeline-stage-execution-failed',
+
+  /**
+   * Trigger notification when pipeline action execution succeeded
+   */
+  ACTION_EXECUTION_SUCCEEDED = 'codepipeline-pipeline-action-execution-succeeded',
+
+  /**
+   * Trigger notification when pipeline action execution failed
+   */
+  ACTION_EXECUTION_FAILED = 'codepipeline-pipeline-action-execution-failed',
+
+  /**
+   * Trigger notification when pipeline action execution canceled
+   */
+  ACTION_EXECUTION_CANCELED = 'codepipeline-pipeline-action-execution-canceled',
+
+  /**
+   * Trigger notification when pipeline action execution started
+   */
+  ACTION_EXECUTION_STARTED = 'codepipeline-pipeline-action-execution-started',
+
+  /**
+   * Trigger notification when pipeline manual approval failed
+   */
+  MANUAL_APPROVAL_FAILED = 'codepipeline-pipeline-manual-approval-failed',
+
+  /**
+   * Trigger notification when pipeline manual approval needed
+   */
+  MANUAL_APPROVAL_NEEDED = 'codepipeline-pipeline-manual-approval-needed',
+
+  /**
+   * Trigger notification when pipeline manual approval succeeded
+   */
+  MANUAL_APPROVAL_SUCCEEDED = 'codepipeline-pipeline-manual-approval-succeeded',
 }

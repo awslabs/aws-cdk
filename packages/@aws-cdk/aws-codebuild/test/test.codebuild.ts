@@ -410,7 +410,7 @@ export = {
                                 'Arn',
                               ],
                             },
-                            '/*',
+                            '/path/to/source.zip',
                           ],
                         ],
                       },

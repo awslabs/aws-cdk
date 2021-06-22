@@ -207,6 +207,15 @@ bucket.addEventNotification(s3.EventType.OBJECT_REMOVED,
   { prefix: 'foo/', suffix: '.jpg' });
 ```
 
+Adding notifications on existing buckets:
+
+```ts
+const bucket = Bucket.fromBucketAttributes(this, 'ImportedBucket', {
+    bucketArn: 'arn:aws:s3:::my-bucket'
+});
+bucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.SnsDestination(topic));
+```
+
 [S3 Bucket Notifications]: https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html
 
 

@@ -198,7 +198,7 @@ and invokes it asynchronously.
 ```ts
 const submitJob = new tasks.LambdaInvoke(this, 'Invoke Handler', {
   lambdaFunction: fn,
-  payload: sfn.TaskInput.fromDataAt('$.input'),
+  payload: sfn.TaskInput.fromJsonPathAt('$.input'),
   invocationType: tasks.LambdaInvocationType.EVENT,
 });
 ```
@@ -228,7 +228,7 @@ const createMessage = new tasks.EvaluateExpression(this, 'Create message', {
 
 const publishMessage = new tasks.SnsPublish(this, 'Publish message', {
   topic: new sns.Topic(this, 'cool-topic'),
-  message: sfn.TaskInput.fromDataAt('$.message'),
+  message: sfn.TaskInput.fromJsonPathAt('$.message'),
   resultPath: '$.sns',
 });
 
@@ -614,7 +614,7 @@ autoScalingRole.assumeRolePolicy?.addStatements(
 new tasks.EmrCreateCluster(this, 'Create Cluster', {
   instances: {},
   clusterRole,
-  name: sfn.TaskInput.fromDataAt('$.ClusterName').value,
+  name: sfn.TaskInput.fromJsonPathAt('$.ClusterName').value,
   serviceRole,
   autoScalingRole,
 });
@@ -798,7 +798,7 @@ new tasks.LambdaInvoke(this, 'Invoke with empty object as payload', {
 // use the output of fn as input
 new tasks.LambdaInvoke(this, 'Invoke with payload field in the state input', {
   lambdaFunction: fn,
-  payload: sfn.TaskInput.fromDataAt('$.Payload'),
+  payload: sfn.TaskInput.fromJsonPathAt('$.Payload'),
 });
 ```
 
@@ -885,7 +885,7 @@ new tasks.SageMakerCreateTrainingJob(this, 'TrainSagemaker', {
   },
   resourceConfig: {
     instanceCount: 1,
-    instanceType: ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE2),
+    instanceType: new ec2.InstanceType(JsonPath.stringAt('$.InstanceType')),
     volumeSize: cdk.Size.gibibytes(50),
   }, // optional: default is 1 instance of EC2 `M4.XLarge` with `10GB` volume
   stoppingCondition: {
@@ -991,7 +991,7 @@ const topic = new sns.Topic(this, 'Topic');
 const task1 = new tasks.SnsPublish(this, 'Publish1', {
   topic,
   integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
-  message: sfn.TaskInput.fromDataAt('$.state.message'),
+  message: sfn.TaskInput.fromJsonPathAt('$.state.message'),
 });
 
 // Combine a field from the execution data with
@@ -1076,7 +1076,7 @@ const queue = new sqs.Queue(this, 'Queue');
 // Use a field from the execution data as message.
 const task1 = new tasks.SqsSendMessage(this, 'Send1', {
   queue,
-  messageBody: sfn.TaskInput.fromDataAt('$.message'),
+  messageBody: sfn.TaskInput.fromJsonPathAt('$.message'),
 });
 
 // Combine a field from the execution data with

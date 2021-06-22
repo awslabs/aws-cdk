@@ -242,8 +242,9 @@ export class EcsRunTask extends sfn.TaskStateBase implements ec2.IConnectable {
 
     validatePatternSupported(this.integrationPattern, EcsRunTask.SUPPORTED_INTEGRATION_PATTERNS);
 
-    if (this.integrationPattern === sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN && !sfn.FieldUtils.containsTaskToken(props.containerOverrides)) {
-      throw new Error('Task Token is required in `containerOverrides` for callback. Use Context.taskToken to set the token.');
+    if (this.integrationPattern === sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN
+      && !sfn.FieldUtils.containsTaskToken(props.containerOverrides?.map(override => override.environment))) {
+      throw new Error('Task Token is required in at least one `containerOverrides.environment` for callback. Use JsonPath.taskToken to set the token.');
     }
 
     if (!this.props.taskDefinition.defaultContainer) {

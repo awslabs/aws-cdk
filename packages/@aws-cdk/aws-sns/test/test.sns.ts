@@ -1,4 +1,5 @@
 import { expect, haveResource } from '@aws-cdk/assert-internal';
+import * as notifications from '@aws-cdk/aws-codestarnotifications';
 import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import * as cdk from '@aws-cdk/core';
@@ -530,6 +531,40 @@ export = {
 
     // THEN
     test.throws(() => app.synth(), /A PolicyStatement used in a resource-based policy must specify at least one IAM principal/);
+    test.done();
+  },
+
+  'topic policy should be set if topic as a notifications rule target'(test: Test) {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'my-stack');
+    const topic = new sns.Topic(stack, 'Topic');
+    const rule = new notifications.NotificationRule(stack, 'MyNotificationRule', {
+      source: {
+        bindAsNotificationRuleSource: () => ({
+          sourceArn: 'ARN',
+        }),
+      },
+      events: ['codebuild-project-build-state-succeeded'],
+    });
+
+    rule.addTarget(topic);
+
+    expect(stack).to(haveResource('AWS::SNS::TopicPolicy', {
+      PolicyDocument: {
+        Version: '2012-10-17',
+        Statement: [{
+          'Sid': '0',
+          'Action': 'sns:Publish',
+          'Effect': 'Allow',
+          'Principal': { 'Service': 'codestar-notifications.amazonaws.com' },
+          'Resource': { 'Ref': 'TopicBFC7AF6E' },
+        }],
+      },
+      Topics: [{
+        Ref: 'TopicBFC7AF6E',
+      }],
+    }));
+
     test.done();
   },
 };

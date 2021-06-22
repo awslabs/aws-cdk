@@ -1,4 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import { Stack } from '@aws-cdk/core';
 import { AccessPoint, FileSystem } from '../lib';
@@ -19,7 +19,7 @@ test('addAccessPoint correctly', () => {
   // WHEN
   fileSystem.addAccessPoint('MyAccessPoint');
   // THEN
-  expect(stack).toHaveResource('AWS::EFS::AccessPoint');
+  TemplateAssertions.fromStack(stack).resourceCountIs('AWS::EFS::AccessPoint', 1);
 });
 
 test('new AccessPoint correctly', () => {
@@ -28,7 +28,7 @@ test('new AccessPoint correctly', () => {
     fileSystem,
   });
   // THEN
-  expect(stack).toHaveResource('AWS::EFS::AccessPoint');
+  TemplateAssertions.fromStack(stack).resourceCountIs('AWS::EFS::AccessPoint', 1);
 });
 
 test('import an AccessPoint using fromAccessPointId', () => {
@@ -143,7 +143,7 @@ test('custom access point is created correctly', () => {
 
   });
   // THEN
-  expect(stack).toHaveResource('AWS::EFS::AccessPoint', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EFS::AccessPoint', {
     FileSystemId: {
       Ref: 'EfsFileSystem37910666',
     },

@@ -111,3 +111,14 @@ test('bundling stacks with deploy exclusively', () => {
   // THEN
   expect(settings.get(['bundlingStacks'])).toEqual(['cool-stack']);
 });
+
+test('should include outputs-file in settings', () => {
+  // GIVEN
+  const settings = Settings.fromCommandLineArguments({
+    _: [Command.DEPLOY],
+    outputsFile: 'my-outputs-file.json',
+  });
+
+  // THEN
+  expect(settings.get(['outputsFile'])).toEqual('my-outputs-file.json');
+});

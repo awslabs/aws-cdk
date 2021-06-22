@@ -411,3 +411,76 @@ test('Running an EC2 Task with overridden number values', () => {
     Type: 'Task',
   });
 });
+
+test('Cannot create a task with WAIT_FOR_TASK_TOKEN if no TaskToken provided', () => {
+  const taskDefinition = new ecs.TaskDefinition(stack, 'TaskDefinition', {
+    compatibility: ecs.Compatibility.EC2,
+  });
+
+  const containerDefinition = taskDefinition.addContainer('ContainerDefinition', {
+    image: ecs.ContainerImage.fromRegistry('foo/bar'),
+  });
+
+  expect(() =>
+    new tasks.EcsRunTask(stack, 'RunTask', {
+      cluster,
+      containerOverrides: [
+        {
+          containerDefinition,
+          environment: [
+            {
+              name: 'Foo',
+              value: 'Bar',
+            },
+          ],
+        },
+      ],
+      integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      launchTarget: new tasks.EcsEc2LaunchTarget(),
+      taskDefinition,
+    }),
+  ).toThrowError(/Task Token is required in at least one `containerOverrides.environment`/);
+});
+
+test('Running a task with WAIT_FOR_TASK_TOKEN and task token in environment', () => {
+  const taskDefinition = new ecs.TaskDefinition(stack, 'TaskDefinition', {
+    compatibility: ecs.Compatibility.EC2,
+  });
+
+  const primaryContainerDef = taskDefinition.addContainer('PrimaryContainerDef', {
+    image: ecs.ContainerImage.fromRegistry('foo/primary'),
+    essential: true,
+  });
+
+  const sidecarContainerDef = taskDefinition.addContainer('SideCarContainerDef', {
+    image: ecs.ContainerImage.fromRegistry('foo/sidecar'),
+    essential: false,
+  });
+
+  expect(() => new tasks.EcsRunTask(stack, 'RunTask', {
+    cluster,
+    containerOverrides: [
+      {
+        containerDefinition: primaryContainerDef,
+        environment: [
+          {
+            name: 'Foo',
+            value: 'Bar',
+          },
+        ],
+      },
+      {
+        containerDefinition: sidecarContainerDef,
+        environment: [
+          {
+            name: 'TaskToken.$',
+            value: sfn.JsonPath.taskToken,
+          },
+        ],
+      },
+    ],
+    integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+    launchTarget: new tasks.EcsEc2LaunchTarget(),
+    taskDefinition,
+  })).not.toThrow();
+});

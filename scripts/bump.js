@@ -53,7 +53,8 @@ async function main() {
   const standardVersion = require('standard-version');
   await standardVersion(opts);
 
-  await exec('git fetch -t');
+  // fetch back the tags, and only the tags, removed locally above
+  await exec('git fetch origin "refs/tags/*:refs/tags/*"');
 }
 
 main().catch(err => {

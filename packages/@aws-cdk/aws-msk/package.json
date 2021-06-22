@@ -85,6 +85,7 @@
   },
   "dependencies": {
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/aws-acmpca": "0.0.0",
     "@aws-cdk/aws-logs": "0.0.0",
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/aws-kms": "0.0.0",
@@ -96,6 +97,7 @@
   },
   "peerDependencies": {
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/aws-acmpca": "0.0.0",
     "@aws-cdk/aws-logs": "0.0.0",
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/aws-kms": "0.0.0",
