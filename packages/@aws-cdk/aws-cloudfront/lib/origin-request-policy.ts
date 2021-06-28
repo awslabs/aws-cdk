@@ -184,7 +184,7 @@ export class OriginRequestHeaderBehavior {
     if (headers.length === 0) {
       throw new Error('At least one header to allow must be provided');
     }
-    if (/Authorization/i.test(headers.join('|')) || /Accept-Encoding/i.test(headers.join('|'))) {
+    if (headers.map(header => header.toLowerCase()).some(header => ['authorization', 'accept-encoding'].includes(header))) {
       throw new Error('you cannot pass `Authorization` or `Accept-Encoding` as header values; use a CachePolicy to forward these headers instead');
     }
     return new OriginRequestHeaderBehavior('whitelist', headers);

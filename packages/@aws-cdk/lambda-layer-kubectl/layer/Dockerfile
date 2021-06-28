@@ -5,7 +5,7 @@ FROM public.ecr.aws/lambda/provided:latest
 # versions
 #
 
-ARG KUBECTL_VERSION=1.21.0
+ARG KUBECTL_VERSION=1.20.0
 ARG HELM_VERSION=3.5.4
 
 USER root

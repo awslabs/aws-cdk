@@ -89,6 +89,12 @@ describe('OriginRequestPolicy', () => {
     expect(() => new OriginRequestPolicy(stack, 'OriginRequestPolicy7', { headerBehavior: OriginRequestHeaderBehavior.allowList('Foo', 'Bar') })).not.toThrow();
   });
 
+  test('accepts headers with disallowed keywords as part of the header', () => {
+    expect(() => new OriginRequestPolicy(stack, 'OriginRequestPolicy1', { headerBehavior: OriginRequestHeaderBehavior.allowList('x-wp-access-authorization') })).not.toThrow();
+    expect(() => new OriginRequestPolicy(stack, 'OriginRequestPolicy2', { headerBehavior: OriginRequestHeaderBehavior.allowList('do-not-accept-encoding') })).not.toThrow();
+    expect(() => new OriginRequestPolicy(stack, 'OriginRequestPolicy3', { headerBehavior: OriginRequestHeaderBehavior.allowList('authorization-Header') })).not.toThrow();
+  });
+
   test('does not throw if originRequestPolicyName is a token', () => {
     expect(() => new OriginRequestPolicy(stack, 'CachePolicy', {
       originRequestPolicyName: Aws.STACK_NAME,
