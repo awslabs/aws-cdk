@@ -219,7 +219,7 @@ export function jsonPathString(x: string): string | undefined {
  *
  * Otherwise return undefined.
  */
-function jsonPathStringList(x: string[]): string | undefined {
+export function jsonPathStringList(x: string[]): string | undefined {
   return pathFromToken(Tokenization.reverseList(x));
 }
 

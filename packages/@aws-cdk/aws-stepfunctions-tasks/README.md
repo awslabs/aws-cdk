@@ -399,6 +399,43 @@ const task = new tasks.CodeBuildStartBuild(this, 'Task', {
 });
 ```
 
+### StopBuild
+
+[StopBuild](https://docs.aws.amazon.com/codebuild/latest/APIReference/API_StopBuild.html) attempts to stop running a build.
+
+```ts
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+
+new tasks.CodeBuildStopBuild(this, 'Stop Build', {
+  buildId: 'buildId',
+});
+```
+
+### BatchDeleteBuilds
+
+[BatchDeleteBuilds](https://docs.aws.amazon.com/codebuild/latest/APIReference/API_BatchDeleteBuilds.html) deletes one or more builds.
+
+```ts
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+
+new tasks.CodeBuildBatchDeleteBuilds(stack, 'Delete Build', {
+  ids: ['buildId'],
+});
+```
+
+### BatchGetReports
+
+[BatchGetReports](https://docs.aws.amazon.com/codebuild/latest/APIReference/API_BatchDeleteBuilds.html) returns an array of reports.
+
+```ts
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+
+new tasks.CodeBuildBatchGetReports(stack, 'Get Reports', {
+  reportArns: ['reportArn'],
+});
+```
+
+
 ## DynamoDB
 
 You can call DynamoDB APIs from a `Task` state.

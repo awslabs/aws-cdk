@@ -1,5 +1,5 @@
 import { Token } from '@aws-cdk/core';
-import { findReferencedPaths, jsonPathString, JsonPathToken, renderObject } from './json-path';
+import { findReferencedPaths, jsonPathString, jsonPathStringList, JsonPathToken, renderObject } from './json-path';
 
 /**
  * Extract a field from the State Machine data or context
@@ -55,6 +55,15 @@ export class JsonPath {
    */
   public static isEncodedJsonPath(value: string): boolean {
     return !!jsonPathString(value);
+  }
+
+  /**
+   * Determines if the indicated string is an encoded JSON path
+   *
+   * @param value string[] to be evaluated
+   */
+  public static isEncodedJsonPathStringList(value: string[]): boolean {
+    return !!jsonPathStringList(value);
   }
 
   /**
