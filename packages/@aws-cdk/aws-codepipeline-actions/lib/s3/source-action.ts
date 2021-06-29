@@ -122,7 +122,7 @@ export class S3SourceAction extends Action {
     }
 
     // we need to read from the source bucket...
-    this.props.bucket.grantRead(options.role);
+    this.props.bucket.grantRead(options.role, this.props.bucketKey);
 
     // ...and write to the Pipeline bucket
     options.bucket.grantWrite(options.role);

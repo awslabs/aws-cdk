@@ -248,7 +248,7 @@
                           "Arn"
                         ]
                       },
-                      "/*"
+                      "/application.zip"
                     ]
                   ]
                 }

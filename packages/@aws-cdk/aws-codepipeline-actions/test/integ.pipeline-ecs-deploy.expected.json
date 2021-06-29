@@ -830,7 +830,7 @@
                           "Arn"
                         ]
                       },
-                      "/*"
+                      "/path/to/Dockerfile"
                     ]
                   ]
                 }
