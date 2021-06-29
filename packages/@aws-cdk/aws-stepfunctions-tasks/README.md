@@ -61,6 +61,8 @@ This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aw
     - [Modify Instance Group](#modify-instance-group)
   - [EKS](#eks)
     - [Call](#call)
+  - [EventBridge](#eventbridge)
+    - [Put Events](#put-events)
   - [Glue](#glue)
   - [Glue DataBrew](#glue-databrew)
   - [Lambda](#lambda)
@@ -754,6 +756,41 @@ new tasks.EksCall(stack, 'Call a EKS Endpoint', {
   cluster: myEksCluster,
   httpMethod: MethodType.GET,
   httpPath: '/api/v1/namespaces/default/pods',
+});
+```
+
+## EventBridge
+
+Step Functions supports Amazon EventBridge through the service integration pattern.
+The service integration APIs correspond to Amazon EventBridge APIs.
+
+[Read more](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eventbridge.html) about the differences when using these service integrations.
+
+### Put Events
+
+Send events to an EventBridge bus.
+Corresponds to the [`put-events`](https://docs.aws.amazon.com/step-functions/latest/dg/connect-eventbridge.html) API in Step Functions Connector.
+
+The following code snippet includes a Task state that uses events:putevents to send an event to the default bus.
+
+```ts
+import * as events from '@aws-cdk/aws-events';
+import * as sfn from '@aws-cdk/aws-stepfunctions';
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+
+const myEventBus = events.EventBus(stack, 'EventBus', {
+  eventBusName: 'MyEventBus1',
+});
+
+new tasks.EventBridgePutEvents(stack, 'Send an event to EventBridge', {
+  entries: [{
+    detail: sfn.TaskInput.fromObject({
+      Message: 'Hello from Step Functions!',
+    }),
+    eventBus: myEventBus,
+    detailType: 'MessageFromStepFunctions',
+    source: 'step.functions',
+  }],
 });
 ```
 

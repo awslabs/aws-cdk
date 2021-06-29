@@ -36,6 +36,7 @@ export interface CommonMetricOptions {
    * - "Sum" | "sum"
    * - "SampleCount | "n"
    * - "pNN.NN"
+   * - "tmNN.NN"
    *
    * @default Average
    */

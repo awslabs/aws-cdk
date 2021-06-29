@@ -161,6 +161,19 @@ export = {
     test.done();
   },
 
+  'trimmedMean not supported'(test: Test) {
+    const stack = new Stack();
+
+    test.throws(() => new Alarm(stack, 'Alarm', {
+      metric: testMetric,
+      statistic: 'TM99',
+      threshold: 1000,
+      evaluationPeriods: 3,
+    }), /tmNN.NN stat is not supported/);
+
+    test.done();
+  },
+
   'can set DatapointsToAlarm'(test: Test) {
     // GIVEN
     const stack = new Stack();

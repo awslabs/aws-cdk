@@ -393,6 +393,9 @@ function renderIfExtendedStatistic(statistic?: string): string | undefined {
     // floating point rounding issues, return as-is but lowercase the p.
     return statistic.toLowerCase();
   }
+  if (parsed.type === 'trimmedMean') {
+    throw new Error('tmNN.NN stat is not supported in CloudWatch alarms');
+  }
   return undefined;
 }
 
