@@ -1,4 +1,7 @@
-// import * as os from 'os';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { cdkCredentialsConfig, obtainEcrCredentials } from './docker-credentials';
 import { Logger, shell, ShellOptions } from './shell';
 
 interface BuildOptions {
@@ -13,7 +16,20 @@ interface BuildOptions {
   readonly buildArgs?: Record<string, string>;
 }
 
+export interface DockerCredentialsConfig {
+  readonly version: string;
+  readonly domainCredentials: Record<string, DockerDomainCredentials>;
+}
+
+export interface DockerDomainCredentials {
+  readonly secretsManagerSecretId?: string;
+  readonly ecrRepository?: string;
+}
+
 export class Docker {
+
+  private configDir: string | undefined = undefined;
+
   constructor(private readonly logger?: Logger) {
   }
 
@@ -70,9 +86,46 @@ export class Docker {
     await this.execute(['push', tag]);
   }
 
+  /**
+   * If a CDK Docker Credentials file exists, creates a new Docker config directory.
+   * Sets up `docker-credential-cdk-assets` to be the credential helper for each domain in the CDK config.
+   * All future commands (e.g., `build`, `push`) will use this config.
+   *
+   * See https://docs.docker.com/engine/reference/commandline/login/#credential-helpers for more details on cred helpers.
+   *
+   * @returns true if CDK config was found and configured, false otherwise
+   */
+  public configureCdkCredentials(): boolean {
+    const config = cdkCredentialsConfig();
+    if (!config) { return false; }
+
+    this.configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cdkDockerConfig'));
+
+    const domains = Object.keys(config.domainCredentials);
+    const credHelpers = domains.reduce((map: Record<string, string>, domain) => {
+      map[domain] = 'cdk-assets'; // Use docker-credential-cdk-assets for this domain
+      return map;
+    }, {});
+    fs.writeFileSync(path.join(this.configDir, 'config.json'), JSON.stringify({ credHelpers }), { encoding: 'utf-8' });
+
+    return true;
+  }
+
+  /**
+   * Removes any configured Docker config directory.
+   * All future commands (e.g., `build`, `push`) will use the default config.
+   *
+   * This is useful after calling `configureCdkCredentials` to reset to default credentials.
+   */
+  public resetAuthPlugins() {
+    this.configDir = undefined;
+  }
+
   private async execute(args: string[], options: ShellOptions = {}) {
+    const configArgs = this.configDir ? ['--config', this.configDir] : [];
+
     try {
-      await shell(['docker', ...args], { logger: this.logger, ...options });
+      await shell(['docker', ...configArgs, ...args], { logger: this.logger, ...options });
     } catch (e) {
       if (e.code === 'ENOENT') {
         throw new Error('Unable to execute \'docker\' in order to build a container asset. Please install \'docker\' and try again.');
@@ -80,22 +133,6 @@ export class Docker {
       throw e;
     }
   }
-}
-
-async function obtainEcrCredentials(ecr: AWS.ECR, logger?: Logger) {
-  if (logger) { logger('Fetching ECR authorization token'); }
-  const authData = (await ecr.getAuthorizationToken({ }).promise()).authorizationData || [];
-  if (authData.length === 0) {
-    throw new Error('No authorization data received from ECR');
-  }
-  const token = Buffer.from(authData[0].authorizationToken!, 'base64').toString('ascii');
-  const [username, password] = token.split(':');
-
-  return {
-    username,
-    password,
-    endpoint: authData[0].proxyEndpoint!,
-  };
 }
 
 function flatten(x: string[][]) {

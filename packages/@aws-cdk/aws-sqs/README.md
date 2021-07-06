@@ -63,4 +63,5 @@ features in order to help guarantee exactly-once processing. For more informatio
 the SQS manual. Note that FIFO queues are not available in all AWS regions.
 
 A queue can be made a FIFO queue by either setting `fifo: true`, giving it a name which ends
-in `".fifo"`, or enabling content-based deduplication (which requires FIFO queues).
+in `".fifo"`, or by enabling a FIFO specific feature such as: content-based deduplication, 
+deduplication scope or fifo throughput limit.

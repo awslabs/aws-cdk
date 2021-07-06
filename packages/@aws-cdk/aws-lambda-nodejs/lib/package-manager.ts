@@ -14,7 +14,7 @@ interface PackageManagerProps {
 export class PackageManager {
   public static NPM = new PackageManager({
     lockFile: 'package-lock.json',
-    installCommand: ['npm', 'install'],
+    installCommand: ['npm', 'ci'],
     runCommand: ['npx', '--no-install'],
   });
 

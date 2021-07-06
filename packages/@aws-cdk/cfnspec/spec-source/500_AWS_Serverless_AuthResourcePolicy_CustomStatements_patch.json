@@ -1,0 +1,20 @@
+{
+    "PropertyTypes": {
+        "AWS::Serverless::Function.AuthResourcePolicy": {
+            "patch": {
+                "description": "Replace incorrect PrimitiveItemType",
+                "operations": [
+                    {
+                        "op": "remove",
+                        "path": "/Properties/CustomStatements/PrimitiveItemType"
+                    },
+                    {
+                        "op": "add",
+                        "path": "/Properties/CustomStatements/PrimitiveItemType",
+                        "value": "Json"
+                    }
+                ]
+            }
+        }
+    }
+}

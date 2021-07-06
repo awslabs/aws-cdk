@@ -71,6 +71,16 @@
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete"
     },
+    "HighThroughputFifoQueue40A0EEE4": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "DeduplicationScope": "messageGroup",
+        "FifoQueue": true,
+        "FifoThroughputLimit": "perMessageGroupId"
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
     "Role1ABCC5F0": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -162,6 +172,22 @@
               "Resource": {
                 "Fn::GetAtt": [
                   "EncryptionKey1B843E66",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "HighThroughputFifoQueue40A0EEE4",
                   "Arn"
                 ]
               }

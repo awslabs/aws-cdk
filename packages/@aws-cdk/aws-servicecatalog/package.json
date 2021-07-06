@@ -82,12 +82,14 @@
   },
   "dependencies": {
     "@aws-cdk/aws-iam": "0.0.0",
+    "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
   "peerDependencies": {
     "@aws-cdk/aws-iam": "0.0.0",
+    "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
@@ -96,6 +98,10 @@
   },
   "awslint": {
     "exclude": [
+      "resource-attribute:@aws-cdk/aws-servicecatalog.CloudFormationProduct.cloudFormationProductProductName",
+      "resource-attribute:@aws-cdk/aws-servicecatalog.CloudFormationProduct.cloudFormationProductProvisioningArtifactIds",
+      "resource-attribute:@aws-cdk/aws-servicecatalog.CloudFormationProduct.cloudFormationProductProvisioningArtifactNames",
+      "props-physical-name:@aws-cdk/aws-servicecatalog.CloudFormationProductProps",
       "resource-attribute:@aws-cdk/aws-servicecatalog.Portfolio.portfolioName",
       "props-physical-name:@aws-cdk/aws-servicecatalog.PortfolioProps"
     ]

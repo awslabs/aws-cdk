@@ -32,11 +32,16 @@ export class TestApp extends App {
   }
 }
 
+export interface TestGitHubNpmPipelineExtraProps {
+  readonly sourceArtifact?: codepipeline.Artifact;
+  readonly npmSynthOptions?: Partial<cdkp.StandardNpmSynthOptions>;
+}
+
 export class TestGitHubNpmPipeline extends cdkp.CdkPipeline {
   public readonly sourceArtifact: codepipeline.Artifact;
   public readonly cloudAssemblyArtifact: codepipeline.Artifact;
 
-  constructor(scope: Construct, id: string, props?: Partial<cdkp.CdkPipelineProps> & { readonly sourceArtifact?: codepipeline.Artifact } ) {
+  constructor(scope: Construct, id: string, props?: Partial<cdkp.CdkPipelineProps> & TestGitHubNpmPipelineExtraProps ) {
     const sourceArtifact = props?.sourceArtifact ?? new codepipeline.Artifact();
     const cloudAssemblyArtifact = props?.cloudAssemblyArtifact ?? new codepipeline.Artifact();
 
@@ -45,6 +50,7 @@ export class TestGitHubNpmPipeline extends cdkp.CdkPipeline {
       synthAction: cdkp.SimpleSynthAction.standardNpmSynth({
         sourceArtifact,
         cloudAssemblyArtifact,
+        ...props?.npmSynthOptions,
       }),
       cloudAssemblyArtifact,
       ...props,

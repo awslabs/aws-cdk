@@ -55,6 +55,13 @@ export interface QueueProcessingEc2ServiceProps extends QueueProcessingServiceBa
   readonly memoryReservationMiB?: number;
 
   /**
+   * Gpu count for container in task definition. Set this if you want to use gpu based instances.
+   *
+   * @default - No GPUs assigned.
+   */
+  readonly gpuCount?: number;
+
+  /**
    * Optional name for the container added
    *
    * @default - QueueProcessingContainer
@@ -93,6 +100,7 @@ export class QueueProcessingEc2Service extends QueueProcessingServiceBase {
       memoryLimitMiB: props.memoryLimitMiB,
       memoryReservationMiB: props.memoryReservationMiB,
       cpu: props.cpu,
+      gpuCount: props.gpuCount,
       command: props.command,
       environment: this.environment,
       secrets: this.secrets,

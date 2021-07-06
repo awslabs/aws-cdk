@@ -112,6 +112,7 @@ export = {
             },
           },
         },
+        MeshOwner: ABSENT,
         RouteName: 'test-http-route',
       }));
 
@@ -573,6 +574,44 @@ export = {
       }, /specify one value for at least/i);
 
       test.done();
+    },
+
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test: Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const routeEnv = { account: '9987654321', region: 'us-west-2' };
+        // Creating stack in Account 9987654321
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: routeEnv });
+        // Mesh is in Account 1234567899
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+        const router = new appmesh.VirtualRouter(stack, 'router', {
+          mesh: sharedMesh,
+        });
+        const virtualNode = sharedMesh.addVirtualNode('test-node', {
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
+          listeners: [appmesh.VirtualNodeListener.http()],
+        });
+
+        new appmesh.Route(stack, 'test-route', {
+          mesh: sharedMesh,
+          routeSpec: appmesh.RouteSpec.grpc({
+            weightedTargets: [{ virtualNode }],
+            match: { serviceName: 'example' },
+          }),
+          virtualRouter: router,
+
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::Route', {
+          MeshOwner: meshEnv.account,
+        }));
+
+        test.done();
+      },
     },
   },
 

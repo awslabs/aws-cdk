@@ -3,6 +3,7 @@ import '@aws-cdk/assert-internal/jest';
 import { App, Stack, Stage, StageProps } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import * as cdkp from '../lib';
+import { behavior } from './helpers/compliance';
 import { sortedByRunOrder } from './testmatchers';
 import { BucketStack, PIPELINE_ENV, TestApp, TestGitHubNpmPipeline } from './testutil';
 
@@ -16,126 +17,136 @@ beforeEach(() => {
   pipeline = new TestGitHubNpmPipeline(pipelineStack, 'Cdk');
 });
 
-test('interdependent stacks are in the right order', () => {
-  // WHEN
-  pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'));
+behavior('interdependent stacks are in the right order', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'));
 
-  // THEN
-  expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: arrayWith({
-      Name: 'MyApp',
-      Actions: sortedByRunOrder([
-        objectLike({ Name: 'Stack1.Prepare' }),
-        objectLike({ Name: 'Stack1.Deploy' }),
-        objectLike({ Name: 'Stack2.Prepare' }),
-        objectLike({ Name: 'Stack2.Deploy' }),
-      ]),
-    }),
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+      Stages: arrayWith({
+        Name: 'MyApp',
+        Actions: sortedByRunOrder([
+          objectLike({ Name: 'Stack1.Prepare' }),
+          objectLike({ Name: 'Stack1.Deploy' }),
+          objectLike({ Name: 'Stack2.Prepare' }),
+          objectLike({ Name: 'Stack2.Deploy' }),
+        ]),
+      }),
+    });
   });
 });
 
-test('multiple independent stacks go in parallel', () => {
-  // WHEN
-  pipeline.addApplicationStage(new ThreeStackApp(app, 'MyApp'));
+behavior('multiple independent stacks go in parallel', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new ThreeStackApp(app, 'MyApp'));
 
-  // THEN
-  expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: arrayWith({
-      Name: 'MyApp',
-      Actions: sortedByRunOrder([
-        // 1 and 2 in parallel
-        objectLike({ Name: 'Stack1.Prepare' }),
-        objectLike({ Name: 'Stack2.Prepare' }),
-        objectLike({ Name: 'Stack1.Deploy' }),
-        objectLike({ Name: 'Stack2.Deploy' }),
-        // Then 3
-        objectLike({ Name: 'Stack3.Prepare' }),
-        objectLike({ Name: 'Stack3.Deploy' }),
-      ]),
-    }),
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+      Stages: arrayWith({
+        Name: 'MyApp',
+        Actions: sortedByRunOrder([
+          // 1 and 2 in parallel
+          objectLike({ Name: 'Stack1.Prepare' }),
+          objectLike({ Name: 'Stack2.Prepare' }),
+          objectLike({ Name: 'Stack1.Deploy' }),
+          objectLike({ Name: 'Stack2.Deploy' }),
+          // Then 3
+          objectLike({ Name: 'Stack3.Prepare' }),
+          objectLike({ Name: 'Stack3.Deploy' }),
+        ]),
+      }),
+    });
   });
 });
 
-test('manual approval is inserted in correct location', () => {
-  // WHEN
-  pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'), {
-    manualApprovals: true,
-  });
+behavior('manual approval is inserted in correct location', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'), {
+      manualApprovals: true,
+    });
 
-  // THEN
-  expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: arrayWith({
-      Name: 'MyApp',
-      Actions: sortedByRunOrder([
-        objectLike({ Name: 'Stack1.Prepare' }),
-        objectLike({ Name: 'ManualApproval' }),
-        objectLike({ Name: 'Stack1.Deploy' }),
-        objectLike({ Name: 'Stack2.Prepare' }),
-        objectLike({ Name: 'ManualApproval2' }),
-        objectLike({ Name: 'Stack2.Deploy' }),
-      ]),
-    }),
-  });
-});
-
-test('extra space for sequential intermediary actions is reserved', () => {
-  // WHEN
-  pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'), {
-    extraRunOrderSpace: 1,
-  });
-
-  // THEN
-  expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: arrayWith({
-      Name: 'MyApp',
-      Actions: sortedByRunOrder([
-        objectLike({
-          Name: 'Stack1.Prepare',
-          RunOrder: 1,
-        }),
-        objectLike({
-          Name: 'Stack1.Deploy',
-          RunOrder: 3,
-        }),
-        objectLike({
-          Name: 'Stack2.Prepare',
-          RunOrder: 4,
-        }),
-        objectLike({
-          Name: 'Stack2.Deploy',
-          RunOrder: 6,
-        }),
-      ]),
-    }),
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+      Stages: arrayWith({
+        Name: 'MyApp',
+        Actions: sortedByRunOrder([
+          objectLike({ Name: 'Stack1.Prepare' }),
+          objectLike({ Name: 'ManualApproval' }),
+          objectLike({ Name: 'Stack1.Deploy' }),
+          objectLike({ Name: 'Stack2.Prepare' }),
+          objectLike({ Name: 'ManualApproval2' }),
+          objectLike({ Name: 'Stack2.Deploy' }),
+        ]),
+      }),
+    });
   });
 });
 
-test('combination of manual approval and extraRunOrderSpace', () => {
-  // WHEN
-  pipeline.addApplicationStage(new OneStackApp(app, 'MyApp'), {
-    extraRunOrderSpace: 1,
-    manualApprovals: true,
-  });
+behavior('extra space for sequential intermediary actions is reserved', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new TwoStackApp(app, 'MyApp'), {
+      extraRunOrderSpace: 1,
+    });
 
-  // THEN
-  expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: arrayWith({
-      Name: 'MyApp',
-      Actions: sortedByRunOrder([
-        objectLike({
-          Name: 'Stack1.Prepare',
-          RunOrder: 1,
-        }),
-        objectLike({
-          Name: 'ManualApproval',
-          RunOrder: 2,
-        }),
-        objectLike({
-          Name: 'Stack1.Deploy',
-          RunOrder: 4,
-        }),
-      ]),
-    }),
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+      Stages: arrayWith({
+        Name: 'MyApp',
+        Actions: sortedByRunOrder([
+          objectLike({
+            Name: 'Stack1.Prepare',
+            RunOrder: 1,
+          }),
+          objectLike({
+            Name: 'Stack1.Deploy',
+            RunOrder: 3,
+          }),
+          objectLike({
+            Name: 'Stack2.Prepare',
+            RunOrder: 4,
+          }),
+          objectLike({
+            Name: 'Stack2.Deploy',
+            RunOrder: 6,
+          }),
+        ]),
+      }),
+    });
+  });
+});
+
+behavior('combination of manual approval and extraRunOrderSpace', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new OneStackApp(app, 'MyApp'), {
+      extraRunOrderSpace: 1,
+      manualApprovals: true,
+    });
+
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+      Stages: arrayWith({
+        Name: 'MyApp',
+        Actions: sortedByRunOrder([
+          objectLike({
+            Name: 'Stack1.Prepare',
+            RunOrder: 1,
+          }),
+          objectLike({
+            Name: 'ManualApproval',
+            RunOrder: 2,
+          }),
+          objectLike({
+            Name: 'Stack1.Deploy',
+            RunOrder: 4,
+          }),
+        ]),
+      }),
+    });
   });
 });
 

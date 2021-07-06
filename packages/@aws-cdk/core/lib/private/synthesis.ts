@@ -2,7 +2,7 @@ import * as cxapi from '@aws-cdk/cx-api';
 import * as constructs from 'constructs';
 import { Annotations } from '../annotations';
 import { Aspects, IAspect } from '../aspect';
-import { Construct, IConstruct, SynthesisOptions, ValidationError } from '../construct-compat';
+import { Construct, IConstruct, ISynthesisSession, SynthesisOptions, ValidationError } from '../construct-compat';
 import { Stack } from '../stack';
 import { Stage, StageSynthesisOptions } from '../stage';
 import { MetadataResource } from './metadata-resource';
@@ -39,6 +39,32 @@ export function synthesize(root: IConstruct, options: SynthesisOptions = { }): c
   synthesizeTree(root, builder, options.validateOnSynthesis);
 
   return builder.buildAssembly();
+}
+
+const CUSTOM_SYNTHESIS_SYM = Symbol.for('@aws-cdk/core:customSynthesis');
+
+/**
+ * Interface for constructs that want to do something custom during synthesis
+ *
+ * This feature is intended for use by official AWS CDK libraries only; 3rd party
+ * library authors and CDK users should not use this function.
+ */
+export interface ICustomSynthesis {
+  /**
+   * Called when the construct is synthesized
+   */
+  onSynthesize(session: ISynthesisSession): void;
+}
+
+export function addCustomSynthesis(construct: constructs.IConstruct, synthesis: ICustomSynthesis): void {
+  Object.defineProperty(construct, CUSTOM_SYNTHESIS_SYM, {
+    value: synthesis,
+    enumerable: false,
+  });
+}
+
+function getCustomSynthesis(construct: constructs.IConstruct): ICustomSynthesis | undefined {
+  return (construct as any)[CUSTOM_SYNTHESIS_SYM];
 }
 
 /**
@@ -158,6 +184,9 @@ function synthesizeTree(root: IConstruct, builder: cxapi.CloudAssemblyBuilder, v
       construct.synthesizer.synthesize(session);
     } else if (construct instanceof TreeMetadata) {
       construct._synthesizeTree(session);
+    } else {
+      const custom = getCustomSynthesis(construct);
+      custom?.onSynthesize(session);
     }
 
     // this will soon be deprecated and removed in 2.x

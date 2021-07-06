@@ -312,6 +312,12 @@ export interface SaslAuthProps {
    */
   readonly scram?: boolean;
   /**
+   * Enable IAM access control.
+   *
+   * @default false
+   */
+  readonly iam?: boolean;
+  /**
    * KMS Key to encrypt SASL/SCRAM secrets.
    *
    * You must use a customer master key (CMK) when creating users in secrets manager.
@@ -425,6 +431,13 @@ export class Cluster extends ClusterBase {
     }
 
     if (
+      props.clientAuthentication?.saslProps?.iam &&
+      props.clientAuthentication?.saslProps?.scram
+    ) {
+      throw Error('Only one client authentication method can be enabled.');
+    }
+
+    if (
       props.encryptionInTransit?.clientBroker ===
         ClientBrokerEncryption.PLAINTEXT &&
       props.clientAuthentication
@@ -435,10 +448,11 @@ export class Cluster extends ClusterBase {
     } else if (
       props.encryptionInTransit?.clientBroker ===
         ClientBrokerEncryption.TLS_PLAINTEXT &&
-      props.clientAuthentication?.saslProps?.scram
+      (props.clientAuthentication?.saslProps?.scram ||
+        props.clientAuthentication?.saslProps?.iam)
     ) {
       throw Error(
-        'To enable SASL/SCRAM authentication, you must only allow TLS-encrypted traffic between clients and brokers.',
+        'To enable SASL/SCRAM or IAM authentication, you must only allow TLS-encrypted traffic between clients and brokers.',
       );
     }
 
@@ -544,24 +558,31 @@ export class Cluster extends ClusterBase {
         }),
       );
     }
-    const clientAuthentication = props.clientAuthentication
-      ? {
-        sasl: props.clientAuthentication?.saslProps?.scram
-          ? {
-            scram: {
-              enabled: props.clientAuthentication?.saslProps.scram,
-            },
-          }
-          : undefined,
-        tls: props.clientAuthentication?.tlsProps?.certificateAuthorities
-          ? {
-            certificateAuthorityArnList: props.clientAuthentication?.tlsProps?.certificateAuthorities.map(
-              (ca) => ca.certificateAuthorityArn,
-            ),
-          }
-          : undefined,
-      }
-      : undefined;
+
+    let clientAuthentication;
+    if (props.clientAuthentication?.saslProps?.iam) {
+      clientAuthentication = {
+        sasl: { iam: { enabled: props.clientAuthentication.saslProps.iam } },
+      };
+    } else if (props.clientAuthentication?.saslProps?.scram) {
+      clientAuthentication = {
+        sasl: {
+          scram: {
+            enabled: props.clientAuthentication.saslProps.scram,
+          },
+        },
+      };
+    } else if (
+      props.clientAuthentication?.tlsProps?.certificateAuthorities !== undefined
+    ) {
+      clientAuthentication = {
+        tls: {
+          certificateAuthorityArnList: props.clientAuthentication?.tlsProps?.certificateAuthorities.map(
+            (ca) => ca.certificateAuthorityArn,
+          ),
+        },
+      };
+    }
 
     const resource = new CfnCluster(this, 'Resource', {
       clusterName: props.clusterName,

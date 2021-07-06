@@ -647,6 +647,25 @@ taskDefinition.addContainer('TheContainer', {
 });
 ```
 
+To pass secrets to the log configuration, use the `secretOptions` property of the log configuration. The task execution role is automatically granted read permissions on the secrets/parameters.
+
+```ts
+const taskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDef');
+taskDefinition.addContainer('TheContainer', {
+  image: ecs.ContainerImage.fromRegistry('example-image'),
+  memoryLimitMiB: 256,
+  logging: ecs.LogDrivers.firelens({
+    options: {
+      // ... log driver options here ...
+    },
+    secretOptions: { // Retrieved from AWS Secrets Manager or AWS Systems Manager Parameter Store
+      apikey: ecs.Secret.fromSecretsManager(secret),
+      host: ecs.Secret.fromSsmParameter(parameter),
+    },
+  })
+});
+```
+
 ### Generic Log Driver
 
 A generic log driver object exists to provide a lower level abstraction of the log driver configuration.

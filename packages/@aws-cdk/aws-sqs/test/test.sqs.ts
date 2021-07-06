@@ -427,6 +427,55 @@ export = {
     test.done();
   },
 
+  'test a fifo queue is observed when high throughput properties are specified'(test: Test) {
+    const stack = new Stack();
+    const queue = new sqs.Queue(stack, 'Queue', {
+      fifo: true,
+      fifoThroughputLimit: sqs.FifoThroughputLimit.PER_MESSAGE_GROUP_ID,
+      deduplicationScope: sqs.DeduplicationScope.MESSAGE_GROUP,
+    });
+
+    test.deepEqual(queue.fifo, true);
+    expect(stack).toMatch({
+      'Resources': {
+        'Queue4A7E3555': {
+          'Type': 'AWS::SQS::Queue',
+          'Properties': {
+            'DeduplicationScope': 'messageGroup',
+            'FifoQueue': true,
+            'FifoThroughputLimit': 'perMessageGroupId',
+          },
+          'UpdateReplacePolicy': 'Delete',
+          'DeletionPolicy': 'Delete',
+        },
+      },
+    });
+
+    test.done();
+  },
+
+  'test a queue throws when fifoThroughputLimit specified on non fifo queue'(test: Test) {
+    const stack = new Stack();
+    test.throws(() => {
+      new sqs.Queue(stack, 'Queue', {
+        fifo: false,
+        fifoThroughputLimit: sqs.FifoThroughputLimit.PER_MESSAGE_GROUP_ID,
+      });
+    });
+    test.done();
+  },
+
+  'test a queue throws when deduplicationScope specified on non fifo queue'(test: Test) {
+    const stack = new Stack();
+    test.throws(() => {
+      new sqs.Queue(stack, 'Queue', {
+        fifo: false,
+        deduplicationScope: sqs.DeduplicationScope.MESSAGE_GROUP,
+      });
+    });
+    test.done();
+  },
+
   'test metrics'(test: Test) {
     // GIVEN
     const stack = new Stack();

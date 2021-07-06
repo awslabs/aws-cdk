@@ -81,7 +81,7 @@ export function nodeunitShim(exports: Record<string, any>) {
       });
     } else {
       // It's a test
-      test(testName, () => new Promise(ok => {
+      test(testName, () => new Promise<void>(ok => {
         testObj(new Test(ok));
       }));
     }

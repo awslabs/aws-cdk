@@ -29,6 +29,7 @@ export interface ISDK {
   route53(): AWS.Route53;
   ecr(): AWS.ECR;
   elbv2(): AWS.ELBv2;
+  secretsManager(): AWS.SecretsManager;
 }
 
 /**
@@ -111,6 +112,10 @@ export class SDK implements ISDK {
 
   public elbv2(): AWS.ELBv2 {
     return this.wrapServiceErrorHandling(new AWS.ELBv2(this.config));
+  }
+
+  public secretsManager(): AWS.SecretsManager {
+    return this.wrapServiceErrorHandling(new AWS.SecretsManager(this.config));
   }
 
   public async currentAccount(): Promise<Account> {

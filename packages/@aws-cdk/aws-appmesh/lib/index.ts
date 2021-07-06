@@ -16,6 +16,6 @@ export * from './virtual-gateway-listener';
 export * from './gateway-route';
 export * from './gateway-route-spec';
 export * from './health-checks';
-export * from './tls-listener';
+export * from './listener-tls-options';
 export * from './tls-validation';
 export * from './tls-client-policy';

@@ -149,6 +149,10 @@ describe('tests', () => {
           Key: 'access_logs.s3.bucket',
           Value: { Ref: 'AccessLoggingBucketA6D88F29' },
         },
+        {
+          Key: 'access_logs.s3.prefix',
+          Value: '',
+        },
       ),
     });
 

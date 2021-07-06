@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {
-    "cdk-assets": "bin/cdk-assets"
+    "cdk-assets": "bin/cdk-assets",
+    "docker-credential-cdk-assets": "bin/docker-credential-cdk-assets"
   },
   "scripts": {
     "build": "cdk-build",

@@ -42,11 +42,11 @@
     "pkglint": "0.0.0"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.27.0",
-    "@typescript-eslint/parser": "^4.27.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
     "awslint": "0.0.0",
     "colors": "^1.4.0",
-    "eslint": "^7.28.0",
+    "eslint": "^7.29.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-cdk": "0.0.0",
@@ -63,7 +63,7 @@
     "nyc": "^15.1.0",
     "semver": "^7.3.5",
     "ts-jest": "^26.5.6",
-    "typescript": "~3.9.9",
+    "typescript": "~3.9.10",
     "yargs": "^16.2.0",
     "yarn-cling": "0.0.0"
   },

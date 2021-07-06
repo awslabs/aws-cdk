@@ -109,18 +109,79 @@ describe('MSK Cluster', () => {
       });
 
       test('fails if tls encryption is set to tls and plaintext', () => {
-        expect(() => new msk.Cluster(stack, 'Cluster', {
+        expect(
+          () =>
+            new msk.Cluster(stack, 'Cluster', {
+              clusterName: 'cluster',
+              kafkaVersion: msk.KafkaVersion.V2_6_1,
+              vpc,
+              encryptionInTransit: {
+                clientBroker: msk.ClientBrokerEncryption.TLS_PLAINTEXT,
+              },
+              clientAuthentication: msk.ClientAuthentication.sasl({
+                scram: true,
+              }),
+            }),
+        ).toThrow(
+          'To enable SASL/SCRAM or IAM authentication, you must only allow TLS-encrypted traffic between clients and brokers.',
+        );
+      });
+    });
+
+    describe('with sasl/iam auth', () => {
+      test('iam enabled is true', () => {
+        new msk.Cluster(stack, 'Cluster', {
           clusterName: 'cluster',
           kafkaVersion: msk.KafkaVersion.V2_6_1,
           vpc,
           encryptionInTransit: {
-            clientBroker: msk.ClientBrokerEncryption.TLS_PLAINTEXT,
+            clientBroker: msk.ClientBrokerEncryption.TLS,
           },
           clientAuthentication: msk.ClientAuthentication.sasl({
-            scram: true,
+            iam: true,
           }),
-        })).toThrow(
-          'To enable SASL/SCRAM authentication, you must only allow TLS-encrypted traffic between clients and brokers.',
+        });
+        expect(stack).toHaveResourceLike('AWS::MSK::Cluster', {
+          ClientAuthentication: {
+            Sasl: { Iam: { Enabled: true } },
+          },
+        });
+      });
+      test('fails if tls encryption is set to plaintext', () => {
+        expect(
+          () =>
+            new msk.Cluster(stack, 'Cluster', {
+              clusterName: 'cluster',
+              kafkaVersion: msk.KafkaVersion.V2_6_1,
+              vpc,
+              encryptionInTransit: {
+                clientBroker: msk.ClientBrokerEncryption.PLAINTEXT,
+              },
+              clientAuthentication: msk.ClientAuthentication.sasl({
+                iam: true,
+              }),
+            }),
+        ).toThrow(
+          'To enable client authentication, you must enabled TLS-encrypted traffic between clients and brokers.',
+        );
+      });
+
+      test('fails if tls encryption is set to tls and plaintext', () => {
+        expect(
+          () =>
+            new msk.Cluster(stack, 'Cluster', {
+              clusterName: 'cluster',
+              kafkaVersion: msk.KafkaVersion.V2_6_1,
+              vpc,
+              encryptionInTransit: {
+                clientBroker: msk.ClientBrokerEncryption.TLS_PLAINTEXT,
+              },
+              clientAuthentication: msk.ClientAuthentication.sasl({
+                iam: true,
+              }),
+            }),
+        ).toThrow(
+          'To enable SASL/SCRAM or IAM authentication, you must only allow TLS-encrypted traffic between clients and brokers.',
         );
       });
     });
@@ -225,6 +286,24 @@ describe('MSK Cluster', () => {
           },
         });
       });
+    });
+
+    test('fails if more than one authentication method is enabled', () => {
+      expect(
+        () =>
+          new msk.Cluster(stack, 'Cluster', {
+            clusterName: 'cluster',
+            kafkaVersion: msk.KafkaVersion.V2_6_1,
+            vpc,
+            encryptionInTransit: {
+              clientBroker: msk.ClientBrokerEncryption.TLS,
+            },
+            clientAuthentication: msk.ClientAuthentication.sasl({
+              iam: true,
+              scram: true,
+            }),
+          }),
+      ).toThrow('Only one client authentication method can be enabled.');
     });
   });
 

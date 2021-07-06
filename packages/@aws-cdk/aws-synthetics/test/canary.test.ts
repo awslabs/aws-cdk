@@ -1,5 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
-import { ABSENT, objectLike } from '@aws-cdk/assert-internal';
+import { Match, TemplateAssertions } from '@aws-cdk/assertions';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import { Duration, Lazy, Stack } from '@aws-cdk/core';
@@ -24,12 +23,12 @@ test('Basic canary properties work', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     Name: 'mycanary',
     SuccessRetentionPeriod: 10,
     FailureRetentionPeriod: 10,
     StartCanaryAfterCreation: false,
-    Schedule: objectLike({ DurationInSeconds: '1800' }),
+    Schedule: Match.objectLike({ DurationInSeconds: '1800' }),
     RuntimeVersion: 'syn-1.0',
   });
 });
@@ -48,7 +47,7 @@ test('Canary can have generated name', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     Name: 'canary',
   });
 });
@@ -68,7 +67,7 @@ test('Name validation does not fail when using Tokens', () => {
   });
 
   // THEN: no exception
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary');
+  TemplateAssertions.fromStack(stack).resourceCountIs('AWS::Synthetics::Canary', 1);
 });
 
 test('Throws when name is specified incorrectly', () => {
@@ -124,7 +123,7 @@ test('An existing role can be specified instead of auto-created', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     ExecutionRoleArn: stack.resolve(role.roleArn),
   });
 });
@@ -146,7 +145,7 @@ test('An existing bucket and prefix can be specified instead of auto-created', (
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     ArtifactS3Location: stack.resolve(bucket.s3UrlForObject(prefix)),
   });
 });
@@ -165,7 +164,7 @@ test('Runtime can be specified', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     RuntimeVersion: 'syn-1.0',
   });
 });
@@ -189,7 +188,7 @@ test('environment variables can be specified', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     RunConfig: {
       EnvironmentVariables: environmentVariables,
     },
@@ -210,8 +209,8 @@ test('environment variables are skipped if not provided', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
-    RunConfig: ABSENT,
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
+    RunConfig: Match.absentProperty(),
   });
 });
 
@@ -229,7 +228,7 @@ test('Runtime can be customized', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     RuntimeVersion: 'fancy-future-runtime-1337.42',
   });
 });
@@ -249,8 +248,8 @@ test('Schedule can be set with Rate', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
-    Schedule: objectLike({ Expression: 'rate(3 minutes)' }),
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
+    Schedule: Match.objectLike({ Expression: 'rate(3 minutes)' }),
   });
 });
 
@@ -269,8 +268,8 @@ test('Schedule can be set to 1 minute', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
-    Schedule: objectLike({ Expression: 'rate(1 minute)' }),
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
+    Schedule: Match.objectLike({ Expression: 'rate(1 minute)' }),
   });
 });
 
@@ -289,8 +288,8 @@ test('Schedule can be set with Expression', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
-    Schedule: objectLike({ Expression: 'rate(1 hour)' }),
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
+    Schedule: Match.objectLike({ Expression: 'rate(1 hour)' }),
   });
 });
 
@@ -309,8 +308,8 @@ test('Schedule can be set to run once', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
-    Schedule: objectLike({ Expression: 'rate(0 minutes)' }),
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
+    Schedule: Match.objectLike({ Expression: 'rate(0 minutes)' }),
   });
 });
 
@@ -391,7 +390,7 @@ test('can specify custom test', () => {
   });
 
   // THEN
-  expect(stack).toHaveResourceLike('AWS::Synthetics::Canary', {
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Synthetics::Canary', {
     Code: {
       Handler: 'index.handler',
       Script: `

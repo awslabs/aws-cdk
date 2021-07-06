@@ -1,4 +1,3 @@
-import '@aws-cdk/assert-internal/jest';
 import { Stack } from '@aws-cdk/core';
 import { ProviderAttribute, UserPool } from '../../lib';
 import { UserPoolIdentityProviderBase } from '../../lib/user-pool-idps/private/user-pool-idp-base';

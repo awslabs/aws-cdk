@@ -78,34 +78,138 @@ assert.hasResourceProperties('Foo::Bar', {
 });
 ```
 
-The same method allows asserting the complete definition of the 'Resource'
-which can be used to verify things other sections like `DependsOn`, `Metadata`,
-`DeletionProperty`, etc.
+Alternatively, if you would like to assert the entire resource definition, you
+can use the `hasResource()` API.
 
 ```ts
-assert.hasResourceDefinition('Foo::Bar', {
+assert.hasResource('Foo::Bar', {
   Properties: { Foo: 'Bar' },
   DependsOn: [ 'Waldo', 'Fred' ],
 });
 ```
+
+By default, the `hasResource()` and `hasResourceProperties()` APIs perform deep
+partial object matching. This behavior can be configured using matchers.
+See subsequent section on [special matchers](#special-matchers).
 
 ## Special Matchers
 
 The expectation provided to the `hasResourceXXX()` methods, besides carrying
 literal values, as seen in the above examples, can also have special matchers
 encoded. 
-They are available as part of the `Matchers` class and can be used as follows -
+They are available as part of the `Match` class.
+
+### Object Matchers
+
+The `Match.objectLike()` API can be used to assert that the target is a superset
+object of the provided pattern.
+This API will perform a deep partial match on the target.
+Deep partial matching is where objects are matched partially recursively. At each
+level, the list of keys in the target is a subset of the provided pattern.
 
 ```ts
+// Given a template -
+// {
+//   "Resources": {
+//     "MyBar": {
+//       "Type": "Foo::Bar",
+//       "Properties": {
+//         "Fred": {
+//           "Wobble": "Flob",
+//           "Bob": "Cat"
+//         }
+//       }
+//     }
+//   }
+// }
+
+// The following will NOT throw an assertion error
 assert.hasResourceProperties('Foo::Bar', {
-  Foo: 'Bar',
-  Baz: Match.absentProperty(),
-})
+  Fred: Match.objectLike({
+    Wobble: 'Flob',
+  }),
+});
+
+// The following will throw an assertion error
+assert.hasResourceProperties('Foo::Bar', {
+  Fred: Match.objectLike({
+    Brew: 'Coffee',
+  })
+});
 ```
 
-The list of available matchers are -
+The `Match.objectEquals()` API can be used to assert a target as a deep exact
+match.
 
-* `absentProperty()`: Specifies that this key must not be present.
+In addition, the `Match.absentProperty()` can be used to specify that a specific
+property should not exist on the target. This can be used within `Match.objectLike()`
+or outside of any matchers.
+
+```ts
+// Given a template -
+// {
+//   "Resources": {
+//     "MyBar": {
+//       "Type": "Foo::Bar",
+//       "Properties": {
+//         "Fred": {
+//           "Wobble": "Flob",
+//         }
+//       }
+//     }
+//   }
+// }
+
+// The following will NOT throw an assertion error
+assert.hasResourceProperties('Foo::Bar', {
+  Fred: Match.objectLike({
+    Bob: Match.absentProperty(),
+  }),
+});
+
+// The following will throw an assertion error
+assert.hasResourceProperties('Foo::Bar', {
+  Fred: Match.objectLike({
+    Wobble: Match.absentProperty(),
+  })
+});
+```
+
+### Array Matchers
+
+The `Match.arrayWith()` API can be used to assert that the target is equal to or a subset
+of the provided pattern array.
+This API will perform subset match on the target.
+
+```ts
+// Given a template -
+// {
+//   "Resources": {
+//     "MyBar": {
+//       "Type": "Foo::Bar",
+//       "Properties": {
+//         "Fred": ["Flob", "Cat"]
+//       }
+//     }
+//   }
+// }
+
+// The following will NOT throw an assertion error
+assert.hasResourceProperties('Foo::Bar', {
+  Fred: Match.arrayWith(['Flob']),
+});
+
+// The following will throw an assertion error
+assert.hasResourceProperties('Foo::Bar', Match.objectLike({
+  Fred: Match.arrayWith(['Wobble']);
+}});
+```
+
+*Note:* The list of items in the pattern array should be in order as they appear in the
+target array. Out of order will be recorded as a match failure.
+
+Alternatively, the `Match.arrayEquals()` API can be used to assert that the target is
+exactly equal to the pattern array.
 
 ## Strongly typed languages
 

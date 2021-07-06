@@ -597,6 +597,34 @@ nodeunitShim({
     test.done();
   },
 
+
+  'bundling with docker security option'(test: Test) {
+    // GIVEN
+    const app = new App();
+    const stack = new Stack(app, 'stack');
+    const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
+
+    // WHEN
+    const asset = new AssetStaging(stack, 'Asset', {
+      sourcePath: directory,
+      bundling: {
+        image: BundlingDockerImage.fromRegistry('alpine'),
+        command: [DockerStubCommand.SUCCESS],
+        securityOpt: 'no-new-privileges',
+      },
+      assetHashType: AssetHashType.BUNDLE,
+    });
+
+    // THEN
+    test.equal(
+      readDockerStubInput(),
+      `run --rm --security-opt no-new-privileges ${USER_ARG} -v /input:/asset-input:delegated -v /output:/asset-output:delegated -w /asset-input alpine DOCKER_STUB_SUCCESS`,
+    );
+    test.equal(asset.assetHash, '33cbf2cae5432438e0f046bc45ba8c3cef7b6afcf47b59d1c183775c1918fb1f');
+
+    test.done();
+  },
+
   'bundling with OUTPUT asset hash type'(test: Test) {
     // GIVEN
     const app = new App();

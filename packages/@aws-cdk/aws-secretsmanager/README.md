@@ -71,6 +71,15 @@ then `Secret.grantRead` and `Secret.grantWrite` will also grant the role the
 relevant encrypt and decrypt permissions to the KMS key through the
 SecretsManager service principal.
 
+The principal is automatically added to Secret resource policy and KMS Key policy for cross account access:
+
+```ts
+const otherAccount = new iam.AccountPrincipal('1234');
+const key = new kms.Key(stack, 'KMS');
+const secret = new secretsmanager.Secret(stack, 'Secret', { encryptionKey: key });
+secret.grantRead(otherAccount);
+```
+
 ## Rotating a Secret
 
 ### Using a Custom Lambda Function

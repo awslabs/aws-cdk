@@ -647,7 +647,7 @@ export class TaskDefinition extends TaskDefinitionBase {
   /**
    * Returns the container that match the provided containerName.
    */
-  private findContainer(containerName: string): ContainerDefinition | undefined {
+  public findContainer(containerName: string): ContainerDefinition | undefined {
     return this.containers.find(c => c.containerName === containerName);
   }
 

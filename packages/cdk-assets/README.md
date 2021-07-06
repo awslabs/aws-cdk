@@ -42,7 +42,7 @@ itself in the following behaviors:
   image in the local Docker cache) already exists named after the asset's ID, it
   will not be packaged, but will be uploaded directly to the destination
   location.
-  
+
 For assets build by external utilities, the contract is such that cdk-assets
 expects the utility to manage dedupe detection as well as path/image tag generation.
 This means that cdk-assets will call the external utility every time generation
@@ -153,3 +153,36 @@ on the AWS SDK (through environment variables or `~/.aws/...` config files).
 * If `${AWS::Region}` is used, it will principally be replaced with the value
   in the `region` key. If the default region is intended, leave the `region`
   key out of the manifest at all.
+
+## Docker image credentials
+
+For Docker image asset publishing, `cdk-assets` will `docker login` with
+credentials from ECR GetAuthorizationToken prior to building and publishing, so
+that the Dockerfile can reference images in the account's ECR repo.
+
+`cdk-assets` can also be configured to read credentials from both ECR and
+SecretsManager prior to build by creating a credential configuration at
+'~/.cdk/cdk-docker-creds.json' (override this location by setting the
+CDK_DOCKER_CREDS_FILE environment variable). The credentials file has the
+following format:
+
+```json
+{
+  "version": "1.0",
+  "domainCredentials": {
+    "domain1.example.com": {
+      "secretsManagerSecretId": "mySecret", // Can be the secret ID or full ARN
+      "roleArn": "arn:aws:iam::0123456789012:role/my-role" // (Optional) role with permissions to the secret
+    },
+    "domain2.example.com": {
+      "ecrRepository": true,
+      "roleArn": "arn:aws:iam::0123456789012:role/my-role" // (Optional) role with permissions to the repo
+    }
+  }
+}
+```
+
+If the credentials file is present, `docker` will be configured to use the
+`docker-credential-cdk-assets` credential helper for each of the domains listed
+in the file. This helper will assume the role provided (if present), and then fetch
+the login credentials from either SecretsManager or ECR.

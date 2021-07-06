@@ -1,4 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import { Stack } from '@aws-cdk/core';
 import { UserPool, UserPoolResourceServer } from '../lib';
 
@@ -15,7 +15,7 @@ describe('User Pool Resource Server', () => {
     });
 
     //THEN
-    expect(stack).toHaveResource('AWS::Cognito::UserPoolResourceServer', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolResourceServer', {
       Identifier: 'users',
       Name: 'users',
       UserPoolId: stack.resolve(pool.userPoolId),
@@ -35,7 +35,7 @@ describe('User Pool Resource Server', () => {
     });
 
     //THEN
-    expect(stack).toHaveResource('AWS::Cognito::UserPoolResourceServer', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolResourceServer', {
       Identifier: 'users',
       Name: 'internal-users',
     });
@@ -59,7 +59,7 @@ describe('User Pool Resource Server', () => {
     });
 
     //THEN
-    expect(stack).toHaveResource('AWS::Cognito::UserPoolResourceServer', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolResourceServer', {
       Scopes: [
         {
           ScopeDescription: 'read only access',

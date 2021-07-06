@@ -86,6 +86,14 @@ export interface BundlingOptions {
    *
    */
   readonly outputType?: BundlingOutput;
+
+  /**
+   * [Security configuration](https://docs.docker.com/engine/reference/run/#security-configuration)
+   * when running the docker container.
+   *
+   * @default - no security options
+   */
+  readonly securityOpt?: string;
 }
 
 /**
@@ -413,7 +421,7 @@ export interface DockerRunOptions {
    * [Security configuration](https://docs.docker.com/engine/reference/run/#security-configuration)
    * when running the docker container.
    *
-   * @default - no secutiy options
+   * @default - no security options
    */
   readonly securityOpt?: string;
 }

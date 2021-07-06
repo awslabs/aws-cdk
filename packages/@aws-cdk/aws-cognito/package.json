@@ -80,7 +80,7 @@
     "cfn2ts": "0.0.0",
     "jest": "^26.6.3",
     "pkglint": "0.0.0",
-    "@aws-cdk/assert-internal": "0.0.0"
+    "@aws-cdk/assertions": "0.0.0"
   },
   "dependencies": {
     "@aws-cdk/aws-certificatemanager": "0.0.0",

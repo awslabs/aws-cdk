@@ -110,7 +110,8 @@
       "docs-public-apis:@aws-cdk/aws-redshift.ParameterGroupParameters.parameterValue",
       "props-physical-name:@aws-cdk/aws-redshift.ClusterParameterGroupProps",
       "props-physical-name:@aws-cdk/aws-redshift.ClusterSubnetGroupProps",
-      "props-physical-name:@aws-cdk/aws-redshift.DatabaseSecretProps"
+      "props-physical-name:@aws-cdk/aws-redshift.DatabaseSecretProps",
+      "resource-attribute:@aws-cdk/aws-redshift.Cluster.clusterId"
     ]
   },
   "stability": "experimental",

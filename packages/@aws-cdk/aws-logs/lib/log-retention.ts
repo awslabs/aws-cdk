@@ -158,7 +158,7 @@ class LogRetentionFunction extends CoreConstruct {
       type: 'AWS::Lambda::Function',
       properties: {
         Handler: 'index.handler',
-        Runtime: 'nodejs12.x',
+        Runtime: 'nodejs14.x', // Equivalent to Runtime.NODEJS_14_X
         Code: {
           S3Bucket: asset.s3BucketName,
           S3Key: asset.s3ObjectKey,

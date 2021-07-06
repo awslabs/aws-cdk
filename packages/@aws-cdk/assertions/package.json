@@ -20,6 +20,10 @@
   },
   "jsii": {
     "outdir": "dist",
+    "diagnostics": {
+      "language-compatibility/member-name-conflicts-with-type-name": "error",
+      "language-compatibility/reserved-word": "error"
+    },
     "targets": {
       "java": {
         "package": "software.amazon.awscdk.assertions",

@@ -175,6 +175,7 @@
     "@aws-cdk/aws-codestarnotifications": "0.0.0",
     "@aws-cdk/aws-cognito": "0.0.0",
     "@aws-cdk/aws-config": "0.0.0",
+    "@aws-cdk/aws-connect": "0.0.0",
     "@aws-cdk/aws-cur": "0.0.0",
     "@aws-cdk/aws-customerprofiles": "0.0.0",
     "@aws-cdk/aws-databrew": "0.0.0",

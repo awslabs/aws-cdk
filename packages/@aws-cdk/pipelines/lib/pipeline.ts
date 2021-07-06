@@ -5,12 +5,14 @@ import * as iam from '@aws-cdk/aws-iam';
 import { Annotations, App, Aws, CfnOutput, Fn, Lazy, PhysicalName, Stack, Stage } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { AssetType, DeployCdkStackAction, PublishAssetsAction, UpdatePipelineAction } from './actions';
+import { dockerCredentialsInstallCommands, DockerCredential, DockerCredentialUsage } from './docker-credentials';
 import { appOf, assemblyBuilderOf } from './private/construct-internals';
 import { AddStageOptions, AssetPublishingCommand, CdkStage, StackOutput } from './stage';
 
 // v2 - keep this import as a separate section to reduce merge conflict when forward merging with the v2 branch.
 // eslint-disable-next-line
 import { Construct as CoreConstruct } from '@aws-cdk/core';
+import { SimpleSynthAction } from './synths';
 
 const CODE_BUILD_LENGTH_LIMIT = 100;
 /**
@@ -151,6 +153,15 @@ export interface CdkPipelineProps {
    * @default - false
    */
   readonly supportDockerAssets?: boolean;
+
+  /**
+   * A list of credentials used to authenticate to Docker registries.
+   *
+   * Specify any credentials necessary within the pipeline to build, synth, update, or publish assets.
+   *
+   * @default []
+   */
+  readonly dockerCredentials?: DockerCredential[];
 }
 
 /**
@@ -171,6 +182,7 @@ export class CdkPipeline extends CoreConstruct {
   private readonly _stages: CdkStage[] = [];
   private readonly _outputArtifacts: Record<string, codepipeline.Artifact> = {};
   private readonly _cloudAssemblyArtifact: codepipeline.Artifact;
+  private readonly _dockerCredentials: DockerCredential[];
 
   constructor(scope: Construct, id: string, props: CdkPipelineProps) {
     super(scope, id);
@@ -180,6 +192,7 @@ export class CdkPipeline extends CoreConstruct {
     }
 
     this._cloudAssemblyArtifact = props.cloudAssemblyArtifact;
+    this._dockerCredentials = props.dockerCredentials ?? [];
     const pipelineStack = Stack.of(this);
 
     if (props.codePipeline) {
@@ -218,6 +231,10 @@ export class CdkPipeline extends CoreConstruct {
     }
 
     if (props.synthAction) {
+      if (props.synthAction instanceof SimpleSynthAction && this._dockerCredentials.length > 0) {
+        props.synthAction._addDockerCredentials(this._dockerCredentials);
+      }
+
       this._pipeline.addStage({
         stageName: 'Build',
         actions: [props.synthAction],
@@ -233,6 +250,7 @@ export class CdkPipeline extends CoreConstruct {
           cdkCliVersion: props.cdkCliVersion,
           projectName: maybeSuffix(props.pipelineName, '-selfupdate'),
           privileged: props.supportDockerAssets,
+          dockerCredentials: this._dockerCredentials,
         })],
       });
     }
@@ -246,6 +264,7 @@ export class CdkPipeline extends CoreConstruct {
       subnetSelection: props.subnetSelection,
       singlePublisherPerType: props.singlePublisherPerType,
       preInstallCommands: props.assetPreInstallCommands,
+      dockerCredentials: this._dockerCredentials,
     });
   }
 
@@ -397,6 +416,7 @@ interface AssetPublishingProps {
   readonly subnetSelection?: ec2.SubnetSelection;
   readonly singlePublisherPerType?: boolean;
   readonly preInstallCommands?: string[];
+  readonly dockerCredentials: DockerCredential[];
 }
 
 /**
@@ -408,12 +428,14 @@ class AssetPublishing extends CoreConstruct {
 
   private readonly publishers: Record<string, PublishAssetsAction> = {};
   private readonly assetRoles: Record<string, iam.IRole> = {};
+  private readonly assetAttachedPolicies: Record<string, iam.Policy> = {};
   private readonly assetPublishingRoles: Record<string, Set<string>> = {};
   private readonly myCxAsmRoot: string;
 
   private readonly lastStageBeforePublishing?: codepipeline.IStage;
   private readonly stages: codepipeline.IStage[] = [];
   private readonly pipeline: codepipeline.Pipeline;
+  private readonly dockerCredentials: DockerCredential[];
 
   private _fileAssetCtr = 0;
   private _dockerAssetCtr = 0;
@@ -427,6 +449,8 @@ class AssetPublishing extends CoreConstruct {
     const stages: codepipeline.IStage[] = (this.props.pipeline as any)._stages;
     // Any asset publishing stages will be added directly after the last stage that currently exists.
     this.lastStageBeforePublishing = stages.slice(-1)[0];
+
+    this.dockerCredentials = props.dockerCredentials;
   }
 
   /**
@@ -484,6 +508,8 @@ class AssetPublishing extends CoreConstruct {
         command.assetType === AssetType.FILE ? 'FileAsset' : 'DockerAsset' :
         command.assetType === AssetType.FILE ? `FileAsset${++this._fileAssetCtr}` : `DockerAsset${++this._dockerAssetCtr}`;
 
+      const credsInstallCommands = dockerCredentialsInstallCommands(DockerCredentialUsage.ASSET_PUBLISHING, this.dockerCredentials);
+
       // NOTE: It's important that asset changes don't force a pipeline self-mutation.
       // This can cause an infinite loop of updates (see https://github.com/aws/aws-cdk/issues/9080).
       // For that reason, we use the id as the actionName below, rather than the asset hash.
@@ -493,10 +519,11 @@ class AssetPublishing extends CoreConstruct {
         cdkCliVersion: this.props.cdkCliVersion,
         assetType: command.assetType,
         role: this.assetRoles[command.assetType],
+        dependable: this.assetAttachedPolicies[command.assetType],
         vpc: this.props.vpc,
         subnetSelection: this.props.subnetSelection,
         createBuildspecFile: this.props.singlePublisherPerType,
-        preInstallCommands: this.props.preInstallCommands,
+        preInstallCommands: [...(this.props.preInstallCommands ?? []), ...credsInstallCommands],
       });
       this.stages[stageIndex].addAction(action);
     }
@@ -566,6 +593,11 @@ class AssetPublishing extends CoreConstruct {
       resources: Lazy.list({ produce: () => [...this.assetPublishingRoles[assetType]].map(arn => Fn.sub(arn)) }),
     }));
 
+    // Grant pull access for any ECR registries and secrets that exist
+    if (assetType === AssetType.DOCKER_IMAGE) {
+      this.dockerCredentials.forEach(reg => reg.grantRead(assetRole, DockerCredentialUsage.ASSET_PUBLISHING));
+    }
+
     // Artifact access
     this.pipeline.artifactBucket.grantRead(assetRole);
 
@@ -573,7 +605,7 @@ class AssetPublishing extends CoreConstruct {
     // Normally CodeBuild itself takes care of this but we're creating a singleton role so now
     // we need to do this.
     if (this.props.vpc) {
-      assetRole.attachInlinePolicy(new iam.Policy(assetRole, 'VpcPolicy', {
+      const vpcPolicy = new iam.Policy(assetRole, 'VpcPolicy', {
         statements: [
           new iam.PolicyStatement({
             resources: [`arn:${Aws.PARTITION}:ec2:${Aws.REGION}:${Aws.ACCOUNT_ID}:network-interface/*`],
@@ -600,7 +632,9 @@ class AssetPublishing extends CoreConstruct {
             ],
           }),
         ],
-      }));
+      });
+      assetRole.attachInlinePolicy(vpcPolicy);
+      this.assetAttachedPolicies[assetType] = vpcPolicy;
     }
 
     this.assetRoles[assetType] = assetRole.withoutPolicyUpdates();

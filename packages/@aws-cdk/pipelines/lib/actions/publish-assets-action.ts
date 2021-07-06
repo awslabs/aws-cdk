@@ -6,7 +6,7 @@ import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
-import { Lazy, ISynthesisSession, Stack } from '@aws-cdk/core';
+import { IDependable, ISynthesisSession, Lazy, Stack, attachCustomSynthesis } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { toPosixPath } from '../private/fs';
 
@@ -68,6 +68,13 @@ export interface PublishAssetsActionProps {
    * @default - Automatically generated
    */
   readonly role?: iam.IRole;
+
+  /**
+   * Any Dependable construct that the CodeBuild project needs to take a dependency on.
+   *
+   * @default - none
+   */
+  readonly dependable?: IDependable;
 
   /**
    * The VPC where to execute the PublishAssetsAction.
@@ -147,6 +154,10 @@ export class PublishAssetsAction extends CoreConstruct implements codepipeline.I
       role: props.role,
     });
 
+    if (props.dependable) {
+      project.node.addDependency(props.dependable);
+    }
+
     this.action = new codepipeline_actions.CodeBuildAction({
       actionName: props.actionName,
       project,
@@ -157,15 +168,17 @@ export class PublishAssetsAction extends CoreConstruct implements codepipeline.I
         CDK_CLI_VERSION: { value: props.cdkCliVersion },
       } : undefined,
     });
+
+    attachCustomSynthesis(this, {
+      onSynthesize: this._onSynth.bind(this),
+    });
   }
 
   private getBuildSpecFileName(): string {
     return `buildspec-assets-${this.props.actionName}.yaml`;
   }
 
-  protected synthesize(session: ISynthesisSession): void {
-    super.synthesize(session);
-
+  private _onSynth(session: ISynthesisSession): void {
     if (this.props.createBuildspecFile) {
       const specFile = path.join(session.outdir, this.getBuildSpecFileName());
       fs.writeFileSync(specFile, Stack.of(this).resolve(this.buildSpec.toBuildSpec()), { encoding: 'utf-8' });

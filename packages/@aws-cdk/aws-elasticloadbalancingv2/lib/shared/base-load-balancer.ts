@@ -233,6 +233,7 @@ export abstract class BaseLoadBalancer extends Resource {
    * environment-agnostic stacks. See https://docs.aws.amazon.com/cdk/latest/guide/environments.html
    */
   public logAccessLogs(bucket: s3.IBucket, prefix?: string) {
+    prefix = prefix || '';
     this.setAttribute('access_logs.s3.enabled', 'true');
     this.setAttribute('access_logs.s3.bucket', bucket.bucketName.toString());
     this.setAttribute('access_logs.s3.prefix', prefix);
@@ -247,7 +248,6 @@ export abstract class BaseLoadBalancer extends Resource {
       throw new Error(`Cannot enable access logging; don't know ELBv2 account for region ${region}`);
     }
 
-    prefix = prefix || '';
     bucket.grantPut(new iam.AccountPrincipal(account), `${(prefix ? prefix + '/' : '')}AWSLogs/${Stack.of(this).account}/*`);
 
     // make sure the bucket's policy is created before the ALB (see https://github.com/aws/aws-cdk/issues/1633)

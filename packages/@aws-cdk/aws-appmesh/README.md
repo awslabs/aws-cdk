@@ -174,7 +174,7 @@ const node = new VirtualNode(this, 'node', {
   serviceDiscovery: appmesh.ServiceDiscovery.cloudMap({
     service: service,
   }),
-  listeners: [appmesh.VirtualNodeListener.httpNodeListener({
+  listeners: [appmesh.VirtualNodeListener.http({
     port: 8080,
     healthCheck: appmesh.HealthCheck.http({
       healthyThreshold: 3,
@@ -190,9 +190,7 @@ const node = new VirtualNode(this, 'node', {
   backendDefaults: {
     tlsClientPolicy: {
       validation: {
-        trust: appmesh.TlsValidationTrust.file({
-          certificateChain: '/keys/local_cert_chain.pem',
-        }),
+        trust: appmesh.TlsValidationTrust.file('/keys/local_cert_chain.pem'),
       },
     },
   },
@@ -242,8 +240,14 @@ The `backendDefaults` property are added to the node while creating the virtual 
 
 ## Adding TLS to a listener
 
-The `tlsCertificate` property can be added to a Virtual Node listener or Virtual Gateway listener to add TLS configuration. 
-A certificate from AWS Certificate Manager can be incorporated or a customer provided certificate can be specified with a `certificateChain` path file and a `privateKey` file path.
+The `tls` property can be provided when creating a Virtual Node listener, or a Virtual Gateway listener to add TLS configuration. 
+App Mesh allows you to provide the TLS certificate to the proxy in the following ways:
+
+- A certificate from AWS Certificate Manager (ACM) can be used.
+
+- A customer provided certificate can be specified with a `certificateChain` path file and a `privateKey` file path.
+
+- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket can be specified with its `secretName`.
 
 ```typescript
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
@@ -258,9 +262,7 @@ const node = new appmesh.VirtualNode(stack, 'node', {
     port: 80,
     tls: {
       mode: appmesh.TlsMode.STRICT,
-      certificate: appmesh.TlsCertificate.acm({
-        certificate: cert,
-      }),
+      certificate: appmesh.TlsCertificate.acm(cert),
     },
   })],
 });
@@ -272,13 +274,74 @@ const gateway = new appmesh.VirtualGateway(this, 'gateway', {
     port: 8080,
     tls: {
       mode: appmesh.TlsMode.STRICT,
-      certificate: appmesh.TlsCertificate.file({
-        certificateChainPath: 'path/to/certChain',
-        privateKeyPath: 'path/to/privateKey',
-      }),
+      certificate: appmesh.TlsCertificate.file('path/to/certChain', 'path/to/privateKey'),
     },
   })],
   virtualGatewayName: 'gateway',
+});
+
+// A Virtual Gateway with listener TLS from a SDS provided certificate
+const gateway2 = new appmesh.VirtualGateway(this, 'gateway2', {
+  mesh: mesh,
+  listeners: [appmesh.VirtualGatewayListener.http2({
+    port: 8080,
+    tls: {
+      mode: appmesh.TlsMode.STRICT,
+      certificate: appmesh.TlsCertificate.sds('secrete_certificate'),
+    },
+  })],
+  virtualGatewayName: 'gateway2',
+});
+```
+
+## Adding mutual TLS authentication
+
+Mutual TLS authentication is an optional component of TLS that offers two-way peer authentication. 
+To enable mutual TLS authentication, 
+add `mutualTlsCertificate` property to TLS Client Policy and/or `mutualTlsValidation` property to TLS Listener.
+
+`tls.mutualTlsValidation` and `tlsClientPolicy.mutualTlsCertificate` can be sourced from either:
+
+- A customer provided certificate can be specified with a `certificateChain` path file and a `privateKey` file path.
+
+- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket can be specified with its `secretName`.
+
+**Note**: Currently, a certificate from AWS Certificate Manager (ACM) cannot be sourced for above two properties.
+
+```typescript
+import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
+
+const node1 = new appmesh.VirtualNode(stack, 'node1', {
+  mesh,
+  serviceDiscovery: appmesh.ServiceDiscovery.dns('node'),
+  listeners: [appmesh.VirtualNodeListener.grpc({
+    port: 80,
+    tls: {
+      mode: appmesh.TlsMode.STRICT,
+      certificate: appmesh.TlsCertificate.file('path/to/certChain', 'path/to/privateKey'),
+      // Validate a file client certificates to enable mutual TLS authentication when a client provides a certificate.
+      mutualTlsValidation: {
+        trust: appmesh.TlsValidationTrust.file('path-to-certificate'),
+      },
+    },
+  })],
+});
+
+const node2 = new appmesh.VirtualNode(stack, 'node2', {
+  mesh,
+  serviceDiscovery: appmesh.ServiceDiscovery.dns('node2'),
+  backendDefaults: {
+    tlsClientPolicy: {
+      ports: [8080, 8081],
+      validation: {
+        subjectAlternativeNames: appmesh.SubjectAlternativeNames.matchingExactly('mesh-endpoint.apps.local'),
+        trust: appmesh.TlsValidationTrust.acm([
+          acmpca.CertificateAuthority.fromCertificateAuthorityArn(stack, 'certificate', certificateAuthorityArn)]),
+      },
+      // Provide a SDS client certificate when a server requests it and enable mutual TLS authentication.
+      mutualTlsCertificate: appmesh.TlsCertificate.sds('secret_certificate'),
+    },
+  },
 });
 ```
 
@@ -505,9 +568,8 @@ const gateway = new appmesh.VirtualGateway(stack, 'gateway', {
     tlsClientPolicy: {
       ports: [8080, 8081],
       validation: {
-        trust: appmesh.TlsValidationTrust.acm({
-          certificateAuthorities: [acmpca.CertificateAuthority.fromCertificateAuthorityArn(stack, 'certificate', certificateAuthorityArn)],
-        }),
+        trust: appmesh.TlsValidationTrust.acm([
+          acmpca.CertificateAuthority.fromCertificateAuthorityArn(stack, 'certificate', certificateAuthorityArn)]),
       },
     },
   },
@@ -612,3 +674,20 @@ const envoyUser = new iam.User(stack, 'envoyUser');
  */
 gateway.grantStreamAggregatedResources(envoyUser)
 ``` 
+
+## Adding Resources to shared meshes
+
+A shared mesh allows resources created by different accounts to communicate with each other in the same mesh:
+
+```ts
+// This is the ARN for the mesh from different AWS IAM account ID.
+// Ensure mesh is properly shared with your account. For more details, see: https://github.com/aws/aws-cdk/issues/15404
+const arn = 'arn:aws:appmesh:us-east-1:123456789012:mesh/testMesh';
+sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'imported-mesh', arn);
+
+// This VirtualNode resource can communicate with the resources in the mesh from different AWS IAM account ID.
+new appmesh.VirtualNode(stack, 'test-node', {
+  mesh: sharedMesh,
+});
+```
+

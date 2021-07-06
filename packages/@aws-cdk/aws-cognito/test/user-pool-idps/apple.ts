@@ -1,4 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import { Stack } from '@aws-cdk/core';
 import { ProviderAttribute, UserPool, UserPoolIdentityProviderApple } from '../../lib';
 
@@ -18,7 +18,7 @@ describe('UserPoolIdentityProvider', () => {
         privateKey: 'PRIV_KEY_CDK',
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'SignInWithApple',
         ProviderType: 'SignInWithApple',
         ProviderDetails: {
@@ -46,7 +46,7 @@ describe('UserPoolIdentityProvider', () => {
         scopes: ['scope1', 'scope2'],
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'SignInWithApple',
         ProviderType: 'SignInWithApple',
         ProviderDetails: {
@@ -100,7 +100,7 @@ describe('UserPoolIdentityProvider', () => {
       });
 
       // THEN
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         AttributeMapping: {
           family_name: 'firstName',
           given_name: 'lastName',

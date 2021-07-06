@@ -27,7 +27,7 @@
     "lerna": "^4.0.0",
     "patch-package": "^6.4.7",
     "standard-version": "^9.3.0",
-    "typescript": "~3.9.9"
+    "typescript": "~3.9.10"
   },
   "tap-mocha-reporter-resolutions-comment": "should be removed or reviewed when nodeunit dependency is dropped or adjusted",
   "resolutions": {

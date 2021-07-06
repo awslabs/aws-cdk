@@ -31,8 +31,13 @@ export class ContainerImageAssetHandler implements IAssetHandler {
     if (await this.destinationAlreadyExists(ecr, destination, imageUri)) { return; }
     if (this.host.aborted) { return; }
 
-    // Login before build so that the Dockerfile can reference images in the ECR repo
-    await this.docker.login(ecr);
+    // Default behavior is to login before build so that the Dockerfile can reference images in the ECR repo
+    // However, if we're in a pipelines environment (for example),
+    // we may have alternative credentials to the default ones to use for the build itself.
+    // If the special config file is present, delay the login to the default credentials until the push.
+    // If the config file is present, we will configure and use those credentials for the build.
+    let cdkDockerCredentialsConfigured = this.docker.configureCdkCredentials();
+    if (!cdkDockerCredentialsConfigured) { await this.docker.login(ecr); }
 
     const localTagName = this.asset.source.executable
       ? await this.buildExternalAsset(this.asset.source.executable)
@@ -45,6 +50,12 @@ export class ContainerImageAssetHandler implements IAssetHandler {
     this.host.emitMessage(EventType.UPLOAD, `Push ${imageUri}`);
     if (this.host.aborted) { return; }
     await this.docker.tag(localTagName, imageUri);
+
+    if (cdkDockerCredentialsConfigured) {
+      this.docker.resetAuthPlugins();
+      await this.docker.login(ecr);
+    }
+
     await this.docker.push(imageUri);
   }
 

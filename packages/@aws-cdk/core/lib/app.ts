@@ -1,4 +1,6 @@
 import * as cxapi from '@aws-cdk/cx-api';
+import { Construct } from 'constructs';
+import { addCustomSynthesis, ICustomSynthesis } from './private/synthesis';
 import { TreeMetadata } from './private/tree-metadata';
 import { Stage } from './stage';
 
@@ -144,4 +146,20 @@ export class App extends Stage {
       this.node.setContext(k, v);
     }
   }
+}
+
+/**
+ * Add a custom synthesis for the given construct
+ *
+ * When the construct is being synthesized, this allows it to add additional items
+ * into the Cloud Assembly output.
+ *
+ * This feature is intended for use by official AWS CDK libraries only; 3rd party
+ * library authors and CDK users should not use this function. That's why it's not
+ * exposed via jsii.
+ */
+export function attachCustomSynthesis(construct: Construct, synthesis: ICustomSynthesis): void {
+  // synthesis.ts where the implementation lives is not exported. So
+  // this function is just a re-export of that function.
+  addCustomSynthesis(construct, synthesis);
 }

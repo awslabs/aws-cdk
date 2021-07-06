@@ -254,6 +254,7 @@ async function main() {
       '**/cdk.out',
       'junit.xml',
       'test/',
+      '!*.lit.ts',
     ]);
 
     await write('lib/index.ts', [

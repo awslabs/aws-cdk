@@ -1,4 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import { Stack } from '@aws-cdk/core';
 import { ProviderAttribute, UserPool, UserPoolIdentityProviderAmazon } from '../../lib';
 
@@ -16,7 +16,7 @@ describe('UserPoolIdentityProvider', () => {
         clientSecret: 'amzn-client-secret',
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'LoginWithAmazon',
         ProviderType: 'LoginWithAmazon',
         ProviderDetails: {
@@ -40,7 +40,7 @@ describe('UserPoolIdentityProvider', () => {
         scopes: ['scope1', 'scope2'],
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'LoginWithAmazon',
         ProviderType: 'LoginWithAmazon',
         ProviderDetails: {
@@ -88,7 +88,7 @@ describe('UserPoolIdentityProvider', () => {
       });
 
       // THEN
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         AttributeMapping: {
           given_name: 'name',
           address: 'amzn-address',

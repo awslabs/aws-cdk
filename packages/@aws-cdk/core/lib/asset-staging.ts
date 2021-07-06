@@ -463,6 +463,7 @@ export class AssetStaging extends CoreConstruct {
           volumes,
           environment: options.environment,
           workingDirectory: options.workingDirectory ?? AssetStaging.BUNDLING_INPUT_DIR,
+          securityOpt: options.securityOpt ?? '',
         });
       }
     } catch (err) {

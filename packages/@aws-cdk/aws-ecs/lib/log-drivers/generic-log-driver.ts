@@ -1,6 +1,6 @@
-import { ContainerDefinition } from '../container-definition';
+import { ContainerDefinition, Secret } from '../container-definition';
 import { LogDriver, LogDriverConfig } from '../index';
-import { removeEmpty } from './utils';
+import { removeEmpty, renderLogDriverSecretOptions } from './utils';
 
 // v2 - keep this import as a separate section to reduce merge conflict when forward merging with the v2 branch.
 // eslint-disable-next-line
@@ -25,8 +25,15 @@ export interface GenericLogDriverProps {
 
   /**
    * The configuration options to send to the log driver.
+   * @default - the log driver options.
    */
   readonly options?: { [key: string]: string };
+
+  /**
+   * The secrets to pass to the log configuration.
+   * @default - no secret options provided.
+   */
+  readonly secretOptions?: { [key: string]: Secret };
 }
 
 /**
@@ -50,6 +57,11 @@ export class GenericLogDriver extends LogDriver {
   private options: { [key: string]: string };
 
   /**
+   * The secrets to pass to the log configuration.
+   */
+  private secretOptions?: { [key: string]: Secret };
+
+  /**
    * Constructs a new instance of the GenericLogDriver class.
    *
    * @param props the generic log driver configuration options.
@@ -59,6 +71,7 @@ export class GenericLogDriver extends LogDriver {
 
     this.logDriver = props.logDriver;
     this.options = props.options || {};
+    this.secretOptions = props.secretOptions;
   }
 
   /**
@@ -68,6 +81,7 @@ export class GenericLogDriver extends LogDriver {
     return {
       logDriver: this.logDriver,
       options: removeEmpty(this.options),
+      secretOptions: this.secretOptions && renderLogDriverSecretOptions(this.secretOptions, _containerDefinition.taskDefinition),
     };
   }
 }

@@ -4,6 +4,7 @@ import * as AWS from 'aws-sdk';
 export function mockAws() {
   const mockEcr = new AWS.ECR();
   const mockS3 = new AWS.S3();
+  const mockSecretsManager = new AWS.SecretsManager();
 
   // Sane defaults which can be overridden
   mockS3.getBucketLocation = mockedApiResult({});
@@ -18,11 +19,13 @@ export function mockAws() {
   return {
     mockEcr,
     mockS3,
+    mockSecretsManager,
     discoverPartition: jest.fn(() => Promise.resolve('swa')),
     discoverCurrentAccount: jest.fn(() => Promise.resolve({ accountId: 'current_account', partition: 'swa' })),
     discoverDefaultRegion: jest.fn(() => Promise.resolve('current_region')),
     ecrClient: jest.fn(() => Promise.resolve(mockEcr)),
     s3Client: jest.fn(() => Promise.resolve(mockS3)),
+    secretsManagerClient: jest.fn(() => Promise.resolve(mockSecretsManager)),
   };
 }
 

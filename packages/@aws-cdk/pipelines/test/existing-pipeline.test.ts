@@ -3,6 +3,7 @@ import '@aws-cdk/assert-internal/jest';
 import * as cp from '@aws-cdk/aws-codepipeline';
 import { Stack } from '@aws-cdk/core';
 import * as cdkp from '../lib';
+import { behavior } from './helpers/compliance';
 import { PIPELINE_ENV, TestApp, TestGitHubAction } from './testutil';
 
 let app: TestApp;
@@ -27,29 +28,33 @@ describe('with empty existing CodePipeline', () => {
     codePipeline = new cp.Pipeline(pipelineStack, 'CodePipeline');
   });
 
-  test('both actions are required', () => {
-    // WHEN
-    expect(() => {
-      new cdkp.CdkPipeline(pipelineStack, 'Cdk', { cloudAssemblyArtifact, codePipeline });
-    }).toThrow(/You must pass a 'sourceAction'/);
+  behavior('both actions are required', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      expect(() => {
+        new cdkp.CdkPipeline(pipelineStack, 'Cdk', { cloudAssemblyArtifact, codePipeline });
+      }).toThrow(/You must pass a 'sourceAction'/);
+    });
   });
 
-  test('can give both actions', () => {
-    // WHEN
-    new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
-      cloudAssemblyArtifact,
-      codePipeline,
-      sourceAction: new TestGitHubAction(sourceArtifact),
-      synthAction: cdkp.SimpleSynthAction.standardNpmSynth({ sourceArtifact, cloudAssemblyArtifact }),
-    });
+  behavior('can give both actions', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
+        cloudAssemblyArtifact,
+        codePipeline,
+        sourceAction: new TestGitHubAction(sourceArtifact),
+        synthAction: cdkp.SimpleSynthAction.standardNpmSynth({ sourceArtifact, cloudAssemblyArtifact }),
+      });
 
-    // THEN
-    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-      Stages: [
-        objectLike({ Name: 'Source' }),
-        objectLike({ Name: 'Build' }),
-        objectLike({ Name: 'UpdatePipeline' }),
-      ],
+      // THEN
+      expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+        Stages: [
+          objectLike({ Name: 'Source' }),
+          objectLike({ Name: 'Build' }),
+          objectLike({ Name: 'UpdatePipeline' }),
+        ],
+      });
     });
   });
 });
@@ -66,21 +71,23 @@ describe('with custom Source stage in existing Pipeline', () => {
     });
   });
 
-  test('Work with synthAction', () => {
-    // WHEN
-    new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
-      codePipeline,
-      cloudAssemblyArtifact,
-      synthAction: cdkp.SimpleSynthAction.standardNpmSynth({ sourceArtifact, cloudAssemblyArtifact }),
-    });
+  behavior('Work with synthAction', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
+        codePipeline,
+        cloudAssemblyArtifact,
+        synthAction: cdkp.SimpleSynthAction.standardNpmSynth({ sourceArtifact, cloudAssemblyArtifact }),
+      });
 
-    // THEN
-    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-      Stages: [
-        objectLike({ Name: 'CustomSource' }),
-        objectLike({ Name: 'Build' }),
-        objectLike({ Name: 'UpdatePipeline' }),
-      ],
+      // THEN
+      expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+        Stages: [
+          objectLike({ Name: 'CustomSource' }),
+          objectLike({ Name: 'Build' }),
+          objectLike({ Name: 'UpdatePipeline' }),
+        ],
+      });
     });
   });
 });
@@ -101,20 +108,22 @@ describe('with Source and Build stages in existing Pipeline', () => {
     });
   });
 
-  test('can supply no actions', () => {
-    // WHEN
-    new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
-      codePipeline,
-      cloudAssemblyArtifact,
-    });
+  behavior('can supply no actions', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      new cdkp.CdkPipeline(pipelineStack, 'Cdk', {
+        codePipeline,
+        cloudAssemblyArtifact,
+      });
 
-    // THEN
-    expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
-      Stages: [
-        objectLike({ Name: 'CustomSource' }),
-        objectLike({ Name: 'CustomBuild' }),
-        objectLike({ Name: 'UpdatePipeline' }),
-      ],
+      // THEN
+      expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+        Stages: [
+          objectLike({ Name: 'CustomSource' }),
+          objectLike({ Name: 'CustomBuild' }),
+          objectLike({ Name: 'UpdatePipeline' }),
+        ],
+      });
     });
   });
 });

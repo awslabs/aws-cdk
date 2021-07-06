@@ -108,6 +108,7 @@ export class MockSdk implements ISDK {
   public readonly route53 = jest.fn();
   public readonly ecr = jest.fn();
   public readonly elbv2 = jest.fn();
+  public readonly secretsManager = jest.fn();
 
   public currentAccount(): Promise<Account> {
     return Promise.resolve({ accountId: '123456789012', partition: 'aws' });

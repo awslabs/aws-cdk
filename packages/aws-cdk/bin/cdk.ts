@@ -113,7 +113,8 @@ async function parseCommandLineArguments() {
       .option('exclusively', { type: 'boolean', alias: 'e', desc: 'Only diff requested stacks, don\'t include dependencies' })
       .option('context-lines', { type: 'number', desc: 'Number of context lines to include in arbitrary JSON diff rendering', default: 3, requiresArg: true })
       .option('template', { type: 'string', desc: 'The path to the CloudFormation template to compare with', requiresArg: true })
-      .option('strict', { type: 'boolean', desc: 'Do not filter out AWS::CDK::Metadata resources', default: false }))
+      .option('strict', { type: 'boolean', desc: 'Do not filter out AWS::CDK::Metadata resources', default: false })
+      .option('security-only', { type: 'boolean', desc: 'Only diff for broadened security changes', default: false }))
     .option('fail', { type: 'boolean', desc: 'Fail with exit code 1 in case of diff', default: false })
     .command('metadata [STACK]', 'Returns all metadata associated with this stack')
     .command('init [TEMPLATE]', 'Create a new, empty CDK project from a template.', yargs => yargs
@@ -260,6 +261,7 @@ async function initCommandLine() {
           templatePath: args.template,
           strict: args.strict,
           contextLines: args.contextLines,
+          securityOnly: args.securityOnly,
           fail: args.fail || !enableDiffNoFail,
         });
 

@@ -1,11 +1,11 @@
 import { CfnVirtualNode } from './appmesh.generated';
 import { HealthCheck } from './health-checks';
-import { ConnectionPoolConfig } from './private/utils';
+import { ListenerTlsOptions } from './listener-tls-options';
+import { ConnectionPoolConfig, renderListenerTlsOptions } from './private/utils';
 import {
   GrpcConnectionPool, GrpcTimeout, Http2ConnectionPool, HttpConnectionPool,
   HttpTimeout, OutlierDetection, Protocol, TcpConnectionPool, TcpTimeout,
 } from './shared-interfaces';
-import { TlsListener } from './tls-listener';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -44,7 +44,7 @@ interface VirtualNodeListenerCommonOptions {
    *
    * @default - none
    */
-  readonly tls?: TlsListener;
+  readonly tls?: ListenerTlsOptions;
 
   /**
    * Represents the configuration for enabling outlier detection
@@ -173,7 +173,7 @@ class VirtualNodeListenerImpl extends VirtualNodeListener {
     private readonly healthCheck: HealthCheck | undefined,
     private readonly timeout: HttpTimeout | undefined,
     private readonly port: number = 8080,
-    private readonly tls: TlsListener | undefined,
+    private readonly tls: ListenerTlsOptions | undefined,
     private readonly outlierDetection: OutlierDetection | undefined,
     private readonly connectionPool: ConnectionPoolConfig | undefined) { super(); }
 
@@ -186,23 +186,11 @@ class VirtualNodeListenerImpl extends VirtualNodeListener {
         },
         healthCheck: this.healthCheck?.bind(scope, { defaultPort: this.port }).virtualNodeHealthCheck,
         timeout: this.timeout ? this.renderTimeout(this.timeout) : undefined,
-        tls: this.renderTls(scope, this.tls),
+        tls: renderListenerTlsOptions(scope, this.tls),
         outlierDetection: this.outlierDetection ? this.renderOutlierDetection(this.outlierDetection) : undefined,
         connectionPool: this.connectionPool ? this.renderConnectionPool(this.connectionPool) : undefined,
       },
     };
-  }
-
-  /**
-   * Renders the TLS config for a listener
-   */
-  private renderTls(scope: Construct, tls: TlsListener | undefined): CfnVirtualNode.ListenerTlsProperty | undefined {
-    return tls
-      ? {
-        certificate: tls.certificate.bind(scope).tlsCertificate,
-        mode: tls.mode,
-      }
-      : undefined;
   }
 
   private renderTimeout(timeout: HttpTimeout): CfnVirtualNode.ListenerTimeoutProperty {

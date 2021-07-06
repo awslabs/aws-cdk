@@ -53,7 +53,7 @@ test('default file system is created correctly', () => {
   });
   // THEN
   const assertions = TemplateAssertions.fromStack(stack);
-  assertions.hasResourceDefinition('AWS::EFS::FileSystem', {
+  assertions.hasResource('AWS::EFS::FileSystem', {
     DeletionPolicy: 'Retain',
     UpdateReplacePolicy: 'Retain',
   });
@@ -258,7 +258,7 @@ test('removalPolicy is DESTROY', () => {
   new FileSystem(stack, 'EfsFileSystem', { vpc, removalPolicy: RemovalPolicy.DESTROY });
 
   // THEN
-  TemplateAssertions.fromStack(stack).hasResourceDefinition('AWS::EFS::FileSystem', {
+  TemplateAssertions.fromStack(stack).hasResource('AWS::EFS::FileSystem', {
     DeletionPolicy: 'Delete',
     UpdateReplacePolicy: 'Delete',
   });

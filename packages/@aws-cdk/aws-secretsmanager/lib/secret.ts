@@ -207,14 +207,16 @@ abstract class SecretBase extends Resource implements ISecret {
   public grantRead(grantee: iam.IGrantable, versionStages?: string[]): iam.Grant {
     // @see https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access_identity-based-policies.html
 
-    const result = iam.Grant.addToPrincipal({
+    const result = iam.Grant.addToPrincipalOrResource({
       grantee,
       actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
       resourceArns: [this.arnForPolicies],
-      scope: this,
+      resource: this,
     });
-    if (versionStages != null && result.principalStatement) {
-      result.principalStatement.addCondition('ForAnyValue:StringEquals', {
+
+    const statement = result.principalStatement || result.resourceStatement;
+    if (versionStages != null && statement) {
+      statement.addCondition('ForAnyValue:StringEquals', {
         'secretsmanager:VersionStage': versionStages,
       });
     }
@@ -226,16 +228,21 @@ abstract class SecretBase extends Resource implements ISecret {
       );
     }
 
+    // Throw if secret is not imported and it's shared cross account and no KMS key is provided
+    if (this instanceof Secret && result.resourceStatement && !this.encryptionKey) {
+      throw new Error('KMS Key must be provided for cross account access to Secret');
+    }
+
     return result;
   }
 
   public grantWrite(grantee: iam.IGrantable): iam.Grant {
     // See https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access_identity-based-policies.html
-    const result = iam.Grant.addToPrincipal({
+    const result = iam.Grant.addToPrincipalOrResource({
       grantee,
       actions: ['secretsmanager:PutSecretValue', 'secretsmanager:UpdateSecret'],
       resourceArns: [this.arnForPolicies],
-      scope: this,
+      resource: this,
     });
 
     if (this.encryptionKey) {
@@ -243,6 +250,11 @@ abstract class SecretBase extends Resource implements ISecret {
       this.encryptionKey.grantEncrypt(
         new kms.ViaServicePrincipal(`secretsmanager.${Stack.of(this).region}.amazonaws.com`, grantee.grantPrincipal),
       );
+    }
+
+    // Throw if secret is not imported and it's shared cross account and no KMS key is provided
+    if (this instanceof Secret && result.resourceStatement && !this.encryptionKey) {
+      throw new Error('KMS Key must be provided for cross account access to Secret');
     }
 
     return result;

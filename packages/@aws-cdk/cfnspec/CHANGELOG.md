@@ -1,3 +1,193 @@
+
+# Serverless Application Model (SAM) Resource Specification v2016-10-31
+
+## New Resource Types
+
+
+## Attribute Changes
+
+
+## Property Changes
+
+* AWS::Serverless::Function CodeUri.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::Serverless::Function Handler.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::Serverless::Function Runtime.Required (__changed__)
+  * Old: true
+  * New: false
+
+## Property Type Changes
+
+
+# CloudFormation Resource Specification v39.3.0
+
+## New Resource Types
+
+* AWS::CloudFormation::PublicTypeVersion
+* AWS::CloudFormation::Publisher
+* AWS::CloudFormation::TypeActivation
+* AWS::Connect::QuickConnect
+* AWS::KMS::ReplicaKey
+
+## Attribute Changes
+
+* AWS::Redshift::Cluster Id (__added__)
+* AWS::Timestream::Table Name (__added__)
+
+## Property Changes
+
+* AWS::Amplify::App CustomRules.DuplicatesAllowed (__added__)
+* AWS::Amplify::App EnvironmentVariables.DuplicatesAllowed (__added__)
+* AWS::Amplify::App Tags.DuplicatesAllowed (__added__)
+* AWS::Amplify::Branch EnvironmentVariables.DuplicatesAllowed (__added__)
+* AWS::Amplify::Branch Tags.DuplicatesAllowed (__added__)
+* AWS::AppSync::GraphQLApi LambdaAuthorizerConfig (__added__)
+* AWS::AutoScaling::ScheduledAction TimeZone (__added__)
+* AWS::CodeGuruReviewer::RepositoryAssociation BucketName (__added__)
+* AWS::Cognito::UserPoolClient EnableTokenRevocation (__added__)
+* AWS::EKS::Nodegroup UpdateConfig (__added__)
+* AWS::ImageBuilder::ContainerRecipe DockerfileTemplateData.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::ImageBuilder::ContainerRecipe DockerfileTemplateUri.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::ImageBuilder::ContainerRecipe ImageOsVersionOverride.UpdateType (__changed__)
+  * Old: Mutable
+  * New: Immutable
+* AWS::KMS::Key MultiRegion (__added__)
+* AWS::MWAA::Environment Schedulers (__added__)
+* AWS::QLDB::Ledger KmsKey (__added__)
+* AWS::Redshift::Cluster Endpoint (__added__)
+* AWS::Redshift::Cluster HsmClientCertificateIdentifier.Documentation (__changed__)
+  * Old: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-hsmclientcertidentifier
+  * New: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-hsmclientcertificateidentifier
+* AWS::Redshift::Cluster HsmConfigurationIdentifier.Documentation (__changed__)
+  * Old: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-HsmConfigurationIdentifier
+  * New: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-hsmconfigurationidentifier
+* AWS::Redshift::Cluster NumberOfNodes.Documentation (__changed__)
+  * Old: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-nodetype
+  * New: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-redshift-cluster.html#cfn-redshift-cluster-numberofnodes
+* AWS::Transfer::Server ProtocolDetails (__added__)
+
+## Property Type Changes
+
+* AWS::AppMesh::GatewayRoute.GatewayRouteHostnameMatch (__added__)
+* AWS::AppMesh::GatewayRoute.GatewayRouteHostnameRewrite (__added__)
+* AWS::AppMesh::GatewayRoute.GatewayRouteMetadataMatch (__added__)
+* AWS::AppMesh::GatewayRoute.GatewayRouteRangeMatch (__added__)
+* AWS::AppMesh::GatewayRoute.GrpcGatewayRouteMetadata (__added__)
+* AWS::AppMesh::GatewayRoute.GrpcGatewayRouteRewrite (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteHeader (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteHeaderMatch (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRoutePathRewrite (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRoutePrefixRewrite (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteRewrite (__added__)
+* AWS::AppMesh::GatewayRoute.HttpPathMatch (__added__)
+* AWS::AppMesh::GatewayRoute.HttpQueryParameterMatch (__added__)
+* AWS::AppMesh::GatewayRoute.QueryParameter (__added__)
+* AWS::AppMesh::Route.HttpPathMatch (__added__)
+* AWS::AppMesh::Route.HttpQueryParameterMatch (__added__)
+* AWS::AppMesh::Route.QueryParameter (__added__)
+* AWS::AppSync::GraphQLApi.LambdaAuthorizerConfig (__added__)
+* AWS::DataBrew::Recipe.ParameterMap (__added__)
+* AWS::EKS::Nodegroup.UpdateConfig (__added__)
+* AWS::FSx::FileSystem.AuditLogConfiguration (__added__)
+* AWS::Redshift::Cluster.Endpoint (__added__)
+* AWS::Transfer::Server.ProtocolDetails (__added__)
+* AWS::Amplify::App.AutoBranchCreationConfig AutoBranchCreationPatterns.DuplicatesAllowed (__added__)
+* AWS::Amplify::App.AutoBranchCreationConfig EnvironmentVariables.DuplicatesAllowed (__added__)
+* AWS::ApiGatewayV2::DomainName.DomainNameConfiguration OwnershipVerificationCertificateArn (__added__)
+* AWS::AppMesh::GatewayRoute.GrpcGatewayRouteAction Rewrite (__added__)
+* AWS::AppMesh::GatewayRoute.GrpcGatewayRouteMatch Hostname (__added__)
+* AWS::AppMesh::GatewayRoute.GrpcGatewayRouteMatch Metadata (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteAction Rewrite (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch Headers (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch Hostname (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch Method (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch Path (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch QueryParameters (__added__)
+* AWS::AppMesh::GatewayRoute.HttpGatewayRouteMatch Prefix.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::AppMesh::Route.HttpRouteMatch Path (__added__)
+* AWS::AppMesh::Route.HttpRouteMatch QueryParameters (__added__)
+* AWS::AppMesh::Route.HttpRouteMatch Prefix.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::AppMesh::VirtualNode.DnsServiceDiscovery ResponseType (__added__)
+* AWS::AppSync::GraphQLApi.AdditionalAuthenticationProvider LambdaAuthorizerConfig (__added__)
+* AWS::AutoScaling::LaunchConfiguration.BlockDevice Throughput (__added__)
+* AWS::DataBrew::Recipe.Action Parameters.Type (__added__)
+* AWS::FSx::FileSystem.WindowsConfiguration AuditLogConfiguration (__added__)
+* AWS::IoT::TopicRule.TimestreamAction BatchMode (__added__)
+* AWS::WAFv2::RuleGroup.SizeConstraintStatement Size.PrimitiveType (__changed__)
+  * Old: Integer
+  * New: Double
+* AWS::WAFv2::WebACL.SizeConstraintStatement Size.PrimitiveType (__changed__)
+  * Old: Integer
+  * New: Double
+
+# Serverless Application Model (SAM) Resource Specification v2016-10-31
+
+## New Resource Types
+
+* AWS::Serverless::HttpApi
+
+## Attribute Changes
+
+
+## Property Changes
+
+* AWS::Serverless::Api CanarySetting (__added__)
+* AWS::Serverless::Api Description (__added__)
+* AWS::Serverless::Api GatewayResponses (__added__)
+* AWS::Serverless::Api MinimumCompressionSize (__added__)
+* AWS::Serverless::Api Models (__added__)
+* AWS::Serverless::Api Tags (__added__)
+* AWS::Serverless::Api EndpointConfiguration.PrimitiveType (__deleted__)
+* AWS::Serverless::Api EndpointConfiguration.Type (__added__)
+* AWS::Serverless::Function AssumeRolePolicyDocument (__added__)
+* AWS::Serverless::Function AutoPublishCodeSha256 (__added__)
+* AWS::Serverless::Function CodeSigningConfigArn (__added__)
+* AWS::Serverless::Function EventInvokeConfig (__added__)
+* AWS::Serverless::Function ImageConfig (__added__)
+* AWS::Serverless::Function ImageUri (__added__)
+* AWS::Serverless::Function InlineCode (__added__)
+* AWS::Serverless::Function PackageType (__added__)
+* AWS::Serverless::Function VersionDescription (__added__)
+* AWS::Serverless::StateMachine PermissionsBoundaries (__added__)
+* AWS::Serverless::StateMachine Tracing (__added__)
+
+## Property Type Changes
+
+* AWS::Serverless::Function.OnFailure (__removed__)
+* AWS::Serverless::Api.CanarySetting (__added__)
+* AWS::Serverless::Api.EndpointConfiguration (__added__)
+* AWS::Serverless::Function.Auth (__added__)
+* AWS::Serverless::Function.AuthResourcePolicy (__added__)
+* AWS::Serverless::Function.Destination (__added__)
+* AWS::Serverless::Function.EventInvokeConfig (__added__)
+* AWS::Serverless::Function.ImageConfig (__added__)
+* AWS::Serverless::StateMachine.TracingConfiguration (__added__)
+* AWS::Serverless::Api.S3Location Bucket.Documentation (__changed__)
+  * Old: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  * New: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#s3-location-object
+* AWS::Serverless::Api.S3Location Key.Documentation (__changed__)
+  * Old: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  * New: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#s3-location-object
+* AWS::Serverless::Api.S3Location Version.Documentation (__changed__)
+  * Old: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  * New: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#s3-location-object
+* AWS::Serverless::Function.ApiEvent Auth (__added__)
+* AWS::Serverless::Function.DestinationConfig OnSuccess (__added__)
+* AWS::Serverless::Function.DestinationConfig OnFailure.Type (__changed__)
+  * Old: OnFailure
+  * New: Destination
+
 # CloudFormation Resource Specification v39.1.0
 
 ## New Resource Types

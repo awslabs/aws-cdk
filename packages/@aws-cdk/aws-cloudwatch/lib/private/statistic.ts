@@ -9,10 +9,16 @@ export interface PercentileStatistic {
   type: 'percentile';
   percentile: number;
 }
+
+export interface GenericStatistic {
+  type: 'generic';
+  statistic: string;
+}
+
 /**
  * Parse a statistic, returning the type of metric that was used (simple or percentile)
  */
-export function parseStatistic(stat: string): SimpleStatistic | PercentileStatistic {
+export function parseStatistic(stat: string): SimpleStatistic | PercentileStatistic | GenericStatistic {
   const lowerStat = stat.toLowerCase();
 
   // Simple statistics
@@ -45,7 +51,10 @@ export function parseStatistic(stat: string): SimpleStatistic | PercentileStatis
     };
   }
 
-  throw new Error(`Not a valid statistic: '${stat}', must be one of Average | Minimum | Maximum | SampleCount | Sum | pNN.NN`);
+  return {
+    type: 'generic',
+    statistic: lowerStat,
+  };
 }
 
 export function normalizeStatistic(stat: string): string {

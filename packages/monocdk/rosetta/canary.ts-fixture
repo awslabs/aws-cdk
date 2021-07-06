@@ -1,0 +1,21 @@
+// Fixture with a canary already created, named `canary`
+import { Construct, Duration, Stack } from '@aws-cdk/core';
+import * as synthetics from '@aws-cdk/aws-synthetics';
+import * as path from 'path';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const canary = new synthetics.Canary(this, 'MyCanary', {
+      schedule: synthetics.Schedule.rate(Duration.minutes(5)),
+      test: synthetics.Test.custom({
+        code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
+        handler: 'index.handler',
+      }),
+      runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_3_1,
+    });
+
+    /// here
+  }
+}

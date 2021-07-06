@@ -1,4 +1,4 @@
-import '@aws-cdk/assert-internal/jest';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import { Stack } from '@aws-cdk/core';
 import { ProviderAttribute, UserPool, UserPoolIdentityProviderFacebook } from '../../lib';
 
@@ -16,7 +16,7 @@ describe('UserPoolIdentityProvider', () => {
         clientSecret: 'fb-client-secret',
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'Facebook',
         ProviderType: 'Facebook',
         ProviderDetails: {
@@ -41,7 +41,7 @@ describe('UserPoolIdentityProvider', () => {
         apiVersion: 'version1',
       });
 
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         ProviderName: 'Facebook',
         ProviderType: 'Facebook',
         ProviderDetails: {
@@ -90,7 +90,7 @@ describe('UserPoolIdentityProvider', () => {
       });
 
       // THEN
-      expect(stack).toHaveResource('AWS::Cognito::UserPoolIdentityProvider', {
+      TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Cognito::UserPoolIdentityProvider', {
         AttributeMapping: {
           given_name: 'name',
           address: 'fb-address',

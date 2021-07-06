@@ -59,6 +59,10 @@ class PublishingAws implements cdk_assets.IAws {
     return (await this.sdk(options)).ecr();
   }
 
+  public async secretsManagerClient(options: cdk_assets.ClientOptions): Promise<AWS.SecretsManager> {
+    return (await this.sdk(options)).secretsManager();
+  }
+
   /**
    * Get an SDK appropriate for the given client options
    */
