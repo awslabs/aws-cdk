@@ -1,4 +1,4 @@
-import { expect, haveResourceLike } from '@aws-cdk/assert-internal';
+import { ABSENT, expect, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 
@@ -53,6 +53,7 @@ export = {
       // THEN
       expect(stack).to(haveResourceLike('AWS::AppMesh::GatewayRoute', {
         GatewayRouteName: 'gateway-http-route',
+        MeshOwner: ABSENT,
         Spec: {
           HttpRoute: {
             Action: {
@@ -132,6 +133,44 @@ export = {
       }).bind(stack),
       /Prefix Path must start with \'\/\', got: wrong/);
       test.done();
+    },
+
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const gatewayRouteEnv = { account: '9987654321', region: 'us-west-2' };
+
+        // Creating stack in Account 9987654321
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: gatewayRouteEnv });
+        // Mesh is in Account 1234567899
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+        const virtualGateway = new appmesh.VirtualGateway(stack, 'gateway-1', {
+          listeners: [appmesh.VirtualGatewayListener.http()],
+          mesh: sharedMesh,
+        });
+        const virtualService = new appmesh.VirtualService(stack, 'vs-1', {
+          virtualServiceProvider: appmesh.VirtualServiceProvider.none(sharedMesh),
+          virtualServiceName: 'target.local',
+        });
+
+        // WHEN
+        new appmesh.GatewayRoute(stack, 'test-node', {
+          routeSpec: appmesh.GatewayRouteSpec.http({
+            routeTarget: virtualService,
+          }),
+          virtualGateway: virtualGateway,
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::GatewayRoute', {
+          MeshOwner: meshEnv.account,
+        }));
+
+        test.done();
+      },
     },
   },
 

@@ -717,27 +717,4 @@ export = {
 
     test.done();
   },
-
-  'trimmedMean stat is rendered'(test: Test) {
-    // GIVEN
-    const stack = new Stack();
-    const widget = new GraphWidget({
-      statistic: 'tm90',
-    });
-
-    // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
-      type: 'metric',
-      width: 6,
-      height: 6,
-      properties: {
-        view: 'timeSeries',
-        region: { Ref: 'AWS::Region' },
-        yAxis: {},
-        stat: 'tm90',
-      },
-    }]);
-
-    test.done();
-  },
 };

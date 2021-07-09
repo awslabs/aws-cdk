@@ -1,0 +1,18 @@
+// Fixture with function (`fn`) already created
+import * as path from 'path';
+import { Construct, Stack } from '@aws-cdk/core';
+import { Alias, Code, Function, Runtime } from '@aws-cdk/aws-lambda';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const fn = new Function(this, 'MyFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      code: Code.fromAsset(path.join(__dirname, 'lambda-handler')),
+    });
+
+    /// here
+  }
+}

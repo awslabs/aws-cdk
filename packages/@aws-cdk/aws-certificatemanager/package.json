@@ -80,6 +80,7 @@
     "@aws-cdk/assert-internal": "0.0.0"
   },
   "dependencies": {
+    "@aws-cdk/aws-cloudwatch": "0.0.0",
     "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/aws-lambda": "0.0.0",
     "@aws-cdk/aws-route53": "0.0.0",
@@ -92,7 +93,8 @@
     "@aws-cdk/aws-lambda": "0.0.0",
     "@aws-cdk/aws-route53": "0.0.0",
     "@aws-cdk/core": "0.0.0",
-    "constructs": "^3.3.69"
+    "constructs": "^3.3.69",
+    "@aws-cdk/aws-cloudwatch": "0.0.0"
   },
   "engines": {
     "node": ">= 10.13.0 <13 || >=13.7.0"

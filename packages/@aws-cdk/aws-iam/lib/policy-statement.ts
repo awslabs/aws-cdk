@@ -377,9 +377,6 @@ export class PolicyStatement {
           result[key] = normVal;
         }
       }
-      if (Object.keys(result).length === 1 && result.AWS === '*') {
-        return '*';
-      }
       return result;
     }
   }

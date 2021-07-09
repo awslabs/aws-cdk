@@ -126,6 +126,27 @@ describe('tests', () => {
     });
   });
 
+  test('Can add and list listeners for an owned ApplicationLoadBalancer', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'Stack');
+
+    // WHEN
+    const loadBalancer = new elbv2.ApplicationLoadBalancer(stack, 'LB', {
+      vpc,
+      internetFacing: true,
+    });
+
+    const listener = loadBalancer.addListener('listener', {
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      defaultAction: elbv2.ListenerAction.fixedResponse(200),
+    });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::ElasticLoadBalancingV2::Listener');
+    expect(loadBalancer.listeners).toContain(listener);
+  });
+
   testFutureBehavior('Access logging', s3GrantWriteCtx, cdk.App, (app) => {
     // GIVEN
     const stack = new cdk.Stack(app, undefined, { env: { region: 'us-east-1' } });
@@ -323,6 +344,30 @@ describe('tests', () => {
     expect(() => listener.addTargets('Targets', { port: 8080 })).not.toThrow();
   });
 
+  test('imported load balancer with vpc can add but not list listeners', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'Vpc');
+    const albArn = 'arn:aws:elasticloadbalancing:us-west-2:123456789012:loadbalancer/app/my-load-balancer/50dc6c495c0c9188';
+    const sg = new ec2.SecurityGroup(stack, 'sg', {
+      vpc,
+      securityGroupName: 'mySg',
+    });
+    const alb = elbv2.ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(stack, 'ALB', {
+      loadBalancerArn: albArn,
+      securityGroupId: sg.securityGroupId,
+      vpc,
+    });
+
+    // WHEN
+    const listener = alb.addListener('Listener', { port: 80 });
+    listener.addTargets('Targets', { port: 8080 });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::ElasticLoadBalancingV2::Listener');
+    expect(() => alb.listeners).toThrow();
+  });
+
   test('imported load balancer knows its region', () => {
     const stack = new cdk.Stack();
 
@@ -385,7 +430,7 @@ describe('tests', () => {
       expect(loadBalancer.env.region).toEqual('us-west-2');
     });
 
-    test('Can add listeners to a looked-up ApplicationLoadBalancer', () => {
+    test('Can add but not list listeners for a looked-up ApplicationLoadBalancer', () => {
       // GIVEN
       const app = new cdk.App();
       const stack = new cdk.Stack(app, 'stack', {
@@ -409,6 +454,8 @@ describe('tests', () => {
 
       // THEN
       expect(stack).toHaveResource('AWS::ElasticLoadBalancingV2::Listener');
+      expect(() => loadBalancer.listeners).toThrow();
     });
+
   });
 });

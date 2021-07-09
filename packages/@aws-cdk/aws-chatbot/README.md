@@ -24,7 +24,7 @@ const slackChannel = new chatbot.SlackChannelConfiguration(this, 'MySlackChannel
   slackChannelId: 'YOUR_SLACK_CHANNEL_ID',
 });
 
-slackChannel.addToPrincipalPolicy(new iam.PolicyStatement({
+slackChannel.addToRolePolicy(new iam.PolicyStatement({
   effect: iam.Effect.ALLOW,
   actions: [
     's3:GetObject',

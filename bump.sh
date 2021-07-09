@@ -15,5 +15,9 @@
 set -euo pipefail
 scriptdir=$(cd $(dirname $0) && pwd)
 cd ${scriptdir}
-yarn --frozen-lockfile
+yarn install --frozen-lockfile
+if [[ "${LEGACY_BUMP:-}" == "" ]]; then
+  #  if we're using 'cdk-release' for the bump, build that package, including all of its dependencies
+  npx lerna run build --include-dependencies --scope cdk-release
+fi
 ${scriptdir}/scripts/bump.js ${1:-minor}

@@ -149,9 +149,7 @@ const namespace = new servicediscovery.PrivateDnsNamespace(this, 'test-namespace
 const service = namespace.createService('Svc');
 
 const node = mesh.addVirtualNode('virtual-node', {
-  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap({
-    service: service,
-  }),
+  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap(service),
   listeners: [appmesh.VirtualNodeListener.httpNodeListener({
     port: 8081,
     healthCheck: appmesh.HealthCheck.http({
@@ -171,9 +169,7 @@ Create a `VirtualNode` with the constructor and add tags.
 ```ts
 const node = new VirtualNode(this, 'node', {
   mesh,
-  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap({
-    service: service,
-  }),
+  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap(service),
   listeners: [appmesh.VirtualNodeListener.http({
     port: 8080,
     healthCheck: appmesh.HealthCheck.http({
@@ -205,9 +201,7 @@ Create a `VirtualNode` with the constructor and add backend virtual service.
 ```ts
 const node = new VirtualNode(this, 'node', {
   mesh,
-  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap({
-    service: service,
-  }),
+  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap(service),
   listeners: [appmesh.VirtualNodeListener.httpNodeListener({
     port: 8080,
     healthCheck: appmesh.HealthCheck.http({
@@ -360,9 +354,7 @@ const namespace = new servicediscovery.PrivateDnsNamespace(this, 'test-namespace
 const service = namespace.createService('Svc');
 
 const node = mesh.addVirtualNode('virtual-node', {
-  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap({
-    service: service,
-  }),
+  serviceDiscovery: appmesh.ServiceDiscovery.cloudMap(service),
   outlierDetection: {
     baseEjectionDuration: cdk.Duration.seconds(10),
     interval: cdk.Duration.seconds(30),
@@ -381,7 +373,11 @@ connection pool properties per listener protocol types.
 // A Virtual Node with a gRPC listener with a connection pool set
 const node = new appmesh.VirtualNode(stack, 'node', {
   mesh,
-  serviceDiscovery: appmesh.ServiceDiscovery.dns('node'),
+  // DNS service discovery can optionally specify the DNS response type as either LOAD_BALANCER or ENDPOINTS.
+  // LOAD_BALANCER means that the DNS resolver returns a loadbalanced set of endpoints, 
+  // whereas ENDPOINTS means that the DNS resolver is returning all the endpoints.
+  // By default, the response type is assumed to be LOAD_BALANCER
+  serviceDiscovery: appmesh.ServiceDiscovery.dns('node', appmesh.ResponseType.ENDPOINTS),
   listeners: [appmesh.VirtualNodeListener.http({
     port: 80,
     connectionPool: {
@@ -437,12 +433,12 @@ router.addRoute('route-http2', {
     ],
     match: {
       prefixPath: '/',
-      method: appmesh.HttpRouteMatchMethod.POST,
+      method: appmesh.HttpRouteMethod.POST,
       protocol: appmesh.HttpRouteProtocol.HTTPS,
       headers: [
         // All specified headers must match for the route to match.
-        appmesh.HttpHeaderMatch.valueIs('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueIsNot('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueIs('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueIsNot('Content-Type', 'application/json'),
       ]
     },
   }),
@@ -674,3 +670,19 @@ const envoyUser = new iam.User(stack, 'envoyUser');
  */
 gateway.grantStreamAggregatedResources(envoyUser)
 ``` 
+
+## Adding Resources to shared meshes
+
+A shared mesh allows resources created by different accounts to communicate with each other in the same mesh:
+
+```ts
+// This is the ARN for the mesh from different AWS IAM account ID.
+// Ensure mesh is properly shared with your account. For more details, see: https://github.com/aws/aws-cdk/issues/15404
+const arn = 'arn:aws:appmesh:us-east-1:123456789012:mesh/testMesh';
+sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'imported-mesh', arn);
+
+// This VirtualNode resource can communicate with the resources in the mesh from different AWS IAM account ID.
+new appmesh.VirtualNode(stack, 'test-node', {
+  mesh: sharedMesh,
+});
+```

@@ -205,8 +205,8 @@ const cdkPipeline = new CdkPipeline(app, 'CdkPipeline', {
 });
 ```
 
-If you use assets for files or Docker images, every asset will get its own upload action during the asset stage. 
-By setting the value `singlePublisherPerType` to `true`, only one action for files and one action for 
+If you use assets for files or Docker images, every asset will get its own upload action during the asset stage.
+By setting the value `singlePublisherPerType` to `true`, only one action for files and one action for
 Docker images is created that handles all assets of the respective type.
 
 If you need to run commands to setup proxies, mirrors, etc you can supply them using the `assetPreInstallCommands`.
@@ -584,6 +584,45 @@ const pipeline = new CdkPipeline(this, 'Pipeline', {
 });
 ```
 
+## Docker Registry Credentials
+
+You can specify credentials to use for authenticating to Docker registries as part of the
+pipeline definition. This can be useful if any Docker image assets — in the pipeline or
+any of the application stages — require authentication, either due to being in a
+different environment (e.g., ECR repo) or to avoid throttling (e.g., DockerHub).
+
+```ts
+const dockerHubSecret = secretsmanager.Secret.fromSecretCompleteArn(this, 'DHSecret', 'arn:aws:...');
+const customRegSecret = secretsmanager.Secret.fromSecretCompleteArn(this, 'CRSecret', 'arn:aws:...');
+const repo1 = ecr.Repository.fromRepositoryArn(stack, 'Repo', 'arn:aws:ecr:eu-west-1:0123456789012:repository/Repo1');
+const repo2 = ecr.Repository.fromRepositoryArn(stack, 'Repo', 'arn:aws:ecr:eu-west-1:0123456789012:repository/Repo2');
+
+const pipeline = new CdkPipeline(this, 'Pipeline', {
+  dockerCredentials: [
+    DockerCredential.dockerHub(dockerHubSecret),
+    DockerCredential.customRegistry('dockerregistry.example.com', customRegSecret),
+    DockerCredential.ecr([repo1, repo2]);
+  ],
+  ...
+});
+```
+
+You can authenticate to DockerHub, or any other Docker registry, by specifying a secret
+with the username and secret/password to pass to `docker login`. The names of the fields
+within the secret to use for the username and password can be customized. Authentication
+to ECR repostories is done using the execution role of the relevant CodeBuild job. Both
+types of credentials can be provided with an optional role to assume before requesting
+the credentials.
+
+By default, the Docker credentials provided to the pipeline will be available to the
+Synth/Build, Self-Update, and Asset Publishing actions within the pipeline. The scope of
+the credentials can be limited via the `DockerCredentialUsage` option.
+
+```ts
+const dockerHubSecret = secretsmanager.Secret.fromSecretCompleteArn(this, 'DHSecret', 'arn:aws:...');
+// Only the image asset publishing actions will be granted read access to the secret.
+const creds = DockerCredential.dockerHub(dockerHubSecret, { usages: [DockerCredentialUsage.ASSET_PUBLISHING] });
+```
 
 ## CDK Environment Bootstrapping
 
@@ -634,7 +673,7 @@ $ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
     aws://222222222222/us-east-2
 ```
 
-If you only want to trust an account to do lookups (e.g, when your CDK application has a 
+If you only want to trust an account to do lookups (e.g, when your CDK application has a
 `Vpc.fromLookup()` call), use the option `--trust-for-lookup`:
 
 ```console
@@ -660,9 +699,9 @@ These command lines explained:
   CDK applications into this account. In this case we indicate the Pipeline's account,
   but you could also use this for developer accounts (don't do that for production
   application accounts though!).
-* `--trust-for-lookup`: similar to `--trust`, but gives a more limited set of permissions to the 
-  trusted account, allowing it to only look up values, such as availability zones, EC2 images and 
-  VPCs. Note that if you provide an account using `--trust`, that account can also do lookups. 
+* `--trust-for-lookup`: similar to `--trust`, but gives a more limited set of permissions to the
+  trusted account, allowing it to only look up values, such as availability zones, EC2 images and
+  VPCs. Note that if you provide an account using `--trust`, that account can also do lookups.
   So you only need to pass `--trust-for-lookup` if you need to use a different account.
 * `aws://222222222222/us-east-2`: the account and region we're bootstrapping.
 
@@ -678,10 +717,10 @@ These command lines explained:
 > Check with the appropriate department within your organization to decide on the
 > proper policy to use.
 >
-> If your policy includes permissions to create on attach permission to a role, 
-> developers can escalate their privilege with more permissive permission. 
-> Thus, we recommend implementing [permissions boundary](https://aws.amazon.com/premiumsupport/knowledge-center/iam-permission-boundaries/) 
-> in the CDK Execution role. To do this, you can bootstrap with the `--template` option with 
+> If your policy includes permissions to create on attach permission to a role,
+> developers can escalate their privilege with more permissive permission.
+> Thus, we recommend implementing [permissions boundary](https://aws.amazon.com/premiumsupport/knowledge-center/iam-permission-boundaries/)
+> in the CDK Execution role. To do this, you can bootstrap with the `--template` option with
 > [a customized template](https://github.com/aws-samples/aws-bootstrap-kit-examples/blob/ba28a97d289128281bc9483bcba12c1793f2c27a/source/1-SDLC-organization/lib/cdk-bootstrap-template.yml#L395) that contains a permission boundary.
 
 ### Migrating from old bootstrap stack
@@ -787,21 +826,21 @@ workstation's version or upgrade the CodeBuild version.
 If, in the 'Synth' action (inside the 'Build' stage) of your pipeline, you get an error like this:
 
 ```console
-stderr: docker: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?.   
-See 'docker run --help'. 
+stderr: docker: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?.
+See 'docker run --help'.
 ```
 
-It means that the AWS CodeBuild project for 'Synth' is not configured to run in privileged mode, 
-which prevents Docker builds from happening. This typically happens if you use a CDK construct 
-that bundles asset using tools run via Docker, like `aws-lambda-nodejs`, `aws-lambda-python`, 
-`aws-lambda-go` and others. 
+It means that the AWS CodeBuild project for 'Synth' is not configured to run in privileged mode,
+which prevents Docker builds from happening. This typically happens if you use a CDK construct
+that bundles asset using tools run via Docker, like `aws-lambda-nodejs`, `aws-lambda-python`,
+`aws-lambda-go` and others.
 
 Make sure you set the `privileged` environment variable to `true` in the synth definition:
 
 ```typescript
     const pipeline = new CdkPipeline(this, 'MyPipeline', {
       ...
-      
+
       synthAction: SimpleSynthAction.standardNpmSynth({
         sourceArtifact: ...,
         cloudAssemblyArtifact: ...,
@@ -813,21 +852,21 @@ Make sure you set the `privileged` environment variable to `true` in the synth d
     });
 ```
 
-After turning on `privilegedMode: true`, you will need to do a one-time manual cdk deploy of your 
-pipeline to get it going again (as with a broken 'synth' the pipeline will not be able to self 
-update to the right state). 
+After turning on `privilegedMode: true`, you will need to do a one-time manual cdk deploy of your
+pipeline to get it going again (as with a broken 'synth' the pipeline will not be able to self
+update to the right state).
 
 ### S3 error: Access Denied
 
-Some constructs, such as EKS clusters, generate nested stacks. When CloudFormation tries 
+Some constructs, such as EKS clusters, generate nested stacks. When CloudFormation tries
 to deploy those stacks, it may fail with this error:
 
 ```console
 S3 error: Access Denied For more information check http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
 ```
 
-This happens because the pipeline is not self-mutating and, as a consequence, the `FileAssetX` 
-build projects get out-of-sync with the generated templates. To fix this, make sure the 
+This happens because the pipeline is not self-mutating and, as a consequence, the `FileAssetX`
+build projects get out-of-sync with the generated templates. To fix this, make sure the
 `selfMutating` property is set to `true`:
 
 ```typescript
@@ -836,6 +875,72 @@ const pipeline = new CdkPipeline(this, 'MyPipeline', {
   ...
 });
 ```
+
+### Action Execution Denied
+
+While attempting to deploy an application stage, the "Prepare" or "Deploy" stage may fail with a cryptic error like:
+
+`Action execution failed
+Access Denied (Service: Amazon S3; Status Code: 403; Error Code: AccessDenied; Request ID: 0123456ABCDEFGH;
+S3 Extended Request ID: 3hWcrVkhFGxfiMb/rTJO0Bk7Qn95x5ll4gyHiFsX6Pmk/NT+uX9+Z1moEcfkL7H3cjH7sWZfeD0=; Proxy: null)`
+
+This generally indicates that the roles necessary to deploy have been deleted (or deleted and re-created);
+for example, if the bootstrap stack has been deleted and re-created, this scenario will happen. Under the hood,
+the resources that rely on these roles (e.g., `cdk-$qualifier-deploy-role-$account-$region`) point to different
+canonical IDs than the recreated versions of these roles, which causes the errors. There are no simple solutions
+to this issue, and for that reason we **strongly recommend** that bootstrap stacks not be deleted and re-created
+once created.
+
+The most automated way to solve the issue is to introduce a secondary bootstrap stack. By changing the qualifier
+that the pipeline stack looks for, a change will be detected and the impacted policies and resources will be updated.
+A hypothetical recovery workflow would look something like this:
+
+* First, for all impacted environments, create a secondary bootstrap stack:
+
+```sh
+$ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
+    --qualifier randchars1234
+    --toolkit-stack-name CDKToolkitTemp
+    aws://111111111111/us-east-1
+```
+
+* Update all impacted stacks in the pipeline to use this new qualifier.
+See https://docs.aws.amazon.com/cdk/latest/guide/bootstrapping.html for more info.
+
+```ts
+new MyStack(this, 'MyStack', {
+  // Update this qualifier to match the one used above.
+  synthesizer: new DefaultStackSynthesizer({
+    qualifier: 'randchars1234',
+  }),
+});
+```
+
+* Deploy the updated stacks. This will update the stacks to use the roles created in the new bootstrap stack.
+* (Optional) Restore back to the original state:
+  * Revert the change made in step #2 above
+  * Re-deploy the pipeline to use the original qualifier.
+  * Delete the temporary bootstrap stack(s)
+
+#### Manual Alternative
+
+Alternatively, the errors can be resolved by finding each impacted resource and policy, and correcting the policies
+by replacing the canonical IDs (e.g., `AROAYBRETNYCYV6ZF2R93`) with the appropriate ARNs. As an example, the KMS
+encryption key policy for the artifacts bucket may have a statement that looks like the following:
+
+```json
+{
+  "Effect" : "Allow",
+  "Principal" : {
+    // "AWS" : "AROAYBRETNYCYV6ZF2R93"  // Indicates this issue; replace this value
+    "AWS": "arn:aws:iam::0123456789012:role/cdk-hnb659fds-deploy-role-0123456789012-eu-west-1", // Correct value
+  },
+  "Action" : [ "kms:Decrypt", "kms:DescribeKey" ],
+  "Resource" : "*"
+}
+```
+
+Any resource or policy that references the qualifier (`hnb659fds` by default) will need to be updated.
 
 ## Current Limitations
 

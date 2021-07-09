@@ -96,6 +96,60 @@ behavior('in a cross-account/same-region setup, artifact bucket can be read by d
   });
 });
 
+behavior('in an unspecified-account setup, artifact bucket can be read by deploy role', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new TestApplication(app, 'MyApp', {}));
+
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::S3::BucketPolicy', {
+      PolicyDocument: {
+        Statement: arrayWith(objectLike({
+          Action: ['s3:GetObject*', 's3:GetBucket*', 's3:List*'],
+          Principal: {
+            AWS: {
+              'Fn::Join': ['', arrayWith(
+                'arn:',
+                { Ref: 'AWS::Partition' },
+                ':iam::',
+                { Ref: 'AWS::AccountId' },
+                stringLike('*-deploy-role-*'),
+              )],
+            },
+          },
+        })),
+      },
+    });
+  });
+});
+
+behavior('in a same-account setup, artifact bucket can be read by deploy role', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    pipeline.addApplicationStage(new TestApplication(app, 'MyApp', {
+      env: PIPELINE_ENV,
+    }));
+
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::S3::BucketPolicy', {
+      PolicyDocument: {
+        Statement: arrayWith(objectLike({
+          Action: ['s3:GetObject*', 's3:GetBucket*', 's3:List*'],
+          Principal: {
+            AWS: {
+              'Fn::Join': ['', [
+                'arn:',
+                { Ref: 'AWS::Partition' },
+                stringLike('*-deploy-role-*'),
+              ]],
+            },
+          },
+        })),
+      },
+    });
+  });
+});
+
 /**
  * Our application
  */

@@ -3,8 +3,8 @@ import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnVirtualNode } from './appmesh.generated';
 import { IMesh, Mesh } from './mesh';
-import { renderTlsClientPolicy } from './private/utils';
-import { ServiceDiscovery } from './service-discovery';
+import { renderMeshOwner, renderTlsClientPolicy } from './private/utils';
+import { ServiceDiscovery, ServiceDiscoveryConfig } from './service-discovery';
 import { AccessLog, BackendDefaults, Backend } from './shared-interfaces';
 import { VirtualNodeListener, VirtualNodeListenerConfig } from './virtual-node-listener';
 
@@ -176,6 +176,8 @@ export class VirtualNode extends VirtualNodeBase {
    */
   public readonly mesh: IMesh;
 
+  private readonly serviceDiscoveryConfig?: ServiceDiscoveryConfig;
+
   private readonly backends = new Array<CfnVirtualNode.BackendProperty>();
   private readonly listeners = new Array<VirtualNodeListenerConfig>();
 
@@ -185,15 +187,16 @@ export class VirtualNode extends VirtualNodeBase {
     });
 
     this.mesh = props.mesh;
+    this.serviceDiscoveryConfig = props.serviceDiscovery?.bind(this);
 
     props.backends?.forEach(backend => this.addBackend(backend));
     props.listeners?.forEach(listener => this.addListener(listener));
     const accessLogging = props.accessLog?.bind(this);
-    const serviceDiscovery = props.serviceDiscovery?.bind(this);
 
     const node = new CfnVirtualNode(this, 'Resource', {
       virtualNodeName: this.physicalName,
       meshName: this.mesh.meshName,
+      meshOwner: renderMeshOwner(this.env.account, this.mesh.env.account),
       spec: {
         backends: cdk.Lazy.any({ produce: () => this.backends }, { omitEmptyArray: true }),
         listeners: cdk.Lazy.any({ produce: () => this.listeners.map(listener => listener.listener) }, { omitEmptyArray: true }),
@@ -204,10 +207,7 @@ export class VirtualNode extends VirtualNodeBase {
             },
           }
           : undefined,
-        serviceDiscovery: {
-          dns: serviceDiscovery?.dns,
-          awsCloudMap: serviceDiscovery?.cloudmap,
-        },
+        serviceDiscovery: renderServiceDiscovery(this.serviceDiscoveryConfig),
         logging: accessLogging !== undefined ? {
           accessLog: accessLogging.virtualNodeAccessLog,
         } : undefined,
@@ -233,6 +233,9 @@ export class VirtualNode extends VirtualNodeBase {
    * @see https://github.com/aws/aws-app-mesh-roadmap/issues/120
    */
   public addListener(listener: VirtualNodeListener) {
+    if (!this.serviceDiscoveryConfig) {
+      throw new Error('Service discovery information is required for a VirtualNode with a listener.');
+    }
     this.listeners.push(listener.bind(this));
   }
 
@@ -257,4 +260,13 @@ export interface VirtualNodeAttributes {
    * The Mesh that the VirtualNode belongs to
    */
   readonly mesh: IMesh;
+}
+
+function renderServiceDiscovery(config?: ServiceDiscoveryConfig): CfnVirtualNode.ServiceDiscoveryProperty | undefined {
+  return config
+    ? {
+      dns: config?.dns,
+      awsCloudMap: config?.cloudmap,
+    }
+    : undefined;
 }

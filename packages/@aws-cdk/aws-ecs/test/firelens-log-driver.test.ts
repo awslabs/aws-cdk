@@ -1,4 +1,6 @@
 import { expect, haveResourceLike } from '@aws-cdk/assert-internal';
+import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
+import * as ssm from '@aws-cdk/aws-ssm';
 import * as cdk from '@aws-cdk/core';
 import { nodeunitShim, Test } from 'nodeunit-shim';
 import * as ecs from '../lib';
@@ -37,6 +39,139 @@ nodeunitShim({
           },
         },
       ],
+    }));
+
+    test.done();
+  },
+
+  'create a firelens log driver with secret options'(test: Test) {
+    const secret = new secretsmanager.Secret(stack, 'Secret');
+    const parameter = ssm.StringParameter.fromSecureStringParameterAttributes(stack, 'Parameter', {
+      parameterName: '/host',
+      version: 1,
+    });
+
+    // WHEN
+    td.addContainer('Container', {
+      image,
+      logging: ecs.LogDrivers.firelens({
+        options: {
+          Name: 'datadog',
+          TLS: 'on',
+          dd_service: 'my-httpd-service',
+          dd_source: 'httpd',
+          dd_tags: 'project:example',
+          provider: 'ecs',
+        },
+        secretOptions: {
+          apikey: ecs.Secret.fromSecretsManager(secret),
+          Host: ecs.Secret.fromSsmParameter(parameter),
+        },
+      }),
+      memoryLimitMiB: 128,
+    });
+
+    // THEN
+    expect(stack).to(haveResourceLike('AWS::ECS::TaskDefinition', {
+      ContainerDefinitions: [
+        {
+          LogConfiguration: {
+            LogDriver: 'awsfirelens',
+            Options: {
+              Name: 'datadog',
+              TLS: 'on',
+              dd_service: 'my-httpd-service',
+              dd_source: 'httpd',
+              dd_tags: 'project:example',
+              provider: 'ecs',
+            },
+            SecretOptions: [
+              {
+                Name: 'apikey',
+                ValueFrom: {
+                  Ref: 'SecretA720EF05',
+                },
+              },
+              {
+                Name: 'Host',
+                ValueFrom: {
+                  'Fn::Join': [
+                    '',
+                    [
+                      'arn:',
+                      {
+                        Ref: 'AWS::Partition',
+                      },
+                      ':ssm:',
+                      {
+                        Ref: 'AWS::Region',
+                      },
+                      ':',
+                      {
+                        Ref: 'AWS::AccountId',
+                      },
+                      ':parameter/host',
+                    ],
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        {
+          Essential: true,
+          FirelensConfiguration: {
+            Type: 'fluentbit',
+          },
+        },
+      ],
+    }));
+
+    expect(stack).to(haveResourceLike('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: [
+          {
+            Action: [
+              'secretsmanager:GetSecretValue',
+              'secretsmanager:DescribeSecret',
+            ],
+            Effect: 'Allow',
+            Resource: {
+              Ref: 'SecretA720EF05',
+            },
+          },
+          {
+            Action: [
+              'ssm:DescribeParameters',
+              'ssm:GetParameters',
+              'ssm:GetParameter',
+              'ssm:GetParameterHistory',
+            ],
+            Effect: 'Allow',
+            Resource: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':ssm:',
+                  {
+                    Ref: 'AWS::Region',
+                  },
+                  ':',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':parameter/host',
+                ],
+              ],
+            },
+          },
+        ],
+        Version: '2012-10-17',
+      },
     }));
 
     test.done();

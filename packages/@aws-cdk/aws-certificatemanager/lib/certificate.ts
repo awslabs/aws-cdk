@@ -1,6 +1,8 @@
+import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as route53 from '@aws-cdk/aws-route53';
-import { IResource, Resource, Token } from '@aws-cdk/core';
+import { IResource, Token } from '@aws-cdk/core';
 import { Construct } from 'constructs';
+import { CertificateBase } from './certificate-base';
 import { CfnCertificate } from './certificatemanager.generated';
 import { apexDomain } from './util';
 
@@ -14,6 +16,16 @@ export interface ICertificate extends IResource {
    * @attribute
    */
   readonly certificateArn: string;
+
+  /**
+   * Return the DaysToExpiry metric for this AWS Certificate Manager
+   * Certificate. By default, this is the minimum value over 1 day.
+   *
+   * This metric is no longer emitted once the certificate has effectively
+   * expired, so alarms configured on this metric should probably treat missing
+   * data as "breaching".
+   */
+  metricDaysToExpiry(props?: cloudwatch.MetricOptions): cloudwatch.Metric;
 }
 
 /**
@@ -169,14 +181,13 @@ export class CertificateValidation {
 /**
  * A certificate managed by AWS Certificate Manager
  */
-export class Certificate extends Resource implements ICertificate {
-
+export class Certificate extends CertificateBase implements ICertificate {
   /**
    * Import a certificate
    */
   public static fromCertificateArn(scope: Construct, id: string, certificateArn: string): ICertificate {
-    class Import extends Resource implements ICertificate {
-      public certificateArn = certificateArn;
+    class Import extends CertificateBase {
+      public readonly certificateArn = certificateArn;
     }
 
     return new Import(scope, id);

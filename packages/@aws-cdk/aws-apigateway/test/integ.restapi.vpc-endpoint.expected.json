@@ -624,7 +624,9 @@
             {
               "Action": "execute-api:Invoke",
               "Effect": "Allow",
-              "Principal": "*"
+              "Principal": {
+                "AWS": "*"
+              }
             }
           ],
           "Version": "2012-10-17"
@@ -676,7 +678,7 @@
         "MyApi49610EDF"
       ]
     },
-    "MyApiDeploymentECB0D05E7a475a505b0c925e193030293593b6dc": {
+    "MyApiDeploymentECB0D05E58dcfc85d01f2b81270e177f5347476d": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -695,7 +697,7 @@
           "Ref": "MyApi49610EDF"
         },
         "DeploymentId": {
-          "Ref": "MyApiDeploymentECB0D05E7a475a505b0c925e193030293593b6dc"
+          "Ref": "MyApiDeploymentECB0D05E58dcfc85d01f2b81270e177f5347476d"
         },
         "StageName": "prod"
       }

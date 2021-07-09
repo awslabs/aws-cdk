@@ -73,6 +73,13 @@ export interface NodejsFunctionProps extends lambda.FunctionOptions {
    *   modules are bundled.
    */
   readonly bundling?: BundlingOptions;
+
+  /**
+   * The path to the directory containing project config files (`package.json` or `tsconfig.json`)
+   *
+   * @default - the directory containing the `depsLockFilePath`
+   */
+  readonly projectRoot?: string;
 }
 
 /**
@@ -89,6 +96,7 @@ export class NodejsFunction extends lambda.Function {
     const handler = props.handler ?? 'handler';
     const runtime = props.runtime ?? lambda.Runtime.NODEJS_14_X;
     const depsLockFilePath = findLockFile(props.depsLockFilePath);
+    const projectRoot = props.projectRoot ?? path.dirname(depsLockFilePath);
 
     super(scope, id, {
       ...props,
@@ -98,6 +106,7 @@ export class NodejsFunction extends lambda.Function {
         entry,
         runtime,
         depsLockFilePath,
+        projectRoot,
       }),
       handler: `index.${handler}`,
     });

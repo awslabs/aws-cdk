@@ -10,15 +10,15 @@ export interface PercentileStatistic {
   percentile: number;
 }
 
-export interface TrimmedMeanStatistic {
-  type: 'trimmedMean';
-  trimmedMean: number;
+export interface GenericStatistic {
+  type: 'generic';
+  statistic: string;
 }
 
 /**
  * Parse a statistic, returning the type of metric that was used (simple or percentile)
  */
-export function parseStatistic(stat: string): SimpleStatistic | PercentileStatistic | TrimmedMeanStatistic {
+export function parseStatistic(stat: string): SimpleStatistic | PercentileStatistic | GenericStatistic {
   const lowerStat = stat.toLowerCase();
 
   // Simple statistics
@@ -41,24 +41,20 @@ export function parseStatistic(stat: string): SimpleStatistic | PercentileStatis
     };
   }
 
-  // Percentile or Trimmed Mean statistics
-  const re = /^(p|tm)([\d.]+)$/;
+  // Percentile statistics
+  const re = /^p([\d.]+)$/;
   const m = re.exec(lowerStat);
-  if (m && m[1] === 'p') {
+  if (m) {
     return {
       type: 'percentile',
-      percentile: parseFloat(m[2]),
-    };
-  }
-  if (m && m[1] === 'tm') {
-    return {
-      type: 'trimmedMean',
-      trimmedMean: parseFloat(m[2]),
+      percentile: parseFloat(m[1]),
     };
   }
 
-  const supportedStats = ['Average', 'Minimum', 'Maximum', 'SampleCount', 'Sum', 'pNN.NN', 'tmNN.NN'];
-  throw new Error(`Not a valid statistic: '${stat}', must be one of ${supportedStats.join(' | ')}`);
+  return {
+    type: 'generic',
+    statistic: lowerStat,
+  };
 }
 
 export function normalizeStatistic(stat: string): string {

@@ -34,13 +34,13 @@
     "ComputeEnvironmentC570994D": {
       "Type": "AWS::Batch::ComputeEnvironment",
       "Properties": {
+        "Type": "UNMANAGED",
         "ServiceRole": {
           "Fn::GetAtt": [
             "ComputeEnvironmentResourceServiceInstanceRoleDC6D4445",
             "Arn"
           ]
         },
-        "Type": "UNMANAGED",
         "State": "ENABLED"
       }
     },
@@ -164,13 +164,69 @@
               },
               "JobName": "batcheventsTimer232549135"
             },
+            "DeadLetterConfig": {
+              "Arn": {
+                "Fn::GetAtt": [
+                  "Queue4A7E3555",
+                  "Arn"
+                ]
+              }
+            },
             "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 7200,
+              "MaximumRetryAttempts": 2
+            },
             "RoleArn": {
               "Fn::GetAtt": [
                 "MyJobEventsRoleCF43C336",
                 "Arn"
               ]
             }
+          }
+        ]
+      }
+    },
+    "Queue4A7E3555": {
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "QueuePolicy25439813": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sqs:SendMessage",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "Timer2B6F162E9",
+                      "Arn"
+                    ]
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com"
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "Queue4A7E3555",
+                  "Arn"
+                ]
+              },
+              "Sid": "AllowEventRulebatcheventsTimer232549135"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Queues": [
+          {
+            "Ref": "Queue4A7E3555"
           }
         ]
       }

@@ -42,7 +42,7 @@ export function isJsii(): boolean {
  * Whether this is a private package
  */
 export function isPrivate(): boolean {
-  return currentPackageJson().private !== undefined;
+  return currentPackageJson().private;
 }
 
 export interface File {

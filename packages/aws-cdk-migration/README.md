@@ -1,6 +1,6 @@
 # aws-cdk-migration
 
-Migrate TypeScript `import` statements from modular CDK (i.e. `@aws-cdk/aws-s3`) to aws-cdk-lib (i.e. `aws-cdk-lib`), as well as imports of `Construct` from `@aws-cdk/core` to `constructs`.
+Migrate TypeScript `import` statements from modular CDK (i.e. `@aws-cdk/aws-s3`) to aws-cdk-lib (i.e. `aws-cdk-lib`);
 
 Usage:
 

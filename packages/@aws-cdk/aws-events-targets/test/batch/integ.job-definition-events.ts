@@ -1,6 +1,7 @@
 import * as batch from '@aws-cdk/aws-batch';
 import { ContainerImage } from '@aws-cdk/aws-ecs';
 import * as events from '@aws-cdk/aws-events';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
 import * as targets from '../../lib';
 
@@ -32,6 +33,13 @@ timer.addTarget(new targets.BatchJob(queue.jobQueueArn, queue, job.jobDefinition
 const timer2 = new events.Rule(stack, 'Timer2', {
   schedule: events.Schedule.rate(cdk.Duration.minutes(2)),
 });
-timer2.addTarget(new targets.BatchJob(queue.jobQueueArn, queue, job.jobDefinitionArn, job));
+
+const dlq = new sqs.Queue(stack, 'Queue');
+
+timer2.addTarget(new targets.BatchJob(queue.jobQueueArn, queue, job.jobDefinitionArn, job, {
+  deadLetterQueue: dlq,
+  retryAttempts: 2,
+  maxEventAge: cdk.Duration.hours(2),
+}));
 
 app.synth();

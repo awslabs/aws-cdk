@@ -6,6 +6,61 @@
         "Name": "myApplicationtest",
         "Description": "my application description"
       }
+    },
+    "TestApplicationResourceAssociationd232b63e52a8414E905D": {
+      "Type": "AWS::ServiceCatalogAppRegistry::ResourceAssociation",
+      "Properties": {
+        "Application": {
+          "Fn::GetAtt": [
+            "TestApplication2FBC585F",
+            "Id"
+          ]
+        },
+        "Resource": {
+          "Ref": "AWS::StackId"
+        },
+        "ResourceType": "CFN_STACK"
+      }
+    },
+    "TestApplicationAttributeGroupAssociation4ba7f5842818B8EE1C6F": {
+      "Type": "AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation",
+      "Properties": {
+        "Application": {
+          "Fn::GetAtt": [
+            "TestApplication2FBC585F",
+            "Id"
+          ]
+        },
+        "AttributeGroup": {
+          "Fn::GetAtt": [
+            "TestAttributeGroupB1CB284F",
+            "Id"
+          ]
+        }
+      }
+    },
+    "TestAttributeGroupB1CB284F": {
+      "Type": "AWS::ServiceCatalogAppRegistry::AttributeGroup",
+      "Properties": {
+        "Attributes": {
+          "stage": "alpha",
+          "teamMembers": [
+            "markI",
+            "markII",
+            "markIII"
+          ],
+          "public": false,
+          "publishYear": 2021,
+          "plannedRoadMap": {
+            "alpha": "some time",
+            "beta": "another time",
+            "gamma": "penultimate time",
+            "release": "go time"
+          }
+        },
+        "Name": "myAttributeGroupTest",
+        "Description": "my attribute group description"
+      }
     }
   }
 }

@@ -77,10 +77,10 @@ The mechanics of where these images are published and how are intentionally kept
 does not support customizations such as specifying the ECR repository name or tags.
 
 If you are looking for a way to _publish_ image assets to an ECR repository in your control, you should consider using
-[wchaws/cdk-ecr-deployment], which is able to replicate an image asset from the CDK-controlled ECR repository to a repository of
+[cdklabs/cdk-ecr-deployment], which is able to replicate an image asset from the CDK-controlled ECR repository to a repository of
 your choice.
 
-Here an example from the [wchaws/cdk-ecr-deployment] project:
+Here an example from the [cdklabs/cdk-ecr-deployment] project:
 
 ```ts
 import * as ecrdeploy from 'cdk-ecr-deployment';
@@ -99,7 +99,7 @@ new ecrdeploy.ECRDeployment(this, 'DeployDockerImage', {
 You are welcome to +1 [this GitHub issue](https://github.com/aws/aws-cdk/issues/12597) if you would like to see
 native support for this use-case in the AWS CDK.
 
-[wchaws/cdk-ecr-deployment]: https://github.com/wchaws/cdk-ecr-deployment
+[cdklabs/cdk-ecr-deployment]: https://github.com/cdklabs/cdk-ecr-deployment
 
 ## Pull Permissions
 

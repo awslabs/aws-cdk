@@ -15,7 +15,7 @@ import { printSecurityDiff, printStackDiff, RequireApproval } from './diff';
 import { data, error, highlight, print, success, warning } from './logging';
 import { deserializeStructure } from './serialize';
 import { Configuration } from './settings';
-import { partition } from './util';
+import { numberFromBool, partition } from './util';
 
 export interface CdkToolkitProps {
 
@@ -94,13 +94,17 @@ export class CdkToolkit {
         throw new Error(`There is no file at ${options.templatePath}`);
       }
       const template = deserializeStructure(await fs.readFile(options.templatePath, { encoding: 'UTF-8' }));
-      diffs = printStackDiff(template, stacks.firstStack, strict, contextLines, stream);
+      diffs = options.securityOnly
+        ? numberFromBool(printSecurityDiff(template, stacks.firstStack, RequireApproval.Broadening))
+        : printStackDiff(template, stacks.firstStack, strict, contextLines, stream);
     } else {
       // Compare N stacks against deployed templates
       for (const stack of stacks.stackArtifacts) {
         stream.write(format('Stack %s\n', colors.bold(stack.displayName)));
         const currentTemplate = await this.props.cloudFormation.readCurrentTemplate(stack);
-        diffs += printStackDiff(currentTemplate, stack, strict, contextLines, stream);
+        diffs += options.securityOnly
+          ? numberFromBool(printSecurityDiff(currentTemplate, stack, RequireApproval.Broadening))
+          : printStackDiff(currentTemplate, stack, strict, contextLines, stream);
       }
     }
 
@@ -505,6 +509,13 @@ export interface DiffOptions {
    * @default false
    */
   fail?: boolean;
+
+  /**
+   * Only run diff on broadened security changes
+   *
+   * @default false
+   */
+  securityOnly?: boolean;
 }
 
 export interface DeployOptions {

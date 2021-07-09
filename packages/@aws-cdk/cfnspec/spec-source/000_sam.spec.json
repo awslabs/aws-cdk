@@ -1990,7 +1990,7 @@
                     "PrimitiveTypes": [
                         "String"
                     ],
-                    "Required": true,
+                    "Required": false,
                     "Types": [
                         "S3Location"
                     ],
@@ -2049,7 +2049,7 @@
                 "Handler": {
                     "Documentation": "https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction",
                     "PrimitiveType": "String",
-                    "Required": true,
+                    "Required": false,
                     "UpdateType": "Immutable"
                 },
                 "ImageConfig": {
@@ -2140,7 +2140,7 @@
                 "Runtime": {
                     "Documentation": "https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction",
                     "PrimitiveType": "String",
-                    "Required": true,
+                    "Required": false,
                     "UpdateType": "Immutable"
                 },
                 "Tags": {

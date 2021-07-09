@@ -90,7 +90,7 @@ function makeGapsUndefined(intervals: CompleteScalingInterval[]) {
   // going to make scaling intervals extend all the way out to infinity on either side,
   // the result is the same for absolute adjustments anyway.
   if (intervals[0].lower !== 0) {
-    intervals.splice(0, 1, {
+    intervals.splice(0, 0, {
       lower: 0,
       upper: intervals[0].lower,
       change: undefined,

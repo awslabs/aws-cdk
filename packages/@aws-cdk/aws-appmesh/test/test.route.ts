@@ -1,7 +1,6 @@
 import { ABSENT, expect, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
-
 import * as appmesh from '../lib';
 
 export = {
@@ -112,6 +111,7 @@ export = {
             },
           },
         },
+        MeshOwner: ABSENT,
         RouteName: 'test-http-route',
       }));
 
@@ -574,6 +574,44 @@ export = {
 
       test.done();
     },
+
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test: Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const routeEnv = { account: '9987654321', region: 'us-west-2' };
+        // Creating stack in Account 9987654321
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: routeEnv });
+        // Mesh is in Account 1234567899
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+        const router = new appmesh.VirtualRouter(stack, 'router', {
+          mesh: sharedMesh,
+        });
+        const virtualNode = sharedMesh.addVirtualNode('test-node', {
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
+          listeners: [appmesh.VirtualNodeListener.http()],
+        });
+
+        new appmesh.Route(stack, 'test-route', {
+          mesh: sharedMesh,
+          routeSpec: appmesh.RouteSpec.grpc({
+            weightedTargets: [{ virtualNode }],
+            match: { serviceName: 'example' },
+          }),
+          virtualRouter: router,
+
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::Route', {
+          MeshOwner: meshEnv.account,
+        }));
+
+        test.done();
+      },
+    },
   },
 
   'should match routes based on headers'(test: Test) {
@@ -599,16 +637,16 @@ export = {
         match: {
           prefixPath: '/',
           headers: [
-            appmesh.HttpHeaderMatch.valueIs('Content-Type', 'application/json'),
-            appmesh.HttpHeaderMatch.valueIsNot('Content-Type', 'text/html'),
-            appmesh.HttpHeaderMatch.valueStartsWith('Content-Type', 'application/'),
-            appmesh.HttpHeaderMatch.valueDoesNotStartWith('Content-Type', 'text/'),
-            appmesh.HttpHeaderMatch.valueEndsWith('Content-Type', '/json'),
-            appmesh.HttpHeaderMatch.valueDoesNotEndWith('Content-Type', '/json+foobar'),
-            appmesh.HttpHeaderMatch.valueMatchesRegex('Content-Type', 'application/.*'),
-            appmesh.HttpHeaderMatch.valueDoesNotMatchRegex('Content-Type', 'text/.*'),
-            appmesh.HttpHeaderMatch.valuesIsInRange('Max-Forward', 1, 5),
-            appmesh.HttpHeaderMatch.valuesIsNotInRange('Max-Forward', 1, 5),
+            appmesh.HeaderMatch.valueIs('Content-Type', 'application/json'),
+            appmesh.HeaderMatch.valueIsNot('Content-Type', 'text/html'),
+            appmesh.HeaderMatch.valueStartsWith('Content-Type', 'application/'),
+            appmesh.HeaderMatch.valueDoesNotStartWith('Content-Type', 'text/'),
+            appmesh.HeaderMatch.valueEndsWith('Content-Type', '/json'),
+            appmesh.HeaderMatch.valueDoesNotEndWith('Content-Type', '/json+foobar'),
+            appmesh.HeaderMatch.valueMatchesRegex('Content-Type', 'application/.*'),
+            appmesh.HeaderMatch.valueDoesNotMatchRegex('Content-Type', 'text/.*'),
+            appmesh.HeaderMatch.valuesIsInRange('Max-Forward', 1, 5),
+            appmesh.HeaderMatch.valuesIsNotInRange('Max-Forward', 1, 5),
           ],
         },
       }),
@@ -712,7 +750,7 @@ export = {
         weightedTargets: [{ virtualNode }],
         match: {
           prefixPath: '/',
-          method: appmesh.HttpRouteMatchMethod.GET,
+          method: appmesh.HttpRouteMethod.GET,
         },
       }),
     });
@@ -770,6 +808,64 @@ export = {
         },
       },
     }));
+
+    test.done();
+  },
+
+  'should throw an error with invalid number of headers'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const mesh = new appmesh.Mesh(stack, 'mesh', {
+      meshName: 'test-mesh',
+    });
+
+    const router = new appmesh.VirtualRouter(stack, 'router', {
+      mesh,
+    });
+
+    const virtualNode = mesh.addVirtualNode('test-node', {
+      serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
+      listeners: [appmesh.VirtualNodeListener.http()],
+    });
+
+    // WHEN + THEN
+    test.throws(() => {
+      router.addRoute('route', {
+        routeSpec: appmesh.RouteSpec.http2({
+          weightedTargets: [{ virtualNode }],
+          match: {
+            prefixPath: '/',
+            // Empty header
+            headers: [],
+          },
+        }),
+      });
+    }, /Number of headers provided for matching must be between 1 and 10, got: 0/);
+
+    test.throws(() => {
+      router.addRoute('route2', {
+        routeSpec: appmesh.RouteSpec.http2({
+          weightedTargets: [{ virtualNode }],
+          match: {
+            prefixPath: '/',
+            // 11 headers
+            headers: [
+              appmesh.HeaderMatch.valueIs('Content-Type', 'application/json'),
+              appmesh.HeaderMatch.valueIs('Content-Type', 'application/json'),
+              appmesh.HeaderMatch.valueIsNot('Content-Type', 'text/html'),
+              appmesh.HeaderMatch.valueStartsWith('Content-Type', 'application/'),
+              appmesh.HeaderMatch.valueDoesNotStartWith('Content-Type', 'text/'),
+              appmesh.HeaderMatch.valueEndsWith('Content-Type', '/json'),
+              appmesh.HeaderMatch.valueDoesNotEndWith('Content-Type', '/json+foobar'),
+              appmesh.HeaderMatch.valueMatchesRegex('Content-Type', 'application/.*'),
+              appmesh.HeaderMatch.valueDoesNotMatchRegex('Content-Type', 'text/.*'),
+              appmesh.HeaderMatch.valuesIsInRange('Max-Forward', 1, 5),
+              appmesh.HeaderMatch.valuesIsNotInRange('Max-Forward', 1, 5),
+            ],
+          },
+        }),
+      });
+    }, /Number of headers provided for matching must be between 1 and 10, got: 11/);
 
     test.done();
   },

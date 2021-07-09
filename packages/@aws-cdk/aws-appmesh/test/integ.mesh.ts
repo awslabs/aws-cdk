@@ -112,7 +112,7 @@ const node3 = mesh.addVirtualNode('node3', {
 });
 
 const node4 = mesh.addVirtualNode('node4', {
-  serviceDiscovery: appmesh.ServiceDiscovery.dns(`node4.${namespace.namespaceName}`),
+  serviceDiscovery: appmesh.ServiceDiscovery.dns(`node4.${namespace.namespaceName}`, appmesh.DnsResponseType.ENDPOINTS),
   listeners: [appmesh.VirtualNodeListener.http({
     tls: {
       mode: appmesh.TlsMode.STRICT,
@@ -203,19 +203,19 @@ router.addRoute('route-matching', {
     weightedTargets: [{ virtualNode: node3 }],
     match: {
       prefixPath: '/',
-      method: appmesh.HttpRouteMatchMethod.POST,
+      method: appmesh.HttpRouteMethod.POST,
       protocol: appmesh.HttpRouteProtocol.HTTPS,
       headers: [
-        appmesh.HttpHeaderMatch.valueIs('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueStartsWith('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueEndsWith('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueMatchesRegex('Content-Type', 'application/.*'),
-        appmesh.HttpHeaderMatch.valuesIsInRange('Content-Type', 1, 5),
-        appmesh.HttpHeaderMatch.valueIsNot('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueDoesNotStartWith('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueDoesNotEndWith('Content-Type', 'application/json'),
-        appmesh.HttpHeaderMatch.valueDoesNotMatchRegex('Content-Type', 'application/.*'),
-        appmesh.HttpHeaderMatch.valuesIsNotInRange('Content-Type', 1, 5),
+        appmesh.HeaderMatch.valueIs('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueStartsWith('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueEndsWith('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueMatchesRegex('Content-Type', 'application/.*'),
+        appmesh.HeaderMatch.valuesIsInRange('Content-Type', 1, 5),
+        appmesh.HeaderMatch.valueIsNot('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueDoesNotStartWith('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueDoesNotEndWith('Content-Type', 'application/json'),
+        appmesh.HeaderMatch.valueDoesNotMatchRegex('Content-Type', 'application/.*'),
+        appmesh.HeaderMatch.valuesIsNotInRange('Content-Type', 1, 5),
       ],
     },
   }),

@@ -133,7 +133,7 @@ nodeunitShim({
                 's3:ListBucket',
               ],
               Effect: 'Allow',
-              Principal: '*',
+              Principal: { AWS: '*' },
               Resource: '*',
             },
           ],

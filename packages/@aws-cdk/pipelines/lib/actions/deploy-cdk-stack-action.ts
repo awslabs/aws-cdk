@@ -312,7 +312,7 @@ function roleFromPlaceholderArn(scope: Construct, region: string | undefined,
     accountId: account ?? Aws.ACCOUNT_ID,
     partition: Aws.PARTITION,
   });
-  return iam.Role.fromRoleArn(scope, id, arnToImport, { mutable: false });
+  return iam.Role.fromRoleArn(scope, id, arnToImport, { mutable: false, addGrantsToResources: true });
 }
 
 /**

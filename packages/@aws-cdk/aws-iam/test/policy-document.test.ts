@@ -283,7 +283,7 @@ describe('IAM policy document', () => {
 
       expect(stack.resolve(p)).toEqual({
         Statement: [
-          { Effect: 'Allow', Principal: '*' },
+          { Effect: 'Allow', Principal: { AWS: '*' } },
         ],
         Version: '2012-10-17',
       });
@@ -297,7 +297,7 @@ describe('IAM policy document', () => {
 
       expect(stack.resolve(p)).toEqual({
         Statement: [
-          { Effect: 'Allow', Principal: '*' },
+          { Effect: 'Allow', Principal: { AWS: '*' } },
         ],
         Version: '2012-10-17',
       });
@@ -313,7 +313,7 @@ describe('IAM policy document', () => {
 
       expect(stack.resolve(p)).toEqual({
         Statement: [
-          { Effect: 'Allow', Principal: '*' },
+          { Effect: 'Allow', Principal: { AWS: '*' } },
         ],
         Version: '2012-10-17',
       });

@@ -52,7 +52,7 @@ test('with access policy', () => {
       Statement: [
         {
           Effect: 'Deny',
-          Principal: '*',
+          Principal: { AWS: '*' },
           Action: 'backup:DeleteRecoveryPoint',
           Resource: '*',
           Condition: {

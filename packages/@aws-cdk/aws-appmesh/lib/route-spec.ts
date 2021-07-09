@@ -1,6 +1,9 @@
 import * as cdk from '@aws-cdk/core';
 import { CfnRoute } from './appmesh.generated';
-import { HttpTimeout, GrpcTimeout, Protocol, TcpTimeout } from './shared-interfaces';
+import { HeaderMatch } from './header-match';
+import { HttpRouteMethod } from './http-route-method';
+import { validateMatchArrayLength } from './private/utils';
+import { GrpcTimeout, HttpTimeout, Protocol, TcpTimeout } from './shared-interfaces';
 import { IVirtualNode } from './virtual-node';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
@@ -42,14 +45,14 @@ export interface HttpRouteMatch {
    *
    * @default - do not match on headers
    */
-  readonly headers?: HttpHeaderMatch[];
+  readonly headers?: HeaderMatch[];
 
   /**
    * The HTTP client request method to match on.
    *
    * @default - do not match on request method
    */
-  readonly method?: HttpRouteMatchMethod;
+  readonly method?: HttpRouteMethod;
 
   /**
    * The client request protocol to match on. Applicable only for HTTP2 routes.
@@ -57,56 +60,6 @@ export interface HttpRouteMatch {
    * @default - do not match on HTTP2 request protocol
    */
   readonly protocol?: HttpRouteProtocol;
-}
-
-/**
- * Supported values for matching routes based on the HTTP request method
- */
-export enum HttpRouteMatchMethod {
-  /**
-   * GET request
-   */
-  GET = 'GET',
-
-  /**
-   * HEAD request
-   */
-  HEAD = 'HEAD',
-
-  /**
-   * POST request
-   */
-  POST = 'POST',
-
-  /**
-   * PUT request
-   */
-  PUT = 'PUT',
-
-  /**
-   * DELETE request
-   */
-  DELETE = 'DELETE',
-
-  /**
-   * CONNECT request
-   */
-  CONNECT = 'CONNECT',
-
-  /**
-   * OPTIONS request
-   */
-  OPTIONS = 'OPTIONS',
-
-  /**
-   * TRACE request
-   */
-  TRACE = 'TRACE',
-
-  /**
-   * PATCH request
-   */
-  PATCH = 'PATCH',
 }
 
 /**
@@ -122,168 +75,6 @@ export enum HttpRouteProtocol {
    * Match HTTPS requests
    */
   HTTPS = 'https',
-}
-
-/**
- * Configuration for `HeaderMatch`
- */
-export interface HttpHeaderMatchConfig {
-  /**
-   * The HTTP route header.
-   */
-  readonly httpRouteHeader: CfnRoute.HttpRouteHeaderProperty;
-}
-
-/**
- * Used to generate header matching methods.
- */
-export abstract class HttpHeaderMatch {
-  /**
-   * The value of the header with the given name in the request must match the
-   * specified value exactly.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param headerValue The exact value to test against
-   */
-  static valueIs(headerName: string, headerValue: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, false, { exact: headerValue });
-  }
-
-  /**
-   * The value of the header with the given name in the request must not match
-   * the specified value exactly.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param headerValue The exact value to test against
-   */
-  static valueIsNot(headerName: string, headerValue: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, true, { exact: headerValue });
-  }
-
-  /**
-   * The value of the header with the given name in the request must start with
-   * the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param prefix The prefix to test against
-   */
-  static valueStartsWith(headerName: string, prefix: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, false, { prefix });
-  }
-
-  /**
-   * The value of the header with the given name in the request must not start
-   * with the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param prefix The prefix to test against
-   */
-  static valueDoesNotStartWith(headerName: string, prefix: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, true, { prefix });
-  }
-
-  /**
-   * The value of the header with the given name in the request must end with
-   * the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param suffix The suffix to test against
-   */
-  static valueEndsWith(headerName: string, suffix: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, false, { suffix });
-  }
-
-  /**
-   * The value of the header with the given name in the request must not end
-   * with the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param suffix The suffix to test against
-   */
-  static valueDoesNotEndWith(headerName: string, suffix: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, true, { suffix });
-  }
-
-  /**
-   * The value of the header with the given name in the request must include
-   * the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param regex The regex to test against
-   */
-  static valueMatchesRegex(headerName: string, regex: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, false, { regex });
-  }
-
-  /**
-   * The value of the header with the given name in the request must not
-   * include the specified characters.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param regex The regex to test against
-   */
-  static valueDoesNotMatchRegex(headerName: string, regex: string): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, true, { regex });
-  }
-
-  /**
-   * The value of the header with the given name in the request must be in a
-   * range of values.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param start Match on values starting at and including this value
-   * @param end Match on values up to but not including this value
-   */
-  static valuesIsInRange(headerName: string, start: number, end: number): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, false, {
-      range: {
-        start,
-        end,
-      },
-    });
-  }
-
-  /**
-   * The value of the header with the given name in the request must not be in
-   * a range of values.
-   *
-   * @param headerName the name of the HTTP header to match against
-   * @param start Match on values starting at and including this value
-   * @param end Match on values up to but not including this value
-   */
-  static valuesIsNotInRange(headerName: string, start: number, end: number): HttpHeaderMatch {
-    return new HeaderMatchImpl(headerName, true, {
-      range: {
-        start,
-        end,
-      },
-    });
-  }
-
-  /**
-   * Returns the header match configuration.
-   */
-  abstract bind(scope: Construct): HttpHeaderMatchConfig;
-}
-
-class HeaderMatchImpl extends HttpHeaderMatch {
-  constructor(
-    private readonly headerName: string,
-    private readonly invert: boolean,
-    private readonly matchProperty: CfnRoute.HeaderMatchMethodProperty,
-  ) {
-    super();
-  }
-
-  bind(_scope: Construct): HttpHeaderMatchConfig {
-    return {
-      httpRouteHeader: {
-        name: this.headerName,
-        invert: this.invert,
-        match: this.matchProperty,
-      },
-    };
-  }
 }
 
 /**
@@ -629,13 +420,16 @@ class HttpRouteSpec extends RouteSpec {
       throw new Error(`Prefix Path must start with \'/\', got: ${prefixPath}`);
     }
 
+    const headers = this.match?.headers;
+    validateMatchArrayLength(headers);
+
     const httpConfig: CfnRoute.HttpRouteProperty = {
       action: {
         weightedTargets: renderWeightedTargets(this.weightedTargets),
       },
       match: {
         prefix: prefixPath,
-        headers: this.match?.headers?.map(header => header.bind(scope).httpRouteHeader),
+        headers: headers?.map(header => header.bind(scope).headerMatch),
         method: this.match?.method,
         scheme: this.match?.protocol,
       },

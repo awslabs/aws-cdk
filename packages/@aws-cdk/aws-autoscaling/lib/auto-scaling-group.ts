@@ -1461,6 +1461,12 @@ export class ScalingEvents {
   public static readonly LAUNCH_EVENTS = new ScalingEvents(ScalingEvent.INSTANCE_LAUNCH, ScalingEvent.INSTANCE_LAUNCH_ERROR);
 
   /**
+   * Fleet termination launch events
+   */
+  public static readonly TERMINATION_EVENTS = new ScalingEvents(ScalingEvent.INSTANCE_TERMINATE, ScalingEvent.INSTANCE_TERMINATE_ERROR);
+
+
+  /**
    * @internal
    */
   public readonly _types: ScalingEvent[];

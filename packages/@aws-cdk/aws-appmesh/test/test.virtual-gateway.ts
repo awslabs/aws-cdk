@@ -1,4 +1,4 @@
-import { expect, haveResourceLike } from '@aws-cdk/assert-internal';
+import { ABSENT, expect, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
@@ -74,6 +74,7 @@ export = {
           ],
         },
         VirtualGatewayName: 'httpGateway',
+        MeshOwner: ABSENT,
       }));
 
       expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualGateway', {
@@ -433,6 +434,33 @@ export = {
       }));
 
       test.done();
+    },
+
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const virtualGatewayEnv = { account: '9987654321', region: 'us-west-2' };
+
+        // Creating stack in Account 9987654321
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: virtualGatewayEnv });
+        // Mesh is in Account 1234567899
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+
+        // WHEN
+        new appmesh.VirtualGateway(stack, 'test-node', {
+          mesh: sharedMesh,
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualGateway', {
+          MeshOwner: meshEnv.account,
+        }));
+
+        test.done();
+      },
     },
   },
 

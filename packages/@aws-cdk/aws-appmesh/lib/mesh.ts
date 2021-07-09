@@ -143,7 +143,9 @@ export class Mesh extends MeshBase {
       public meshArn = meshArn;
     }
 
-    return new Import(scope, id);
+    return new Import(scope, id, {
+      environmentFromArn: meshArn,
+    });
   }
 
   /**

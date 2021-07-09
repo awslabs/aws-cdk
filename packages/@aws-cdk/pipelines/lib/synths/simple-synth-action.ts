@@ -7,6 +7,7 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import { Stack } from '@aws-cdk/core';
+import { dockerCredentialsInstallCommands, DockerCredential, DockerCredentialUsage } from '../docker-credentials';
 import { toPosixPath } from '../private/fs';
 import { copyEnvironmentVariables, filterEmpty } from './_util';
 
@@ -32,6 +33,11 @@ export interface SimpleSynthOptions {
 
   /**
    * Environment variables to send into build
+   *
+   * NOTE: You may run into the 1000-character limit for the Action configuration if you have a large
+   * number of variables or if their names or values are very long.
+   * If you do, pass them to the underlying CodeBuild project directly in `environment` instead.
+   * However, you will not be able to use CodePipeline Variables in this case.
    *
    * @default - No additional environment variables
    */
@@ -254,6 +260,7 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
   private _action?: codepipeline_actions.CodeBuildAction;
   private _actionProperties: codepipeline.ActionProperties;
   private _project?: codebuild.IProject;
+  private _dockerCredentials?: DockerCredential[];
 
   constructor(private readonly props: SimpleSynthActionProps) {
     // A number of actionProperties get read before bind() is even called (so before we
@@ -321,6 +328,11 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
     const testCommands = this.props.testCommands ?? [];
     const synthCommand = this.props.synthCommand;
 
+    const environment = { buildImage: codebuild.LinuxBuildImage.STANDARD_5_0, ...this.props.environment };
+    const osType = (environment.buildImage instanceof codebuild.WindowsBuildImage)
+      ? ec2.OperatingSystemType.WINDOWS
+      : ec2.OperatingSystemType.LINUX;
+
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
       phases: {
@@ -328,6 +340,7 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
           commands: filterEmpty([
             this.props.subdirectory ? `cd ${this.props.subdirectory}` : '',
             ...installCommands,
+            ...dockerCredentialsInstallCommands(DockerCredentialUsage.SYNTH, this._dockerCredentials, osType),
           ]),
         },
         build: {
@@ -340,8 +353,6 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
       },
       artifacts: renderArtifacts(this),
     });
-
-    const environment = { buildImage: codebuild.LinuxBuildImage.STANDARD_5_0, ...this.props.environment };
 
     const environmentVariables = {
       ...copyEnvironmentVariables(...this.props.copyEnvironmentVariables || []),
@@ -373,6 +384,8 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
     }
 
     this._project = project;
+
+    this._dockerCredentials?.forEach(reg => reg.grantRead(project.grantPrincipal, DockerCredentialUsage.SYNTH));
 
     this._action = new codepipeline_actions.CodeBuildAction({
       actionName: this.actionProperties.actionName,
@@ -442,6 +455,16 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
     }
 
     return this._action.onStateChange(name, target, options);
+  }
+
+  /**
+   * Associate one or more Docker registries and associated credentials with the synth action.
+   * This will be used to inject installation commands to set up `cdk-assets`,
+   * and grant read access to the credentials.
+   * @internal
+   */
+  public _addDockerCredentials(dockerCredentials: DockerCredential[]) {
+    this._dockerCredentials = dockerCredentials;
   }
 }
 

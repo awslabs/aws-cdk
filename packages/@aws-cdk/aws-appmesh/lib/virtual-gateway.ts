@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import { CfnVirtualGateway } from './appmesh.generated';
 import { GatewayRoute, GatewayRouteBaseProps } from './gateway-route';
 import { IMesh, Mesh } from './mesh';
-import { renderTlsClientPolicy } from './private/utils';
+import { renderTlsClientPolicy, renderMeshOwner } from './private/utils';
 import { AccessLog, BackendDefaults } from './shared-interfaces';
 import { VirtualGatewayListener, VirtualGatewayListenerConfig } from './virtual-gateway-listener';
 
@@ -192,6 +192,7 @@ export class VirtualGateway extends VirtualGatewayBase {
     const node = new CfnVirtualGateway(this, 'Resource', {
       virtualGatewayName: this.physicalName,
       meshName: this.mesh.meshName,
+      meshOwner: renderMeshOwner(this.env.account, this.mesh.env.account),
       spec: {
         listeners: this.listeners.map(listener => listener.listener),
         backendDefaults: props.backendDefaults !== undefined

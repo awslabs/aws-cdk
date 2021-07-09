@@ -290,7 +290,7 @@ describe('repository', () => {
           {
             Action: '*',
             Effect: 'Allow',
-            Principal: '*',
+            Principal: { AWS: '*' },
           },
         ],
         Version: '2012-10-17',
@@ -512,7 +512,7 @@ describe('repository', () => {
                 'ecr:BatchGetImage',
               ],
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
             },
           ],
           'Version': '2012-10-17',

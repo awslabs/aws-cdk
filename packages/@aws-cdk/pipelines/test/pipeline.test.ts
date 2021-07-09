@@ -328,7 +328,7 @@ behavior('pipeline has self-mutation stage', (suite) => {
         BuildSpec: encodedJson(deepObjectLike({
           phases: {
             install: {
-              commands: 'npm install -g aws-cdk',
+              commands: ['npm install -g aws-cdk'],
             },
             build: {
               commands: arrayWith('cdk -a . deploy PipelineStack --require-approval=never --verbose'),
@@ -449,7 +449,7 @@ behavior('can control fix/CLI version used in pipeline selfupdate', (suite) => {
         BuildSpec: encodedJson(deepObjectLike({
           phases: {
             install: {
-              commands: 'npm install -g aws-cdk@1.2.3',
+              commands: ['npm install -g aws-cdk@1.2.3'],
             },
           },
         })),

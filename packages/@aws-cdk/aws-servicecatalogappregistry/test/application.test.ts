@@ -57,6 +57,7 @@ describe('Application', () => {
   test('for an application imported by ARN', () => {
     const application = appreg.Application.fromApplicationArn(stack, 'MyApplication',
       'arn:aws:servicecatalog:us-east-1:123456789012:/applications/0aqmvxvgmry0ecc4mjhwypun6i');
+
     expect(application.applicationId).toEqual('0aqmvxvgmry0ecc4mjhwypun6i');
   }),
 
@@ -128,5 +129,86 @@ describe('Application', () => {
       });
     }).toThrow(/Invalid application name for resource/);
   });
-});
 
+  describe('Assocations on applications', () => {
+    let application: appreg.Application;
+
+    beforeEach(() => {
+      application = new appreg.Application(stack, 'MyApplication', {
+        applicationName: 'MyApplication',
+      });
+    });
+
+    test('associate attribute group', () => {
+      const attributeGroup = new appreg.AttributeGroup(stack, 'AttributeGroup', {
+        attributeGroupName: 'AttributeGroupName',
+        attributes: {},
+      });
+
+      application.associateAttributeGroup(attributeGroup);
+
+      expect(stack).toHaveResourceLike('AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation', {
+        Application: { 'Fn::GetAtt': ['MyApplication5C63EC1D', 'Id'] },
+        AttributeGroup: { 'Fn::GetAtt': ['AttributeGroup409C6335', 'Id'] },
+      });
+    }),
+
+    test('duplicate attribute group association are idempotent', () => {
+      const attributeGroup = new appreg.AttributeGroup(stack, 'AttributeGroup', {
+        attributeGroupName: 'attributeGroupName',
+        attributes: { key: 'value' },
+      });
+
+      // If these were not idempotent, the second call would produce an error for duplicate construct ID.
+      application.associateAttributeGroup(attributeGroup);
+      application.associateAttributeGroup(attributeGroup);
+
+      expect(stack).toCountResources('AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation', 1);
+    }),
+
+    test('multiple applications and attribute groups can associate', () => {
+      const application2 = new appreg.Application(stack, 'MyApplication2', {
+        applicationName: 'MyApplication2',
+      });
+
+      const attributeGroup1 = new appreg.AttributeGroup(stack, 'AttributeGroup', {
+        attributeGroupName: 'attributeGroupName',
+        attributes: { key: 'value' },
+      });
+
+      const attributeGroup2 = new appreg.AttributeGroup(stack, 'AttributeGroup2', {
+        attributeGroupName: 'attributeGroupName2',
+        attributes: { key: 'value' },
+      });
+
+      application.associateAttributeGroup(attributeGroup1);
+      application.associateAttributeGroup(attributeGroup2);
+
+      application2.associateAttributeGroup(attributeGroup1);
+      application2.associateAttributeGroup(attributeGroup2);
+
+      expect(stack).toCountResources('AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation', 4);
+    }),
+
+    test('associate resource', () => {
+      const resource = new cdk.Stack(stack, 'MyStack');
+
+      application.associateStack(resource);
+
+      expect(stack).toHaveResourceLike('AWS::ServiceCatalogAppRegistry::ResourceAssociation', {
+        Application: { 'Fn::GetAtt': ['MyApplication5C63EC1D', 'Id'] },
+        Resource: { 'Fn::ImportValue': 'MyStack:MyStackExportsOutputRefAWSStackId23D778D8' },
+      });
+    }),
+
+    test('duplicate resource assocations are idempotent', () => {
+      const resource = new cdk.Stack(stack, 'MyStack');
+
+      // If these were not idempotent, the second call would produce an error for duplicate construct ID.
+      application.associateStack(resource);
+      application.associateStack(resource);
+
+      expect(stack).toCountResources('AWS::ServiceCatalogAppRegistry::ResourceAssociation', 1);
+    });
+  });
+});

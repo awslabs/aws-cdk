@@ -1,3 +1,5 @@
+import { EventPattern } from './event-pattern';
+
 /**
  * Merge the `src` event pattern into the `dest` event pattern by adding all
  * values from `src` into the fields in `dest`.
@@ -50,4 +52,26 @@ export function mergeEventPattern(dest: any, src: any) {
       mergeObject(destObj[field], srcValue);
     }
   }
+}
+
+/**
+ * Transform an eventPattern object into a valid Event Rule Pattern
+ * by changing detailType into detail-type when present.
+ */
+export function renderEventPattern(eventPattern: EventPattern): any {
+  if (Object.keys(eventPattern).length === 0) {
+    return undefined;
+  }
+
+  // rename 'detailType' to 'detail-type'
+  const out: any = {};
+  for (let key of Object.keys(eventPattern)) {
+    const value = (eventPattern as any)[key];
+    if (key === 'detailType') {
+      key = 'detail-type';
+    }
+    out[key] = value;
+  }
+
+  return out;
 }

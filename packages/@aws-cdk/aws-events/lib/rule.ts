@@ -6,7 +6,7 @@ import { CfnEventBusPolicy, CfnRule } from './events.generated';
 import { IRule } from './rule-ref';
 import { Schedule } from './schedule';
 import { IRuleTarget } from './target';
-import { mergeEventPattern } from './util';
+import { mergeEventPattern, renderEventPattern } from './util';
 
 /**
  * Properties for defining an EventBridge Rule
@@ -354,23 +354,7 @@ export class Rule extends Resource implements IRule {
    * @internal
    */
   public _renderEventPattern(): any {
-    const eventPattern = this.eventPattern;
-
-    if (Object.keys(eventPattern).length === 0) {
-      return undefined;
-    }
-
-    // rename 'detailType' to 'detail-type'
-    const out: any = {};
-    for (let key of Object.keys(eventPattern)) {
-      const value = (eventPattern as any)[key];
-      if (key === 'detailType') {
-        key = 'detail-type';
-      }
-      out[key] = value;
-    }
-
-    return out;
+    return renderEventPattern(this.eventPattern);
   }
 
   protected validate() {
