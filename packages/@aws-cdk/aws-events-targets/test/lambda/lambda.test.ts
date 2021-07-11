@@ -59,7 +59,7 @@ test('use lambda as an event rule target', () => {
   });
 });
 
-test('adding same lambda function as target mutiple times creates permission only once', () => {
+test('adding same lambda function as target multiple times creates permission only once', () => {
   // GIVEN
   const stack = new cdk.Stack();
   const fn = newTestLambda(stack);
@@ -79,7 +79,7 @@ test('adding same lambda function as target mutiple times creates permission onl
   expect(stack).toCountResources('AWS::Lambda::Permission', 1);
 });
 
-test('adding different lambda functions as target mutiple times creates multiple permissions', () => {
+test('adding different lambda functions as target multiple times creates multiple permissions', () => {
   // GIVEN
   const stack = new cdk.Stack();
   const fn1 = newTestLambda(stack);
@@ -100,7 +100,7 @@ test('adding different lambda functions as target mutiple times creates multiple
   expect(stack).toCountResources('AWS::Lambda::Permission', 2);
 });
 
-test('adding same singleton lambda function as target mutiple times creates permission only once', () => {
+test('adding same singleton lambda function as target multiple times creates permission only once', () => {
   // GIVEN
   const stack = new cdk.Stack();
   const fn = new lambda.SingletonFunction(stack, 'MyLambda', {
@@ -146,6 +146,41 @@ test('lambda handler and cloudwatch event across stacks', () => {
 
   // the Permission resource should be in the event stack
   expect(eventStack).toCountResources('AWS::Lambda::Permission', 1);
+});
+
+test('lambda handler and cloudwatch event across stacks in different accounts', () => {
+  // GIVEN
+  const app = new cdk.App();
+  const lambdaStack = new cdk.Stack(app, 'LambdaStack', {
+    env: {
+      region: 'eu-west-1',
+      account: '111111111111',
+    },
+  });
+
+  const fn = new lambda.Function(lambdaStack, 'MyLambda', {
+    code: new lambda.InlineCode('foo'),
+    handler: 'bar',
+    runtime: lambda.Runtime.PYTHON_2_7,
+  });
+
+  const eventStack = new cdk.Stack(app, 'EventStack', {
+    env: {
+      region: 'eu-west-1',
+      account: '222222222222',
+    },
+  });
+  new events.Rule(eventStack, 'Rule', {
+    schedule: events.Schedule.rate(cdk.Duration.minutes(1)),
+    targets: [new targets.LambdaFunction(fn)],
+    ruleName: cdk.PhysicalName.GENERATE_IF_NEEDED,
+  });
+
+  expect(() => app.synth()).not.toThrow();
+
+  // the Permission resource should be in the lambda stack
+  expect(lambdaStack).toCountResources('AWS::Lambda::Permission', 2);
+  expect(eventStack).toCountResources('AWS::Lambda::Permission', 0);
 });
 
 test('use a Dead Letter Queue for the rule target', () => {

@@ -2,7 +2,7 @@ import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as sqs from '@aws-cdk/aws-sqs';
-import { Annotations, ConstructNode, IConstruct, Names, Token, TokenComparison, Duration } from '@aws-cdk/core';
+import { Annotations, ConstructNode, IConstruct, Names, Token, TokenComparison, Duration, Stack } from '@aws-cdk/core';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -93,8 +93,8 @@ export function addLambdaPermission(rule: events.IRule, handler: lambda.IFunctio
   let scope: Construct | undefined;
   let node: ConstructNode = handler.permissionsNode;
   let permissionId = `AllowEventRule${Names.nodeUniqueId(rule.node)}`;
-  if (rule instanceof Construct) {
-    // Place the Permission resource in the same stack as Rule rather than the Function
+  if (rule instanceof Construct && handler instanceof Construct && Stack.of(rule).account === Stack.of(handler).account) {
+    // Place the Permission resource in the same stack as Rule rather than the Function if they are in the same account
     // This is to reduce circular dependency when the lambda handler and the rule are across stacks.
     scope = rule;
     node = rule.node;
