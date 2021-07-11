@@ -581,7 +581,9 @@
                 "dynamodb:ListTables"
               ],
               "Effect": "Allow",
-              "Principal": "*",
+              "Principal": {
+                "AWS": "*"
+              },
               "Resource": "*"
             }
           ],

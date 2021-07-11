@@ -506,10 +506,17 @@ describe('pipeline with VPC', () => {
 });
 
 describe('pipeline with single asset publisher', () => {
+  let otherPipelineStack: Stack;
+  let otherPipeline: cdkp.CdkPipeline;
+
   beforeEach(() => {
     app = new TestApp();
     pipelineStack = new Stack(app, 'PipelineStack', { env: PIPELINE_ENV });
     pipeline = new TestGitHubNpmPipeline(pipelineStack, 'Cdk', {
+      singlePublisherPerType: true,
+    });
+    otherPipelineStack = new Stack(app, 'OtherPipelineStack', { env: PIPELINE_ENV });
+    otherPipeline = new TestGitHubNpmPipeline(otherPipelineStack, 'Cdk', {
       singlePublisherPerType: true,
     });
   });
@@ -534,13 +541,33 @@ describe('pipeline with single asset publisher', () => {
           Image: 'aws/codebuild/standard:5.0',
         },
         Source: {
-          BuildSpec: 'buildspec-assets-FileAsset.yaml',
+          BuildSpec: 'buildspec-assets-PipelineStack-Cdk-Assets-FileAsset.yaml',
         },
       });
       const assembly = SynthUtils.synthesize(pipelineStack, { skipValidation: true }).assembly;
-      const buildSpec = JSON.parse(fs.readFileSync(path.join(assembly.directory, 'buildspec-assets-FileAsset.yaml')).toString());
+      const buildSpec = JSON.parse(fs.readFileSync(path.join(assembly.directory, 'buildspec-assets-PipelineStack-Cdk-Assets-FileAsset.yaml')).toString());
       expect(buildSpec.phases.build.commands).toContain(`cdk-assets --path "assembly-FileAssetApp/FileAssetAppStackEADD68C5.assets.json" --verbose publish "${FILE_ASSET_SOURCE_HASH}:current_account-current_region"`);
       expect(buildSpec.phases.build.commands).toContain(`cdk-assets --path "assembly-FileAssetApp/FileAssetAppStackEADD68C5.assets.json" --verbose publish "${FILE_ASSET_SOURCE_HASH2}:current_account-current_region"`);
+    });
+  });
+
+  behavior('other pipeline writes to separate assets build spec file', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      pipeline.addApplicationStage(new TwoFileAssetsApp(app, 'FileAssetApp'));
+      otherPipeline.addApplicationStage(new TwoFileAssetsApp(app, 'OtherFileAssetApp'));
+
+      // THEN
+      expect(pipelineStack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Source: {
+          BuildSpec: 'buildspec-assets-PipelineStack-Cdk-Assets-FileAsset.yaml',
+        },
+      });
+      expect(otherPipelineStack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Source: {
+          BuildSpec: 'buildspec-assets-OtherPipelineStack-Cdk-Assets-FileAsset.yaml',
+        },
+      });
     });
   });
 });

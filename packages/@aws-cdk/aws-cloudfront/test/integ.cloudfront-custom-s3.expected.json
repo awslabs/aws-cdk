@@ -22,7 +22,9 @@
             {
               "Action": "s3:GetObject",
               "Effect": "Allow",
-              "Principal": "*",
+              "Principal": {
+                "AWS": "*"
+              },
               "Resource": {
                 "Fn::Join": [
                   "",

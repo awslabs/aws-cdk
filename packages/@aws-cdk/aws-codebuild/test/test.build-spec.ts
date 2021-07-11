@@ -20,9 +20,7 @@ export = {
       const rhs = codebuild.BuildSpec.fromObject({
         phases: {
           build: {
-            commands: [
-              'build',
-            ],
+            commands: 'build',
           },
         },
       });
@@ -60,9 +58,7 @@ export = {
       const rhs = codebuild.BuildSpec.fromObject({
         phases: {
           build: {
-            commands: [
-              'build2',
-            ],
+            commands: 'build2',
           },
         },
       });

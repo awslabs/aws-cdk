@@ -38,7 +38,7 @@ async function parseCommandLineArguments() {
   //
   //   ./prog --arg one --arg two position  =>  will parse to  { arg: ['one', 'two'], _: ['positional'] }.
 
-  const initTemplateLanuages = await availableInitLanguages();
+  const initTemplateLanguages = await availableInitLanguages();
   return yargs
     .env('CDK')
     .usage('Usage: cdk -a <cdk-app> COMMAND')
@@ -118,7 +118,7 @@ async function parseCommandLineArguments() {
     .option('fail', { type: 'boolean', desc: 'Fail with exit code 1 in case of diff', default: false })
     .command('metadata [STACK]', 'Returns all metadata associated with this stack')
     .command('init [TEMPLATE]', 'Create a new, empty CDK project from a template.', yargs => yargs
-      .option('language', { type: 'string', alias: 'l', desc: 'The language to be used for the new project (default can be configured in ~/.cdk.json)', choices: initTemplateLanuages })
+      .option('language', { type: 'string', alias: 'l', desc: 'The language to be used for the new project (default can be configured in ~/.cdk.json)', choices: initTemplateLanguages })
       .option('list', { type: 'boolean', desc: 'List the available templates' })
       .option('generate-only', { type: 'boolean', default: false, desc: 'If true, only generates project files, without executing additional operations such as setting up a git repo, installing dependencies or compiling the project' }),
     )

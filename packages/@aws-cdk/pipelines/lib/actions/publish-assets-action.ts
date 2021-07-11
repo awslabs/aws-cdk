@@ -175,7 +175,7 @@ export class PublishAssetsAction extends CoreConstruct implements codepipeline.I
   }
 
   private getBuildSpecFileName(): string {
-    return `buildspec-assets-${this.props.actionName}.yaml`;
+    return `buildspec-assets-${this.node.path.replace(new RegExp('/', 'g'), '-')}.yaml`;
   }
 
   private _onSynth(session: ISynthesisSession): void {

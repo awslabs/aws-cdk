@@ -31,10 +31,10 @@ export interface SqsQueueProps {
  * Use an SQS Queue as a target for Amazon EventBridge rules.
  *
  * @example
- *
- *    // publish to an SQS queue every time code is committed
- *    // to a CodeCommit repository
- *    repository.onCommit(new targets.SqsQueue(queue));
+ *   /// fixture=withRepoAndSqsQueue
+ *   // publish to an SQS queue every time code is committed
+ *   // to a CodeCommit repository
+ *   repository.onCommit('onCommit', { target: new targets.SqsQueue(queue) });
  *
  */
 export class SqsQueue implements events.IRuleTarget {

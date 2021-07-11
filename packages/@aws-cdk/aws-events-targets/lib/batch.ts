@@ -1,12 +1,12 @@
 import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import { Names, IConstruct } from '@aws-cdk/core';
-import { singletonEventRole } from './util';
+import { addToDeadLetterQueueResourcePolicy, bindBaseTargetConfig, singletonEventRole, TargetBaseProps } from './util';
 
 /**
  * Customize the Batch Job Event Target
  */
-export interface BatchJobProps {
+export interface BatchJobProps extends TargetBaseProps {
   /**
    * The event to send to the Lambda
    *
@@ -83,7 +83,12 @@ export class BatchJob implements events.IRuleTarget {
       retryStrategy: this.props.attempts ? { attempts: this.props.attempts } : undefined,
     };
 
+    if (this.props.deadLetterQueue) {
+      addToDeadLetterQueueResourcePolicy(rule, this.props.deadLetterQueue);
+    }
+
     return {
+      ...bindBaseTargetConfig(this.props),
       arn: this.jobQueueArn,
       // When scoping resource-level access for job submission, you must provide both job queue and job definition resource types.
       // https://docs.aws.amazon.com/batch/latest/userguide/ExamplePolicies_BATCH.html#iam-example-restrict-job-def

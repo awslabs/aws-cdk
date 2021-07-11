@@ -113,6 +113,11 @@ Routing traffic from a Load Balancer to a Target involves the following steps:
 - Create a Target Group, register the Target into the Target Group
 - Add an Action to the Listener which forwards traffic to the Target Group.
 
+A new listener can be added to the Load Balancer by calling `addListener()`.
+Listeners that have been added to the load balancer can be listed using the
+`listeners` property.  Note that the `listeners` property will throw an Error
+for imported or looked up Load Balancers.
+
 Various methods on the `Listener` take care of this work for you to a greater
 or lesser extent:
 

@@ -611,7 +611,7 @@ taskDefinition.addContainer('TheContainer', {
   image: ecs.ContainerImage.fromRegistry('example-image'),
   memoryLimitMiB: 256,
   logging: ecs.LogDrivers.splunk({
-    token: cdk.SecretValue.secretsManager('my-splunk-token'),
+    secretToken: cdk.SecretValue.secretsManager('my-splunk-token'),
     url: 'my-splunk-url'
   })
 });

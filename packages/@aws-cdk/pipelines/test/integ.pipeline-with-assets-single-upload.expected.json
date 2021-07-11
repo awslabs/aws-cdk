@@ -1503,7 +1503,7 @@
           ]
         },
         "Source": {
-          "BuildSpec": "buildspec-assets-FileAsset.yaml",
+          "BuildSpec": "buildspec-assets-PipelineStack-Pipeline-Assets-FileAsset.yaml",
           "Type": "CODEPIPELINE"
         },
         "EncryptionKey": {

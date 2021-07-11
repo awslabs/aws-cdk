@@ -1,0 +1,22 @@
+// Fixture with packages imported, but nothing else
+import * as cdk from '@aws-cdk/core';
+import * as appreg from '@aws-cdk/aws-servicecatalogappregistry';
+
+class Fixture extends cdk.Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const application = new appreg.Application(stack, 'MyApplication', {
+      applicationName: 'MyApplication',
+    });
+
+    const attributeGroup = new appreg.AttributeGroup(stack, 'MyAttributeGroup', {
+      attributeGroupName: 'testAttributeGroup',
+      attributes: {
+        key: 'value',
+      },
+    });
+
+    /// here
+  }
+}

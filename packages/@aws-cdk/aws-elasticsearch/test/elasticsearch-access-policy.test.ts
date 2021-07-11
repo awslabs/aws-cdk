@@ -38,7 +38,7 @@ test('minimal example renders correctly', () => {
       service: 'ES',
       parameters: {
         DomainName: 'TestDomain',
-        AccessPolicies: '{"Statement":[{"Action":"es:ESHttp*","Effect":"Allow","Principal":"*","Resource":"test:arn"}],"Version":"2012-10-17"}',
+        AccessPolicies: '{"Statement":[{"Action":"es:ESHttp*","Effect":"Allow","Principal":{"AWS":"*"},"Resource":"test:arn"}],"Version":"2012-10-17"}',
       },
       outputPath: 'DomainConfig.ElasticsearchClusterConfig.AccessPolicies',
       physicalResourceId: { id: 'TestDomainAccessPolicy' },
@@ -48,7 +48,7 @@ test('minimal example renders correctly', () => {
       service: 'ES',
       parameters: {
         DomainName: 'TestDomain',
-        AccessPolicies: '{"Statement":[{"Action":"es:ESHttp*","Effect":"Allow","Principal":"*","Resource":"test:arn"}],"Version":"2012-10-17"}',
+        AccessPolicies: '{"Statement":[{"Action":"es:ESHttp*","Effect":"Allow","Principal":{"AWS":"*"},"Resource":"test:arn"}],"Version":"2012-10-17"}',
       },
       outputPath: 'DomainConfig.ElasticsearchClusterConfig.AccessPolicies',
       physicalResourceId: { id: 'TestDomainAccessPolicy' },

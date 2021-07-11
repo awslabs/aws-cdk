@@ -279,7 +279,7 @@ describe('MSK Cluster', () => {
                   },
                 },
                 Effect: 'Allow',
-                Principal: '*',
+                Principal: { AWS: '*' },
                 Resource: '*',
               },
             ],

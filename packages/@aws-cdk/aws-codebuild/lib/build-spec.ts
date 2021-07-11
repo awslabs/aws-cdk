@@ -124,6 +124,9 @@ export function mergeBuildSpecs(lhs: BuildSpec, rhs: BuildSpec): BuildSpec {
   const lhsSpec = JSON.parse(JSON.stringify(lhs.spec));
   const rhsSpec = JSON.parse(JSON.stringify(rhs.spec));
 
+  normalizeSpec(lhsSpec);
+  normalizeSpec(rhsSpec);
+
   const merged = mergeDeep(lhsSpec, rhsSpec);
 
   // In case of test reports we replace the whole object with the RHS (instead of recursively merging)
@@ -132,6 +135,58 @@ export function mergeBuildSpecs(lhs: BuildSpec, rhs: BuildSpec): BuildSpec {
   }
 
   return new ObjectBuildSpec(merged);
+}
+
+/*
+ * Normalizes the build spec
+ * The CodeBuild runtime allows fields that are defined as string[] to be strings
+ * and interprets them as singleton lists.
+ * When merging we need to normalize this to have the correct concat semantics
+ */
+function normalizeSpec(spec: { [key: string]: any }): void {
+  if (spec.env && typeof spec.env['exported-variables'] === 'string') {
+    spec.env['exported-variables'] = [spec.env['exported-variables']];
+  }
+  for (const key in spec.phases) {
+    if (Object.prototype.hasOwnProperty.call(spec.phases, key)) {
+      normalizeSpecPhase(spec.phases[key]);
+    }
+  }
+  if (spec.reports) {
+    for (const key in spec.reports) {
+      if (Object.prototype.hasOwnProperty.call(spec.reports, key)) {
+        const report = spec.reports[key];
+        if (typeof report.files === 'string') {
+          report.files = [report.files];
+        }
+      }
+    }
+  }
+  if (spec.artifacts) {
+    if (typeof spec.artifacts.files === 'string') {
+      spec.artifacts.files = [spec.artifacts.files];
+    }
+    for (const key in spec.artifacts['secondary-artifacts']) {
+      if (Object.prototype.hasOwnProperty.call(spec.artifacts['secondary-artifacts'], key)) {
+        const secArtifact = spec.artifacts['secondary-artifacts'][key];
+        if (typeof secArtifact.files === 'string') {
+          secArtifact.files = [secArtifact.files];
+        }
+      }
+    }
+  }
+  if (spec.cache && typeof spec.cache.paths === 'string') {
+    spec.cache.paths = [spec.cache.paths];
+  }
+}
+
+function normalizeSpecPhase(phase: { [key: string]: any }): void {
+  if (phase.commands && typeof phase.commands === 'string') {
+    phase.commands = [phase.commands];
+  }
+  if (phase.finally && typeof phase.finally === 'string') {
+    phase.finally = [phase.finally];
+  }
 }
 
 function mergeDeep(lhs: any, rhs: any): any {

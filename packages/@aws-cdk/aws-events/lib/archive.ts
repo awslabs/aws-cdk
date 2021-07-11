@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { IEventBus } from './event-bus';
 import { EventPattern } from './event-pattern';
 import { CfnArchive } from './events.generated';
+import { renderEventPattern } from './util';
 
 /**
  * The event archive base properties
@@ -66,7 +67,7 @@ export class Archive extends Resource {
     let archive = new CfnArchive(this, 'Archive', {
       sourceArn: props.sourceEventBus.eventBusArn,
       description: props.description,
-      eventPattern: props.eventPattern,
+      eventPattern: renderEventPattern(props.eventPattern),
       retentionDays: props.retention?.toDays({ integral: true }) || 0,
       archiveName: this.physicalName,
     });

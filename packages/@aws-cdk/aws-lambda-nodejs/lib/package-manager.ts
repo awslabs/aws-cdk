@@ -63,8 +63,8 @@ export class PackageManager {
     return [
       os.platform() === 'win32' ? `${runCommand}.cmd` : runCommand,
       ...runArgs,
-      bin,
       ...(this.argsSeparator ? [this.argsSeparator] : []),
+      bin,
     ].join(' ');
   }
 }

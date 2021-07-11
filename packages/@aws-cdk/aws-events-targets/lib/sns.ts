@@ -18,10 +18,10 @@ export interface SnsTopicProps {
  * Use an SNS topic as a target for Amazon EventBridge rules.
  *
  * @example
- *
- *    // publish to an SNS topic every time code is committed
- *    // to a CodeCommit repository
- *    repository.onCommit(new targets.SnsTopic(topic));
+ *   /// fixture=withRepoAndTopic
+ *   // publish to an SNS topic every time code is committed
+ *   // to a CodeCommit repository
+ *   repository.onCommit('onCommit', { target: new targets.SnsTopic(topic) });
  *
  */
 export class SnsTopic implements events.IRuleTarget {

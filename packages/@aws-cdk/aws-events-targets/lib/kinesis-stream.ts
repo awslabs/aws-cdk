@@ -29,10 +29,10 @@ export interface KinesisStreamProps {
  * Use a Kinesis Stream as a target for AWS CloudWatch event rules.
  *
  * @example
- *
- *    // put to a Kinesis stream every time code is committed
- *    // to a CodeCommit repository
- *    repository.onCommit(new targets.KinesisStream(stream));
+ *   /// fixture=withRepoAndKinesisStream
+ *   // put to a Kinesis stream every time code is committed
+ *   // to a CodeCommit repository
+ *   repository.onCommit('onCommit', { target: new targets.KinesisStream(stream) });
  *
  */
 export class KinesisStream implements events.IRuleTarget {
