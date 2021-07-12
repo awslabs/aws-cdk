@@ -131,6 +131,16 @@ export interface EmrCreateClusterProps extends sfn.TaskStateBaseProps {
   readonly securityConfiguration?: string;
 
   /**
+   * Specifies the step concurrency level to allow multiple steps to run in parallel
+   *
+   * Requires EMR release label 5.28.0 or above.
+   * Must be in range [1, 256].
+   *
+   * @default 1 - no step concurrency allowed
+   */
+  readonly stepConcurrencyLevel?: number;
+
+  /**
    * A list of tags to associate with a cluster and propagate to Amazon EC2 instances.
    *
    * @default - None
@@ -191,6 +201,18 @@ export class EmrCreateCluster extends sfn.TaskStateBase {
     }
 
     this.taskPolicies = this.createPolicyStatements(this._serviceRole, this._clusterRole, this._autoScalingRole);
+
+    if (this.props.stepConcurrencyLevel) {
+      if (this.props.stepConcurrencyLevel < 1 || this.props.stepConcurrencyLevel > 256) {
+        throw new Error('Step concurrency level must be in range [1, 256]');
+      }
+      if (this.props.releaseLabel) {
+        const [major, minor] = this.props.releaseLabel.substr(4).split('.');
+        if (Number(major) < 5 || (Number(major) === 5 && Number(minor) < 28)) {
+          throw new Error('Step concurrency is only supported in EMR release version 5.28.0 and above);
+        }
+      }
+    }
   }
 
   /**
@@ -252,6 +274,7 @@ export class EmrCreateCluster extends sfn.TaskStateBase {
         ReleaseLabel: cdk.stringToCloudFormation(this.props.releaseLabel),
         ScaleDownBehavior: cdk.stringToCloudFormation(this.props.scaleDownBehavior?.valueOf()),
         SecurityConfiguration: cdk.stringToCloudFormation(this.props.securityConfiguration),
+        StepConcurrencyLevel: cdk.numberToCloudFormation(this.props.stepConcurrencyLevel),
         ...(this.props.tags ? this.renderTags(this.props.tags) : undefined),
         VisibleToAllUsers: cdk.booleanToCloudFormation(this.visibleToAllUsers),
       }),

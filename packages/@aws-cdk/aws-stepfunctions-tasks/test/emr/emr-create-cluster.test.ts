@@ -172,6 +172,54 @@ test('Create Cluster with clusterConfiguration Name from payload', () => {
   });
 });
 
+test('Create Cluster with StepConcurrencyLevel', async () => {
+  // WHEN
+  const task = new EmrCreateCluster(stack, 'Task', {
+    instances: {},
+    clusterRole,
+    name: 'Cluster',
+    serviceRole,
+    autoScalingRole,
+    stepConcurrencyLevel: 2,
+    integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
+  });
+
+  // THEN
+  expect(stack.resolve(task.toStateJson())).toEqual({
+    Type: 'Task',
+    Resource: {
+      'Fn::Join': [
+        '',
+        [
+          'arn:',
+          {
+            Ref: 'AWS::Partition',
+          },
+          ':states:::elasticmapreduce:createCluster',
+        ],
+      ],
+    },
+    End: true,
+    Parameters: {
+      Name: 'Cluster',
+      Instances: {
+        KeepJobFlowAliveWhenNoSteps: true,
+      },
+      VisibleToAllUsers: true,
+      JobFlowRole: {
+        Ref: 'ClusterRoleD9CA7471',
+      },
+      ServiceRole: {
+        Ref: 'ServiceRole4288B192',
+      },
+      AutoScalingRole: {
+        Ref: 'AutoScalingRole015ADA0A',
+      },
+      StepConcurrencyLevel: 2,
+    },
+  });
+});
+
 test('Create Cluster with Tags', () => {
   // WHEN
   const task = new EmrCreateCluster(stack, 'Task', {
