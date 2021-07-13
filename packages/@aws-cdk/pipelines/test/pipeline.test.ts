@@ -11,6 +11,7 @@ import {
   stringLike,
 } from '@aws-cdk/assert-internal';
 import '@aws-cdk/assert-internal/jest';
+import * as cb from '@aws-cdk/aws-codebuild';
 import * as cp from '@aws-cdk/aws-codepipeline';
 import * as cpa from '@aws-cdk/aws-codepipeline-actions';
 import { Stack, Stage, StageProps, SecretValue, Tags } from '@aws-cdk/core';
@@ -333,6 +334,51 @@ behavior('pipeline has self-mutation stage', (suite) => {
             build: {
               commands: arrayWith('cdk -a . deploy PipelineStack --require-approval=never --verbose'),
             },
+          },
+        })),
+        Type: 'CODEPIPELINE',
+      },
+    });
+  });
+});
+
+
+behavior('self-mutation stage can be customized with BuildSpec', (suite) => {
+  suite.legacy(() => {
+    // GIVEN
+    const stack2 = new Stack(app, 'Stack2', { env: PIPELINE_ENV });
+
+    // WHEN
+    new TestGitHubNpmPipeline(stack2, 'Cdk', {
+      selfMutationBuildSpec: cb.BuildSpec.fromObject({
+        phases: {
+          install: {
+            commands: 'npm config set registry example.com',
+          },
+        },
+        cache: {
+          paths: 'node_modules',
+        },
+      }),
+    });
+    // THEN
+    expect(stack2).toHaveResourceLike('AWS::CodeBuild::Project', {
+      Environment: {
+        Image: 'aws/codebuild/standard:5.0',
+        PrivilegedMode: false,
+      },
+      Source: {
+        BuildSpec: encodedJson(deepObjectLike({
+          phases: {
+            install: {
+              commands: ['npm config set registry example.com', 'npm install -g aws-cdk'],
+            },
+            build: {
+              commands: arrayWith('cdk -a . deploy Stack2 --require-approval=never --verbose'),
+            },
+          },
+          cache: {
+            paths: ['node_modules'],
           },
         })),
         Type: 'CODEPIPELINE',

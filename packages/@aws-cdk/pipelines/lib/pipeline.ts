@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as codebuild from '@aws-cdk/aws-codebuild';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
@@ -122,6 +123,13 @@ export interface CdkPipelineProps {
    * @default true
    */
   readonly selfMutating?: boolean;
+
+  /**
+   * Custom BuildSpec that is merged with generated one
+   *
+   * @default - none
+   */
+  readonly selfMutationBuildSpec?: codebuild.BuildSpec;
 
   /**
    * Whether this pipeline creates one asset upload action per asset type or one asset upload per asset
@@ -251,6 +259,7 @@ export class CdkPipeline extends CoreConstruct {
           projectName: maybeSuffix(props.pipelineName, '-selfupdate'),
           privileged: props.supportDockerAssets,
           dockerCredentials: this._dockerCredentials,
+          buildSpec: props.selfMutationBuildSpec,
         })],
       });
     }
