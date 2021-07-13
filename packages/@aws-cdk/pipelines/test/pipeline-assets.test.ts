@@ -572,6 +572,61 @@ describe('pipeline with single asset publisher', () => {
   });
 });
 
+
+describe('pipeline with custom asset publisher BuildSpec', () => {
+
+  beforeEach(() => {
+    app = new TestApp();
+    pipelineStack = new Stack(app, 'PipelineStack', { env: PIPELINE_ENV });
+    pipeline = new TestGitHubNpmPipeline(pipelineStack, 'Cdk', {
+      singlePublisherPerType: true,
+      assetBuildSpec: cb.BuildSpec.fromObject({
+        phases: {
+          pre_install: {
+            commands: 'preinstall',
+          },
+        },
+        cache: {
+          paths: 'node_modules',
+        },
+      }),
+    });
+  });
+
+  behavior('custom buildspec is merged correctly', (suite) => {
+    suite.legacy(() => {
+      // WHEN
+      pipeline.addApplicationStage(new TwoFileAssetsApp(app, 'FileAssetApp'));
+
+      // THEN
+      expect(pipelineStack).toHaveResourceLike('AWS::CodePipeline::Pipeline', {
+        Stages: arrayWith({
+          Name: 'Assets',
+          Actions: [
+            // Only one file asset action
+            objectLike({ RunOrder: 1, Name: 'FileAsset' }),
+          ],
+        }),
+      });
+      expect(pipelineStack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Environment: {
+          Image: 'aws/codebuild/standard:5.0',
+        },
+        Source: {
+          BuildSpec: 'buildspec-assets-PipelineStack-Cdk-Assets-FileAsset.yaml',
+        },
+      });
+      const assembly = SynthUtils.synthesize(pipelineStack, { skipValidation: true }).assembly;
+      const buildSpec = JSON.parse(fs.readFileSync(path.join(assembly.directory, 'buildspec-assets-PipelineStack-Cdk-Assets-FileAsset.yaml')).toString());
+      expect(buildSpec.phases.build.commands).toContain(`cdk-assets --path "assembly-FileAssetApp/FileAssetAppStackEADD68C5.assets.json" --verbose publish "${FILE_ASSET_SOURCE_HASH}:current_account-current_region"`);
+      expect(buildSpec.phases.build.commands).toContain(`cdk-assets --path "assembly-FileAssetApp/FileAssetAppStackEADD68C5.assets.json" --verbose publish "${FILE_ASSET_SOURCE_HASH2}:current_account-current_region"`);
+      expect(buildSpec.phases.pre_install.commands).toContain('preinstall');
+      expect(buildSpec.cache.paths).toContain('node_modules');
+    });
+  });
+
+});
+
 describe('pipeline with Docker credentials', () => {
   const secretSynthArn = 'arn:aws:secretsmanager:eu-west-1:0123456789012:secret:synth-012345';
   const secretUpdateArn = 'arn:aws:secretsmanager:eu-west-1:0123456789012:secret:update-012345';

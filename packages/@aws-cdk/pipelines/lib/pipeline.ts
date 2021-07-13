@@ -125,7 +125,7 @@ export interface CdkPipelineProps {
   readonly selfMutating?: boolean;
 
   /**
-   * Custom BuildSpec that is merged with generated one
+   * Custom BuildSpec that is merged with generated one (for self-mutation stage)
    *
    * @default - none
    */
@@ -145,6 +145,13 @@ export interface CdkPipelineProps {
    * @default -
    */
   readonly assetPreInstallCommands?: string[];
+
+  /**
+   * Custom BuildSpec that is merged with generated one (for asset publishing actions)
+   *
+   * @default - none
+   */
+  readonly assetBuildSpec?: codebuild.BuildSpec;
 
   /**
    * Whether the pipeline needs to build Docker images in the UpdatePipeline stage.
@@ -273,6 +280,7 @@ export class CdkPipeline extends CoreConstruct {
       subnetSelection: props.subnetSelection,
       singlePublisherPerType: props.singlePublisherPerType,
       preInstallCommands: props.assetPreInstallCommands,
+      buildSpec: props.assetBuildSpec,
       dockerCredentials: this._dockerCredentials,
     });
   }
@@ -425,6 +433,7 @@ interface AssetPublishingProps {
   readonly subnetSelection?: ec2.SubnetSelection;
   readonly singlePublisherPerType?: boolean;
   readonly preInstallCommands?: string[];
+  readonly buildSpec?: codebuild.BuildSpec;
   readonly dockerCredentials: DockerCredential[];
 }
 
@@ -531,6 +540,7 @@ class AssetPublishing extends CoreConstruct {
         dependable: this.assetAttachedPolicies[command.assetType],
         vpc: this.props.vpc,
         subnetSelection: this.props.subnetSelection,
+        buildSpec: this.props.buildSpec,
         createBuildspecFile: this.props.singlePublisherPerType,
         preInstallCommands: [...(this.props.preInstallCommands ?? []), ...credsInstallCommands],
       });
