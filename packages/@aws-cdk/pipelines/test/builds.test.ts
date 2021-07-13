@@ -284,6 +284,84 @@ behavior('complex setup with environment variables still renders correct project
   });
 });
 
+
+behavior('can provide custom BuildSpec that is merged with generated one', (suite) => {
+  suite.legacy(() => {
+    // WHEN
+    new TestGitHubNpmPipeline(pipelineStack, 'Cdk', {
+      sourceArtifact,
+      cloudAssemblyArtifact,
+      synthAction: new cdkp.SimpleSynthAction({
+        sourceArtifact,
+        cloudAssemblyArtifact,
+        environmentVariables: {
+          SOME_ENV_VAR: { value: 'SomeValue' },
+        },
+        environment: {
+          environmentVariables: {
+            INNER_VAR: { value: 'InnerValue' },
+          },
+          privileged: true,
+        },
+        installCommands: [
+          'install1',
+          'install2',
+        ],
+        synthCommand: 'synth',
+        buildSpec: cbuild.BuildSpec.fromObject({
+          env: {
+            variables: {
+              FOO: 'bar',
+            },
+          },
+          phases: {
+            pre_build: {
+              commands: 'installCustom',
+            },
+          },
+          cache: {
+            paths: ['node_modules'],
+          },
+        }),
+      }),
+    });
+
+    // THEN
+    expect(pipelineStack).toHaveResourceLike('AWS::CodeBuild::Project', {
+      Environment: objectLike({
+        PrivilegedMode: true,
+        EnvironmentVariables: [
+          {
+            Name: 'INNER_VAR',
+            Type: 'PLAINTEXT',
+            Value: 'InnerValue',
+          },
+        ],
+      }),
+      Source: {
+        BuildSpec: encodedJson(deepObjectLike({
+          env: {
+            variables: {
+              FOO: 'bar',
+            },
+          },
+          phases: {
+            pre_build: {
+              commands: ['installCustom', 'install1', 'install2'],
+            },
+            build: {
+              commands: ['synth'],
+            },
+          },
+          cache: {
+            paths: ['node_modules'],
+          },
+        })),
+      },
+    });
+  });
+});
+
 behavior('%s can have its install command overridden', (suite) => {
   suite.each(['npm', 'yarn']).legacy((npmYarn) => {
     // WHEN
@@ -380,11 +458,11 @@ behavior('Standard (NPM) synth can output additional artifacts', (suite) => {
             'secondary-artifacts': {
               CloudAsm: {
                 'base-directory': 'cdk.out',
-                'files': '**/*',
+                'files': ['**/*'],
               },
               IntegTest: {
                 'base-directory': 'test',
-                'files': '**/*',
+                'files': ['**/*'],
               },
             },
           },
