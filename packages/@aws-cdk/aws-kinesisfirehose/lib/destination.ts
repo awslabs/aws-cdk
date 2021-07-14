@@ -36,6 +36,43 @@ export interface IDestination {
 }
 
 /**
+ * Possible compression options Kinesis Data Firehose can use to compress data on delivery.
+ */
+export class Compression {
+  /**
+   * gzip
+   */
+  public static readonly GZIP = new Compression('GZIP');
+
+  /**
+   * Hadoop-compatible Snappy
+   */
+  public static readonly HADOOP_SNAPPY = new Compression('HADOOP_SNAPPY');
+
+  /**
+   * Snappy
+   */
+  public static readonly SNAPPY = new Compression('Snappy');
+
+  /**
+   * Uncompressed
+   */
+  public static readonly UNCOMPRESSED = new Compression('UNCOMPRESSED');
+
+  /**
+   * ZIP
+   */
+  public static readonly ZIP = new Compression('ZIP');
+
+  constructor(
+    /**
+     * String value of the Compression.
+     */
+    public readonly value: string,
+  ) { }
+}
+
+/**
  * Generic properties for defining a delivery stream destination.
  */
 export interface DestinationProps {

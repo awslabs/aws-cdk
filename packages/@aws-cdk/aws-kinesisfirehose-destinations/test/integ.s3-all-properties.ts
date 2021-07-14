@@ -27,6 +27,7 @@ new firehose.DeliveryStream(stack, 'Delivery Stream', {
   destinations: [new destinations.S3(bucket, {
     logging: true,
     logGroup: logGroup,
+    compression: firehose.Compression.GZIP,
   })],
   encryptionKey: key,
 });

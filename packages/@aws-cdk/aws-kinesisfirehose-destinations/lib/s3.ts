@@ -7,13 +7,25 @@ import { Construct } from 'constructs';
 /**
  * Props for defining an S3 destination of a Kinesis Data Firehose delivery stream.
  */
-export interface S3Props extends firehose.DestinationProps { }
+export interface S3Props extends firehose.DestinationProps {
+  /**
+   * The type of compression that Kinesis Data Firehose uses to compress the data
+   * that it delivers to the Amazon S3 bucket.
+   *
+   * The compression formats SNAPPY or ZIP cannot be specified for Amazon Redshift
+   * destinations because they are not supported by the Amazon Redshift COPY operation
+   * that reads from the S3 bucket.
+   *
+   * @default - UNCOMPRESSED
+   */
+  readonly compression?: firehose.Compression;
+}
 
 /**
  * An S3 bucket destination for data from a Kinesis Data Firehose delivery stream.
  */
 export class S3 extends firehose.DestinationBase {
-  constructor(private readonly bucket: s3.IBucket, s3Props: S3Props = {}) {
+  constructor(private readonly bucket: s3.IBucket, private readonly s3Props: S3Props = {}) {
     super(s3Props);
   }
 
@@ -34,6 +46,7 @@ export class S3 extends firehose.DestinationBase {
       cloudWatchLoggingOptions: this.createLoggingOptions(scope, deliveryStream, 'S3Destination'),
       roleArn: (deliveryStream.grantPrincipal as iam.IRole).roleArn,
       bucketArn: this.bucket.bucketArn,
+      compressionFormat: this.s3Props.compression?.value,
     };
   }
 }
