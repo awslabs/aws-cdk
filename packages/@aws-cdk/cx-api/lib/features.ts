@@ -168,9 +168,9 @@ export const LAMBDA_RECOGNIZE_VERSION_PROPS = '@aws-cdk/aws-lambda:recognizeVers
  */
 export const FUTURE_FLAGS: { [key: string]: any } = {
   [APIGATEWAY_USAGEPLANKEY_ORDERINSENSITIVE_ID]: true,
-  [ENABLE_STACK_NAME_DUPLICATES_CONTEXT]: 'true',
-  [ENABLE_DIFF_NO_FAIL_CONTEXT]: 'true',
-  [STACK_RELATIVE_EXPORTS_CONTEXT]: 'true',
+  [ENABLE_STACK_NAME_DUPLICATES_CONTEXT]: true,
+  [ENABLE_DIFF_NO_FAIL_CONTEXT]: true,
+  [STACK_RELATIVE_EXPORTS_CONTEXT]: true,
   [DOCKER_IGNORE_SUPPORT]: true,
   [SECRETS_MANAGER_PARSE_OWNED_SECRET_NAME]: true,
   [KMS_DEFAULT_KEY_POLICIES]: true,
@@ -181,7 +181,7 @@ export const FUTURE_FLAGS: { [key: string]: any } = {
   [LAMBDA_RECOGNIZE_VERSION_PROPS]: true,
 
   // We will advertise this flag when the feature is complete
-  // [NEW_STYLE_STACK_SYNTHESIS_CONTEXT]: 'true',
+  // [NEW_STYLE_STACK_SYNTHESIS_CONTEXT]: true,
 };
 
 /**
