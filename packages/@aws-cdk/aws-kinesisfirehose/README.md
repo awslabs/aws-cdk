@@ -109,6 +109,49 @@ new DeliveryStream(this, 'Delivery Stream', {
 });
 ```
 
+## Server-side Encryption
+
+Enabling server-side encryption (SSE) requires Kinesis Data Firehose to encrypt all data
+sent to delivery stream when it is stored at rest. This means that data is encrypted
+before being written to the service's internal storage layer and decrypted after it is
+received from the internal storage layer. The service manages keys and cryptographic
+operations so that sources and destinations do not need to, as the data is encrypted and
+decrypted at the boundaries of the service (ie., before the data is delivered to a
+destination). By default, delivery streams do not have SSE enabled.
+
+The Key Management Service (KMS) Customer Managed Key (CMK) used for SSE can either be
+AWS-owned or customer-managed. AWS-owned CMKs are keys that an AWS service (in this case
+Kinesis Data Firehose) owns and manages for use in multiple AWS accounts. As a customer,
+you cannot view, use, track, or manage these keys, and you are not charged for their
+use. On the other hand, customer-managed CMKs are keys that are created and owned within
+your account and managed entirely by you. As a customer, you are responsible for managing
+access, rotation, aliases, and deletion for these keys, and you are changed for their
+use. See: [Customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#master_keys)
+in the *KMS Developer Guide*.
+
+```ts fixture=with-destination
+import * as kms from '@aws-cdk/aws-kms';
+// SSE with an AWS-owned CMK
+new DeliveryStream(this, 'Delivery Stream AWS Owned', {
+  encryption: StreamEncryption.AWS_OWNED,
+  destinations: [destination],
+});
+// SSE with an customer-managed CMK that is created automatically by the CDK
+new DeliveryStream(this, 'Delivery Stream Implicit Customer Managed', {
+  encryption: StreamEncryption.CUSTOMER_MANAGED,
+  destinations: [destination],
+});
+// SSE with an customer-managed CMK that is explicitly specified
+const key = new kms.Key(this, 'Key');
+new DeliveryStream(this, 'Delivery Stream Explicit Customer Managed'', {
+  encryptionKey: key,
+  destinations: [destination],
+});
+```
+
+See: [Data Protection](https://docs.aws.amazon.com/firehose/latest/dev/encryption.html) in
+the *Kinesis Data Firehose Developer Guide*.
+
 ## Monitoring
 
 Kinesis Data Firehose is integrated with CloudWatch, so you can monitor the performance of

@@ -1,6 +1,7 @@
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
+import * as kms from '@aws-cdk/aws-kms';
 import * as cdk from '@aws-cdk/core';
 import { RegionInfo } from '@aws-cdk/region-info';
 import { Construct } from 'constructs';
@@ -160,6 +161,26 @@ export abstract class DeliveryStreamBase extends cdk.Resource implements IDelive
 }
 
 /**
+ * Options for server-side encryption of a delivery stream.
+ */
+export enum StreamEncryption {
+  /**
+   * Data in the stream is stored unencrypted.
+   */
+  UNENCRYPTED,
+
+  /**
+   * Data in the stream is stored encrypted by a KMS key managed by the customer.
+   */
+  CUSTOMER_MANAGED,
+
+  /**
+   * Data in the stream is stored encrypted by a KMS key owned by AWS and managed for use in multiple AWS accounts.
+   */
+  AWS_OWNED,
+}
+
+/**
  * Properties for a new delivery stream.
  */
 export interface DeliveryStreamProps {
@@ -183,6 +204,22 @@ export interface DeliveryStreamProps {
    * @default - a role will be created with default permissions.
    */
   readonly role?: iam.IRole;
+
+  /**
+   * Indicates the type of customer master key (CMK) to use for server-side encryption, if any.
+   *
+   * If `encryptionKey` is provided, this will be implicitly set to `CUSTOMER_MANAGED`.
+   *
+   * @default StreamEncryption.UNENCRYPTED.
+   */
+  readonly encryption?: StreamEncryption;
+
+  /**
+   * Customer managed key to server-side encrypt data in the stream.
+   *
+   * @default - if `encryption` is set to `CUSTOMER_MANAGED`, a KMS key will be created for you.
+   */
+  readonly encryptionKey?: kms.IKey;
 }
 
 /**
@@ -276,12 +313,23 @@ export class DeliveryStream extends DeliveryStreamBase {
     });
     this.grantPrincipal = role;
 
+    if ((props.encryption === StreamEncryption.AWS_OWNED || props.encryption === StreamEncryption.UNENCRYPTED) && props.encryptionKey) {
+      throw new Error(`Specified stream encryption as ${StreamEncryption[props.encryption]} but provided a customer-managed key`);
+    }
+    const encryptionKey = props.encryptionKey ?? (props.encryption === StreamEncryption.CUSTOMER_MANAGED ? new kms.Key(this, 'Key') : undefined);
+    const encryptionConfig = (encryptionKey || (props.encryption === StreamEncryption.AWS_OWNED)) ? {
+      keyArn: encryptionKey?.keyArn,
+      keyType: encryptionKey ? 'CUSTOMER_MANAGED_CMK' : 'AWS_OWNED_CMK',
+    } : undefined;
+    encryptionKey?.grantEncryptDecrypt(role);
+
     if (props.destinations.length !== 1) {
       throw new Error(`Only one destination is allowed per delivery stream, given ${props.destinations.length}`);
     }
     const destinationConfig = props.destinations[0].bind(this, { deliveryStream: this });
 
     const resource = new CfnDeliveryStream(this, 'Resource', {
+      deliveryStreamEncryptionConfigurationInput: encryptionConfig,
       deliveryStreamName: props.deliveryStreamName,
       deliveryStreamType: 'DirectPut',
       ...destinationConfig.properties,

@@ -72,6 +72,7 @@
     "jest": "^26.6.3",
     "pkglint": "0.0.0",
     "@aws-cdk/assert-internal": "0.0.0",
+    "@aws-cdk/aws-kms": "0.0.0",
     "@aws-cdk/aws-logs": "0.0.0"
   },
   "dependencies": {
