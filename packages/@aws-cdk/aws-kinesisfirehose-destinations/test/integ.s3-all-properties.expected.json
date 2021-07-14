@@ -242,21 +242,6 @@
           "Statement": [
             {
               "Action": [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "Key961B73FD",
-                  "Arn"
-                ]
-              }
-            },
-            {
-              "Action": [
                 "s3:GetObject*",
                 "s3:GetBucket*",
                 "s3:List*",
@@ -300,6 +285,21 @@
                   "Arn"
                 ]
               }
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "Key961B73FD",
+                  "Arn"
+                ]
+              }
             }
           ],
           "Version": "2012-10-17"
@@ -315,15 +315,6 @@
     "DeliveryStreamF6D5572D": {
       "Type": "AWS::KinesisFirehose::DeliveryStream",
       "Properties": {
-        "DeliveryStreamEncryptionConfigurationInput": {
-          "KeyARN": {
-            "Fn::GetAtt": [
-              "Key961B73FD",
-              "Arn"
-            ]
-          },
-          "KeyType": "CUSTOMER_MANAGED_CMK"
-        },
         "DeliveryStreamType": "DirectPut",
         "ExtendedS3DestinationConfiguration": {
           "BucketARN": {
@@ -346,6 +337,16 @@
             }
           },
           "CompressionFormat": "GZIP",
+          "EncryptionConfiguration": {
+            "KMSEncryptionConfig": {
+              "AWSKMSKeyARN": {
+                "Fn::GetAtt": [
+                  "Key961B73FD",
+                  "Arn"
+                ]
+              }
+            }
+          },
           "ErrorOutputPrefix": "errorPrefix",
           "Prefix": "regularPrefix",
           "RoleARN": {

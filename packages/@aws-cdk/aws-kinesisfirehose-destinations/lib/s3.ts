@@ -1,6 +1,7 @@
 import * as iam from '@aws-cdk/aws-iam';
 import * as firehose from '@aws-cdk/aws-kinesisfirehose';
 import { CfnDeliveryStream } from '@aws-cdk/aws-kinesisfirehose';
+import * as kms from '@aws-cdk/aws-kms';
 import * as s3 from '@aws-cdk/aws-s3';
 import { Duration, Size } from '@aws-cdk/core';
 import { Construct } from 'constructs';
@@ -44,6 +45,13 @@ export interface S3Props extends firehose.DestinationProps {
    * @default - UNCOMPRESSED
    */
   readonly compression?: firehose.Compression;
+
+  /**
+   * The AWS KMS key used to encrypt the data that it delivers to your Amazon S3 bucket.
+   *
+   * @default - Data is not encrypted.
+   */
+  readonly encryptionKey?: kms.IKey;
 
   /**
    * A prefix that Kinesis Data Firehose evaluates and adds to failed records before writing them to S3.
@@ -93,6 +101,7 @@ export class S3 extends firehose.DestinationBase {
       bufferingHints: this.createBufferingHints(this.s3Props.bufferingInterval, this.s3Props.bufferingSize),
       bucketArn: this.bucket.bucketArn,
       compressionFormat: this.s3Props.compression?.value,
+      encryptionConfiguration: this.createEncryptionConfig(deliveryStream, this.s3Props.encryptionKey),
       errorOutputPrefix: this.s3Props.errorOutputPrefix,
       prefix: this.s3Props.prefix,
     };

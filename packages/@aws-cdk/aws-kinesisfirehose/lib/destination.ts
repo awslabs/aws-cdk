@@ -1,3 +1,4 @@
+import * as kms from '@aws-cdk/aws-kms';
 import * as logs from '@aws-cdk/aws-logs';
 import { Duration, Size } from '@aws-cdk/core';
 import { Construct } from 'constructs';
@@ -130,6 +131,13 @@ export abstract class DestinationBase implements IDestination {
       throw new Error('If bufferingInterval is specified, bufferingSize must also be specified');
     }
     return undefined;
+  }
+
+  protected createEncryptionConfig(deliveryStream: IDeliveryStream, encryptionKey?: kms.IKey): CfnDeliveryStream.EncryptionConfigurationProperty {
+    encryptionKey?.grantEncryptDecrypt(deliveryStream);
+    return encryptionKey != null
+      ? { kmsEncryptionConfig: { awskmsKeyArn: encryptionKey.keyArn } }
+      : { noEncryptionConfig: 'NoEncryption' };
   }
 
   private _createLoggingOptions(
