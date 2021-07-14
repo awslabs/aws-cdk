@@ -22,7 +22,7 @@ const domain = new es.Domain(stack, 'Domain', {
 
 const api = new appsync.GraphqlApi(stack, 'api', {
   name: 'api',
-  schema: appsync.Schema.fromAsset(path.join(__dirname, 'appsync.test.graphql')),
+  schema: appsync.Schema.fromAsset(path.join(__dirname, 'schemas/appsync.test.graphql')),
 });
 
 const ds = api.addElasticsearchDataSource('ds', domain);

@@ -1,6 +1,6 @@
 import { AuthorizationType, GraphqlApi } from './graphqlapi';
 import { IGraphqlApi } from './graphqlapi-base';
-import { shapeAddition } from './private';
+import { shapeAddition } from './private/schema-shape-addition';
 import { Resolver } from './resolver';
 import { Directive, IField, IIntermediateType, AddFieldOptions } from './schema-base';
 import { BaseTypeOptions, GraphqlType, ResolvableFieldOptions, ResolvableField } from './schema-field';

@@ -1,4 +1,4 @@
-import { BaseKeyCondition, BeginsWith, Between, BinaryCondition } from './private';
+import { BaseKeyCondition, BeginsWith, Between, BinaryCondition } from './private/conditions';
 
 /**
  * Factory class for DynamoDB key conditions.

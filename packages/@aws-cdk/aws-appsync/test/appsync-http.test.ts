@@ -12,7 +12,7 @@ beforeEach(() => {
   stack = new cdk.Stack();
   api = new appsync.GraphqlApi(stack, 'baseApi', {
     name: 'api',
-    schema: appsync.Schema.fromAsset(path.join(__dirname, 'appsync.test.graphql')),
+    schema: appsync.Schema.fromAsset(path.join(__dirname, 'schemas/appsync.test.graphql')),
   });
   endpoint = 'aws.amazon.com';
 });

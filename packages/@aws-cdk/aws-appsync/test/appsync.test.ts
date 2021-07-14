@@ -11,7 +11,7 @@ beforeEach(() => {
   api = new appsync.GraphqlApi(stack, 'api', {
     authorizationConfig: {},
     name: 'api',
-    schema: appsync.Schema.fromAsset(path.join(__dirname, 'appsync.test.graphql')),
+    schema: appsync.Schema.fromAsset(path.join(__dirname, 'schemas/appsync.test.graphql')),
     logConfig: {},
   });
 });
@@ -98,7 +98,7 @@ test('when xray is enabled should not throw an Error', () => {
   new appsync.GraphqlApi(stack, 'api-x-ray', {
     authorizationConfig: {},
     name: 'api',
-    schema: appsync.Schema.fromAsset(path.join(__dirname, 'appsync.test.graphql')),
+    schema: appsync.Schema.fromAsset(path.join(__dirname, 'schemas/appsync.test.graphql')),
     xrayEnabled: true,
   });
 
@@ -121,7 +121,7 @@ test('appsync GraphqlApi should be configured with custom CloudWatch Logs role w
   new appsync.GraphqlApi(stack, 'api-custom-cw-logs-role', {
     authorizationConfig: {},
     name: 'apiWithCustomRole',
-    schema: appsync.Schema.fromAsset(path.join(__dirname, 'appsync.test.graphql')),
+    schema: appsync.Schema.fromAsset(path.join(__dirname, 'schemas/appsync.test.graphql')),
     logConfig: {
       role: cloudWatchLogRole,
     },

@@ -426,7 +426,7 @@ export class GraphqlApi extends GraphqlApiBase {
     this.arn = this.api.attrArn;
     this.graphqlUrl = this.api.attrGraphQlUrl;
     this.name = this.api.name;
-    this.schema = props.schema ?? new Schema();
+    this.schema = props.schema ?? Schema.fromCode();
     this.schemaResource = this.schema.bind(this);
 
     if (modes.some((mode) => mode.authorizationType === AuthorizationType.API_KEY)) {

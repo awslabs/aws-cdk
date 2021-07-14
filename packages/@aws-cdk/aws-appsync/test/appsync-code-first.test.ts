@@ -147,7 +147,7 @@ describe('code-first implementation through Schema functions`', () => {
   let schema: appsync.Schema;
   beforeEach(() => {
     // GIVEN
-    schema = new appsync.Schema();
+    schema = appsync.Schema.fromCode();
   });
 
   test('testing addType w/ Interface Type for schema definition mode `code`', () => {

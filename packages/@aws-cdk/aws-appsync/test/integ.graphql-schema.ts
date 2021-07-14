@@ -19,7 +19,7 @@ import * as ScalarType from './scalar-type-defintions';
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'code-first-schema');
 
-const schema = new appsync.Schema();
+const schema = appsync.Schema.fromCode();
 
 const node = new appsync.InterfaceType('Node', {
   definition: {
