@@ -47,6 +47,8 @@ describe('S3 destination', () => {
     const destination = new firehosedestinations.S3(bucket, {
       logging: true,
       compression: firehose.Compression.ZIP,
+      prefix: 'regularPrefix',
+      errorOutputPrefix: 'errorPrefix',
     });
 
     const destinationProperties = destination.bind(stack, { deliveryStream }).properties;
@@ -63,6 +65,8 @@ describe('S3 destination', () => {
             Ref: 'LogGroupS3Destination70CE1003',
           },
         },
+        prefix: 'regularPrefix',
+        errorOutputPrefix: 'errorPrefix',
         compressionFormat: 'ZIP',
         roleArn: deliveryStreamRole.roleArn,
       },

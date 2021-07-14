@@ -19,6 +19,26 @@ export interface S3Props extends firehose.DestinationProps {
    * @default - UNCOMPRESSED
    */
   readonly compression?: firehose.Compression;
+
+  /**
+   * A prefix that Kinesis Data Firehose evaluates and adds to failed records before writing them to S3.
+   *
+   * This prefix appears immediately following the bucket name.
+   * @see https://docs.aws.amazon.com/firehose/latest/dev/s3-prefixes.html
+   *
+   * @default "YYYY/MM/DD/HH"
+   */
+  readonly errorOutputPrefix?: string;
+
+  /**
+   * A prefix that Kinesis Data Firehose evaluates and adds to records before writing them to S3.
+   *
+   * This prefix appears immediately following the bucket name.
+   * @see https://docs.aws.amazon.com/firehose/latest/dev/s3-prefixes.html
+   *
+   * @default "YYYY/MM/DD/HH"
+   */
+  readonly prefix?: string;
 }
 
 /**
@@ -47,6 +67,8 @@ export class S3 extends firehose.DestinationBase {
       roleArn: (deliveryStream.grantPrincipal as iam.IRole).roleArn,
       bucketArn: this.bucket.bucketArn,
       compressionFormat: this.s3Props.compression?.value,
+      errorOutputPrefix: this.s3Props.errorOutputPrefix,
+      prefix: this.s3Props.prefix,
     };
   }
 }

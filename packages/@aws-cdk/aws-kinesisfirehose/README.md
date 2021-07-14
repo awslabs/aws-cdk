@@ -109,6 +109,19 @@ new DeliveryStream(this, 'Delivery Stream', {
 });
 ```
 
+The S3 destination also supports custom dynamic prefixes. `prefix` will be used for files
+successfully delivered to S3. `errorOutputPrefix` will be added to failed records before
+writing them to S3.
+
+```ts fixture=with-bucket
+const s3Destination = new destinations.S3(bucket, {
+  prefix: 'myFirehose/DeliveredYear=!{timestamp:yyyy}/anyMonth/rand=!{firehose:random-string}',
+  errorOutputPrefix: 'myFirehoseFailures/!{firehose:error-output-type}/!{timestamp:yyyy}/anyMonth/!{timestamp:dd}',
+});
+```
+
+See: [Custom S3 Prefixes](https://docs.aws.amazon.com/firehose/latest/dev/s3-prefixes.html) in the *Kinesis Data Firehose Developer Guide*.
+
 ## Server-side Encryption
 
 Enabling server-side encryption (SSE) requires Kinesis Data Firehose to encrypt all data

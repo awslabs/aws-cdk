@@ -342,6 +342,8 @@
             }
           },
           "CompressionFormat": "GZIP",
+          "ErrorOutputPrefix": "errorPrefix",
+          "Prefix": "regularPrefix",
           "RoleARN": {
             "Fn::GetAtt": [
               "DeliveryStreamServiceRole964EEBCC",
