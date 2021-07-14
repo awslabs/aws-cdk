@@ -256,6 +256,30 @@ new DeliveryStream(this, 'Delivery Stream', {
 });
 ```
 
+## Buffering
+
+Incoming data is buffered before it is delivered to the specified destination. The
+delivery stream will wait until the amount of incoming data has exceeded some threshold
+(the "buffer size") or until the time since the last data delivery occurred exceeds some
+threshold (the "buffer interval"), whichever happens first. You can configure these
+thresholds based on the capabilities of the destination and your use-case. By default, the
+buffer size is 3 MiB and the buffer interval is 1 minute.
+
+```ts fixture=with-bucket
+// Increase the buffer interval and size to 5 minutes and 3 MiB, respectively
+import * as cdk from '@aws-cdk/core';
+const s3Destination = new destinations.S3(bucket, {
+  bufferingInterval: cdk.Duration.minutes(5),
+  bufferingSize: cdk.Size.mebibytes(8),
+});
+new DeliveryStream(this, 'Delivery Stream', {
+  destinations: [destination],
+});
+```
+
+See: [Data Delivery Frequency](https://docs.aws.amazon.com/firehose/latest/dev/basic-deliver.html#frequency)
+in the *Kinesis Data Firehose Developer Guide*.
+
 ## Specifying an IAM role
 
 The DeliveryStream class automatically creates an IAM role with all the minimum necessary

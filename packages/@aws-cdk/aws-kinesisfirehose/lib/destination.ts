@@ -1,4 +1,5 @@
 import * as logs from '@aws-cdk/aws-logs';
+import { Duration, Size } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { IDeliveryStream } from './delivery-stream';
 import { CfnDeliveryStream } from './kinesisfirehose.generated';
@@ -109,6 +110,26 @@ export abstract class DestinationBase implements IDestination {
     streamId: string,
   ): CfnDeliveryStream.CloudWatchLoggingOptionsProperty | undefined {
     return this._createLoggingOptions(scope, deliveryStream, streamId, 'LogGroup', this.props.logging, this.props.logGroup);
+  }
+
+  protected createBufferingHints(bufferingInterval?: Duration, bufferingSize?: Size): CfnDeliveryStream.BufferingHintsProperty | undefined {
+    if (bufferingInterval && bufferingSize) {
+      if (bufferingInterval.toSeconds() < 60 || bufferingInterval.toSeconds() > 900) {
+        throw new Error('Buffering interval must be between 60 and 900 seconds');
+      }
+      if (bufferingSize.toMebibytes() < 1 || bufferingSize.toMebibytes() > 128) {
+        throw new Error('Buffering size must be between 1 and 128 MBs');
+      }
+      return {
+        intervalInSeconds: bufferingInterval.toSeconds(),
+        sizeInMBs: bufferingSize.toMebibytes(),
+      };
+    } else if (!bufferingInterval && bufferingSize) {
+      throw new Error('If bufferingSize is specified, bufferingInterval must also be specified');
+    } else if (bufferingInterval && !bufferingSize) {
+      throw new Error('If bufferingInterval is specified, bufferingSize must also be specified');
+    }
+    return undefined;
   }
 
   private _createLoggingOptions(

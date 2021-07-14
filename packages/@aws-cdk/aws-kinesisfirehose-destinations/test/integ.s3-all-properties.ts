@@ -30,6 +30,8 @@ new firehose.DeliveryStream(stack, 'Delivery Stream', {
     compression: firehose.Compression.GZIP,
     prefix: 'regularPrefix',
     errorOutputPrefix: 'errorPrefix',
+    bufferingInterval: cdk.Duration.seconds(60),
+    bufferingSize: cdk.Size.mebibytes(1),
   })],
   encryptionKey: key,
 });

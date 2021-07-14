@@ -2,6 +2,7 @@ import '@aws-cdk/assert-internal/jest';
 import * as iam from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
+import { Duration, Size } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import * as firehose from '../lib';
 
@@ -153,6 +154,93 @@ describe('destination', () => {
           },
         },
       });
+    });
+  });
+
+  describe('createBufferingHints', () => {
+    interface BufferingDestinationProps extends firehose.DestinationProps {
+      bufferingInterval?: Duration,
+      bufferingSize?: Size,
+    }
+    class BufferingDestination extends firehose.DestinationBase {
+      constructor(protected readonly props: BufferingDestinationProps = {}) {
+        super(props);
+      }
+
+      public bind(_scope: Construct, _options: firehose.DestinationBindOptions): firehose.DestinationConfig {
+        return {
+          properties: {
+            testDestinationConfig: {
+              bufferingConfig: this.createBufferingHints(this.props?.bufferingInterval, this.props?.bufferingSize),
+            },
+          },
+        };
+      }
+    }
+
+    test('does not create configuration by default', () => {
+      const testDestination = new BufferingDestination();
+
+      const testDestinationConfig = testDestination.bind(stack, { deliveryStream });
+
+      expect(stack.resolve(testDestinationConfig)).toStrictEqual({
+        properties: {
+          testDestinationConfig: {},
+        },
+      });
+    });
+
+    test('creates configuration when interval and size provided', () => {
+      const testDestination = new BufferingDestination({
+        bufferingInterval: cdk.Duration.minutes(1),
+        bufferingSize: cdk.Size.kibibytes(1024),
+      });
+
+      const testDestinationConfig = testDestination.bind(stack, { deliveryStream });
+
+      expect(stack.resolve(testDestinationConfig)).toStrictEqual({
+        properties: {
+          testDestinationConfig: {
+            bufferingConfig: {
+              intervalInSeconds: 60,
+              sizeInMBs: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test('throws when only one of interval and size provided', () => {
+      expect(() => new BufferingDestination({ bufferingInterval: cdk.Duration.minutes(1) }).bind(stack, { deliveryStream }))
+        .toThrowError('If bufferingInterval is specified, bufferingSize must also be specified');
+      expect(() => new BufferingDestination({ bufferingSize: cdk.Size.kibibytes(1024) }).bind(stack, { deliveryStream }))
+        .toThrowError('If bufferingSize is specified, bufferingInterval must also be specified');
+    });
+
+    test('validates bufferingInterval', () => {
+      expect(() => new BufferingDestination({
+        bufferingInterval: cdk.Duration.seconds(30),
+        bufferingSize: cdk.Size.mebibytes(1),
+      }).bind(stack, { deliveryStream }))
+        .toThrowError('Buffering interval must be between 60 and 900 seconds');
+      expect(() => new BufferingDestination({
+        bufferingInterval: cdk.Duration.minutes(16),
+        bufferingSize: cdk.Size.mebibytes(1),
+      }).bind(stack, { deliveryStream }))
+        .toThrowError('Buffering interval must be between 60 and 900 seconds');
+    });
+
+    test('validates bufferingSize', () => {
+      expect(() => new BufferingDestination({
+        bufferingSize: cdk.Size.mebibytes(0),
+        bufferingInterval: cdk.Duration.minutes(1),
+      }).bind(stack, { deliveryStream }))
+        .toThrowError('Buffering size must be between 1 and 128 MBs');
+      expect(() => new BufferingDestination({
+        bufferingSize: cdk.Size.mebibytes(256),
+        bufferingInterval: cdk.Duration.minutes(1),
+      }).bind(stack, { deliveryStream }))
+        .toThrowError('Buffering size must be between 1 and 128 MBs');
     });
   });
 });

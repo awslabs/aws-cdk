@@ -49,6 +49,8 @@ describe('S3 destination', () => {
       compression: firehose.Compression.ZIP,
       prefix: 'regularPrefix',
       errorOutputPrefix: 'errorPrefix',
+      bufferingInterval: cdk.Duration.seconds(60),
+      bufferingSize: cdk.Size.mebibytes(1),
     });
 
     const destinationProperties = destination.bind(stack, { deliveryStream }).properties;
@@ -56,6 +58,10 @@ describe('S3 destination', () => {
     expect(stack.resolve(destinationProperties)).toStrictEqual({
       extendedS3DestinationConfiguration: {
         bucketArn: stack.resolve(bucket.bucketArn),
+        bufferingHints: {
+          intervalInSeconds: 60,
+          sizeInMBs: 1,
+        },
         cloudWatchLoggingOptions: {
           enabled: true,
           logGroupName: {

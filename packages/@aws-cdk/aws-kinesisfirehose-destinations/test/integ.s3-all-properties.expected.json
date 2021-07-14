@@ -332,6 +332,10 @@
               "Arn"
             ]
           },
+          "BufferingHints": {
+            "IntervalInSeconds": 60,
+            "SizeInMBs": 1
+          },
           "CloudWatchLoggingOptions": {
             "Enabled": true,
             "LogGroupName": {
