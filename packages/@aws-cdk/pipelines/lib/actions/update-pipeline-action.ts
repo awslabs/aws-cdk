@@ -62,6 +62,13 @@ export interface UpdatePipelineActionProps {
    * @default []
    */
   readonly dockerCredentials?: DockerCredential[];
+
+  /**
+   * Custom BuildSpec that is merged with generated one
+   *
+   * @default - none
+   */
+  readonly buildSpec?: codebuild.BuildSpec;
 }
 
 /**
@@ -88,7 +95,7 @@ export class UpdatePipelineAction extends CoreConstruct implements codepipeline.
         buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
         privileged: props.privileged ?? false,
       },
-      buildSpec: codebuild.BuildSpec.fromObject({
+      buildSpec: codebuild.mergeBuildSpecs(props.buildSpec ?? codebuild.BuildSpec.fromObject({}), codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
           install: {
@@ -104,7 +111,7 @@ export class UpdatePipelineAction extends CoreConstruct implements codepipeline.
             ],
           },
         },
-      }),
+      })),
     });
 
     // allow the self-mutating project permissions to assume the bootstrap Action role
@@ -142,8 +149,7 @@ export class UpdatePipelineAction extends CoreConstruct implements codepipeline.
   /**
    * Exists to implement IAction
    */
-  public bind(scope: CoreConstruct, stage: codepipeline.IStage, options: codepipeline.ActionBindOptions):
-  codepipeline.ActionConfig {
+  public bind(scope: CoreConstruct, stage: codepipeline.IStage, options: codepipeline.ActionBindOptions): codepipeline.ActionConfig {
     return this.action.bind(scope, stage, options);
   }
 

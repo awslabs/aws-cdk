@@ -117,6 +117,13 @@ export interface SimpleSynthOptions {
    * @default - All private subnets.
    */
   readonly subnetSelection?: ec2.SubnetSelection;
+
+  /**
+   * custom BuildSpec that is merged with the generated one
+   *
+   * @default - none
+   */
+  readonly buildSpec?: codebuild.BuildSpec;
 }
 
 /**
@@ -358,13 +365,15 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
       ...copyEnvironmentVariables(...this.props.copyEnvironmentVariables || []),
     };
 
+    const mergedBuildSpec = codebuild.mergeBuildSpecs(this.props.buildSpec ?? codebuild.BuildSpec.fromObject({}), buildSpec);
+
     // A hash over the values that make the CodeBuild Project unique (and necessary
     // to restart the pipeline if one of them changes). projectName is not necessary to include
     // here because the pipeline will definitely restart if projectName changes.
     // (Resolve tokens)
     const projectConfigHash = hash(Stack.of(scope).resolve({
       environment: serializeBuildEnvironment(environment),
-      buildSpecString: buildSpec.toBuildSpec(),
+      buildSpecString: mergedBuildSpec.toBuildSpec(),
       environmentVariables,
     }));
 
@@ -373,7 +382,7 @@ export class SimpleSynthAction implements codepipeline.IAction, iam.IGrantable {
       environment,
       vpc: this.props.vpc,
       subnetSelection: this.props.subnetSelection,
-      buildSpec,
+      buildSpec: mergedBuildSpec,
       environmentVariables,
     });
 
