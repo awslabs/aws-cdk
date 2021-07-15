@@ -66,9 +66,9 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/mock-fs": "^4.13.0",
-    "@types/semver": "^7.3.6",
+    "@types/jest": "^26.0.24",
+    "@types/mock-fs": "^4.13.1",
+    "@types/semver": "^7.3.7",
     "cdk-build-tools": "0.0.0",
     "jest": "^26.6.3",
     "mock-fs": "^4.14.0",

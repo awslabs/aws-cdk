@@ -1,7 +1,9 @@
 /**
  * The language code.
+ * Used for error and logging messages for end users.
+ * The default behavior if not specified is English.
  */
-export enum AcceptLanguage {
+export enum MessageLanguage {
   /**
    * English
    */

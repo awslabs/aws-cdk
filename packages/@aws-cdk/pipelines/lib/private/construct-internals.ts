@@ -4,7 +4,10 @@
 import * as path from 'path';
 import { App, Stage } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
-import { IConstruct, Node } from 'constructs';
+import { Construct, IConstruct, Node } from 'constructs';
+
+// eslint-disable-next-line no-duplicate-imports,import/order
+import { Construct as CoreConstruct } from '@aws-cdk/core';
 
 export function appOf(construct: IConstruct): App {
   const root = Node.of(construct).root;
@@ -35,4 +38,12 @@ export function embeddedAsmPath(scope: IConstruct) {
  */
 export function cloudAssemblyBuildSpecDir(scope: IConstruct) {
   return assemblyBuilderOf(appOf(scope)).outdir;
+}
+
+export function obtainScope(parent: Construct, id: string): Construct {
+  const existing = Node.of(parent).tryFindChild(id);
+  if (existing) {
+    return existing as Construct;
+  }
+  return new CoreConstruct(parent, id);
 }

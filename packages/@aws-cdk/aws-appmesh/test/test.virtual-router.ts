@@ -1,7 +1,6 @@
-import { expect, haveResourceLike } from '@aws-cdk/assert-internal';
+import { ABSENT, expect, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
-
 import * as appmesh from '../lib';
 
 export = {
@@ -80,10 +79,38 @@ export = {
               },
             ],
           },
+          MeshOwner: ABSENT,
         }));
       });
 
       test.done();
+    },
+
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const virtualRouterEnv = { account: '9987654321', region: 'us-west-2' };
+
+        // Creating stack in Account B
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: virtualRouterEnv });
+        // Mesh is in Account A
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+
+        // WHEN
+        new appmesh.VirtualRouter(stack, 'test-node', {
+          mesh: sharedMesh,
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualRouter', {
+          MeshOwner: meshEnv.account,
+        }));
+
+        test.done();
+      },
     },
   },
 
@@ -121,7 +148,7 @@ export = {
             },
           ],
           match: {
-            prefixPath: '/',
+            path: appmesh.HttpRoutePathMatch.startsWith('/'),
           },
         }),
       });
@@ -208,7 +235,7 @@ export = {
             },
           ],
           match: {
-            prefixPath: '/',
+            path: appmesh.HttpRoutePathMatch.startsWith('/'),
           },
         }),
       });
@@ -222,7 +249,7 @@ export = {
             },
           ],
           match: {
-            prefixPath: '/path2',
+            path: appmesh.HttpRoutePathMatch.startsWith('/path2'),
           },
         }),
       });
@@ -236,7 +263,7 @@ export = {
             },
           ],
           match: {
-            prefixPath: '/path3',
+            path: appmesh.HttpRoutePathMatch.startsWith('/path3'),
           },
         }),
       });

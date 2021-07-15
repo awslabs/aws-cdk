@@ -691,7 +691,7 @@ describe('fromCfnKey()', () => {
             {
               Action: 'kms:action',
               Effect: 'Allow',
-              Principal: '*',
+              Principal: { AWS: '*' },
               Resource: '*',
             },
           ],

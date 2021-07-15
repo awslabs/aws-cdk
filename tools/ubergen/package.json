@@ -29,7 +29,7 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/fs-extra": "^8.1.1",
+    "@types/fs-extra": "^8.1.2",
     "cdk-build-tools": "0.0.0",
     "pkglint": "0.0.0"
   },

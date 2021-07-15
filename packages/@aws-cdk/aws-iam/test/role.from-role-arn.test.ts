@@ -302,6 +302,30 @@ describe('IAM Role.fromRoleArn', () => {
         });
       });
     });
+
+    describe('and with mutable=false and addGrantsToResources=true', () => {
+      beforeEach(() => {
+        roleStack = new Stack(app, 'RoleStack');
+        importedRole = Role.fromRoleArn(roleStack, 'ImportedRole',
+          `arn:aws:iam::${roleAccount}:role/${roleName}`, { mutable: false, addGrantsToResources: true });
+      });
+
+      describe('then adding a PolicyStatement to it', () => {
+        let addToPolicyResult: boolean;
+
+        beforeEach(() => {
+          addToPolicyResult = importedRole.addToPolicy(somePolicyStatement());
+        });
+
+        test('pretends to fail', () => {
+          expect(addToPolicyResult).toBe(false);
+        });
+
+        test("does NOT generate a default Policy resource pointing at the imported role's physical name", () => {
+          expect(roleStack).not.toHaveResourceLike('AWS::IAM::Policy');
+        });
+      });
+    });
   });
 
   describe('imported with a dynamic ARN', () => {

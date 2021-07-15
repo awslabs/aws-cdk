@@ -73,8 +73,8 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/aws-lambda": "^8.10.77",
+    "@types/jest": "^26.0.24",
+    "@types/aws-lambda": "^8.10.78",
     "@aws-cdk/aws-apigatewayv2-integrations": "0.0.0",
     "@aws-cdk/aws-lambda": "0.0.0",
     "cdk-build-tools": "0.0.0",

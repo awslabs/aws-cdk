@@ -14,7 +14,7 @@
     "build+extract": "npm run build"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "@types/node": "^10.17.60",
     "typescript": "~3.9.10"
   },

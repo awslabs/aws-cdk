@@ -56,8 +56,8 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/fs-extra": "^8.1.1",
-    "@types/jest": "^26.0.23",
+    "@types/fs-extra": "^8.1.2",
+    "@types/jest": "^26.0.24",
     "cdk-build-tools": "0.0.0",
     "fs-extra": "^9.1.0",
     "pkglint": "0.0.0"

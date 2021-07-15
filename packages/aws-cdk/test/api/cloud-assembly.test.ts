@@ -135,7 +135,7 @@ test('select behavior with nested assemblies: repeat', async() => {
   const cxasm = await testNestedCloudAssembly();
 
   // WHEN
-  const x = await cxasm.selectStacks({ patterns: ['withouterrors', 'withouterrors', 'nested'] }, {
+  const x = await cxasm.selectStacks({ patterns: ['deeply/hidden/withouterrors', 'nested'] }, {
     defaultBehavior: DefaultSelection.AllStacks,
   });
 

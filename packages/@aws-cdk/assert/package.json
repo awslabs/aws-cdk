@@ -36,7 +36,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "aws-cdk-migration": "0.0.0",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "cdk-build-tools": "0.0.0",
     "constructs": "^10.0.0",
     "aws-cdk-lib": "0.0.0",

@@ -1,0 +1,28 @@
+// Fixture with packages imported, but nothing else
+import { Construct, Stack } from '@aws-cdk/core';
+import * as servicecatalog from '@aws-cdk/aws-servicecatalog';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const portfolio = new servicecatalog.Portfolio(this, "MyFirstPortfolio", {
+      displayName: "MyFirstPortfolio",
+      providerName: "MyTeam",
+    });
+
+    const product = new servicecatalog.CloudFormationProduct(this, 'MyFirstProduct', {
+      productName: "My Product",
+      owner: "Product Owner",
+      productVersions: [
+        {
+          productVersionName: "v1",
+          cloudFormationTemplate: servicecatalog.CloudFormationTemplate.fromUrl(
+            'https://raw.githubusercontent.com/awslabs/aws-cloudformation-templates/master/aws/services/ServiceCatalog/Product.yaml'),
+        },
+      ]
+    });
+
+    /// here
+  }
+}

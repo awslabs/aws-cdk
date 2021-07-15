@@ -1,5 +1,6 @@
 import { TemplateAssertions, Match } from '@aws-cdk/assertions';
 import * as ec2 from '@aws-cdk/aws-ec2';
+import * as iam from '@aws-cdk/aws-iam';
 import * as kms from '@aws-cdk/aws-kms';
 import { App, RemovalPolicy, Size, Stack, Tags } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
@@ -192,7 +193,7 @@ test('file system is created correctly with provisioned throughput mode', () => 
   });
 });
 
-test('existing file system is imported correctly', () => {
+test('existing file system is imported correctly using id', () => {
   // WHEN
   const fs = FileSystem.fromFileSystemAttributes(stack, 'existingFS', {
     fileSystemId: 'fs123',
@@ -206,6 +207,97 @@ test('existing file system is imported correctly', () => {
   // THEN
   TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EC2::SecurityGroupEgress', {
     GroupId: 'sg-123456789',
+  });
+});
+
+test('existing file system is imported correctly using arn', () => {
+  // WHEN
+  const arn = stack.formatArn({
+    service: 'elasticfilesystem',
+    resource: 'file-system',
+    resourceName: 'fs-12912923',
+  });
+  const fs = FileSystem.fromFileSystemAttributes(stack, 'existingFS', {
+    fileSystemArn: arn,
+    securityGroup: ec2.SecurityGroup.fromSecurityGroupId(stack, 'SG', 'sg-123456789', {
+      allowAllOutbound: false,
+    }),
+  });
+
+  fs.connections.allowToAnyIpv4(ec2.Port.tcp(443));
+
+  // THEN
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::EC2::SecurityGroupEgress', {
+    GroupId: 'sg-123456789',
+  });
+
+  expect(fs.fileSystemArn).toEqual(arn);
+  expect(fs.fileSystemId).toEqual('fs-12912923');
+});
+
+test('must throw an error when trying to import a fileSystem without specifying id or arn', () => {
+  // WHEN
+  expect(() => {
+    FileSystem.fromFileSystemAttributes(stack, 'existingFS', {
+      securityGroup: ec2.SecurityGroup.fromSecurityGroupId(stack, 'SG', 'sg-123456789', {
+        allowAllOutbound: false,
+      }),
+    });
+  }).toThrow(/One of fileSystemId or fileSystemArn, but not both, must be provided./);
+});
+
+test('must throw an error when trying to import a fileSystem specifying both id and arn', () => {
+  // WHEN
+  const arn = stack.formatArn({
+    service: 'elasticfilesystem',
+    resource: 'file-system',
+    resourceName: 'fs-12912923',
+  });
+
+  expect(() => {
+    FileSystem.fromFileSystemAttributes(stack, 'existingFS', {
+      fileSystemArn: arn,
+      fileSystemId: 'fs-12343435',
+      securityGroup: ec2.SecurityGroup.fromSecurityGroupId(stack, 'SG', 'sg-123456789', {
+        allowAllOutbound: false,
+      }),
+    });
+  }).toThrow(/One of fileSystemId or fileSystemArn, but not both, must be provided./);
+});
+
+test('support granting permissions', () => {
+  const fileSystem = new FileSystem(stack, 'EfsFileSystem', {
+    vpc,
+  });
+
+  const role = new iam.Role(stack, 'Role', {
+    assumedBy: new iam.AnyPrincipal(),
+  });
+
+  fileSystem.grant(role, 'elasticfilesystem:ClientWrite');
+
+  TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::IAM::Policy', {
+    PolicyDocument: {
+      Statement: [
+        {
+          Action: 'elasticfilesystem:ClientWrite',
+          Effect: 'Allow',
+          Resource: {
+            'Fn::GetAtt': [
+              'EfsFileSystem37910666',
+              'Arn',
+            ],
+          },
+        },
+      ],
+      Version: '2012-10-17',
+    },
+    PolicyName: 'RoleDefaultPolicy5FFB7DAB',
+    Roles: [
+      {
+        Ref: 'Role1ABCC5F0',
+      },
+    ],
   });
 });
 

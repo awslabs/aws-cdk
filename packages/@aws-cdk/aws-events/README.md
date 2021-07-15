@@ -136,9 +136,9 @@ The following targets are supported:
 * `targets.BatchJob`: Queue an AWS Batch Job
 * `targets.AwsApi`: Make an AWS API call
 
-### Cross-account targets
+### Cross-account and cross-region targets
 
-It's possible to have the source of the event and a target in separate AWS accounts:
+It's possible to have the source of the event and a target in separate AWS accounts and regions:
 
 ```ts
 import { App, Stack } from '@aws-cdk/core';
@@ -148,7 +148,7 @@ import * as targets from '@aws-cdk/aws-events-targets';
 
 const app = new App();
 
-const stack1 = new Stack(app, 'Stack1', { env: { account: account1, region: 'us-east-1' } });
+const stack1 = new Stack(app, 'Stack1', { env: { account: account1, region: 'us-west-1' } });
 const repo = new codecommit.Repository(stack1, 'Repository', {
   // ...
 });
@@ -170,9 +170,6 @@ In this situation, the CDK will wire the 2 accounts together:
 * It will generate a separate stack that gives the source account permissions to publish events
   to the event bus of the target account in the given region,
   and make sure its deployed before the source stack
-
-**Note**: while events can span multiple accounts, they _cannot_ span different regions
-(that is an EventBridge, not CDK, limitation).
 
 For more information, see the
 [AWS documentation on cross-account events](https://docs.aws.amazon.com/eventbridge/latest/userguide/eventbridge-cross-account-event-delivery.html).

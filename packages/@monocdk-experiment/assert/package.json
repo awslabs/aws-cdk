@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@monocdk-experiment/rewrite-imports": "0.0.0",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "@types/node": "^10.17.60",
     "cdk-build-tools": "0.0.0",
     "constructs": "^10.0.0",

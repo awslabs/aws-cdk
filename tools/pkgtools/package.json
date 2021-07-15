@@ -31,8 +31,8 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/fs-extra": "^8.1.1",
-    "@types/yargs": "^15.0.13",
+    "@types/fs-extra": "^8.1.2",
+    "@types/yargs": "^15.0.14",
     "cdk-build-tools": "0.0.0",
     "pkglint": "0.0.0"
   },

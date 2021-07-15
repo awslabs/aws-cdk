@@ -19,6 +19,29 @@ export = {
     test.done();
   },
 
+  'test interval completion'(test: Test) {
+    const lowerIncompleteIntervals = normalizeIntervals(
+      incompleteLowerRelativeIntervals(),
+      false);
+    const upperIncompleteIntervals = normalizeIntervals(
+      incompleteUpperRelativeIntervals(),
+      false);
+
+    test.deepEqual(lowerIncompleteIntervals, [
+      { lower: 0, upper: 65, change: undefined },
+      { lower: 65, upper: 85, change: +2 },
+      { lower: 85, upper: Infinity, change: +3 },
+    ]);
+
+    test.deepEqual(upperIncompleteIntervals, [
+      { lower: 0, upper: 65, change: +2 },
+      { lower: 65, upper: 85, change: +3 },
+      { lower: 85, upper: Infinity, change: undefined },
+    ]);
+
+    test.done();
+  },
+
   'bounds propagation fails if middle boundary missing'(test: Test) {
     test.throws(() => {
       normalizeIntervals([
@@ -111,5 +134,23 @@ function realisticRelativeIntervals(): appscaling.ScalingInterval[] {
     { upper: 20, change: -1 },
     { lower: 80, change: +1 },
     { lower: 90, change: +2 },
+  ];
+}
+
+function incompleteLowerRelativeIntervals(): appscaling.ScalingInterval[] {
+  // Function so we don't have to worry about cloning
+  // The first interval's lower is not zero nor undefined
+  return [
+    { lower: 65, change: +2 },
+    { lower: 85, change: +3 },
+  ];
+}
+
+function incompleteUpperRelativeIntervals(): appscaling.ScalingInterval[] {
+  // Function so we don't have to worry about cloning
+  // The last interval's upper is not Infinity nor undefined
+  return [
+    { upper: 65, change: +2 },
+    { upper: 85, change: +3 },
   ];
 }

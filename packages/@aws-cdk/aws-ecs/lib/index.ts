@@ -15,6 +15,9 @@ export * from './ec2/ec2-task-definition';
 export * from './fargate/fargate-service';
 export * from './fargate/fargate-task-definition';
 
+export * from './external/external-service';
+export * from './external/external-task-definition';
+
 export * from './linux-parameters';
 
 export * from './images/asset-image';

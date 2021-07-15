@@ -1,0 +1,15 @@
+*.js
+node_modules
+*.js.map
+*.d.ts
+
+.LAST_BUILD
+.nyc_output
+coverage
+nyc.config.js
+*.snk
+!.eslintrc.js
+
+junit.xml
+
+!jest.config.js

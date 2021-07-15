@@ -56,6 +56,30 @@ describe('CDK Include for templates with SAM transform', () => {
       loadTestFileToJsObject('only-sam-function-policies-array-ddb-crud-if.yaml'),
     );
   });
+
+  test('can ingest a template with a a union-type property provided as an object, and output it unchanged', () => {
+    includeTestTemplate(stack, 'api-endpoint-config-object.yaml');
+
+    expect(stack).toMatchTemplate(
+      loadTestFileToJsObject('api-endpoint-config-object.yaml'),
+    );
+  });
+
+  test('can ingest a template with a a union-type property provided as a string, and output it unchanged', () => {
+    includeTestTemplate(stack, 'api-endpoint-config-string.yaml');
+
+    expect(stack).toMatchTemplate(
+      loadTestFileToJsObject('api-endpoint-config-string.yaml'),
+    );
+  });
+
+  test('can ingest a template with a a union-type property provided as an empty string, and output it unchanged', () => {
+    includeTestTemplate(stack, 'api-endpoint-config-string-empty.yaml');
+
+    expect(stack).toMatchTemplate(
+      loadTestFileToJsObject('api-endpoint-config-string-empty.yaml'),
+    );
+  });
 });
 
 function includeTestTemplate(scope: constructs.Construct, testTemplate: string): inc.CfnInclude {

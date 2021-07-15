@@ -73,9 +73,9 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.77",
+    "@types/aws-lambda": "^8.10.78",
     "@types/sinon": "^9.0.11",
-    "@types/nodeunit": "^0.0.31",
+    "@types/nodeunit": "^0.0.32",
     "@types/yaml": "1.9.6",
     "aws-sdk": "^2.848.0",
     "cdk-build-tools": "0.0.0",

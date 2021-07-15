@@ -99,6 +99,16 @@ export interface CodeBuildActionProps extends codepipeline.CommonAwsActionProps 
    * @default false
    */
   readonly executeBatchBuild?: boolean;
+
+  /**
+   * Combine the build artifacts for a batch builds.
+   *
+   * Enabling this will combine the build artifacts into the same location for batch builds.
+   * If `executeBatchBuild` is not set to `true`, this property is ignored.
+   *
+   * @default false
+   */
+  readonly combineBatchBuildArtifacts?: boolean;
 }
 
 /**
@@ -213,6 +223,10 @@ export class CodeBuildAction extends Action {
     if (this.props.executeBatchBuild) {
       configuration.BatchEnabled = 'true';
       this.props.project.enableBatchBuilds();
+
+      if (this.props.combineBatchBuildArtifacts) {
+        configuration.CombineArtifacts = 'true';
+      }
     }
     return {
       configuration,

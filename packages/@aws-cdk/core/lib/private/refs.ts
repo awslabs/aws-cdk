@@ -179,8 +179,7 @@ function createImportValue(reference: Reference): Intrinsic {
  * value of the reference.
  */
 function createNestedStackParameter(nested: Stack, reference: CfnReference, value: IResolvable) {
-  // we call "this.resolve" to ensure that tokens do not creep in (for example, if the reference display name includes tokens)
-  const paramId = nested.resolve(`reference-to-${ Names.nodeUniqueId(reference.target.node)}.${reference.displayName}`);
+  const paramId = generateUniqueId(nested, reference, 'reference-to-');
   let param = nested.node.tryFindChild(paramId) as CfnParameter;
   if (!param) {
     param = new CfnParameter(nested, paramId, { type: 'String' });
@@ -201,7 +200,7 @@ function createNestedStackParameter(nested: Stack, reference: CfnReference, valu
  * intrinsic that can be used to reference this output in the parent stack.
  */
 function createNestedStackOutput(producer: Stack, reference: Reference): CfnReference {
-  const outputId = `${Names.nodeUniqueId(reference.target.node)}${reference.displayName}`;
+  const outputId = generateUniqueId(producer, reference);
   let output = producer.node.tryFindChild(outputId) as CfnOutput;
   if (!output) {
     output = new CfnOutput(producer, outputId, { value: Token.asString(reference) });
@@ -253,4 +252,16 @@ function isNested(nested: Stack, parent: Stack): boolean {
 
   // recurse with the child's direct parent
   return isNested(nested.nestedStackParent, parent);
+}
+
+/**
+ * Generates a unique id for a `Reference`
+ * @param stack A stack used to resolve tokens
+ * @param ref The reference
+ * @param prefix Optional prefix for the id
+ * @returns A unique id
+ */
+function generateUniqueId(stack: Stack, ref: Reference, prefix = '') {
+  // we call "resolve()" to ensure that tokens do not creep in (for example, if the reference display name includes tokens)
+  return stack.resolve(`${prefix}${Names.nodeUniqueId(ref.target.node)}${ref.displayName}`);
 }

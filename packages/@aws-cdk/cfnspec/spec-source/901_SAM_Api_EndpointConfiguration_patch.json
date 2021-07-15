@@ -1,0 +1,29 @@
+{
+  "ResourceTypes": {
+    "AWS::Serverless::Api": {
+      "Properties": {
+        "EndpointConfiguration": {
+          "patch": {
+            "description": "Make the EndpointConfiguration property of AWS::Serverless::Api have a union type",
+            "operations": [
+              {
+                "op": "add",
+                "path": "/PrimitiveTypes",
+                "value": ["String"]
+              },
+              {
+                "op": "add",
+                "path": "/Types",
+                "value": ["EndpointConfiguration"]
+              },
+              {
+                "op": "remove",
+                "path": "/Type"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

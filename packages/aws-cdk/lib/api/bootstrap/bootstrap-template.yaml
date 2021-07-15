@@ -281,29 +281,21 @@ Resources:
               - Ref: AWS::NoValue
       RoleName:
         Fn::Sub: cdk-${Qualifier}-lookup-role-${AWS::AccountId}-${AWS::Region}
+      ManagedPolicyArns:
+        - Fn::Sub: "arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess"
       Policies:
         - PolicyDocument:
             Statement:
-              - Action:
-                  - ec2:DescribeVpcs
-                  - ec2:DescribeAvailabilityZones
-                  - ec2:DescribeSubnets
-                  - ec2:DescribeRouteTables
-                  - ec2:DescribeVpnGateways
-                  - ec2:DescribeImages
-                  - ec2:DescribeVpcEndpointServices
-                  - ec2:DescribeSecurityGroups
-                  - elasticloadbalancing:DescribeLoadBalancers
-                  - elasticloadbalancing:DescribeTags
-                  - elasticloadbalancing:DescribeListeners
-                  - route53:ListHostedZonesByName
-                  - route53:GetHostedZone
-                  - ssm:GetParameter
+              - Sid: DontReadSecrets
+                Effect: Deny
+                Action:
+                  - kms:Decrypt
                 Resource: "*"
-                Effect: Allow
             Version: '2012-10-17'
-          PolicyName:
-            Fn::Sub: cdk-${Qualifier}-lookup-role-default-policy-${AWS::AccountId}-${AWS::Region}
+          PolicyName: LookupRolePolicy
+      Tags:
+        - Key: aws-cdk:bootstrap-role
+          Value: lookup
   FilePublishingRoleDefaultPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -498,7 +490,7 @@ Resources:
       Type: String
       Name:
         Fn::Sub: '/cdk-bootstrap/${Qualifier}/version'
-      Value: '7'
+      Value: '8'
 Outputs:
   BucketName:
     Description: The name of the S3 bucket owned by the CDK toolkit stack

@@ -588,9 +588,17 @@ export default class CodeGenerator {
       this.code.closeBlock();
     }
 
-    this.code.line('properties = properties || {};');
-    this.code.line(`const ret = new ${CFN_PARSE}.FromCloudFormationPropertyObject<${typeName.fqn}>();`);
+    this.code.line('properties = properties == null ? {} : properties;');
+    // if the passed value is not an object, immediately return it,
+    // and let a validator report an error -
+    // otherwise, we'll just return an empty object for this case,
+    // which a validator might not catch
+    // (if the interface we're emitting this function for has no required properties, for example)
+    this.code.openBlock("if (typeof properties !== 'object')");
+    this.code.line(`return new ${CFN_PARSE}.FromCloudFormationResult(properties);`);
+    this.code.closeBlock();
 
+    this.code.line(`const ret = new ${CFN_PARSE}.FromCloudFormationPropertyObject<${typeName.fqn}>();`);
     const self = this;
     // class used for the visitor
     class FromCloudFormationFactoryVisitor implements genspec.PropertyVisitor<string> {

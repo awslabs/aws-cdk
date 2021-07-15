@@ -2,7 +2,7 @@ import * as events from '@aws-cdk/aws-events';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as sqs from '@aws-cdk/aws-sqs';
-import { Annotations, Names, Token, TokenComparison, Duration } from '@aws-cdk/core';
+import { Annotations, Names, Token, TokenComparison, Duration, PhysicalName } from '@aws-cdk/core';
 import { Construct, IConstruct, Node } from 'constructs';
 
 /**
@@ -73,7 +73,8 @@ export function singletonEventRole(scope: IConstruct, policyStatements: iam.Poli
   const existing = scope.node.tryFindChild(id) as iam.IRole;
   if (existing) { return existing; }
 
-  const role = new iam.Role(scope, id, {
+  const role = new iam.Role(scope as Construct, id, {
+    roleName: PhysicalName.GENERATE_IF_NEEDED,
     assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
   });
 

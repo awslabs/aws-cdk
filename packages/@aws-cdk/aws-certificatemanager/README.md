@@ -126,3 +126,21 @@ const certificate = Certificate.fromCertificateArn(this, 'Certificate', arn);
 
 To share the certificate between stacks in the same CDK application, simply
 pass the `Certificate` object between the stacks.
+
+## Metrics
+
+The `DaysToExpiry` metric is available via the `metricDaysToExpiry` method for
+all certificates. This metric is emitted by AWS Certificates Manager once per
+day until the certificate has effectively expired.
+
+An alarm can be created to determine whether a certificate is soon due for
+renewal ussing the following code:
+
+```ts
+const certificate = new Certificate(this, 'Certificate', { /* ... */ });
+certificate.metricDaysToExpiry().createAlarm({
+  comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+  evaluationPeriods: 1,
+  threshold: 45, // Automatic rotation happens between 60 and 45 days before expiry
+});
+```

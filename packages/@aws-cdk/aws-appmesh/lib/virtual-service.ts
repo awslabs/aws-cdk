@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnVirtualService } from './appmesh.generated';
 import { IMesh, Mesh } from './mesh';
+import { renderMeshOwner } from './private/utils';
 import { IVirtualNode } from './virtual-node';
 import { IVirtualRouter } from './virtual-router';
 
@@ -110,6 +111,7 @@ export class VirtualService extends cdk.Resource implements IVirtualService {
 
     const svc = new CfnVirtualService(this, 'Resource', {
       meshName: this.mesh.meshName,
+      meshOwner: renderMeshOwner(this.env.account, this.mesh.env.account),
       virtualServiceName: this.physicalName,
       spec: {
         provider: providerConfig.virtualNodeProvider || providerConfig.virtualRouterProvider

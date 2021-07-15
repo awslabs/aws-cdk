@@ -40,10 +40,10 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "@types/node": "^10.17.60",
-    "@types/yarnpkg__lockfile": "^1.1.4",
-    "@types/semver": "^7.3.6",
+    "@types/yarnpkg__lockfile": "^1.1.5",
+    "@types/semver": "^7.3.7",
     "jest": "^26.6.3",
     "pkglint": "0.0.0",
     "typescript": "~3.9.10"

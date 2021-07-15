@@ -1,7 +1,7 @@
 import { ArnFormat, IResource, Resource, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CloudFormationTemplate } from './cloudformation-template';
-import { AcceptLanguage } from './common';
+import { MessageLanguage } from './common';
 import { InputValidator } from './private/validation';
 import { CfnCloudFormationProduct } from './servicecatalog.generated';
 
@@ -77,9 +77,11 @@ export interface CloudFormationProductProps {
 
   /**
    * The language code.
-   * @default - No accept language provided
+   * Controls language for logging and errors.
+   *
+   * @default - English
    */
-  readonly acceptLanguage?: AcceptLanguage;
+  readonly messageLanguage?: MessageLanguage;
 
   /**
    * The description of the product.
@@ -156,7 +158,7 @@ export class CloudFormationProduct extends Product {
     this.validateProductProps(props);
 
     const product = new CfnCloudFormationProduct(this, 'Resource', {
-      acceptLanguage: props.acceptLanguage,
+      acceptLanguage: props.messageLanguage,
       description: props.description,
       distributor: props.distributor,
       name: props.productName,

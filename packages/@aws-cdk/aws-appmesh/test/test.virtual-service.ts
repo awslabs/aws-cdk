@@ -1,4 +1,4 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { ABSENT, expect, haveResource, haveResourceLike } from '@aws-cdk/assert-internal';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 
@@ -74,6 +74,7 @@ export = {
                 },
               },
             },
+            MeshOwner: ABSENT,
           }),
         );
 
@@ -117,6 +118,42 @@ export = {
             },
           }),
         );
+
+        test.done();
+      },
+    },
+  },
+
+  'When creating a VirtualService': {
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const app = new cdk.App();
+        const meshEnv = { account: '1234567899', region: 'us-west-2' };
+        const virtualServiceEnv = { account: '9987654321', region: 'us-west-2' };
+
+        // Creating stack in Account B
+        const stack = new cdk.Stack(app, 'mySharedStack', { env: virtualServiceEnv });
+        // Mesh is in Account A
+        const sharedMesh = appmesh.Mesh.fromMeshArn(stack, 'shared-mesh',
+          `arn:aws:appmesh:${meshEnv.region}:${meshEnv.account}:mesh/shared-mesh`);
+
+        const node = sharedMesh.addVirtualNode('test-node', {
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test.domain.local'),
+          listeners: [appmesh.VirtualNodeListener.http({
+            port: 8080,
+          })],
+        });
+
+        // WHEN
+        new appmesh.VirtualService(stack, 'test-node', {
+          virtualServiceProvider: appmesh.VirtualServiceProvider.virtualNode(node),
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualService', {
+          MeshOwner: meshEnv.account,
+        }));
 
         test.done();
       },

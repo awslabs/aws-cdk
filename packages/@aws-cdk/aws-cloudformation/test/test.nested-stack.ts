@@ -759,6 +759,35 @@ export = {
     test.done();
   },
 
+  'reference resource in a double nested stack (#15155)'(test: Test) {
+    // GIVEN
+    const app = new App();
+    const producerStack = new Stack(app, 'Producer');
+    const nested2 = new NestedStack(new NestedStack(producerStack, 'Nested1'), 'Nested2');
+    const producerResource = new CfnResource(nested2, 'Resource', { type: 'MyResource' });
+    const consumerStack = new Stack(app, 'Consumer');
+
+    // WHEN
+    new CfnResource(consumerStack, 'ConsumingResource', {
+      type: 'YourResource',
+      properties: { RefToResource: producerResource.ref },
+    });
+
+    // THEN
+    const casm = app.synth(); // before #15155 was fixed this threw an error
+
+    const producerTemplate = casm.getStackArtifact(producerStack.artifactId).template;
+    const consumerTemplate = casm.getStackArtifact(consumerStack.artifactId).template;
+
+    // check that the consuming resource references the expected export name
+    const outputName = 'ExportsOutputFnGetAttNested1NestedStackNested1NestedStackResourceCD0AD36BOutputsProducerNested1Nested2NestedStackNested2NestedStackResource1E6FA3C3OutputsProducerNested1Nested238A89CC5Ref2E9E52EA';
+    const exportName = producerTemplate.Outputs[outputName].Export.Name;
+    const importName = consumerTemplate.Resources.ConsumingResource.Properties.RefToResource['Fn::ImportValue'];
+    test.equal(exportName, importName);
+
+    test.done();
+  },
+
   'assets within nested stacks are proxied from the parent'(test: Test) {
     // GIVEN
     const app = new App({ context: { [cxapi.NEW_STYLE_STACK_SYNTHESIS_CONTEXT]: false } });

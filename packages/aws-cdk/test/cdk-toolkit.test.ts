@@ -221,7 +221,7 @@ describe('synth', () => {
 
     const toolkit = defaultToolkitSetup();
 
-    await expect(toolkit.synth(['witherrors'], false, true)).rejects.toBeDefined();
+    await expect(toolkit.synth(['Test-Stack-A/witherrors'], false, true)).rejects.toBeDefined();
   });
 
   test('stack has error, is not flagged for validation and was not explicitly selected', async () => {

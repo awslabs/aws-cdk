@@ -28,8 +28,13 @@ enables organizations to create and manage repositores of applications and assoc
 
 - [Application](#application)
 - [Attribute-Group](#attribute-group)
+- [Associations](#associations)
+  - [Associating application with an attribute group](#attribute-group-association)
+  - [Associating application with a stack](#resource-association)
 
-```ts
+The `@aws-cdk/aws-servicecatalogappregistry` package contains resources that enable users to automate governance and management of their AWS resources at scale.
+
+```ts nofixture
 import * as appreg from '@aws-cdk/aws-servicecatalogappregistry';
 ```
 
@@ -64,7 +69,13 @@ const attributeGroup = new appreg.AttributeGroup(this, 'MyFirstAttributeGroup', 
   description: 'description for my attribute group', // the description is optional,
   attributes: {
     project: 'foo',
-    team: ['member1', 'member2', 'member3']
+    team: ['member1', 'member2', 'member3'],
+    public: false,
+    stages: {
+      alpha: 'complete',
+      beta: 'incomplete',
+      release: 'not started'
+    }
   }
 });
 ```
@@ -75,4 +86,31 @@ Attribute groups can be imported by their ARN via the `AttributeGroup.fromAttrib
 ```ts
 const importedAttributeGroup = appreg.AttributeGroup.fromAttributeGroupArn(this, 'MyImportedAttrGroup',
   'arn:aws:servicecatalog:us-east-1:012345678910:/attribute-groups/0aqmvxvgmry0ecc4mjhwypun6i');
+```
+
+## Associations
+
+You can associate your appregistry application with attribute groups and resources.
+Resources are CloudFormation stacks that you can associate with an application to group relevant
+stacks together to enable metadata rich insights into your applications and resources.
+A Cloudformation stack can only be associated with one appregistry application.
+If a stack is associated with multiple applications in your app or is already associated with one,
+CDK will fail at deploy time. 
+
+### Associating application with an attribute group
+
+You can associate an attribute group with an application with the `associateAttributeGroup()` API:
+
+```ts basic-constructs
+application.associateAttributeGroup(attributeGroup);
+```
+
+### Associating application with a Stack
+
+You can associate a stack with an application with the `associateStack()` API:
+
+```ts basic-constructs
+const myStack = new cdk.Stack(app, 'MyStack');
+
+application.associateStack(myStack);
 ```

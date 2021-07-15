@@ -231,4 +231,14 @@ export = {
 
     test.done();
   },
+
+  'metric accepts a variety of statistics'(test: Test) {
+    new Metric({
+      namespace: 'Test',
+      metricName: 'Metric',
+      statistic: 'myCustomStatistic',
+    });
+
+    test.done();
+  },
 };

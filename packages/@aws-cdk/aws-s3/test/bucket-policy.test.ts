@@ -31,7 +31,7 @@ nodeunitShim({
           {
             'Action': 's3:GetObject*',
             'Effect': 'Allow',
-            'Principal': '*',
+            'Principal': { AWS: '*' },
             'Resource': { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
           },
         ],
@@ -73,7 +73,7 @@ nodeunitShim({
                 {
                   'Action': 's3:GetObject*',
                   'Effect': 'Allow',
-                  'Principal': '*',
+                  'Principal': { AWS: '*' },
                   'Resource': { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
                 },
               ],
@@ -118,7 +118,7 @@ nodeunitShim({
                 {
                   'Action': 's3:GetObject*',
                   'Effect': 'Allow',
-                  'Principal': '*',
+                  'Principal': { AWS: '*' },
                   'Resource': { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
                 },
               ],

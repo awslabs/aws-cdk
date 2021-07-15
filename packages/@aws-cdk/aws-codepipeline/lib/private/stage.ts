@@ -1,6 +1,6 @@
 import * as events from '@aws-cdk/aws-events';
 import * as cdk from '@aws-cdk/core';
-import { Construct } from 'constructs';
+import { Construct, Node } from 'constructs';
 import { IAction, IPipeline, IStage } from '../action';
 import { Artifact } from '../artifact';
 import { CfnPipeline } from '../codepipeline.generated';
@@ -138,7 +138,15 @@ export class Stage implements IStage {
 
   private attachActionToPipeline(action: IAction): FullActionDescriptor {
     // notify the Pipeline of the new Action
-    const actionScope = new Construct(this.scope, action.actionProperties.actionName);
+    //
+    // It may be that a construct already exists with the given action name (CDK Pipelines
+    // may do this to maintain construct tree compatibility between versions).
+    //
+    // If so, we simply reuse it.
+    let actionScope = Node.of(this.scope).tryFindChild(action.actionProperties.actionName) as Construct | undefined;
+    if (!actionScope) {
+      actionScope = new Construct(this.scope, action.actionProperties.actionName);
+    }
     return this._pipeline._attachActionToPipeline(this, action, actionScope);
   }
 

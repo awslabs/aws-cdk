@@ -1,0 +1,4 @@
+#!/bin/bash
+# Run jest with the fail-fast plugin
+scriptdir=$(cd $(dirname $0) && pwd)
+exec $scriptdir/../tools/cdk-build-tools/node_modules/.bin/jest --setupFilesAfterEnv $scriptdir/jest-fail-fast-setup.js -- "$@"

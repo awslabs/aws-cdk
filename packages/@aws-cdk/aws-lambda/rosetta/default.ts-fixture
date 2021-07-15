@@ -1,0 +1,12 @@
+// Fixture with packages imported, but nothing else
+import * as path from 'path';
+import { Construct, Stack } from '@aws-cdk/core';
+import { Alias, Code, CodeSigningConfig, DockerImageCode, DockerImageFunction, FileSystem, Function, LayerVersion, Runtime, Tracing } from '@aws-cdk/aws-lambda';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}

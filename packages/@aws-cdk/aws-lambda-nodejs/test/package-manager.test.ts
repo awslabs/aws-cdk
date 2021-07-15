@@ -19,7 +19,7 @@ test('from a pnpm-lock.yaml', () => {
   const packageManager = PackageManager.fromLockFile('/path/to/pnpm-lock.yaml');
   expect(packageManager).toEqual(PackageManager.PNPM);
 
-  expect(packageManager.runBinCommand('my-bin')).toBe('pnpm exec my-bin --');
+  expect(packageManager.runBinCommand('my-bin')).toBe('pnpm exec -- my-bin');
 });
 
 test('defaults to NPM', () => {

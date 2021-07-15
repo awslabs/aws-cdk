@@ -212,6 +212,7 @@ export = {
       serviceName: 'ecs-test-service',
       family: 'ecs-task-family',
       circuitBreaker: { rollback: true },
+      gpuCount: 256,
     });
 
     // THEN - QueueWorker is of EC2 launch type, an SQS queue is created and all optional properties are set.
@@ -265,6 +266,12 @@ export = {
           ],
           Image: 'test',
           Memory: 1024,
+          ResourceRequirements: [
+            {
+              Type: 'GPU',
+              Value: '256',
+            },
+          ],
         },
       ],
       Family: 'ecs-task-family',

@@ -306,7 +306,7 @@ describe('bucket', () => {
                     },
                   },
                   'Effect': 'Deny',
-                  'Principal': '*',
+                  'Principal': { AWS: '*' },
                   'Resource': [
                     {
                       'Fn::GetAtt': [
@@ -525,7 +525,7 @@ describe('bucket', () => {
                   {
                     'Action': 'bar:baz',
                     'Effect': 'Allow',
-                    'Principal': '*',
+                    'Principal': { AWS: '*' },
                     'Resource': 'foo',
                   },
                 ],
@@ -553,7 +553,7 @@ describe('bucket', () => {
       expect(stack.resolve(x.toStatementJson())).toEqual({
         Action: 's3:ListBucket',
         Effect: 'Allow',
-        Principal: '*',
+        Principal: { AWS: '*' },
         Resource: { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
       });
 
@@ -574,7 +574,7 @@ describe('bucket', () => {
       expect(stack.resolve(p.toStatementJson())).toEqual({
         Action: 's3:GetObject',
         Effect: 'Allow',
-        Principal: '*',
+        Principal: { AWS: '*' },
         Resource: {
           'Fn::Join': [
             '',
@@ -605,7 +605,7 @@ describe('bucket', () => {
       expect(stack.resolve(p.toStatementJson())).toEqual({
         Action: 's3:GetObject',
         Effect: 'Allow',
-        Principal: '*',
+        Principal: { AWS: '*' },
         Resource: {
           'Fn::Join': [
             '',
@@ -670,7 +670,7 @@ describe('bucket', () => {
       expect(p.toStatementJson()).toEqual({
         Action: 's3:ListBucket',
         Effect: 'Allow',
-        Principal: '*',
+        Principal: { AWS: '*' },
         Resource: 'arn:aws:s3:::my-bucket',
       });
 
@@ -912,7 +912,7 @@ describe('bucket', () => {
               'Action': ['s3:GetObject*', 's3:GetBucket*', 's3:List*'],
               'Condition': { 'StringEquals': { 'aws:PrincipalOrgID': 'o-1234' } },
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Resource': [
                 { 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] },
                 { 'Fn::Join': ['', [{ 'Fn::GetAtt': ['MyBucketF68F3FF0', 'Arn'] }, '/*']] },
@@ -929,7 +929,7 @@ describe('bucket', () => {
               'Action': ['kms:Decrypt', 'kms:DescribeKey'],
               'Effect': 'Allow',
               'Resource': '*',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Condition': { 'StringEquals': { 'aws:PrincipalOrgID': 'o-1234' } },
             },
           ),
@@ -1783,7 +1783,7 @@ describe('bucket', () => {
             {
               'Action': 's3:GetObject',
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Resource': { 'Fn::Join': ['', [{ 'Fn::GetAtt': ['bC3BBCC65', 'Arn'] }, '/*']] },
             },
           ],
@@ -1808,7 +1808,7 @@ describe('bucket', () => {
             {
               'Action': 's3:GetObject',
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Resource': { 'Fn::Join': ['', [{ 'Fn::GetAtt': ['bC3BBCC65', 'Arn'] }, '/only/access/these/*']] },
             },
           ],
@@ -1833,7 +1833,7 @@ describe('bucket', () => {
             {
               'Action': ['s3:GetObject', 's3:PutObject'],
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Resource': { 'Fn::Join': ['', [{ 'Fn::GetAtt': ['bC3BBCC65', 'Arn'] }, '/*']] },
             },
           ],
@@ -1859,7 +1859,7 @@ describe('bucket', () => {
             {
               'Action': 's3:GetObject',
               'Effect': 'Allow',
-              'Principal': '*',
+              'Principal': { AWS: '*' },
               'Resource': { 'Fn::Join': ['', [{ 'Fn::GetAtt': ['bC3BBCC65', 'Arn'] }, '/*']] },
               'Condition': {
                 'IpAddress': { 'aws:SourceIp': '54.240.143.0/24' },

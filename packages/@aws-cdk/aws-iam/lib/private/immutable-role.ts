@@ -29,7 +29,7 @@ export class ImmutableRole extends Resource implements IRole {
   public readonly roleName = this.role.roleName;
   public readonly stack = this.role.stack;
 
-  constructor(scope: Construct, id: string, private readonly role: IRole) {
+  constructor(scope: Construct, id: string, private readonly role: IRole, private readonly addGrantsToResources: boolean) {
     super(scope, id, {
       account: role.env.account,
       region: role.env.region,
@@ -54,8 +54,10 @@ export class ImmutableRole extends Resource implements IRole {
   }
 
   public addToPrincipalPolicy(_statement: PolicyStatement): AddToPrincipalPolicyResult {
-    // Not really added, but for the purposes of consumer code pretend that it was.
-    return { statementAdded: true, policyDependable: new DependencyGroup() };
+    // If we return `false`, the grants will try to add the statement to the resource
+    // (if possible).
+    const pretendSuccess = !this.addGrantsToResources;
+    return { statementAdded: pretendSuccess, policyDependable: new DependencyGroup() };
   }
 
   public grant(grantee: IPrincipal, ...actions: string[]): Grant {

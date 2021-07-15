@@ -1,8 +1,8 @@
 import { Construct } from 'constructs';
-import { ContainerDefinition } from '../container-definition';
+import { ContainerDefinition, Secret } from '../container-definition';
 import { BaseLogDriverProps } from './base-log-driver';
 import { LogDriver, LogDriverConfig } from './log-driver';
-import { removeEmpty } from './utils';
+import { removeEmpty, renderLogDriverSecretOptions } from './utils';
 
 /**
  * Specifies the firelens log driver configuration options.
@@ -13,6 +13,12 @@ export interface FireLensLogDriverProps extends BaseLogDriverProps {
    * @default - the log driver options
    */
   readonly options?: { [key: string]: string };
+
+  /**
+   * The secrets to pass to the log configuration.
+   * @default - No secret options provided.
+   */
+  readonly secretOptions?: { [key: string]: Secret };
 }
 
 /**
@@ -27,6 +33,12 @@ export class FireLensLogDriver extends LogDriver {
   private options?: { [key: string]: string };
 
   /**
+   * The secrets to pass to the log configuration.
+   * @default - No secret options provided.
+   */
+  private secretOptions?: { [key: string]: Secret };
+
+  /**
    * Constructs a new instance of the FireLensLogDriver class.
    * @param props the awsfirelens log driver configuration options.
    */
@@ -34,6 +46,7 @@ export class FireLensLogDriver extends LogDriver {
     super();
 
     this.options = props.options;
+    this.secretOptions = props.secretOptions;
   }
 
   /**
@@ -43,6 +56,7 @@ export class FireLensLogDriver extends LogDriver {
     return {
       logDriver: 'awsfirelens',
       ...(this.options && { options: removeEmpty(this.options) }),
+      secretOptions: this.secretOptions && renderLogDriverSecretOptions(this.secretOptions, _containerDefinition.taskDefinition),
     };
   }
 }

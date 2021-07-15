@@ -60,6 +60,7 @@ one to run tasks on AWS Fargate.
 - Use the `Ec2TaskDefinition` and `Ec2Service` constructs to run tasks on Amazon EC2 instances running in your account.
 - Use the `FargateTaskDefinition` and `FargateService` constructs to run tasks on
   instances that are managed for you by AWS.
+- Use the `ExternalTaskDefinition` and `ExternalService` constructs to run AWS ECS Anywhere tasks on self-managed infrastructure.
 
 Here are the main differences:
 
@@ -73,10 +74,12 @@ Here are the main differences:
   Application/Network Load Balancers. Only the AWS log driver is supported.
   Many host features are not supported such as adding kernel capabilities
   and mounting host devices/volumes inside the container.
+- **AWS ECSAnywhere**: tasks are run and managed by AWS ECS Anywhere on infrastructure owned by the customer. Only Bridge networking mode is supported. Does not support autoscaling, load balancing, cloudmap or attachment of volumes.
 
-For more information on Amazon EC2 vs AWS Fargate and networking see the AWS Documentation:
-[AWS Fargate](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html) and
-[Task Networking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html).
+For more information on Amazon EC2 vs AWS Fargate, networking and ECS Anywhere see the AWS Documentation:
+[AWS Fargate](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html),
+[Task Networking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html),
+[ECS Anywhere](https://aws.amazon.com/ecs/anywhere/)
 
 ## Clusters
 
@@ -211,8 +214,8 @@ some supporting containers which are used to support the main container,
 doings things like upload logs or metrics to monitoring services.
 
 To run a task or service with Amazon EC2 launch type, use the `Ec2TaskDefinition`. For AWS Fargate tasks/services, use the
-`FargateTaskDefinition`. These classes provide a simplified API that only contain
-properties relevant for that specific launch type.
+`FargateTaskDefinition`. For AWS ECS Anywhere use the `ExternalTaskDefinition`. These classes 
+provide simplified APIs that only contain properties relevant for each specific launch type.
 
 For a `FargateTaskDefinition`, specify the task size (`memoryLimitMiB` and `cpu`):
 
@@ -241,6 +244,19 @@ const ec2TaskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDef', {
 });
 
 const container = ec2TaskDefinition.addContainer("WebContainer", {
+  // Use an image from DockerHub
+  image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+  memoryLimitMiB: 1024
+  // ... other options here ...
+});
+```
+
+For an `ExternalTaskDefinition`:
+
+```ts
+const externalTaskDefinition = new ecs.ExternalTaskDefinition(this, 'TaskDef');
+
+const container = externalTaskDefinition.addContainer("WebContainer", {
   // Use an image from DockerHub
   image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
   memoryLimitMiB: 1024
@@ -283,6 +299,8 @@ const volume = {
 const container = fargateTaskDefinition.addVolume("mydatavolume");
 ```
 
+> Note: ECS Anywhere doesn't support volume attachments in the task definition.
+
 To use a TaskDefinition that can be used with either Amazon EC2 or
 AWS Fargate launch types, use the `TaskDefinition` construct.
 
@@ -302,7 +320,7 @@ const taskDefinition = new ecs.TaskDefinition(this, 'TaskDef', {
 ### Images
 
 Images supply the software that runs inside the container. Images can be
-obtained from either DockerHub or from ECR repositories, or built directly from a local Dockerfile.
+obtained from either DockerHub or from ECR repositories, built directly from a local Dockerfile, or use an existing tarball.
 
 - `ecs.ContainerImage.fromRegistry(imageName)`: use a public image.
 - `ecs.ContainerImage.fromRegistry(imageName, { credentials: mySecret })`: use a private image that requires credentials.
@@ -312,7 +330,8 @@ obtained from either DockerHub or from ECR repositories, or built directly from 
   image directly from a `Dockerfile` in your source directory.
 - `ecs.ContainerImage.fromDockerImageAsset(asset)`: uses an existing
   `@aws-cdk/aws-ecr-assets.DockerImageAsset` as a container image.
-- `new ecs.TagParameterContainerImage(repository)`: use the given ECR repository as the image 
+- `ecs.ContainerImage.fromTarball(file)`: use an existing tarball.
+- `new ecs.TagParameterContainerImage(repository)`: use the given ECR repository as the image
   but a CloudFormation parameter as the tag.
 
 ### Environment variables
@@ -359,6 +378,18 @@ const service = new ecs.FargateService(this, 'Service', {
 });
 ```
 
+ECS Anywhere service definition looks like:
+
+```ts
+const taskDefinition;
+
+const service = new ecs.ExternalService(this, 'Service', {
+  cluster,
+  taskDefinition,
+  desiredCount: 5
+});
+```
+
 `Services` by default will create a security group if not provided.
 If you'd like to specify which security groups to use you can override the `securityGroups` property.
 
@@ -376,6 +407,8 @@ const service = new ecs.FargateService(stack, 'Service', {
   circuitBreaker: { rollback: true },
 });
 ```
+
+> Note: ECS Anywhere doesn't support deployment circuit breakers and rollback.
 
 ### Include an application/network load balancer
 
@@ -400,6 +433,8 @@ const targetGroup2 = listener.addTargets('ECS2', {
   })]
 });
 ```
+
+> Note: ECS Anywhere doesn't support application/network load balancers.
 
 Note that in the example above, the default `service` only allows you to register the first essential container or the first mapped port on the container as a target and add it to a new target group. To have more control over which container and port to register as targets, you can use `service.loadBalancerTarget()` to return a load balancing target for a specific container and port.
 
@@ -611,7 +646,7 @@ taskDefinition.addContainer('TheContainer', {
   image: ecs.ContainerImage.fromRegistry('example-image'),
   memoryLimitMiB: 256,
   logging: ecs.LogDrivers.splunk({
-    token: cdk.SecretValue.secretsManager('my-splunk-token'),
+    secretToken: cdk.SecretValue.secretsManager('my-splunk-token'),
     url: 'my-splunk-url'
   })
 });
@@ -643,6 +678,25 @@ taskDefinition.addContainer('TheContainer', {
         region: 'us-west-2',
         delivery_stream: 'my-stream',
     }
+  })
+});
+```
+
+To pass secrets to the log configuration, use the `secretOptions` property of the log configuration. The task execution role is automatically granted read permissions on the secrets/parameters.
+
+```ts
+const taskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDef');
+taskDefinition.addContainer('TheContainer', {
+  image: ecs.ContainerImage.fromRegistry('example-image'),
+  memoryLimitMiB: 256,
+  logging: ecs.LogDrivers.firelens({
+    options: {
+      // ... log driver options here ...
+    },
+    secretOptions: { // Retrieved from AWS Secrets Manager or AWS Systems Manager Parameter Store
+      apikey: ecs.Secret.fromSecretsManager(secret),
+      host: ecs.Secret.fromSsmParameter(parameter),
+    },
   })
 });
 ```

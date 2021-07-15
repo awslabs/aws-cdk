@@ -420,6 +420,10 @@ abstract class ActivityPrinterBase implements IActivityPrinter {
       delete this.resourcesInProgress[activity.event.LogicalResourceId];
     }
 
+    if (status.endsWith('_COMPLETE_CLEANUP_IN_PROGRESS')) {
+      this.resourcesDone++;
+    }
+
     if (status.endsWith('_COMPLETE')) {
       const prevState = this.resourcesPrevCompleteState[activity.event.LogicalResourceId];
       if (!prevState) {
@@ -475,6 +479,7 @@ export class HistoryActivityPrinter extends ActivityPrinterBase {
   public addActivity(activity: StackActivity) {
     super.addActivity(activity);
     this.printable.push(activity);
+    this.print();
   }
 
   public print() {
@@ -486,15 +491,17 @@ export class HistoryActivityPrinter extends ActivityPrinterBase {
   }
 
   public stop() {
-    this.stream.write('\nFailed resources:\n');
     // Print failures at the end
-    for (const failure of this.failures) {
-      // Root stack failures are not interesting
-      if (failure.event.StackName === failure.event.LogicalResourceId) {
-        continue;
-      }
+    if (this.failures.length > 0) {
+      this.stream.write('\nFailed resources:\n');
+      for (const failure of this.failures) {
+        // Root stack failures are not interesting
+        if (failure.event.StackName === failure.event.LogicalResourceId) {
+          continue;
+        }
 
-      this.printOne(failure, false);
+        this.printOne(failure, false);
+      }
     }
   }
 

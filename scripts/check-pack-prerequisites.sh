@@ -83,7 +83,7 @@ fi
 app="dotnet"
 app_min="3.1.0"
 check_which $app $app_min
-app_v=$(${app} --version)
+app_v=$(${app} --list-sdks)
 echo -e "Checking $app version... \c"
 if [ $(echo $app_v | grep -c -E "3\.1\.[0-9].*|[4-9]\..*") -eq 1 ]
 then

@@ -1,3 +1,121 @@
+# CloudFormation Resource Specification v39.5.0
+
+## New Resource Types
+
+
+## Attribute Changes
+
+
+## Property Changes
+
+* AWS::AmazonMQ::Broker MaintenanceWindowStartTime.UpdateType (__changed__)
+  * Old: Immutable
+  * New: Mutable
+* AWS::CodeDeploy::Application Tags (__added__)
+* AWS::CodeDeploy::DeploymentConfig ComputePlatform (__added__)
+* AWS::CodeDeploy::DeploymentConfig TrafficRoutingConfig (__added__)
+* AWS::CodeDeploy::DeploymentGroup BlueGreenDeploymentConfiguration (__added__)
+* AWS::CodeDeploy::DeploymentGroup ECSServices (__added__)
+* AWS::DataBrew::Job DataCatalogOutputs (__added__)
+* AWS::ServiceDiscovery::HttpNamespace Description.UpdateType (__changed__)
+  * Old: Immutable
+  * New: Mutable
+* AWS::ServiceDiscovery::PrivateDnsNamespace Properties (__added__)
+* AWS::ServiceDiscovery::PrivateDnsNamespace Description.UpdateType (__changed__)
+  * Old: Immutable
+  * New: Mutable
+* AWS::ServiceDiscovery::PublicDnsNamespace Properties (__added__)
+* AWS::ServiceDiscovery::PublicDnsNamespace Description.UpdateType (__changed__)
+  * Old: Immutable
+  * New: Mutable
+
+## Property Type Changes
+
+* AWS::CodeDeploy::DeploymentConfig.TimeBasedCanary (__added__)
+* AWS::CodeDeploy::DeploymentConfig.TimeBasedLinear (__added__)
+* AWS::CodeDeploy::DeploymentConfig.TrafficRoutingConfig (__added__)
+* AWS::CodeDeploy::DeploymentGroup.BlueGreenDeploymentConfiguration (__added__)
+* AWS::CodeDeploy::DeploymentGroup.BlueInstanceTerminationOption (__added__)
+* AWS::CodeDeploy::DeploymentGroup.DeploymentReadyOption (__added__)
+* AWS::CodeDeploy::DeploymentGroup.ECSService (__added__)
+* AWS::CodeDeploy::DeploymentGroup.GreenFleetProvisioningOption (__added__)
+* AWS::DataBrew::Job.DataCatalogOutput (__added__)
+* AWS::DataBrew::Job.DatabaseTableOutputOptions (__added__)
+* AWS::DataBrew::Job.S3TableOutputOptions (__added__)
+* AWS::ServiceDiscovery::PrivateDnsNamespace.PrivateDnsPropertiesMutable (__added__)
+* AWS::ServiceDiscovery::PrivateDnsNamespace.Properties (__added__)
+* AWS::ServiceDiscovery::PrivateDnsNamespace.SOA (__added__)
+* AWS::ServiceDiscovery::PublicDnsNamespace.Properties (__added__)
+* AWS::ServiceDiscovery::PublicDnsNamespace.PublicDnsPropertiesMutable (__added__)
+* AWS::ServiceDiscovery::PublicDnsNamespace.SOA (__added__)
+* AWS::ApiGatewayV2::DomainName.DomainNameConfiguration OwnershipVerificationCertificateArn (__deleted__)
+
+
+# CloudFormation Resource Specification v39.3.0
+
+## New Resource Types
+
+
+## Attribute Changes
+
+* AWS::ApiGateway::UsagePlanKey Id (__added__)
+* AWS::Location::Map Arn (__added__)
+* AWS::Location::PlaceIndex Arn (__added__)
+* AWS::MediaPackage::Asset EgressEndpoints (__added__)
+
+## Property Changes
+
+* AWS::ApiGateway::RestApi Mode (__added__)
+* AWS::AppSync::GraphQLApi LambdaAuthorizerConfig (__deleted__)
+* AWS::AutoScaling::AutoScalingGroup LoadBalancerNames.DuplicatesAllowed (__changed__)
+  * Old: true
+  * New: false
+* AWS::EC2::EC2Fleet Context (__added__)
+* AWS::IoTAnalytics::Datastore DatastorePartitions (__added__)
+* AWS::IoTSiteWise::Portal Alarms (__added__)
+* AWS::IoTSiteWise::Portal NotificationSenderEmail (__added__)
+* AWS::Lambda::EventSourceMapping StartingPositionTimestamp (__added__)
+* AWS::MediaPackage::Asset EgressEndpoints (__deleted__)
+* AWS::RDS::DBCluster CopyTagsToSnapshot (__added__)
+
+## Property Type Changes
+
+* AWS::AppSync::GraphQLApi.LambdaAuthorizerConfig (__removed__)
+* AWS::FSx::FileSystem.AuditLogConfiguration (__removed__)
+* AWS::IoTAnalytics::Datastore.DatastorePartition (__added__)
+* AWS::IoTAnalytics::Datastore.DatastorePartitions (__added__)
+* AWS::IoTAnalytics::Datastore.Partition (__added__)
+* AWS::IoTAnalytics::Datastore.TimestampPartition (__added__)
+* AWS::AppSync::GraphQLApi.AdditionalAuthenticationProvider LambdaAuthorizerConfig (__deleted__)
+* AWS::ApplicationAutoScaling::ScalableTarget.ScheduledAction Timezone (__added__)
+* AWS::EC2::SpotFleet.SpotFleetRequestConfigData Context (__added__)
+* AWS::FSx::FileSystem.WindowsConfiguration AuditLogConfiguration (__deleted__)
+
+
+
+# Serverless Application Model (SAM) Resource Specification v2016-10-31
+
+## New Resource Types
+
+
+## Attribute Changes
+
+
+## Property Changes
+
+* AWS::Serverless::Function CodeUri.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::Serverless::Function Handler.Required (__changed__)
+  * Old: true
+  * New: false
+* AWS::Serverless::Function Runtime.Required (__changed__)
+  * Old: true
+  * New: false
+
+## Property Type Changes
+
+
 # CloudFormation Resource Specification v39.3.0
 
 ## New Resource Types

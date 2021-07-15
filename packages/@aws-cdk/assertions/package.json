@@ -61,7 +61,7 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "cdk-build-tools": "0.0.0",
     "@aws-cdk/cfnspec": "0.0.0",
     "constructs": "^10.0.0",

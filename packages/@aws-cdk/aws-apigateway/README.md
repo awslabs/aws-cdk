@@ -509,7 +509,7 @@ iamUser.attachInlinePolicy(new iam.Policy(this, 'AllowBooks', {
   statements: [
     new iam.PolicyStatement({
       actions: [ 'execute-api:Invoke' ],
-      effect: iam.Effect.Allow,
+      effect: iam.Effect.ALLOW,
       resources: [ getBooks.methodArn ]
     })
   ]

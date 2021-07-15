@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@aws-cdk/aws-s3": "0.0.0",
-    "@types/nodeunit": "^0.0.31",
+    "@types/nodeunit": "^0.0.32",
     "cdk-build-tools": "0.0.0",
     "cdk-integ-tools": "0.0.0",
     "fast-check": "^2.17.0",

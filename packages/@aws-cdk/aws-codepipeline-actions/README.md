@@ -333,7 +333,8 @@ const buildAction = new codepipeline_actions.CodeBuildAction({
   project,
   input: sourceOutput,
   outputs: [new codepipeline.Artifact()], // optional
-  executeBatchBuild: true // optional, defaults to false
+  executeBatchBuild: true, // optional, defaults to false
+  combineBatchBuildArtifacts: true, // optional, defaults to false
 });
 
 new codepipeline.Pipeline(this, 'MyPipeline', {

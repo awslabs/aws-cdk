@@ -1,6 +1,6 @@
 import '@aws-cdk/assert-internal/jest';
 import * as route53 from '@aws-cdk/aws-route53';
-import { Lazy, Stack } from '@aws-cdk/core';
+import { Duration, Lazy, Stack } from '@aws-cdk/core';
 import { Certificate, CertificateValidation, ValidationMethod } from '../lib';
 
 test('apex domain selection by default', () => {
@@ -16,6 +16,25 @@ test('apex domain selection by default', () => {
       DomainName: 'test.example.com',
       ValidationDomain: 'example.com',
     }],
+  });
+});
+
+test('metricDaysToExpiry', () => {
+  const stack = new Stack();
+
+  const certificate = new Certificate(stack, 'Certificate', {
+    domainName: 'test.example.com',
+  });
+
+  expect(stack.resolve(certificate.metricDaysToExpiry().toMetricConfig())).toEqual({
+    metricStat: {
+      dimensions: [{ name: 'CertificateArn', value: stack.resolve(certificate.certificateArn) }],
+      metricName: 'DaysToExpiry',
+      namespace: 'AWS/CertificateManager',
+      period: Duration.days(1),
+      statistic: 'Minimum',
+    },
+    renderingProperties: expect.anything(),
   });
 });
 

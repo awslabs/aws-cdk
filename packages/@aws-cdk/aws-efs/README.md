@@ -37,11 +37,39 @@ const fileSystem = new efs.FileSystem(this, 'MyEfsFileSystem', {
   lifecyclePolicy: efs.LifecyclePolicy.AFTER_14_DAYS, // files are not transitioned to infrequent access (IA) storage by default
   performanceMode: efs.PerformanceMode.GENERAL_PURPOSE, // default
 });
-
 ```
 
 ⚠️ An Amazon EFS file system's performance mode can't be changed after the file system has been created.
 Updating this property will replace the file system.
+
+Any file system that has been created outside the stack can be imported into your CDK app.
+
+Use the `fromFileSystemAttributes()` API to import an existing file system.
+Here is an example of giving a role write permissions on a file system.
+
+```ts
+import * as iam from '@aws-cdk/aws-iam';
+
+const importedFileSystem = efs.FileSystem.fromFileSystemAttributes(this, 'existingFS', {
+  fileSystemId: 'fs-12345678', // You can also use fileSystemArn instead of fileSystemId.
+  securityGroup: ec2.SecurityGroup.fromSecurityGroupId(this, 'SG', 'sg-123456789', {
+    allowAllOutbound: false,
+  }),
+});
+```
+
+### Permissions
+
+If you need to grant file system permissions to another resource, you can use the `.grant()` API.
+As an example, the following code gives `elasticfilesystem:ClientWrite` permissions to an IAM role.
+
+```ts fixture=with-filesystem-instance
+const role = new iam.Role(this, 'Role', {
+  assumedBy: new iam.AnyPrincipal(),
+});
+
+fileSystem.grant(role, 'elasticfilesystem:ClientWrite');
+```
 
 ### Access Point
 

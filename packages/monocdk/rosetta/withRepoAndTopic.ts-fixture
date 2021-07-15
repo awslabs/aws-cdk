@@ -1,0 +1,23 @@
+// Fixture with packages imported, but nothing else
+import { Duration, RemovalPolicy, Stack } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+
+import * as targets from '@aws-cdk/aws-events-targets';
+import * as events from '@aws-cdk/aws-events';
+import * as sns from '@aws-cdk/aws-sns';
+import * as codecommit from '@aws-cdk/aws-codecommit';
+import * as cdk from '@aws-cdk/core';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const repository = new codecommit.Repository(this, 'MyRepo', {
+      repositoryName: 'aws-cdk-events',
+    });
+
+    const topic = new sns.Topic(this, 'MyTopic');
+
+    /// here
+  }
+}

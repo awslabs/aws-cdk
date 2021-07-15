@@ -69,11 +69,11 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "@aws-cdk/aws-cloudtrail": "0.0.0",
     "@aws-cdk/aws-codestarnotifications": "0.0.0",
     "@aws-cdk/cx-api": "0.0.0",
-    "@types/lodash": "^4.14.170",
+    "@types/lodash": "^4.14.171",
     "cdk-build-tools": "0.0.0",
     "cdk-integ-tools": "0.0.0",
     "lodash": "^4.17.21",

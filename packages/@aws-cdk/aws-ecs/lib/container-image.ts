@@ -1,4 +1,5 @@
 import * as ecr from '@aws-cdk/aws-ecr';
+import { DockerImageAsset, TarballImageAsset } from '@aws-cdk/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { ContainerDefinition } from './container-definition';
 import { CfnTaskDefinition } from './ecs.generated';
@@ -50,6 +51,28 @@ export abstract class ContainerImage {
   }
 
   /**
+   * Use an existing tarball for this container image.
+   *
+   * Use this method if the container image has already been created by another process (e.g. jib)
+   * and you want to add it as a container image asset.
+   *
+   * @param tarballFile Path to the tarball (relative to the directory).
+   */
+  public static fromTarball(tarballFile: string): ContainerImage {
+    return {
+      bind(scope: CoreConstruct, containerDefinition: ContainerDefinition): ContainerImageConfig {
+
+        const asset = new TarballImageAsset(scope, 'Tarball', { tarballFile });
+        asset.repository.grantPull(containerDefinition.taskDefinition.obtainExecutionRole());
+
+        return {
+          imageName: asset.imageUri,
+        };
+      },
+    };
+  }
+
+  /**
    * Called when the image is used by a ContainerDefinition
    */
   public abstract bind(scope: Construct, containerDefinition: ContainerDefinition): ContainerImageConfig;
@@ -70,7 +93,6 @@ export interface ContainerImageConfig {
   readonly repositoryCredentials?: CfnTaskDefinition.RepositoryCredentialsProperty;
 }
 
-import { DockerImageAsset } from '@aws-cdk/aws-ecr-assets';
 import { AssetImage, AssetImageProps } from './images/asset-image';
 import { EcrImage } from './images/ecr';
 import { RepositoryImage, RepositoryImageProps } from './images/repository';
