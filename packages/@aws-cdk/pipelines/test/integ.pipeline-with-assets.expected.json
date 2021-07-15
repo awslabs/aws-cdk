@@ -3,6 +3,7 @@
     "PipelineArtifactsBucketEncryptionKeyF5BF0670": {
       "Type": "AWS::KMS::Key",
       "Properties": {
+        "EnableKeyRotation": false,
         "KeyPolicy": {
           "Statement": [
             {

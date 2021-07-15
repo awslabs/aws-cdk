@@ -46,6 +46,7 @@
     "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3": {
       "Type": "AWS::KMS::Key",
       "Properties": {
+        "EnableKeyRotation": false,
         "KeyPolicy": {
           "Statement": [
             {

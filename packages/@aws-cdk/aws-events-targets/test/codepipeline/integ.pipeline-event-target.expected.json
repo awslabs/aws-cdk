@@ -9,6 +9,7 @@
     "pipelinePipeline22F2A91DArtifactsBucketEncryptionKey87C796D2": {
       "Type": "AWS::KMS::Key",
       "Properties": {
+        "EnableKeyRotation": false,
         "KeyPolicy": {
           "Statement": [
             {
