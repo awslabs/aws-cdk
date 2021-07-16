@@ -94,4 +94,35 @@ describe('HttpServiceDiscoveryIntegration', () => {
       routeKey: HttpRouteKey.with('/pets'),
     })).toThrow(/vpcLink property is mandatory/);
   });
+
+  test('tlsConfig option is correctly recognized', () => {
+    // GIVEN
+    const stack = new Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const vpcLink = new VpcLink(stack, 'VpcLink', { vpc });
+    const namespace = new servicediscovery.PrivateDnsNamespace(stack, 'Namespace', {
+      name: 'foobar.com',
+      vpc,
+    });
+    const service = namespace.createService('Service');
+
+    // WHEN
+    const api = new HttpApi(stack, 'HttpApi');
+    new HttpRoute(stack, 'HttpProxyPrivateRoute', {
+      httpApi: api,
+      integration: new HttpServiceDiscoveryIntegration({
+        vpcLink,
+        service,
+        secureServerName: 'name-to-verify',
+      }),
+      routeKey: HttpRouteKey.with('/pets'),
+    });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::ApiGatewayV2::Integration', {
+      TlsConfig: {
+        ServerNameToVerify: 'name-to-verify',
+      },
+    });
+  });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { Resource } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnIntegration } from '../apigatewayv2.generated';
@@ -120,6 +121,13 @@ export interface HttpIntegrationProps {
    * @default - defaults to latest in the case of HttpIntegrationType.LAMBDA_PROXY`, irrelevant otherwise.
    */
   readonly payloadFormatVersion?: PayloadFormatVersion;
+
+  /**
+   * Specifies the TLS configuration for a private integration
+   * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigatewayv2-integration-tlsconfig.html
+   * @default - undefined - HTTP will be used to call the backend integration
+   */
+  readonly secureServerName?: string;
 }
 
 /**
@@ -142,6 +150,13 @@ export class HttpIntegration extends Resource implements IHttpIntegration {
       connectionType: props.connectionType,
       payloadFormatVersion: props.payloadFormatVersion?.version,
     });
+
+    if (props.secureServerName) {
+      integ.tlsConfig = {
+        serverNameToVerify: props.secureServerName,
+      };
+    }
+
     this.integrationId = integ.ref;
     this.httpApi = props.httpApi;
   }
@@ -215,4 +230,11 @@ export interface HttpRouteIntegrationConfig {
    * @default - undefined
    */
   readonly payloadFormatVersion: PayloadFormatVersion;
+
+  /**
+   * Specifies the server name to verified by HTTPS when calling the backend integration
+   * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigatewayv2-integration-tlsconfig.html
+   * @default - undefined - HTTP will be used to call the backend integration
+   */
+  readonly secureServerName?: string;
 }

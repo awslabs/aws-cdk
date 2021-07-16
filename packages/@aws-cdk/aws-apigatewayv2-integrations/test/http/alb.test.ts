@@ -116,4 +116,31 @@ describe('HttpAlbIntegration', () => {
       routeKey: HttpRouteKey.with('/pets'),
     })).toThrow(/vpcLink property must be specified/);
   });
+
+  test('tlsConfig option is correctly recognized', () => {
+    // GIVEN
+    const stack = new Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const lb = new elbv2.ApplicationLoadBalancer(stack, 'lb', { vpc });
+    const listener = lb.addListener('listener', { port: 80 });
+    listener.addTargets('target', { port: 80 });
+
+    // WHEN
+    const api = new HttpApi(stack, 'HttpApi');
+    new HttpRoute(stack, 'HttpProxyPrivateRoute', {
+      httpApi: api,
+      integration: new HttpAlbIntegration({
+        listener,
+        secureServerName: 'name-to-verify',
+      }),
+      routeKey: HttpRouteKey.with('/pets'),
+    });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::ApiGatewayV2::Integration', {
+      TlsConfig: {
+        ServerNameToVerify: 'name-to-verify',
+      },
+    });
+  });
 });
