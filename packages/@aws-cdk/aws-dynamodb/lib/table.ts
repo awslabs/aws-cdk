@@ -533,10 +533,6 @@ export interface TableAttributes {
 
   /**
    * The name of the global indexes set for this Table.
-   * Note that you need to set either this property,
-   * or {@link localIndexes},
-   * if you want methods like grantReadData()
-   * to grant permissions for indexes as well as the table itself.
    *
    * @default - no global indexes
    */
@@ -544,10 +540,6 @@ export interface TableAttributes {
 
   /**
    * The name of the local indexes set for this Table.
-   * Note that you need to set either this property,
-   * or {@link globalIndexes},
-   * if you want methods like grantReadData()
-   * to grant permissions for indexes as well as the table itself.
    *
    * @default - no local indexes
    */
@@ -593,11 +585,9 @@ abstract class TableBase extends Resource implements ITable {
       actions,
       resourceArns: [
         this.tableArn,
-        Lazy.string({ produce: () => this.hasIndex ? `${this.tableArn}/index/*` : Aws.NO_VALUE }),
+        `${this.tableArn}/index/*`,
         ...this.regionalArns,
-        ...this.regionalArns.map(arn => Lazy.string({
-          produce: () => this.hasIndex ? `${arn}/index/*` : Aws.NO_VALUE,
-        })),
+        ...this.regionalArns.map(arn => `${arn}/index/*`),
       ],
       scope: this,
     });
@@ -903,11 +893,13 @@ abstract class TableBase extends Resource implements ITable {
     return metrics;
   }
 
-  protected abstract get hasIndex(): boolean;
-
   /**
    * Adds an IAM policy statement associated with this table to an IAM
    * principal's policy.
+   *
+   * **Note**: this method always adds permissions to all of the Table's indexes as well,
+   *   whether they are known to exist or not.
+   *
    * @param grantee The principal (no-op if undefined)
    * @param opts Options for keyActions, tableActions and streamActions
    */
@@ -917,11 +909,9 @@ abstract class TableBase extends Resource implements ITable {
   ): iam.Grant {
     if (opts.tableActions) {
       const resources = [this.tableArn,
-        Lazy.string({ produce: () => this.hasIndex ? `${this.tableArn}/index/*` : Aws.NO_VALUE }),
+        `${this.tableArn}/index/*`,
         ...this.regionalArns,
-        ...this.regionalArns.map(arn => Lazy.string({
-          produce: () => this.hasIndex ? `${arn}/index/*` : Aws.NO_VALUE,
-        }))];
+        ...this.regionalArns.map(arn => `${arn}/index/*`)];
       const ret = iam.Grant.addToPrincipal({
         grantee,
         actions: opts.tableActions,
@@ -1013,8 +1003,6 @@ export class Table extends TableBase {
       public readonly tableArn: string;
       public readonly tableStreamArn?: string;
       public readonly encryptionKey?: kms.IKey;
-      protected readonly hasIndex = (attrs.globalIndexes ?? []).length > 0 ||
-        (attrs.localIndexes ?? []).length > 0;
 
       constructor(_tableArn: string, tableName: string, tableStreamArn?: string) {
         super(scope, id);
@@ -1580,13 +1568,6 @@ export class Table extends TableBase {
       actions: ['dynamodb:*'],
       resources: this.regionalArns,
     }));
-  }
-
-  /**
-   * Whether this table has indexes
-   */
-  protected get hasIndex(): boolean {
-    return this.globalSecondaryIndexes.length + this.localSecondaryIndexes.length > 0;
   }
 
   /**

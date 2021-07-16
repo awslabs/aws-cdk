@@ -33,6 +33,9 @@ const table = Table.fromTableArn(this, 'ImportedTable', 'arn:aws:dynamodb:us-eas
 table.grantReadWriteData(user);
 ```
 
+It is worth noting that grant methods always include IAM resources for secondary indexes,
+even if your table doesn't yet have any.
+
 If you intend to use the `tableStreamArn` (including indirectly, for example by creating an
 `@aws-cdk/aws-lambda-event-source.DynamoEventSource` on the imported table), you *must* use the
 `Table.fromTableAttributes` method and the `tableStreamArn` property *must* be populated.
