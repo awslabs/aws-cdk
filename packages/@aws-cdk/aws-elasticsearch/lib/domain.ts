@@ -1762,11 +1762,13 @@ export class Domain extends DomainBase implements IDomain, ec2.IConnectable {
  *
  * Domain endpoints look like this:
  *
- *   https://example-domain-jcjotrt6f7otem4sqcwbch3c4u.us-east-1.es.amazonaws.com
- *   https://<domain-name>-<suffix>.<region>.es.amazonaws.com
+ *   https://search-example-domain-jcjotrt6f7otem4sqcwbch3c4u.us-east-1.es.amazonaws.com
+ *   https://search-<domain-name>-<suffix>.<region>.es.amazonaws.com
+ *   https://vpc-<domain-name>-<suffix>.<region>.es.amazonaws.com
  *
  * ..which means that in order to extract the domain name from the endpoint, we can
- * split the endpoint using "-<suffix>" and select the component in index 0.
+ * split the endpoint using "-<suffix>" and select the component in index 0, and then replace
+ * the "search-" or "vpc-" prefix.
  *
  * @param domainEndpoint The Elasticsearch domain endpoint
  */
@@ -1774,7 +1776,7 @@ function extractNameFromEndpoint(domainEndpoint: string) {
   const { hostname } = new URL(domainEndpoint);
   const domain = hostname.split('.')[0];
   const suffix = '-' + domain.split('-').slice(-1)[0];
-  return domain.split(suffix)[0];
+  return domain.split(suffix)[0].replace(/^(search-|vpc-)/, '');
 }
 
 /**
