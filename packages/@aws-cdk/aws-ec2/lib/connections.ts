@@ -20,6 +20,9 @@ import { ISecurityGroup } from './security-group';
  * An object that has a Connections object
  */
 export interface IConnectable {
+  /**
+   * The network connections associated with this resource.
+   */
   readonly connections: Connections;
 }
 

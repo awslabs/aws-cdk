@@ -158,3 +158,32 @@ export const APPMESH_ECR_ACCOUNTS: { [region: string]: string } = {
   'us-west-1': '840364872350',
   'us-west-2': '840364872350',
 };
+
+// https://docs.aws.amazon.com/firehose/latest/dev/controlling-access.html#using-iam-rs-vpc
+export const FIREHOSE_CIDR_BLOCKS: { [region: string]: string } = {
+  'af-south-1': '13.244.121.224',
+  'ap-east-1': '18.162.221.32',
+  'ap-northeast-1': '13.113.196.224',
+  'ap-northeast-2': '13.209.1.64',
+  'ap-northeast-3': '13.208.177.192',
+  'ap-south-1': '13.232.67.32',
+  'ap-southeast-1': '13.228.64.192',
+  'ap-southeast-2': '13.210.67.224',
+  'ca-central-1': '35.183.92.128',
+  'cn-north-1': '52.81.151.32',
+  'cn-northwest-1': '161.189.23.64',
+  'eu-central-1': '35.158.127.160',
+  'eu-north-1': '13.53.63.224',
+  'eu-south-1': '15.161.135.128',
+  'eu-west-1': '52.19.239.192',
+  'eu-west-2': '18.130.1.96',
+  'eu-west-3': '35.180.1.96',
+  'me-south-1': '15.185.91.0',
+  'sa-east-1': '18.228.1.128',
+  'us-east-1': '52.70.63.192',
+  'us-east-2': '13.58.135.96',
+  'us-gov-east-1': '18.253.138.96',
+  'us-gov-west-1': '52.61.204.160',
+  'us-west-1': '13.57.135.192',
+  'us-west-2': '52.89.255.224',
+};

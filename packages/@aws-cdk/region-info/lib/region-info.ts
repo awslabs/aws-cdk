@@ -117,4 +117,11 @@ export class RegionInfo {
   public get appMeshRepositoryAccount(): string | undefined {
     return Fact.find(this.name, FactName.APPMESH_ECR_ACCOUNT);
   }
+
+  /**
+   * The CIDR block used by Kinesis Data Firehose servers.
+   */
+  public get firehoseCidrBlock(): string | undefined {
+    return Fact.find(this.name, FactName.FIREHOSE_CIDR_BLOCK);
+  }
 }

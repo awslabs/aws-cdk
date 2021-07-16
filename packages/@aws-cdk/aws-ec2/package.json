@@ -288,7 +288,6 @@
       "props-default-doc:@aws-cdk/aws-ec2.AclPortRange.from",
       "props-default-doc:@aws-cdk/aws-ec2.AclPortRange.to",
       "docs-public-apis:@aws-cdk/aws-ec2.ConnectionRule",
-      "docs-public-apis:@aws-cdk/aws-ec2.IConnectable.connections",
       "docs-public-apis:@aws-cdk/aws-ec2.IInstance",
       "docs-public-apis:@aws-cdk/aws-ec2.IPrivateSubnet",
       "docs-public-apis:@aws-cdk/aws-ec2.IPublicSubnet",

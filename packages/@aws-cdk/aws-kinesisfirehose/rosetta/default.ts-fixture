@@ -1,0 +1,11 @@
+// Fixture with packages imported, but nothing else
+import { Construct, Stack } from '@aws-cdk/core';
+import { DeliveryStream, DestinationBindOptions, DestinationConfig, IDestination } from '@aws-cdk/aws-kinesisfirehose';
+
+class Fixture extends Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}
