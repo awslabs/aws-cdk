@@ -10,8 +10,6 @@ description of the bug:
 -->
 
 
-
-
 ### Reproduction Steps
 
 <!--
@@ -52,3 +50,12 @@ What is the unexpected behavior you were seeing? If you got an error, paste it h
 --- 
 
 This is :bug: Bug Report
+
+<!-- 
+NOTE: If your bug is meets one of the following criteria, and is not recieving proper attention, please notify the team directly by commenting @TEAM-MEMBER, or messaging @TEAM-MEMBER on our [Slack](https://cdk.dev/):
+
+* Breaking change in `Stable` construct library
+* Potential security violation
+* Bug impacts large number of users
+* Bug impacts performance of entire CDK
+-->
