@@ -369,8 +369,12 @@ export class Canary extends cdk.Resource {
           actions: ['s3:ListAllMyBuckets'],
         }),
         new iam.PolicyStatement({
+          resources: [this.artifactsBucket.bucketArn],
+          actions: ['s3:GetBucketLocation'],
+        }),
+        new iam.PolicyStatement({
           resources: [this.artifactsBucket.arnForObjects(`${prefix ? prefix+'/*' : '*'}`)],
-          actions: ['s3:PutObject', 's3:GetBucketLocation'],
+          actions: ['s3:PutObject'],
         }),
         new iam.PolicyStatement({
           resources: ['*'],

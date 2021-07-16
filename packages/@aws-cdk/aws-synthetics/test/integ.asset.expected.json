@@ -41,10 +41,17 @@
                   "Resource": "*"
                 },
                 {
-                  "Action": [
-                    "s3:PutObject",
-                    "s3:GetBucketLocation"
-                  ],
+                  "Action": "s3:GetBucketLocation",
+                  "Effect": "Allow",
+                  "Resource": {
+                      "Fn::GetAtt": [
+                      "MyCanaryArtifactsBucket89975E6D",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Action": "s3:PutObject",
                   "Effect": "Allow",
                   "Resource": {
                     "Fn::Join": [
@@ -197,10 +204,17 @@
                   "Resource": "*"
                 },
                 {
-                  "Action": [
-                    "s3:PutObject",
-                    "s3:GetBucketLocation"
-                  ],
+                  "Action": "s3:GetBucketLocation",
+                  "Effect": "Allow",
+                  "Resource": {
+                      "Fn::GetAtt": [
+                      "MyCanaryArtifactsBucket89975E6D",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Action": "s3:PutObject",
                   "Effect": "Allow",
                   "Resource": {
                     "Fn::Join": [

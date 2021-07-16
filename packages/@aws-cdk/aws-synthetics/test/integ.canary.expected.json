@@ -30,10 +30,17 @@
                   "Resource": "*"
                 },
                 {
-                  "Action": [
-                    "s3:PutObject",
-                    "s3:GetBucketLocation"
-                  ],
+                  "Action": "s3:GetBucketLocation",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "mytestbucket8DC16178",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Action": "s3:PutObject",
                   "Effect": "Allow",
                   "Resource": {
                     "Fn::Join": [
@@ -163,10 +170,17 @@
                   "Resource": "*"
                 },
                 {
-                  "Action": [
-                    "s3:PutObject",
-                    "s3:GetBucketLocation"
-                  ],
+                  "Action": "s3:GetBucketLocation",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "MyCanaryOneArtifactsBucketDF4A487D",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Action": "s3:PutObject",
                   "Effect": "Allow",
                   "Resource": {
                     "Fn::Join": [
@@ -330,10 +344,17 @@
                   "Resource": "*"
                 },
                 {
-                  "Action": [
-                    "s3:PutObject",
-                    "s3:GetBucketLocation"
-                  ],
+                  "Action": "s3:GetBucketLocation",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "MyCanaryTwoArtifactsBucket79B179B6",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Action": "s3:PutObject",
                   "Effect": "Allow",
                   "Resource": {
                     "Fn::Join": [
