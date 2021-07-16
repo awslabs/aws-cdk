@@ -91,6 +91,13 @@ export interface ApplicationLoadBalancedFargateServiceProps extends ApplicationL
    * @default - A new security group is created.
    */
   readonly securityGroups?: ISecurityGroup[];
+
+  /**
+   * Whether to enable the ability to execute into a container.
+   *
+   * @default - undefined
+   */
+  readonly enableExecuteCommand?: boolean;
 }
 
 /**
@@ -174,6 +181,7 @@ export class ApplicationLoadBalancedFargateService extends ApplicationLoadBalanc
       circuitBreaker: props.circuitBreaker,
       securityGroups: props.securityGroups,
       vpcSubnets: props.taskSubnets,
+      enableExecuteCommand: props.enableExecuteCommand,
     });
     this.addServiceAsTarget(this.service);
   }

@@ -1,4 +1,4 @@
-import { expect, haveResource, haveResourceLike } from '@aws-cdk/assert-internal';
+import { ABSENT, expect, haveResource, haveResourceLike } from '@aws-cdk/assert-internal';
 import { Vpc } from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import { CompositePrincipal, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
@@ -382,6 +382,74 @@ export = {
         RequiresCompatibilities: [
           'FARGATE',
         ],
+      }));
+
+      test.done();
+    },
+
+    'test with enableExecuteCommand set to true'(test: Test) {
+      // GIVEN
+      const stack = new Stack();
+      const vpc = new Vpc(stack, 'VPC');
+      const cluster = new ecs.Cluster(stack, 'Cluster', { vpc });
+
+      // WHEN
+      new ApplicationLoadBalancedFargateService(stack, 'Service', {
+        cluster,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromRegistry('test'),
+        },
+        enableExecuteCommand: true,
+      });
+
+      // THEN - stack contains a service with execute-command enabled
+      expect(stack).to(haveResourceLike('AWS::ECS::Service', {
+        EnableExecuteCommand: true,
+      }));
+
+      test.done();
+    },
+
+    'test with enableExecuteCommand omitted'(test: Test) {
+      // GIVEN
+      const stack = new Stack();
+      const vpc = new Vpc(stack, 'VPC');
+      const cluster = new ecs.Cluster(stack, 'Cluster', { vpc });
+
+      // WHEN
+      new ApplicationLoadBalancedFargateService(stack, 'Service', {
+        cluster,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromRegistry('test'),
+        },
+      });
+
+      // THEN - stack contains a service with execute-command enabled
+      expect(stack).to(haveResourceLike('AWS::ECS::Service', {
+        EnableExecuteCommand: ABSENT,
+      }));
+
+      test.done();
+    },
+
+    'test with enableExecuteCommand false'(test: Test) {
+      // GIVEN
+      const stack = new Stack();
+      const vpc = new Vpc(stack, 'VPC');
+      const cluster = new ecs.Cluster(stack, 'Cluster', { vpc });
+
+      // WHEN
+      new ApplicationLoadBalancedFargateService(stack, 'Service', {
+        cluster,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromRegistry('test'),
+        },
+        enableExecuteCommand: false,
+      });
+
+      // THEN - stack contains a service with execute-command enabled
+      expect(stack).to(haveResourceLike('AWS::ECS::Service', {
+        EnableExecuteCommand: false,
       }));
 
       test.done();
