@@ -323,6 +323,27 @@ new LayerVersion(this, 'MyLayer', {
 });
 ```
 
+## Lambda Insights
+
+Lambda functions can be configured to use CloudWatch [Lambda Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights.html)
+which provides low-level runtime metrics for a Lambda functions.
+
+```ts
+import * as lambda from '@aws-cdk/lambda';
+
+new Function(this, 'MyFunction', {
+  insightsVersion: lambda.LambdaInsightsLayerVersion.fromVersionAndRegion({
+    insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_98_0,
+    region: 'us-west-2',
+  })
+})
+
+// Can also provide your own arn if a new version comes out
+new Function(this, 'MyFunction', {
+  insightsVersion: lambda.LambdaInsightsLayerVersion.fromInsightVersionArn(<your ARN here>)
+})
+```
+
 ## Event Rule Target
 
 You can use an AWS Lambda function as a target for an Amazon CloudWatch event

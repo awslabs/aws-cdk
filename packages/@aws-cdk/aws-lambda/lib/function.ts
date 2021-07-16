@@ -15,9 +15,10 @@ import { FileSystem } from './filesystem';
 import { FunctionAttributes, FunctionBase, IFunction } from './function-base';
 import { calculateFunctionHash, trimFromStart } from './function-hash';
 import { Handler } from './handler';
+import { LambdaInsightsLayerVersion } from './lambda-insights';
 import { Version, VersionOptions } from './lambda-version';
 import { CfnFunction } from './lambda.generated';
-import { ILayerVersion } from './layers';
+import { LayerVersion, ILayerVersion } from './layers';
 import { Runtime } from './runtime';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
@@ -213,6 +214,14 @@ export interface FunctionOptions extends EventInvokeConfigOptions {
    * @default - A new profiling group will be created if `profiling` is set.
    */
   readonly profilingGroup?: IProfilingGroup;
+
+  /**
+   * Enable Lambda Insights
+   * @see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights.html
+   *
+   * @default - No Lambda Insights
+   */
+  readonly insightsVersion?: LambdaInsightsLayerVersion;
 
   /**
    * A list of layers to add to the function's execution environment. You can configure your Lambda function to pull in
@@ -649,7 +658,7 @@ export class Function extends FunctionBase {
         zipFile: code.inlineCode,
         imageUri: code.image?.imageUri,
       },
-      layers: Lazy.list({ produce: () => this.layers.map(layer => layer.layerVersionArn) }, { omitEmpty: true }),
+      layers: Lazy.list({ produce: () => this.layers.map(layer => layer.layerVersionArn) }, { omitEmpty: true }), // Evaluated on synthesis
       handler: props.handler === Handler.FROM_IMAGE ? undefined : props.handler,
       timeout: props.timeout && props.timeout.toSeconds(),
       packageType: props.runtime === Runtime.FROM_IMAGE ? 'Image' : undefined,
@@ -746,6 +755,11 @@ export class Function extends FunctionBase {
           }
         });
       });
+    }
+
+    // Configure Lambda insights
+    if (props.insightsVersion !== undefined) {
+      this.configureLambdaInsights(props.insightsVersion);
     }
   }
 
@@ -861,6 +875,17 @@ Environment variables can be marked for removal when used in Lambda@Edge by sett
     }
 
     return;
+  }
+
+  /**
+   * Configured lambda insights on the function if specified. This is acheived by adding an imported layer which is added to the
+   * list of lambda layers on synthesis.
+   *
+   * https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
+   */
+  private configureLambdaInsights(insightsVersion: LambdaInsightsLayerVersion): void {
+    this.addLayers(LayerVersion.fromLayerVersionArn(this, 'LambdaInsightsLayer', insightsVersion.layerVersionArn));
+    this.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLambdaInsightsExecutionRolePolicy'));
   }
 
   private renderEnvironment() {
