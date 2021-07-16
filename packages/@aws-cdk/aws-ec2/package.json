@@ -261,6 +261,7 @@
       "docs-public-apis:@aws-cdk/aws-ec2.InterfaceVpcEndpointAwsService.REKOGNITION_FIPS",
       "docs-public-apis:@aws-cdk/aws-ec2.InterfaceVpcEndpointAwsService.STEP_FUNCTIONS",
       "docs-public-apis:@aws-cdk/aws-ec2.InterfaceVpcEndpointAwsService.LAMBDA",
+      "docs-public-apis:@aws-cdk/aws-ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE",
       "docs-public-apis:@aws-cdk/aws-ec2.Port.toString",
       "docs-public-apis:@aws-cdk/aws-ec2.PrivateSubnet.fromPrivateSubnetAttributes",
       "docs-public-apis:@aws-cdk/aws-ec2.PublicSubnet.fromPublicSubnetAttributes",

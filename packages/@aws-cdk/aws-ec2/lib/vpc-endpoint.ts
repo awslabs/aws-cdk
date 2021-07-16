@@ -305,6 +305,7 @@ export class InterfaceVpcEndpointAwsService implements IInterfaceVpcEndpointServ
   public static readonly REKOGNITION_FIPS = new InterfaceVpcEndpointAwsService('rekognition-fips');
   public static readonly STEP_FUNCTIONS = new InterfaceVpcEndpointAwsService('states');
   public static readonly LAMBDA = new InterfaceVpcEndpointAwsService('lambda');
+  public static readonly TRANSCRIBE = new InterfaceVpcEndpointAwsService('transcribe');
 
   /**
    * The name of the service.
