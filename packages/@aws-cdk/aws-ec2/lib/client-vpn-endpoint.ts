@@ -356,7 +356,7 @@ export class ClientVpnEndpoint extends Resource implements IClientVpnEndpoint {
   public addAuthorizationRule(id: string, props: ClientVpnAuthorizationRuleOptions): ClientVpnAuthorizationRule {
     return new ClientVpnAuthorizationRule(this, id, {
       ...props,
-      clientVpnEndoint: this,
+      clientVpnEndpoint: this,
     });
   }
 
@@ -366,7 +366,7 @@ export class ClientVpnEndpoint extends Resource implements IClientVpnEndpoint {
   public addRoute(id: string, props: ClientVpnRouteOptions): ClientVpnRoute {
     return new ClientVpnRoute(this, id, {
       ...props,
-      clientVpnEndoint: this,
+      clientVpnEndpoint: this,
     });
   }
 }
