@@ -682,7 +682,7 @@ export class Pipeline extends PipelineBase {
     // (otherwise we can't configure cross-account trust policies)
     if (action.isCrossAccount) {
       const artifactBucket = this.ensureReplicationResourcesExistFor(action).artifactBucket;
-      if (!artifactBucket.encryptionKey) {
+      if (artifactBucket.encryption != BucketEncryption.KMS && artifactBucket.encryption != BucketEncryption.KMS_MANAGED) {
         throw new Error(
           `Artifact Bucket must have a KMS Key to add cross-account action '${action.actionProperties.actionName}' ` +
           `(pipeline account: '${renderEnvDimension(this.env.account)}', action account: '${renderEnvDimension(action.effectiveAccount)}'). ` +
