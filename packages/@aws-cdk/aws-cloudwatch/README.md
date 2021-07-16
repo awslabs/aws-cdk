@@ -178,7 +178,7 @@ alarm.addAlarmAction(new cw_actions.SnsAction(topic));
 
 ### Composite Alarms
 
-[Composite Alarms](https://aws.amazon.com/about-aws/whats-new/2020/03/amazon-cloudwatch-now-allows-you-to-combine-multiple-alarms/) 
+[Composite Alarms](https://aws.amazon.com/about-aws/whats-new/2020/03/amazon-cloudwatch-now-allows-you-to-combine-multiple-alarms/)
 can be created from existing Alarm resources.
 
 ```ts
@@ -372,6 +372,18 @@ dashboard.addWidgets(new LogQueryWidget({
     'fields @message',
     'filter @message like /Error/',
   ]
+}));
+```
+
+### Contributor Insights widget
+
+A `ContributorInsightsWidget` displays data from a Contributor Insights rule:
+
+```ts
+dashboard.addWidgets(new cloudwatch.ContributorInsightsWidget({
+  title: 'Top 50 callers',
+  ruleName: 'my-contributor-insights-rule',
+  contributorSelection: cloudwatch.TopContributors.TOP50,
 }));
 ```
 

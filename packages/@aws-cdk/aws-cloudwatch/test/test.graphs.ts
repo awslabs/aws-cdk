@@ -1,6 +1,6 @@
 import { Duration, Stack } from '@aws-cdk/core';
 import { Test } from 'nodeunit';
-import { Alarm, AlarmWidget, Color, GraphWidget, GraphWidgetView, LegendPosition, LogQueryWidget, Metric, Shading, SingleValueWidget, LogQueryVisualizationType } from '../lib';
+import { Alarm, AlarmWidget, Color, GraphWidget, GraphWidgetView, LegendPosition, LogQueryWidget, Metric, Shading, SingleValueWidget, LogQueryVisualizationType, ContributorInsightsWidget } from '../lib';
 
 export = {
   'add stacked property to graphs'(test: Test) {
@@ -311,6 +311,38 @@ export = {
         stacked: true,
         region: { Ref: 'AWS::Region' },
         query: `SOURCE '${logGroup.logGroupName}' | fields @message\n| filter @message like /Error/`,
+      },
+    }]);
+
+    test.done();
+  },
+
+
+  'contributor insights widget'(test: Test) {
+    // GIVEN
+    const stack = new Stack();
+    const ruleName = 'my-contributor-insights-rule';
+
+    // WHEN
+    const widget = new ContributorInsightsWidget({
+      ruleName,
+    });
+
+    // THEN
+    test.deepEqual(stack.resolve(widget.toJson()), [{
+      type: 'metric',
+      width: 6,
+      height: 6,
+      stacked: false,
+      properties: {
+        period: 300,
+        view: 'timeSeries',
+        region: { Ref: 'AWS::Region' },
+        insightRule: {
+          maxContributorCount: 10,
+          orderBy: 'Sum',
+          ruleName: 'my-contributor-insights-rule',
+        },
       },
     }]);
 

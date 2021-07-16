@@ -98,5 +98,10 @@ dashboard.addWidgets(new cloudwatch.SingleValueWidget({
   metrics: [sentMessageSizeMetric],
   fullPrecision: true,
 }));
+dashboard.addWidgets(new cloudwatch.ContributorInsightsWidget({
+  title: 'Top 50 callers',
+  ruleName: 'my-contributor-insights-rule',
+  contributorSelection: cloudwatch.TopContributors.TOP50,
+}));
 
 app.synth();

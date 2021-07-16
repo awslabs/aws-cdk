@@ -109,7 +109,11 @@
                   "QueueName"
                 ]
               },
-              "\"]],\"singleValueFullPrecision\":true}}]}"
+              "\"]],\"singleValueFullPrecision\":true}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":53,\"stacked\":false,\"properties\":{\"period\":300,\"view\":\"timeSeries\",\"title\":\"Top 50 callers\",\"region\":\"",
+              {
+                "Ref": "AWS::Region"
+              },
+              "\",\"insightRule\":{\"maxContributorCount\":50,\"orderBy\":\"Sum\",\"ruleName\":\"my-contributor-insights-rule\"}}}]}"
             ]
           ]
         },

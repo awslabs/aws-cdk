@@ -12,6 +12,7 @@ export * from './log-query';
 export * from './text';
 export * from './widget';
 export * from './alarm-status-widget';
+export * from './contributor-insights-widget';
 
 // AWS::CloudWatch CloudFormation Resources:
 export * from './cloudwatch.generated';
