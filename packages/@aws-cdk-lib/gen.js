@@ -41,11 +41,22 @@ function copyFilesRemovingDependencies() {
         const destDir = path.join(__dirname, packageUnscopedName);
         fs.mkdirp(destDir);
 
-        copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages);
+        copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages, [
+            // list of files to _not_ copy from the V1 package root
+            // .gitignore is not on the list, because pkglint checks it
+            'dist',
+            'node_modules',
+            'coverage',
+            '.nyc_output',
+            'nyc.config.js',
+            '.jsii',
+            'tsconfig.json',
+            'tsconfig.tsbuildinfo',
+        ]);
     }
 }
 
-function copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages) {
+function copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages, ignoredFiles) {
     const sourceFiles = fs.readdirSync(srcDir);
     for (const sourceFileName of sourceFiles) {
         if (shouldIgnoreFile(sourceFileName)) {
@@ -94,17 +105,22 @@ function copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages) {
                 ];
                 srcPackageJson.pkglint = pkglint;
 
-                // regular dependencies
                 const unstableDependencies = {};
-                for (const dependency of Object.keys(srcPackageJson.dependencies || {})) {
+                // regular dependencies
+                const dependencies = srcPackageJson.dependencies || {};
+                const bundledDependencies = srcPackageJson.bundledDependencies || [];
+                for (const dependency of Object.keys(dependencies)) {
                     // all 'regular' dependencies on unstable modules will be converted to
                     // a pair of devDependency on '0.0.0' and peerDependency on '^0.0.0',
-                    // and the package will have no regular dependencies anymore
+                    // and the package will have no regular dependencies anymore...
                     if (unstablePackages[dependency]) {
                         unstableDependencies[unstablePackages[dependency]] = '0.0.0';
                     }
+                    // ...other than third-party dependencies, which are in bundledDependencies
+                    if (bundledDependencies.indexOf(dependency) === -1) {
+                        delete dependencies[dependency];
+                    }
                 }
-                srcPackageJson.dependencies = undefined;
 
                 // devDependencies
                 const unstableDevDependencies = {};
@@ -160,9 +176,18 @@ function copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages) {
             // which is against our philosophy for experimental modules (which use peerDependencies).
             // Given that, remove that rule from the ESLint configuration of that module
             fileProcessed = true;
-            const esLintRcContents = fs.readFileSync(source);
-            fs.outputFileSync(destination, Buffer.concat([esLintRcContents,
-                Buffer.from("\ndelete baseConfig.rules['import/no-extraneous-dependencies'];\n")]));
+            const esLintRcLines = fs.readFileSync(source).toString().split('\n');
+            const resultFileLines = [];
+            for (const line of esLintRcLines) {
+                resultFileLines.push(line);
+                // put our new line right after the parserOptions.project setting line,
+                // as some files export a copy of this object,
+                // in which case putting it at the end doesn't work
+                if (line.startsWith('baseConfig.parserOptions.project')) {
+                    resultFileLines.push("delete baseConfig.rules['import/no-extraneous-dependencies'];");
+                }
+            }
+            fs.outputFileSync(destination, resultFileLines.join('\n'));
         } else if (sourceFileName.endsWith('.ts') && !sourceFileName.endsWith('.d.ts')) {
             fileProcessed = true;
             const sourceCode = fs.readFileSync(source).toString();
@@ -178,25 +203,19 @@ function copyOrTransformFiles(pkg, srcDir, destDir, unstablePackages) {
 
         const stat = fs.statSync(source);
         if (stat.isDirectory()) {
-            copyOrTransformFiles(pkg, source, destination, unstablePackages);
+            // we only ignore files on the top level in the package,
+            // as some subdirectories we do want to copy over
+            // (for example, synthetics contains a node_modules/ in the test/ directory
+            // that is needed for running the tests)
+            copyOrTransformFiles(pkg, source, destination, unstablePackages, []);
         } else {
             fs.copy(source, destination);
         }
     }
-}
 
-function shouldIgnoreFile(name) {
-    // .gitignore is not on the list, because pkglint checks it
-    return [
-        'dist',
-        'node_modules',
-        'coverage',
-        '.nyc_output',
-        'nyc.config.js',
-        '.jsii',
-        'tsconfig.json',
-        'tsconfig.tsbuildinfo',
-    ].indexOf(name) !== -1;
+    function shouldIgnoreFile(name) {
+        return ignoredFiles.indexOf(name) !== -1;
+    }
 }
 
 function getUnstablePackages(packages) {
