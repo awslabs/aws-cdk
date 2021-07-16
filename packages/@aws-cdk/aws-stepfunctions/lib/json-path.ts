@@ -117,10 +117,10 @@ export function recurseObject(obj: object | undefined, handlers: FieldHandlers, 
 /**
  * Render an array that may or may not contain a string list token
  */
-function recurseArray(key: string, arr: any[], handlers: FieldHandlers, visited: object[] = []): {[key: string]: any[] | string} {
+function recurseArray(key: string | undefined, arr: any[], handlers: FieldHandlers, visited: object[] = []): {[key: string]: any[] | string} | any[] {
   if (isStringArray(arr)) {
     const path = jsonPathStringList(arr);
-    if (path !== undefined) {
+    if (path !== undefined && key !== undefined) {
       return handlers.handleList(key, arr);
     }
 
@@ -128,18 +128,29 @@ function recurseArray(key: string, arr: any[], handlers: FieldHandlers, visited:
     // They cannot be represented because there is no key to append a '.$' to.
   }
 
-  return {
-    [key]: arr.map(value => {
-      if ((typeof value === 'string' && jsonPathString(value) !== undefined)
+  const mappedArray = arr.map(value => {
+    if ((typeof value === 'string' && jsonPathString(value) !== undefined)
         || (typeof value === 'number' && jsonPathNumber(value) !== undefined)
         || (isStringArray(value) && jsonPathStringList(value) !== undefined)) {
-        throw new Error('Cannot use JsonPath fields in an array, they must be used in objects');
-      }
-      if (typeof value === 'object' && value !== null) {
-        return recurseObject(value, handlers, visited);
-      }
-      return value;
-    }),
+      throw new Error('Cannot use JsonPath fields in an array, they must be used in objects');
+    }
+    if (Array.isArray(value) && value !== null) {
+      return recurseArray(undefined, value, handlers, visited);
+    }
+    if (typeof value === 'object' && value !== null) {
+      return recurseObject(value, handlers, visited);
+    }
+    return value;
+  });
+
+
+  // If key is undefined it means the parent is an array, not an object
+  if (key === undefined) {
+    return mappedArray;
+  }
+
+  return {
+    [key]: mappedArray,
   };
 }
 
