@@ -1,18 +1,15 @@
-import subprocess
-import os
-import tempfile
-import json
-import json
-import traceback
-import logging
-import shutil
-import boto3
 import contextlib
-from datetime import datetime
-from uuid import uuid4
-
+import json
+import logging
+import os
+import shutil
+import subprocess
+import tempfile
 from urllib.request import Request, urlopen
+from uuid import uuid4
 from zipfile import ZipFile
+
+import boto3
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -21,6 +18,7 @@ cloudfront = boto3.client('cloudfront')
 
 CFN_SUCCESS = "SUCCESS"
 CFN_FAILED = "FAILED"
+ENV_KEY_MOUNT_PATH = "MOUNT_PATH"
 
 def handler(event, context):
 
@@ -115,8 +113,13 @@ def handler(event, context):
 #---------------------------------------------------------------------------------------------------
 # populate all files from s3_source_zips to a destination bucket
 def s3_deploy(s3_source_zips, s3_dest, user_metadata, system_metadata, prune):
-    # create a temporary working directory
-    workdir=tempfile.mkdtemp()
+    # create a temporary working directory in /tmp or if enabled an attached efs volume
+    if ENV_KEY_MOUNT_PATH in os.environ:
+        workdir = os.getenv(ENV_KEY_MOUNT_PATH) + "/" + str(uuid4())
+        os.mkdir(workdir)
+    else:
+        workdir = tempfile.mkdtemp()
+
     logger.info("| workdir: %s" % workdir)
 
     # create a directory into which we extract the contents of the zip file

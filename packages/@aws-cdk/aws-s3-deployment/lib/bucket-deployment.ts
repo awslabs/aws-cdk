@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as ec2 from '@aws-cdk/aws-ec2';
+import * as efs from '@aws-cdk/aws-efs';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as s3 from '@aws-cdk/aws-s3';
@@ -82,6 +83,13 @@ export interface BucketDeploymentProps {
    * @default 128
    */
   readonly memoryLimit?: number;
+
+  /**
+   *  Mount an EFS file system. Enable this if your assets are large and you encounter disk space errors.
+   *
+   * @default - No EFS. Lambda has access only to 512MB of disk space.
+   */
+  readonly useEfs?: boolean
 
   /**
    * Execution role associated with this function
@@ -167,6 +175,7 @@ export interface BucketDeploymentProps {
 
   /**
    * The VPC network to place the deployment lambda handler in.
+   * This is required if `useEfs` is set.
    *
    * @default None
    */
@@ -193,11 +202,41 @@ export class BucketDeployment extends CoreConstruct {
       throw new Error('Distribution must be specified if distribution paths are specified');
     }
 
+    if (props.useEfs && !props.vpc) {
+      throw new Error('Vpc must be specified if useEfs is set');
+    }
+
+    const accessPointPath = '/lambda';
+    let accessPoint;
+    if (props.useEfs && props.vpc) {
+      const accessMode = '0777';
+      const fileSystem = this.getOrCreateEfsFileSystem(scope, {
+        vpc: props.vpc,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      });
+      accessPoint = fileSystem.addAccessPoint('AccessPoint', {
+        path: accessPointPath,
+        createAcl: {
+          ownerUid: '1001',
+          ownerGid: '1001',
+          permissions: accessMode,
+        },
+        posixUser: {
+          uid: '1001',
+          gid: '1001',
+        },
+      });
+    }
+
+    const mountPath = `/mnt${accessPointPath}`;
     const handler = new lambda.SingletonFunction(this, 'CustomResourceHandler', {
-      uuid: this.renderSingletonUuid(props.memoryLimit),
+      uuid: this.renderSingletonUuid(props.memoryLimit, props.vpc),
       code: lambda.Code.fromAsset(path.join(__dirname, 'lambda')),
       layers: [new AwsCliLayer(this, 'AwsCliLayer')],
       runtime: lambda.Runtime.PYTHON_3_6,
+      environment: props.useEfs ? {
+        MOUNT_PATH: mountPath,
+      } : undefined,
       handler: 'index.handler',
       lambdaPurpose: 'Custom::CDKBucketDeployment',
       timeout: cdk.Duration.minutes(15),
@@ -205,6 +244,10 @@ export class BucketDeployment extends CoreConstruct {
       memorySize: props.memoryLimit,
       vpc: props.vpc,
       vpcSubnets: props.vpcSubnets,
+      filesystem: accessPoint ? lambda.FileSystem.fromEfsAccessPoint(
+        accessPoint,
+        mountPath,
+      ): undefined,
     });
 
     const handlerRole = handler.role;
@@ -240,7 +283,7 @@ export class BucketDeployment extends CoreConstruct {
 
   }
 
-  private renderSingletonUuid(memoryLimit?: number) {
+  private renderSingletonUuid(memoryLimit?: number, vpc?: ec2.IVpc) {
     let uuid = '8693BB64-9689-44B6-9AAF-B0CC9EB8756C';
 
     // if user specify a custom memory limit, define another singleton handler
@@ -254,7 +297,27 @@ export class BucketDeployment extends CoreConstruct {
       uuid += `-${memoryLimit.toString()}MiB`;
     }
 
+    // if user specify to use VPC, define another singleton handler
+    // with this configuration. otherwise, it won't be possible to use multiple
+    // configurations since we have a singleton.
+    // A VPC is a must if EFS storage is used and that's why we are only using VPC in uuid.
+    if (vpc) {
+      uuid += `-${vpc.node.addr.toUpperCase()}`;
+    }
+
     return uuid;
+  }
+
+  /**
+   * Function to get/create a stack singleton instance of EFS FileSystem per vpc.
+   *
+   * @param scope Construct
+   * @param fileSystemProps EFS FileSystemProps
+   */
+  private getOrCreateEfsFileSystem(scope: Construct, fileSystemProps: efs.FileSystemProps): efs.FileSystem {
+    const stack = cdk.Stack.of(scope);
+    const uuid = `Efs-${fileSystemProps.vpc.node.addr.toUpperCase()}`;
+    return stack.node.tryFindChild(uuid) as efs.FileSystem ?? new efs.FileSystem(scope, uuid, fileSystemProps);
   }
 }
 

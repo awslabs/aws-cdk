@@ -203,6 +203,80 @@ test('deploy from a local .zip file', () => {
 
 });
 
+test('deploy from a local .zip file when efs is enabled', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+  const bucket = new s3.Bucket(stack, 'Dest');
+
+  // WHEN
+  new s3deploy.BucketDeployment(stack, 'Deploy', {
+    sources: [s3deploy.Source.asset(path.join(__dirname, 'my-website.zip'))],
+    destinationBucket: bucket,
+    useEfs: true,
+    vpc: new ec2.Vpc(stack, 'Vpc'),
+  });
+
+  //THEN
+  expect(stack).toHaveResource('AWS::Lambda::Function', {
+    Environment: {
+      Variables: {
+        MOUNT_PATH: '/mnt/lambda',
+      },
+    },
+    FileSystemConfigs: [
+      {
+        Arn: {
+          'Fn::Join': [
+            '',
+            [
+              'arn:',
+              {
+                Ref: 'AWS::Partition',
+              },
+              ':elasticfilesystem:',
+              {
+                Ref: 'AWS::Region',
+              },
+              ':',
+              {
+                Ref: 'AWS::AccountId',
+              },
+              ':access-point/',
+              {
+                Ref: 'EfsC8FD940ACB9A3F95AD0E87FB4C3A2482B1900BA175AccessPoint5E4EC619',
+              },
+            ],
+          ],
+        },
+        LocalMountPath: '/mnt/lambda',
+      },
+    ],
+    Layers: [
+      {
+        Ref: 'DeployAwsCliLayer8445CB38',
+      },
+    ],
+    VpcConfig: {
+      SecurityGroupIds: [
+        {
+          'Fn::GetAtt': [
+            'CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CC8FD940ACB9A3F95AD0E87FB4C3A2482B1900BA175SecurityGroup18DD298D',
+            'GroupId',
+          ],
+        },
+      ],
+      SubnetIds: [
+        {
+          Ref: 'VpcPrivateSubnet1Subnet536B997A',
+        },
+        {
+          Ref: 'VpcPrivateSubnet2Subnet3788AAA1',
+        },
+      ],
+    },
+  });
+});
+
 test('honors passed asset options', () => {
   // GIVEN
   const stack = new cdk.Stack();
@@ -647,7 +721,7 @@ test('deployment allows vpc to be implicitly supplied to lambda', () => {
       SecurityGroupIds: [
         {
           'Fn::GetAtt': [
-            'CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CSecurityGroup4B1A9777',
+            'CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CC81CEC990A9A5D64A5922E5708AD8067EEB95C53D1SecurityGroup38E82F7F',
             'GroupId',
           ],
         },
@@ -691,7 +765,7 @@ test('deployment allows vpc and subnets to be implicitly supplied to lambda', ()
       SecurityGroupIds: [
         {
           'Fn::GetAtt': [
-            'CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CSecurityGroup4B1A9777',
+            'CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CC8A39596CB8641929FCF6A288BC9DB5AB7B0F656ADSecurityGroupA1413B04',
             'GroupId',
           ],
         },

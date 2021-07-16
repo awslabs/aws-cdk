@@ -212,6 +212,26 @@ size of the AWS Lambda resource handler.
 > NOTE: a new AWS Lambda handler will be created in your stack for each memory
 > limit configuration.
 
+## EFS Support
+
+If your workflow needs more disk space than default (512 MB) disk space, you may attach an EFS storage to underlying 
+lambda function. To Enable EFS support set `efs` and `vpc` props for BucketDeployment.
+
+Check sample usage below.
+Please note that creating VPC inline may cause stack deletion failures. It is shown as below for simplicity.
+To avoid such condition, keep your network infra (VPC) in a separate stack and pass as props.
+
+```ts
+new s3deploy.BucketDeployment(this, 'DeployMeWithEfsStorage', {
+    sources: [s3deploy.Source.asset(path.join(__dirname, 'my-website'))],
+    destinationBucket,
+    destinationKeyPrefix: 'efs/',
+    enableTempEfsStorage: true,
+    vpc: new ec2.Vpc(this, 'Vpc'),
+    retainOnDelete: false,
+});
+```
+
 ## Notes
 
 - This library uses an AWS CloudFormation custom resource which about 10MiB in
