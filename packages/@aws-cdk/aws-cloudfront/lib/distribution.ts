@@ -7,6 +7,7 @@ import { ICachePolicy } from './cache-policy';
 import { CfnDistribution } from './cloudfront.generated';
 import { FunctionAssociation } from './function';
 import { GeoRestriction } from './geo-restriction';
+import { Invalidation } from './invalidation';
 import { IKeyGroup } from './key-group';
 import { IOrigin, OriginBindConfig, OriginBindOptions } from './origin';
 import { IOriginRequestPolicy } from './origin-request-policy';
@@ -218,6 +219,14 @@ export interface DistributionProps {
     * @default SecurityPolicyProtocol.TLS_V1_2_2019
     */
   readonly minimumProtocolVersion?: SecurityPolicyProtocol;
+
+  /**
+   * Set of paths to invalidate for distribution or empty array to invalidate all paths
+   *
+   *
+   * @default - No CloudFront Invalidation.
+   */
+  readonly invalidationPaths?: string[];
 }
 
 /**
@@ -310,6 +319,11 @@ export class Distribution extends Resource implements IDistribution {
     this.domainName = distribution.attrDomainName;
     this.distributionDomainName = distribution.attrDomainName;
     this.distributionId = distribution.ref;
+
+    if (props.invalidationPaths) {
+      this.clearEdgeCaches(Array.isArray(props.invalidationPaths) ? props.invalidationPaths : undefined);
+    }
+
   }
 
   /**
@@ -325,6 +339,22 @@ export class Distribution extends Resource implements IDistribution {
     }
     const originId = this.addOrigin(origin);
     this.additionalBehaviors.push(new CacheBehavior(originId, { pathPattern, ...behaviorOptions }));
+  }
+
+
+  /**
+   * Removes files from CloudFront edge caches before they expire by utilizing
+   * the CloudFront Invalidation Construct.
+   *
+   * @param invalidationPaths the paths at which to clear the edge caches, or
+   * undefined to invalidate all paths
+   */
+  public clearEdgeCaches(invalidationPaths?:string[]):string {
+    const invalidation = new Invalidation(new CoreConstruct(this, 'CloudFrontInvalidationScope'), 'CloudFrontInvalidation', {
+      distributionId: this.distributionId,
+      invalidationPaths,
+    });
+    return invalidation.invalidationId;
   }
 
   private addOrigin(origin: IOrigin, isFailoverOrigin: boolean = false): string {

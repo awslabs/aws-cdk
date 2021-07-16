@@ -2,6 +2,7 @@ export * from './cache-policy';
 export * from './distribution';
 export * from './function';
 export * from './geo-restriction';
+export * from './invalidation';
 export * from './key-group';
 export * from './origin';
 export * from './origin-access-identity';

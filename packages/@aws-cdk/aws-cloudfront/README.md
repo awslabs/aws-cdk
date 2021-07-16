@@ -267,6 +267,29 @@ new cloudfront.Distribution(stack, 'Dist', {
 });
 ```
 
+### Invalidating Older Resources
+
+If you need to remove one or more files from CloudFront edge caches before they expire, you can invalidate the paths to the files. To invalidate files, you can specify either the path for individual files or a path that ends with the * wildcard.
+See the [CloudFront documentation](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html) for more details.
+
+```ts
+// Invalidate files
+new cloudfront.Distribution(this, 'myInvalidationDistribution', {
+  invalidationPaths: ['/example1', '/example2/*']
+});
+// Invalidate all files
+new cloudfront.Distribution(this, 'myInvalidationDistribution', {
+  invalidationPaths: ['/*']
+});
+// Invalidate files for already existing Distribution
+distribution.clearEdgeCaches(['/*']);
+// Or
+new cloudfront.Invalidation(this, 'myInvalidation', {
+  distributionId: distribution.distributionId,
+  invalidationPaths: ['/*']
+});
+```
+
 ### Lambda@Edge
 
 Lambda@Edge is an extension of AWS Lambda, a compute service that lets you execute functions that customize the content that CloudFront delivers.

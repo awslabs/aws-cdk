@@ -92,6 +92,7 @@
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/aws-ssm": "0.0.0",
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/custom-resources": "0.0.0",
     "constructs": "^3.3.69"
   },
   "homepage": "https://github.com/aws/aws-cdk",
@@ -105,6 +106,7 @@
     "@aws-cdk/aws-s3": "0.0.0",
     "@aws-cdk/aws-ssm": "0.0.0",
     "@aws-cdk/core": "0.0.0",
+    "@aws-cdk/custom-resources": "0.0.0",
     "constructs": "^3.3.69"
   },
   "engines": {
@@ -118,6 +120,7 @@
       "props-physical-name:@aws-cdk/aws-cloudfront.DistributionProps",
       "props-physical-name:@aws-cdk/aws-cloudfront.CloudFrontWebDistribution",
       "props-physical-name:@aws-cdk/aws-cloudfront.CloudFrontWebDistributionProps",
+      "props-physical-name:@aws-cdk/aws-cloudfront.InvalidationProps",
       "props-physical-name:@aws-cdk/aws-cloudfront.OriginAccessIdentityProps",
       "docs-public-apis:@aws-cdk/aws-cloudfront.ViewerProtocolPolicy.ALLOW_ALL",
       "docs-public-apis:@aws-cdk/aws-cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS",
