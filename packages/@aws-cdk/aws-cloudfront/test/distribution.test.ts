@@ -100,7 +100,7 @@ test('exhaustive example of props renders correctly', () => {
       ViewerCertificate: {
         AcmCertificateArn: 'arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012',
         SslSupportMethod: 'sni-only',
-        MinimumProtocolVersion: 'TLSv1.2_2019',
+        MinimumProtocolVersion: 'TLSv1.2_2021',
       },
       WebACLId: '473e64fd-f30b-4765-81a0-62ad96dd167a',
     },
@@ -343,7 +343,7 @@ describe('certificates', () => {
         ViewerCertificate: {
           AcmCertificateArn: 'arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012',
           SslSupportMethod: 'sni-only',
-          MinimumProtocolVersion: 'TLSv1.2_2019',
+          MinimumProtocolVersion: 'TLSv1.2_2021',
         },
       },
     });

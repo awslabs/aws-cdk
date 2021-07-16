@@ -95,7 +95,7 @@ your domain name, and provide one (or more) domain names from the certificate fo
 
 The certificate must be present in the AWS Certificate Manager (ACM) service in the US East (N. Virginia) region; the certificate
 may either be created by ACM, or created elsewhere and imported into ACM. When a certificate is used, the distribution will support HTTPS connections
-from SNI only and a minimum protocol version of TLSv1.2_2019.
+from SNI only and a minimum protocol version of TLSv1.2_2021.
 
 ```ts
 const myCertificate = new acm.DnsValidatedCertificate(this, 'mySiteCert', {
