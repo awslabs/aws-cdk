@@ -11,9 +11,11 @@ describe('HttpUserPoolAuthorizer', () => {
     const api = new HttpApi(stack, 'HttpApi');
     const userPool = new UserPool(stack, 'UserPool');
     const userPoolClient = userPool.addClient('UserPoolClient');
+    const authorizerName = 'UserPoolAuthorizer';
     const authorizer = new HttpUserPoolAuthorizer({
       userPool,
       userPoolClient,
+      authorizerName,
     });
 
     // WHEN
@@ -50,9 +52,11 @@ describe('HttpUserPoolAuthorizer', () => {
     const api = new HttpApi(stack, 'HttpApi');
     const userPool = new UserPool(stack, 'UserPool');
     const userPoolClient = userPool.addClient('UserPoolClient');
+    const authorizerName = 'UserPoolAuthorizer';
     const authorizer = new HttpUserPoolAuthorizer({
       userPool,
       userPoolClient,
+      authorizerName,
     });
 
     // WHEN

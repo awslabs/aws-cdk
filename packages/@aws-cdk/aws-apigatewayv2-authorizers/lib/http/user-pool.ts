@@ -1,6 +1,6 @@
 import { HttpAuthorizer, HttpAuthorizerType, HttpRouteAuthorizerBindOptions, HttpRouteAuthorizerConfig, IHttpRouteAuthorizer } from '@aws-cdk/aws-apigatewayv2';
 import { IUserPool, IUserPoolClient } from '@aws-cdk/aws-cognito';
-import { Stack, Token } from '@aws-cdk/core';
+import { Stack } from '@aws-cdk/core';
 
 /**
  * Properties to initialize UserPoolAuthorizer.
@@ -24,9 +24,8 @@ export interface UserPoolAuthorizerProps {
 
   /**
    * The name of the authorizer
-   * @default 'UserPoolAuthorizer'
    */
-  readonly authorizerName?: string;
+  readonly authorizerName: string;
 
   /**
    * The identity source for which authorization is requested.
@@ -48,8 +47,7 @@ export class HttpUserPoolAuthorizer implements IHttpRouteAuthorizer {
 
   public bind(options: HttpRouteAuthorizerBindOptions): HttpRouteAuthorizerConfig {
     if (!this.authorizer) {
-      const id = this.props.authorizerName && !Token.isUnresolved(this.props.authorizerName) ?
-        this.props.authorizerName : 'UserPoolAuthorizer';
+      const id = this.props.authorizerName;
       const region = this.props.userPoolRegion ?? Stack.of(options.scope).region;
       this.authorizer = new HttpAuthorizer(options.scope, id, {
         httpApi: options.route.httpApi,
