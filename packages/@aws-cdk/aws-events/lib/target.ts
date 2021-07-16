@@ -67,6 +67,13 @@ export interface RuleTargetConfig {
   readonly ecsParameters?: CfnRule.EcsParametersProperty;
 
   /**
+   * Contains the HTTP parameters to use when the target is a API Gateway REST endpoint
+   * or EventBridge API destination.
+   * @default - None
+   */
+  readonly httpParameters?: CfnRule.HttpParametersProperty;
+
+  /**
    * Settings that control shard assignment, when the target is a Kinesis
    * stream. If you don't include this parameter, eventId is used as the
    * partition key.
@@ -84,11 +91,6 @@ export interface RuleTargetConfig {
    * rule.
    */
   readonly sqsParameters?: CfnRule.SqsParametersProperty;
-
-  /**
-   * Parameters used when the rule invoke api gateway.
-   */
-  readonly httpParameters?: CfnRule.HttpParametersProperty;
 
   /**
    * What input to send to the event target

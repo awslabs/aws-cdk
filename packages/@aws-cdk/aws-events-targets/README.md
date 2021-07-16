@@ -29,6 +29,7 @@ Currently supported are:
 * [Log an event into a LogGroup](#log-an-event-into-a-loggroup)
 * Put a record to a Kinesis Data Firehose stream
 * Put an event on an EventBridge bus
+* [Send an event to EventBridge API Destination](#invoke-a-api-destination)
 
 See the README of the `@aws-cdk/aws-events` library for more information on
 EventBridge.
@@ -265,4 +266,45 @@ rule.addTarget(
     deadLetterQueue: dlq
   } ),
 )
+```
+
+## Invoke a API Destination
+
+Use the `apidestination` target to trigger an external API.
+
+The code snippet below creates an external destination that is invoked every hour.
+
+```typescript
+import * as events from "@aws-cdk/aws-events";
+import * as targets from "@aws-cdk/aws-events-targets";
+
+const rule = new events.Rule(stack, 'Rule', {
+  schedule: events.Schedule.rate(cdk.Duration.hours(1)),
+});
+
+const connection = new events.Connection(this, 'Connection', {
+  authorizationType: events.AuthorizationType.API_KEY,
+  authParameters: {
+    apiKeyAuthParameters: {
+      apiKeyName: 'x-api-key',
+      apiKeyValue: 'api-key-value',
+    },
+  },
+  description: 'ConnectionDescription',
+  connectionName: 'testConnection',
+});
+  
+const destination = new events.ApiDestination(this, 'Destination', {
+  apiDestinationName: 'apiDestinationName',
+  connection: connection,
+  invocationEndpoint: 'https://example.com',
+  invocationRateLimit: cdk.Duration.seconds(10),
+  httpMethod: events.HttpMethod.GET
+});
+
+const rule = new events.Rule(this, 'Rule', {
+  schedule: events.Schedule.rate(cdk.Duration.minutes(1)),
+});
+
+rule.addTarget(new targets.ApiDestination(destination));
 ```
