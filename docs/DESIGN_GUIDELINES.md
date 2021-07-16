@@ -610,14 +610,14 @@ A pattern for an "Enum-like Class" should be used in such cases:
 
 ```ts
 export interface MyProps {
-  option: MyOption;
+  readonly option: MyOption;
 }
 
 export class MyOption {
   public static COMMON_OPTION_1 = new MyOption('common.option-1');
   public static COMMON_OPTION_2 = new MyOption('common.option-2');
 
-  public MyOption(public readonly customValue: string) { }
+  public constructor(public readonly customValue: string) { }
 }
 ```
 
@@ -644,7 +644,7 @@ export class MyOption {
 
   // 'protected' iso. 'private' so that someone that really wants to can still
   // do subclassing. But maybe might as well be private.
-  protected MyOption(public readonly value: string) { }
+  protected constructor(public readonly value: string) { }
 }
 
 // Usage
