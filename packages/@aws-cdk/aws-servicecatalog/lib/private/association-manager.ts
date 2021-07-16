@@ -2,7 +2,8 @@ import * as cdk from '@aws-cdk/core';
 import { TagUpdateConstraintOptions } from '../constraints';
 import { IPortfolio } from '../portfolio';
 import { IProduct } from '../product';
-import { CfnPortfolioProductAssociation, CfnResourceUpdateConstraint } from '../servicecatalog.generated';
+import { CfnPortfolioProductAssociation, CfnResourceUpdateConstraint, CfnTagOptionAssociation } from '../servicecatalog.generated';
+import { TagOptions } from '../tagoptions';
 import { hashValues } from './util';
 import { InputValidator } from './validation';
 
@@ -46,6 +47,19 @@ export class AssociationManager {
     } else {
       throw new Error(`Cannot have multiple tag update constraints for association ${this.prettyPrintAssociation(portfolio, product)}`);
     }
+  }
+
+  public static associateTagOptions(portfolio: IPortfolio, resourceId: string, tagOptions: TagOptions) {
+    tagOptions.cfnTagOptions.forEach(cfnTagOption => {
+      const tagOptionKey = hashValues(cfnTagOption.key, cfnTagOption.value, portfolio.node.addr);
+      const constructId = `TagOptionAssociation${tagOptionKey}`;
+      if (!portfolio.node.tryFindChild(constructId)) {
+        new CfnTagOptionAssociation(portfolio as unknown as cdk.Resource, constructId, {
+          resourceId: resourceId,
+          tagOptionId: cfnTagOption.ref,
+        });
+      }
+    });
   }
 
   private static prettyPrintAssociation(portfolio: IPortfolio, product: IProduct): string {

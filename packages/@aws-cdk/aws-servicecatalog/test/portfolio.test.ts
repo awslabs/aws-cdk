@@ -297,6 +297,63 @@ describe('portfolio associations and product constraints', () => {
     expect(stack).toCountResources('AWS::ServiceCatalog::PortfolioProductAssociation', 1); //check anyway
   }),
 
+  test('add tag options to portfolio', () => {
+    const tagOptions = new servicecatalog.TagOptions(stack, {
+      key1: ['value1', 'value2'],
+      key2: ['value1'],
+    });
+
+    portfolio.addTagOptions(tagOptions);
+
+    expect(stack).toCountResources('AWS::ServiceCatalog::TagOption', 3); //Generates a resource for each unique key-value pair
+    expect(stack).toHaveResource('AWS::ServiceCatalog::TagOptionAssociation');
+  }),
+
+  test('adding identical tag options to portfolio is idempotent', () => {
+    const tagOptions1 = new servicecatalog.TagOptions(stack, {
+      key1: ['value1', 'value2'],
+      key2: ['value1'],
+    });
+
+    const tagOptions2 = new servicecatalog.TagOptions(stack, {
+      key1: ['value1', 'value2'],
+    });
+
+    portfolio.addTagOptions(tagOptions1);
+    portfolio.addTagOptions(tagOptions2); // If not idempotent this would fail
+
+    expect(stack).toCountResources('AWS::ServiceCatalog::TagOption', 3); //Generates a resource for each unique key-value pair
+    expect(stack).toHaveResource('AWS::ServiceCatalog::TagOptionAssociation');
+  }),
+
+  test('fails to add tag options with invalid minimum key length', () => {
+    expect(() => {
+      new servicecatalog.TagOptions(stack, {
+        '': ['value1', 'value2'],
+        'key2': ['value1'],
+      });
+    }).toThrowError(/Invalid TagOption key for resource/);
+  });
+
+  test('fails to add tag options with invalid maxium key length', () => {
+    expect(() => {
+      new servicecatalog.TagOptions(stack, {
+        ['key1'.repeat(1000)]: ['value1', 'value2'],
+        key2: ['value1'],
+      });
+    }).toThrowError(/Invalid TagOption key for resource/);
+  }),
+
+  test('fails to add tag options with invalid value length', () => {
+
+    expect(() => {
+      new servicecatalog.TagOptions(stack, {
+        key1: ['value1'.repeat(1000), 'value2'],
+        key2: ['value1'],
+      });
+    }).toThrowError(/Invalid TagOption value for resource/);
+  }),
+
   test('add tag update constraint', () => {
     portfolio.addProduct(product);
     portfolio.constrainTagUpdates(product, {

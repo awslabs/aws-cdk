@@ -74,6 +74,39 @@
         "PrincipalType": "IAM"
       }
     },
+    "TestPortfolioTagOptionAssociation517ba9dbaf19EA8252F0": {
+      "Type": "AWS::ServiceCatalog::TagOptionAssociation",
+      "Properties": {
+        "ResourceId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "TagOptionId": {
+          "Ref": "TagOptionc0d88a3c4b8b"
+        }
+      }
+    },
+    "TestPortfolioTagOptionAssociationb38e9aae7f1bD3708991": {
+      "Type": "AWS::ServiceCatalog::TagOptionAssociation",
+      "Properties": {
+        "ResourceId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "TagOptionId": {
+          "Ref": "TagOption9b16df08f83d"
+        }
+      }
+    },
+    "TestPortfolioTagOptionAssociationeeabbf0db0e3ADBF0A6D": {
+      "Type": "AWS::ServiceCatalog::TagOptionAssociation",
+      "Properties": {
+        "ResourceId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "TagOptionId": {
+          "Ref": "TagOptiondf34c1c83580"
+        }
+      }
+    },
     "TestPortfolioPortfolioSharebf5b82f042508F035880": {
       "Type": "AWS::ServiceCatalog::PortfolioShare",
       "Properties": {
@@ -108,6 +141,30 @@
       "DependsOn": [
         "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
       ]
+    },
+    "TagOptionc0d88a3c4b8b": {
+      "Type": "AWS::ServiceCatalog::TagOption",
+      "Properties": {
+        "Key": "key1",
+        "Value": "value1",
+        "Active": true
+      }
+    },
+    "TagOption9b16df08f83d": {
+      "Type": "AWS::ServiceCatalog::TagOption",
+      "Properties": {
+        "Key": "key1",
+        "Value": "value2",
+        "Active": true
+      }
+    },
+    "TagOptiondf34c1c83580": {
+      "Type": "AWS::ServiceCatalog::TagOption",
+      "Properties": {
+        "Key": "key2",
+        "Value": "value1",
+        "Active": true
+      }
     },
     "TestProduct7606930B": {
       "Type": "AWS::ServiceCatalog::CloudFormationProduct",
