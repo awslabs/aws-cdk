@@ -47,6 +47,7 @@ nodeunitShim({
           customOriginSource: {
             domainName: 'myorigin.com',
           },
+          originShieldRegion: 'us-east-1',
           behaviors: [
             {
               isDefaultBehavior: true,
@@ -108,6 +109,10 @@ nodeunitShim({
                         'HeaderValue': 'somevalue',
                       },
                     ],
+                    'OriginShield': {
+                      'Enabled': true,
+                      'OriginShieldRegion': 'us-east-1',
+                    },
                   },
                 ],
                 'PriceClass': 'PriceClass_100',

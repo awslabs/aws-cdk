@@ -590,6 +590,7 @@ new CloudFrontWebDistribution(stack, 'ADistribution', {
         originHeaders: {
           'myHeader': '42',
         },
+        originShieldRegion: 'us-west-2'
       },
       failoverS3OriginSource: {
         s3BucketSource: s3.Bucket.fromBucketName(stack, 'aBucketFallback', 'myoriginbucketfallback'),
@@ -597,6 +598,7 @@ new CloudFrontWebDistribution(stack, 'ADistribution', {
         originHeaders: {
           'myHeader2': '21',
         },
+        originShieldRegion: 'us-east-1'
       },
       failoverCriteriaStatusCodes: [FailoverStatusCode.INTERNAL_SERVER_ERROR],
       behaviors: [

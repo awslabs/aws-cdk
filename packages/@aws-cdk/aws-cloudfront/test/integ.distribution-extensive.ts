@@ -6,7 +6,11 @@ const app = new cdk.App();
 const stack = new cdk.Stack(app, 'integ-distribution-extensive');
 
 new cloudfront.Distribution(stack, 'MyDist', {
-  defaultBehavior: { origin: new TestOrigin('www.example.com') },
+  defaultBehavior: {
+    origin: new TestOrigin('www.example.com', {
+      originShieldRegion: 'us-west-2',
+    }),
+  },
   comment: 'a test',
   defaultRootObject: 'index.html',
   enabled: true,

@@ -36,7 +36,11 @@
                 "OriginProtocolPolicy": "https-only"
               },
               "DomainName": "www.example.com",
-              "Id": "integdistributionextensiveMyDistOrigin185F089B3"
+              "Id": "integdistributionextensiveMyDistOrigin185F089B3",
+              "OriginShield": {
+                "Enabled": true,
+                "OriginShieldRegion": "us-west-2"
+              }
             }
           ],
           "PriceClass": "PriceClass_100",

@@ -83,6 +83,15 @@ export interface OriginProps {
    * @default {}
    */
   readonly customHeaders?: Record<string, string>;
+
+  /**
+   * When you enable Origin Shield in the AWS Region that has the lowest latency to your origin, you can get better network performance
+   *
+   * @see https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html
+   *
+   * @default - origin shield not enabled
+   */
+  readonly originShieldRegion?: string;
 }
 
 /**
@@ -106,6 +115,7 @@ export abstract class OriginBase implements IOrigin {
   private readonly connectionTimeout?: Duration;
   private readonly connectionAttempts?: number;
   private readonly customHeaders?: Record<string, string>;
+  private readonly originShieldRegion?: string
 
   protected constructor(domainName: string, props: OriginProps = {}) {
     validateIntInRangeOrUndefined('connectionTimeout', 1, 10, props.connectionTimeout?.toSeconds());
@@ -116,6 +126,7 @@ export abstract class OriginBase implements IOrigin {
     this.connectionTimeout = props.connectionTimeout;
     this.connectionAttempts = props.connectionAttempts;
     this.customHeaders = props.customHeaders;
+    this.originShieldRegion = props.originShieldRegion;
   }
 
   /**
@@ -139,6 +150,7 @@ export abstract class OriginBase implements IOrigin {
         originCustomHeaders: this.renderCustomHeaders(),
         s3OriginConfig,
         customOriginConfig,
+        originShield: this.getOriginShield(this.originShieldRegion),
       },
     };
   }
@@ -171,6 +183,20 @@ export abstract class OriginBase implements IOrigin {
     if (!path.startsWith('/')) { path = '/' + path; }
     if (path.endsWith('/')) { path = path.substr(0, path.length - 1); }
     return path;
+  }
+
+  /**
+   * Takes origin shield region and converts to CfnDistribution.OriginShieldProperty
+  */
+  private getOriginShield(originShieldRegion:string = ''): CfnDistribution.OriginShieldProperty | undefined {
+    if (originShieldRegion) {
+      if (!(/^\w\w\-[a-z]*\-\d$/).test(originShieldRegion)) throw new Error(`originShieldRegion ${originShieldRegion} is not a valid AWS region.`);
+      return {
+        enabled: true,
+        originShieldRegion,
+      };
+    }
+    return undefined;
   }
 }
 

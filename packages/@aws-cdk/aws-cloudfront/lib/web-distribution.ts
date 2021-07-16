@@ -123,6 +123,7 @@ interface SourceConfigurationRender {
   readonly customOriginSource?: CustomOriginConfig;
   readonly originPath?: string;
   readonly originHeaders?: { [key: string]: string };
+  readonly originShieldRegion?: string
 }
 
 /**
@@ -202,6 +203,15 @@ export interface SourceConfiguration {
    * @deprecated Use originHeaders on s3OriginSource or customOriginSource
    */
   readonly originHeaders?: { [key: string]: string };
+
+  /**
+   * When you enable Origin Shield in the AWS Region that has the lowest latency to your origin, you can get better network performance
+   *
+   * @see https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html
+   *
+   * @default - origin shield not enabled
+   */
+  readonly originShieldRegion?: string;
 }
 
 /**
@@ -268,6 +278,13 @@ export interface CustomOriginConfig {
    * @default - No additional headers are passed.
    */
   readonly originHeaders?: { [key: string]: string };
+
+  /**
+   * When you enable Origin Shield in the AWS Region that has the lowest latency to your origin, you can get better network performance
+   *
+   * @default - origin shield not enabled
+   */
+  readonly originShieldRegion?: string;
 }
 
 export enum OriginSslPolicy {
@@ -306,6 +323,13 @@ export interface S3OriginConfig {
    * @default - No additional headers are passed.
    */
   readonly originHeaders?: { [key: string]: string };
+
+  /**
+   * When you enable Origin Shield in the AWS Region that has the lowest latency to your origin, you can get better network performance
+   *
+   * @default - origin shield not enabled
+   */
+  readonly originShieldRegion?: string;
 }
 
 /**
@@ -814,6 +838,7 @@ export class CloudFrontWebDistribution extends cdk.Resource implements IDistribu
             customOriginSource: originConfig.failoverCustomOriginSource,
             originPath: originConfig.originPath,
             originHeaders: originConfig.originHeaders,
+            originShieldRegion: originConfig.originShieldRegion,
           },
           originSecondaryId,
         );
@@ -1032,6 +1057,14 @@ export class CloudFrontWebDistribution extends cdk.Resource implements IDistribu
       throw new Error('Only one originPath field allowed across origin and failover origins');
     }
 
+    if ([
+      originConfig.originShieldRegion,
+      originConfig.s3OriginSource?.originShieldRegion,
+      originConfig.customOriginSource?.originShieldRegion,
+    ].filter(x => x).length > 1) {
+      throw new Error('Only one originShieldRegion field allowed across origin and failover origins');
+    }
+
     const headers = originConfig.originHeaders ?? originConfig.s3OriginSource?.originHeaders ?? originConfig.customOriginSource?.originHeaders;
 
     const originHeaders: CfnDistribution.OriginCustomHeaderProperty[] = [];
@@ -1087,6 +1120,7 @@ export class CloudFrontWebDistribution extends cdk.Resource implements IDistribu
       originCustomHeaders:
         originHeaders.length > 0 ? originHeaders : undefined,
       s3OriginConfig,
+      originShield: this.toOriginShieldProperty(originConfig),
       customOriginConfig: originConfig.customOriginSource
         ? {
           httpPort: originConfig.customOriginSource.httpPort || 80,
@@ -1111,5 +1145,24 @@ export class CloudFrontWebDistribution extends cdk.Resource implements IDistribu
     };
 
     return originProperty;
+  }
+
+  /**
+   * Takes origin shield region from props and converts to CfnDistribution.OriginShieldProperty
+  */
+  private toOriginShieldProperty(originConfig:SourceConfigurationRender): CfnDistribution.OriginShieldProperty | undefined {
+    const originShieldRegion = originConfig.originShieldRegion ??
+    originConfig.customOriginSource?.originShieldRegion ??
+    originConfig.s3OriginSource?.originShieldRegion;
+    if (originShieldRegion) {
+      if (!(/^\w\w\-[a-z]*\-\d$/).test(originShieldRegion)) {
+        throw new Error(`originShieldRegion ${originShieldRegion} is not a valid AWS region.`);
+      }
+      return {
+        enabled: true,
+        originShieldRegion,
+      };
+    }
+    return undefined;
   }
 }
