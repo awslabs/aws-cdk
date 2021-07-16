@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as iam from '@aws-cdk/aws-iam';
+import * as lambda from '@aws-cdk/aws-lambda';
 import * as s3_assets from '@aws-cdk/aws-s3-assets';
 import * as cdk from '@aws-cdk/core';
 import { Construct } from 'constructs';
@@ -154,17 +155,14 @@ class LogRetentionFunction extends CoreConstruct {
     }));
 
     // Lambda function
-    const resource = new cdk.CfnResource(this, 'Resource', {
-      type: 'AWS::Lambda::Function',
-      properties: {
-        Handler: 'index.handler',
-        Runtime: 'nodejs14.x', // Equivalent to Runtime.NODEJS_14_X
-        Code: {
-          S3Bucket: asset.s3BucketName,
-          S3Key: asset.s3ObjectKey,
-        },
-        Role: role.roleArn,
+    const resource = new lambda.CfnFunction(this, 'Resource', {
+      handler: 'index.handler',
+      runtime: 'nodejs14.x', // Equivalent to Runtime.NODEJS_14_X
+      code: {
+        s3Bucket: asset.s3BucketName,
+        s3Key: asset.s3ObjectKey,
       },
+      role: role.roleArn,
     });
     this.functionArn = resource.getAtt('Arn');
 

@@ -158,4 +158,30 @@ export = {
     test.ok(logGroupArn.endsWith(':*'), 'log group ARN is not as expected');
     test.done();
   },
+
+  'tags are propagated to log retention function' (test: Test) {
+    const stack = new cdk.Stack();
+    cdk.Tags.of(stack).add('key1', 'value1');
+    cdk.Tags.of(stack).add('key2', 'value2');
+
+    new LogRetention(stack, 'MyLambda', {
+      logGroupName: 'group',
+      logGroupRegion: 'us-west-2',
+      retention: RetentionDays.ONE_MONTH,
+    });
+
+    expect(stack).to(haveResource('AWS::Lambda::Function', {
+      Tags: [
+        {
+          Key: 'key1',
+          Value: 'value1',
+        },
+        {
+          Key: 'key2',
+          Value: 'value2',
+        },
+      ],
+    }));
+    test.done();
+  },
 };
