@@ -81,6 +81,7 @@ export class Runtime {
 
   /**
    * The Python 2.7 runtime (python2.7)
+   * Legacy runtime no longer supported by AWS Lambda.
    */
   public static readonly PYTHON_2_7 = new Runtime('python2.7', RuntimeFamily.PYTHON, { supportsInlineCode: true });
 
