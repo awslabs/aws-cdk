@@ -838,6 +838,12 @@ export interface VpcProps {
    *      },
    *      {
    *        cidrMask: 24,
+   *        name: 'public-other',
+   *        subnetType: ec2.SubnetType.PUBLIC,
+   *        mapPublicIpOnLaunch: false,
+   *      },
+   *      {
+   *        cidrMask: 24,
    *        name: 'application',
    *        subnetType: ec2.SubnetType.PRIVATE,
    *      },
@@ -958,6 +964,16 @@ export interface SubnetConfiguration {
    * @default false
    */
   readonly reserved?: boolean;
+
+  /**
+   * Controls if a public IP is associated to an instance at launch
+   * 
+   * This will only work if subnetType == PUBLIC
+   * This will not work if subnetType != PUBLIC and default to false
+   *
+   * @default true in Subnet.Public, false in Subnet.Private or Subnet.Isolated.
+   */
+  readonly mapPublicIpOnLaunch?: boolean;
 }
 
 /**
@@ -1386,7 +1402,7 @@ export class Vpc extends VpcBase {
         availabilityZone: zone,
         vpcId: this.vpcId,
         cidrBlock: this.networkBuilder.addSubnet(cidrMask),
-        mapPublicIpOnLaunch: (subnetConfig.subnetType === SubnetType.PUBLIC),
+        mapPublicIpOnLaunch: (subnetConfig.subnetType === SubnetType.PUBLIC && subnetConfig.mapPublicIpOnLaunch !== false),
       };
 
       let subnet: Subnet;
