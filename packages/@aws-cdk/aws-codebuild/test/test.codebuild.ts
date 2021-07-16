@@ -151,7 +151,7 @@ export = {
               'Environment': {
                 'Type': 'LINUX_CONTAINER',
                 'PrivilegedMode': false,
-                'Image': 'aws/codebuild/standard:1.0',
+                'Image': 'aws/codebuild/standard:5.0',
                 'ImagePullCredentialsType': 'CODEBUILD',
                 'ComputeType': 'BUILD_GENERAL1_SMALL',
               },
@@ -315,7 +315,7 @@ export = {
               },
               'Environment': {
                 'ComputeType': 'BUILD_GENERAL1_SMALL',
-                'Image': 'aws/codebuild/standard:1.0',
+                'Image': 'aws/codebuild/standard:5.0',
                 'ImagePullCredentialsType': 'CODEBUILD',
                 'PrivilegedMode': false,
                 'Type': 'LINUX_CONTAINER',
@@ -1294,7 +1294,7 @@ export = {
           'Environment': {
             'Type': 'LINUX_CONTAINER',
             'PrivilegedMode': false,
-            'Image': 'aws/codebuild/standard:1.0',
+            'Image': 'aws/codebuild/standard:5.0',
             'ImagePullCredentialsType': 'CODEBUILD',
             'ComputeType': 'BUILD_GENERAL1_SMALL',
           },
@@ -1537,7 +1537,7 @@ export = {
           },
         ],
         'PrivilegedMode': false,
-        'Image': 'aws/codebuild/standard:1.0',
+        'Image': 'aws/codebuild/standard:5.0',
         'ImagePullCredentialsType': 'CODEBUILD',
         'ComputeType': 'BUILD_GENERAL1_SMALL',
       },

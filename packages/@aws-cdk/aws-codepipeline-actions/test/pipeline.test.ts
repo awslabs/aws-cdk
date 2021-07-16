@@ -397,7 +397,7 @@ nodeunitShim({
           'Environment': {
             'Type': 'LINUX_CONTAINER',
             'PrivilegedMode': false,
-            'Image': 'aws/codebuild/standard:1.0',
+            'Image': 'aws/codebuild/standard:5.0',
             'ComputeType': 'BUILD_GENERAL1_SMALL',
           },
         }));

@@ -545,7 +545,7 @@ export interface CommonProjectProps {
   /**
    * Build environment to use for the build.
    *
-   * @default BuildEnvironment.LinuxBuildImage.STANDARD_1_0
+   * @default BuildEnvironment.LinuxBuildImage.STANDARD_5_0
    */
   readonly environment?: BuildEnvironment;
 
@@ -1007,7 +1007,7 @@ export class Project extends ProjectBase {
     });
     this.grantPrincipal = this.role;
 
-    this.buildImage = (props.environment && props.environment.buildImage) || LinuxBuildImage.STANDARD_1_0;
+    this.buildImage = (props.environment && props.environment.buildImage) || LinuxBuildImage.STANDARD_5_0;
 
     // let source "bind" to the project. this usually involves granting permissions
     // for the code build role to interact with the source.
