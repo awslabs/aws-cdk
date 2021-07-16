@@ -242,4 +242,62 @@ describe('lambda api', () => {
       ],
     });
   });
+
+  test('LambdaRestApi defines a REST API with integrationOptions', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+
+    const handler = new lambda.Function(stack, 'handler', {
+      handler: 'index.handler',
+      code: lambda.Code.fromInline('boom'),
+      runtime: lambda.Runtime.NODEJS_10_X,
+    });
+
+    // WHEN
+    new apigw.LambdaRestApi(stack, 'lambda-rest-api', {
+      handler,
+      integrationOptions: { allowTestInvoke: false },
+    });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::Lambda::Permission', {
+      SourceArn: {
+        'Fn::Join': [
+          '',
+          [
+            'arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':',
+            { Ref: 'lambdarestapiAAD10924' }, '/', { Ref: 'lambdarestapiDeploymentStageprod586EC391' }, '/*/*',
+          ],
+        ],
+      },
+    });
+
+    expect(stack).not.toHaveResource('AWS::Lambda::Permission', {
+      SourceArn: {
+        'Fn::Join': [
+          '',
+          [
+            'arn:', { Ref: 'AWS::Partition' }, ':execute-api:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':',
+            { Ref: 'lambdarestapiAAD10924' }, '/test-invoke-stage/*/',
+          ],
+        ],
+      },
+    });
+  });
+
+  test('fails if integrationOptions.proxy is also set false', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+
+    const handler = new lambda.Function(stack, 'handler', {
+      handler: 'index.handler',
+      code: lambda.Code.fromInline('boom'),
+      runtime: lambda.Runtime.NODEJS_10_X,
+    });
+
+    expect(() => new apigw.LambdaRestApi(stack, 'lambda-rest-api', {
+      handler,
+      integrationOptions: { proxy: false },
+    })).toThrow(/Cannot specify \"integrationOptions\.proxy\" as false since Lambda integration is automatically defined/);
+  });
 });

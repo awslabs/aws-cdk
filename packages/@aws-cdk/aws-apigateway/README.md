@@ -107,6 +107,16 @@ item.addMethod('GET');   // GET /items/{item}
 item.addMethod('DELETE', new apigateway.HttpIntegration('http://amazon.com'));
 ```
 
+You can also supply `integrationOptions` to explicitly define options of Lambda integrations:
+
+```ts
+const backend = new lambda.Function(...);
+const api = new apigateway.LambdaRestApi(this, 'myapi', {
+  handler: backend,
+  integrationOptions: { allowTestInvoke: false }
+});
+```
+
 ### Breaking up Methods and Resources across Stacks
 
 It is fairly common for REST APIs with a large number of Resources and Methods to hit the [CloudFormation
