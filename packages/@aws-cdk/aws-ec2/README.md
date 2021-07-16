@@ -659,7 +659,7 @@ new InterfaceVpcEndpoint(stack, 'VPC Endpoint', {
 
 #### Security groups for interface VPC endpoints
 
-By default, interface VPC endpoints create a new security group and traffic is **not**
+If the `public` parameter is set to false, interface VPC endpoints create a new security group and traffic is **not**
 automatically allowed from the VPC CIDR.
 
 Use the `connections` object to allow traffic to flow to the endpoint:
