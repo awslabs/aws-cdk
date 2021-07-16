@@ -83,6 +83,7 @@
   "dependencies": {
     "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/aws-s3-assets": "0.0.0",
+    "@aws-cdk/aws-sns": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
@@ -90,6 +91,7 @@
   "peerDependencies": {
     "@aws-cdk/aws-iam": "0.0.0",
     "@aws-cdk/aws-s3-assets": "0.0.0",
+    "@aws-cdk/aws-sns": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },

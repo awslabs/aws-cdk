@@ -32,6 +32,7 @@ enables organizations to create and manage catalogs of products for their end us
 - [Product](#product)
   - [Adding a product to a portfolio](#adding-a-product-to-a-portfolio)
 - [Constraints](#constraints)
+  - [Event notification constraint](#event-notification-constraint)
   - [Tag update constraint](#tag-update-constraint)
 
 The `@aws-cdk/aws-servicecatalog` package contains resources that enable users to automate governance and management of their AWS resources at scale.
@@ -168,6 +169,27 @@ For example, you can only have a single "tag update" constraint applied to a por
 If a misconfigured constraint is added, `synth` will fail with an error message.
 
 Read more at [Service Catalog Constraints](https://docs.aws.amazon.com/servicecatalog/latest/adminguide/constraints.html).
+
+### Event notification constraint
+
+An event notification constraint allows users to subscribe a list of AWS `SNS` topics to the stack events of the product.
+You can subscribe groups of topics separately to better organize or group them.
+An individual `SNS` topic may only be subscribed once to a portfolio-product association.
+
+```ts fixture=portfolio-product
+import * as sns from '@aws-cdk/aws-sns';
+
+const topic1 = new sns.Topic(this, 'MyTopic1');
+const topic2 = new sns.Topic(this, 'MyTopic2');
+
+portfolio.addEventNotifications(product, [topic1, topic2]);
+
+const specialTopic = new sns.Topic(this, 'MySpecialTopic')
+
+portfolio.addEventNotifications(product, [specialTopic], {
+  description: 'description for this special topic', // description is an optional field. 
+});
+```
 
 ### Tag update constraint
 
