@@ -14,6 +14,7 @@ export * from './ecs/run-task';
 export * from './sagemaker/base-types';
 export * from './sagemaker/create-training-job';
 export * from './sagemaker/create-transform-job';
+export * from './sagemaker/create-processing-job';
 export * from './sagemaker/create-endpoint';
 export * from './sagemaker/create-endpoint-config';
 export * from './sagemaker/create-model';
