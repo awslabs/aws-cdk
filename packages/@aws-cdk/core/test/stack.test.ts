@@ -1095,12 +1095,29 @@ describe('stack', () => {
   test('Termination Protection is reflected in Cloud Assembly artifact', () => {
     // if the root is an app, invoke "synth" to avoid double synthesis
     const app = new App();
-    const stack = new Stack(app, 'Stack', { terminationProtection: true });
+    const stack1 = new Stack(app, 'Stack1');
+    const stack2 = new Stack(app, 'Stack2', { terminationProtection: false });
+    const stack3 = new Stack(app, 'Stack3', { terminationProtection: true });
+    const stack4 = new Stack(app, 'Stack4');
+
+    expect(stack1.terminationProtection).toEqual(false);
+    expect(stack2.terminationProtection).toEqual(false);
+    expect(stack3.terminationProtection).toEqual(true);
+    expect(stack4.terminationProtection).toEqual(false);
+
+    stack4.terminationProtection = true;
+    expect(stack4.terminationProtection).toEqual(true);
 
     const assembly = app.synth();
-    const artifact = assembly.getStackArtifact(stack.artifactId);
+    const artifact1 = assembly.getStackArtifact(stack1.artifactId);
+    const artifact2 = assembly.getStackArtifact(stack2.artifactId);
+    const artifact3 = assembly.getStackArtifact(stack3.artifactId);
+    const artifact4 = assembly.getStackArtifact(stack4.artifactId);
 
-    expect(artifact.terminationProtection).toEqual(true);
+    expect(artifact1.terminationProtection).toEqual(false);
+    expect(artifact2.terminationProtection).toEqual(false);
+    expect(artifact3.terminationProtection).toEqual(true);
+    expect(artifact4.terminationProtection).toEqual(true);
 
 
   });

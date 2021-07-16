@@ -267,7 +267,7 @@ export class Stack extends CoreConstruct implements ITaggable {
   /**
    * Whether termination protection is enabled for this stack.
    */
-  public readonly terminationProtection?: boolean;
+  private _terminationProtection: boolean;
 
   /**
    * If this is a nested stack, this represents its `AWS::CloudFormation::Stack`
@@ -358,7 +358,7 @@ export class Stack extends CoreConstruct implements ITaggable {
     this.account = account;
     this.region = region;
     this.environment = environment;
-    this.terminationProtection = props.terminationProtection;
+    this._terminationProtection = !!props.terminationProtection;
 
     if (props.description !== undefined) {
       // Max length 1024 bytes
@@ -703,6 +703,25 @@ export class Stack extends CoreConstruct implements ITaggable {
    */
   public get parentStack() {
     return this.nestedStackParent;
+  }
+
+  /**
+   * Whether termination protection is enabled for this stack.
+   *
+   * @returns The current termination protection value for this stack.
+   */
+  public get terminationProtection(): boolean {
+    return this._terminationProtection;
+  }
+
+  /**
+   * Enables or disables termination protection for this stack.
+   *
+   * @param enableTerminationProtection The new termination protection value
+   * for this stack.
+   */
+  public set terminationProtection(enableTerminationProtection: boolean) {
+    this._terminationProtection = enableTerminationProtection;
   }
 
   /**
@@ -1300,14 +1319,15 @@ export interface ExportValueOptions {
 }
 
 // These imports have to be at the end to prevent circular imports
-import { CfnOutput } from './cfn-output';
-import { addDependency } from './deps';
-import { FileSystem } from './fs';
-import { Names } from './names';
+import { CfnOutput } from './cfn-output'; // eslint-disable-line import/order
+import { addDependency } from './deps'; // eslint-disable-line import/order
+import { FileSystem } from './fs'; // eslint-disable-line import/order
+import { Names } from './names'; // eslint-disable-line import/order
 import { Reference } from './reference';
 import { IResolvable } from './resolvable';
 import { DefaultStackSynthesizer, IStackSynthesizer, LegacyStackSynthesizer } from './stack-synthesizers';
 import { Stage } from './stage';
 import { ITaggable, TagManager } from './tag-manager';
 import { Token, Tokenization } from './token';
+// eslint-disable-next-line import/order
 import { referenceNestedStackValueInParent } from './private/refs';

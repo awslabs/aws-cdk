@@ -106,6 +106,7 @@ nodeunitShim({
           environment: 'aws://unknown-account/unknown-region',
           properties: {
             templateFile: 'one-stack.template.json',
+            terminationProtection: false,
             validateOnSynth: false,
           },
           displayName: 'one-stack',

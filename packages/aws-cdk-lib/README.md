@@ -897,6 +897,9 @@ on a stack by setting the `terminationProtection` prop to `true`.
 const stack = new Stack(app, 'StackName', {
   terminationProtection: true,
 });
+
+// or
+stack.terminationProtection = true;
 ```
 
 By default, termination protection is disabled.
