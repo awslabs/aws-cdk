@@ -30,10 +30,6 @@ export function fingerprint(fileOrDirectory: string, options: FingerprintOptions
   const rootDirectory = fs.statSync(fileOrDirectory).isDirectory()
     ? fileOrDirectory
     : path.dirname(fileOrDirectory);
-  const exclude = options.exclude || [];
-  if (exclude.length) {
-    _hashField(hash, 'options.exclude', JSON.stringify(exclude));
-  }
 
   const ignoreMode = options.ignoreMode || IgnoreMode.GLOB;
   if (ignoreMode != IgnoreMode.GLOB) {

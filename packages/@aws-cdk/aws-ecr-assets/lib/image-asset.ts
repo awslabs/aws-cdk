@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ecr from '@aws-cdk/aws-ecr';
-import { Annotations, AssetStaging, FeatureFlags, FileFingerprintOptions, IgnoreMode, Stack, SymlinkFollowMode, Token } from '@aws-cdk/core';
+import { Annotations, AssetStaging, FeatureFlags, FileFingerprintOptions, IgnoreMode, Stack, SymlinkFollowMode, Token, Stage } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
 import { Construct } from 'constructs';
 
@@ -62,6 +62,8 @@ export interface DockerImageAssetOptions extends FingerprintOptions, FileFingerp
 export interface DockerImageAssetProps extends DockerImageAssetOptions {
   /**
    * The directory where the Dockerfile is stored
+   *
+   * Any directory inside with a name that matches the CDK output folder (cdk.out by default) will be excluded from the asset
    */
   readonly directory: string;
 }
@@ -138,13 +140,16 @@ export class DockerImageAsset extends CoreConstruct implements IAsset {
 
     // Ensure the Dockerfile is included no matter what.
     exclude.push('!' + path.basename(file));
+    // Ensure the cdk.out folder is not included to avoid infinite loops.
+    const cdkout = Stage.of(this)?.outdir ?? 'cdk.out';
+    exclude.push(cdkout);
 
     if (props.repositoryName) {
       Annotations.of(this).addWarning('DockerImageAsset.repositoryName is deprecated. Override "core.Stack.addDockerImageAsset" to control asset locations');
     }
 
     // include build context in "extra" so it will impact the hash
-    const extraHash: { [field: string]: any } = { };
+    const extraHash: { [field: string]: any } = {};
     if (props.extraHash) { extraHash.user = props.extraHash; }
     if (props.buildArgs) { extraHash.buildArgs = props.buildArgs; }
     if (props.target) { extraHash.target = props.target; }

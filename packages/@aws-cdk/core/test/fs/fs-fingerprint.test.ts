@@ -155,34 +155,4 @@ nodeunitShim({
       test.done();
     },
   },
-  exclude: {
-    'encodes exclude patterns'(test: Test) {
-      // GIVEN
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fingerprint-tests'));
-      const options1 = { path: dir, exclude: ['**', '!file.py'], sourcePath: dir };
-      const options2 = { path: dir, exclude: ['**', '!otherfile.py'], sourcePath: dir };
-
-      // WHEN
-      const f1 = FileSystem.fingerprint(dir, options1);
-      const f2 = FileSystem.fingerprint(dir, options2);
-
-      // THEN
-      test.notDeepEqual(f1, f2);
-      test.done();
-    },
-    'considers negated exclude patterns for fingerprint'(test: Test) {
-      // GIVEN
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fingerprint-tests'));
-      const options = { path: dir, exclude: ['**', '!file.txt'], sourcePath: dir };
-
-      // WHEN
-      const f1 = FileSystem.fingerprint(dir, options);
-      fs.writeFileSync(path.join(dir, 'file.txt'), 'data');
-      const f2 = FileSystem.fingerprint(dir, options);
-
-      // THEN
-      test.notDeepEqual(f1, f2);
-      test.done();
-    },
-  },
 });
