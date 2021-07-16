@@ -255,7 +255,6 @@ describe('cloudtrail', () => {
       test('enabled and custom retention', () => {
         const stack = getTestStack();
         new Trail(stack, 'MyAmazingCloudTrail', {
-          sendToCloudWatchLogs: true,
           cloudWatchLogsRetention: RetentionDays.ONE_WEEK,
         });
 
@@ -277,7 +276,6 @@ describe('cloudtrail', () => {
           retention: RetentionDays.FIVE_DAYS,
         });
         new Trail(stack, 'MyAmazingCloudTrail', {
-          sendToCloudWatchLogs: true,
           cloudWatchLogsRetention: RetentionDays.ONE_WEEK,
           cloudWatchLogGroup,
         });
@@ -297,6 +295,37 @@ describe('cloudtrail', () => {
             }],
           },
         });
+      });
+
+      test('enabled and with custom role', () => {
+        const stack = getTestStack();
+
+        const cloudTrailPrincipal = new iam.ServicePrincipal('cloudtrail.amazonaws.com');
+        const logsRole = new iam.Role(stack, 'TestRole', { assumedBy: cloudTrailPrincipal });
+
+        new Trail(stack, 'MyAmazingCloudTrail', {
+          cloudWatchLogsRole: logsRole,
+        });
+
+        expect(stack).toHaveResource('AWS::CloudTrail::Trail', {
+          CloudWatchLogsRoleArn: stack.resolve(logsRole.roleArn),
+        });
+
+        expect(stack).toHaveResource('AWS::IAM::Role', {
+          AssumeRolePolicyDocument: {
+            Statement: [
+              {
+                Action: 'sts:AssumeRole',
+                Effect: 'Allow',
+                Principal: {
+                  Service: 'cloudtrail.amazonaws.com',
+                },
+              },
+            ],
+            Version: '2012-10-17',
+          },
+        });
+        expect(stack).toCountResources('AWS::IAM::Role', 1);
       });
 
       test('disabled', () => {

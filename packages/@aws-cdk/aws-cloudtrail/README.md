@@ -63,18 +63,27 @@ Besides sending trail events to S3, they can also be configured to notify other 
 
 ### Amazon CloudWatch Logs
 
-CloudTrail events can be delivered to a CloudWatch Logs LogGroup. By default, a new LogGroup is created with a
-default retention setting. The following code enables sending CloudWatch logs but specifies a particular retention
-period for the created Log Group.
+CloudTrail events can be delivered to a CloudWatch Logs LogGroup.
+By default, a new LogGroup is created with a default retention setting,
+a new Log Role is created with a default permission setting.
+The following code enables sending CloudWatch logs and specifies a particular retention period for the created Log Group.
 
 ```ts
 const trail = new cloudtrail.Trail(this, 'CloudTrail', {
   sendToCloudWatchLogs: true,
+});
+```
+
+The following code enables sending CloudWatch logs and specifies a particular retention period for the created Log Group.
+
+```ts
+const trail = new cloudtrail.Trail(this, 'CloudTrail', {
   cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS, 
 });
 ```
 
-If you would like to use a specific log group instead, this can be configured via `cloudwatchLogGroup`.
+If you would like to use a specific log group instead, this can be configured via `cloudWatchLogGroup`.
+If you would like to use a custom log role instead, this can be configured via `cloudWatchLogsRole`.
 
 ### Amazon EventBridge
 
