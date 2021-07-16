@@ -11,6 +11,10 @@ import { ISource, SourceConfig } from './source';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
+import { Token } from '@aws-cdk/core';
+
+// keep this import separate from other imports to reduce chance for merge conflicts with v2-main
+// eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct as CoreConstruct } from '@aws-cdk/core';
 
 /**
@@ -186,6 +190,17 @@ export interface BucketDeploymentProps {
  * other S3 buckets or from local disk
  */
 export class BucketDeployment extends CoreConstruct {
+  /**
+   * The bucket after the deployment
+   *
+   * If you want to reference the destination bucket in another construct and make sure the
+   * bucket deployment has happened before the next operation is started, pass the other construct
+   * a reference to `deployment.deployedBucket`.
+   *
+   * Doing this replaces calling `otherResource.node.addDependency(deployment)`.
+   */
+  public readonly deployedBucket: s3.IBucket;
+
   constructor(scope: Construct, id: string, props: BucketDeploymentProps) {
     super(scope, id);
 
@@ -221,7 +236,7 @@ export class BucketDeployment extends CoreConstruct {
       }));
     }
 
-    new cdk.CustomResource(this, 'CustomResource', {
+    const deployment = new cdk.CustomResource(this, 'CustomResource', {
       serviceToken: handler.functionArn,
       resourceType: 'Custom::CDKBucketDeployment',
       properties: {
@@ -235,9 +250,12 @@ export class BucketDeployment extends CoreConstruct {
         SystemMetadata: mapSystemMetadata(props),
         DistributionId: props.distribution?.distributionId,
         DistributionPaths: props.distributionPaths,
+        // Passing through the ARN sequences dependencees on the deployment
+        PassThroughBucketArn: props.destinationBucket.bucketArn,
       },
     });
 
+    this.deployedBucket = s3.Bucket.fromBucketArn(this, 'DestinationBucket', Token.asString(deployment.getAtt('DestinationBucketArn')));
   }
 
   private renderSingletonUuid(memoryLimit?: number) {

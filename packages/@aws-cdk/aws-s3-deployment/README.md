@@ -214,7 +214,7 @@ size of the AWS Lambda resource handler.
 
 ## Notes
 
-- This library uses an AWS CloudFormation custom resource which about 10MiB in
+- This library uses an AWS CloudFormation custom resource which is about 10MiB in
   size. The code of this resource is bundled with this library.
 - AWS Lambda execution time is limited to 15min. This limits the amount of data
   which can be deployed into the bucket by this timeout.
@@ -226,6 +226,9 @@ size of the AWS Lambda resource handler.
   This is inline with best practices. If you use local disk assets, this will
   happen automatically whenever you modify the asset, since the S3 key is based
   on a hash of the asset contents.
+- The `deployedBucket` property exposes the destination bucket of the deployment.
+  The bucket is instatiated using a `getAtt` call, such that any constructs that
+  utilize this bucket will add the bucket as a dependency. 
 
 ## Development
 

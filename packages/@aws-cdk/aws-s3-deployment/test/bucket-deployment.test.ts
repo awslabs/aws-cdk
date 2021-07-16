@@ -704,3 +704,22 @@ test('deployment allows vpc and subnets to be implicitly supplied to lambda', ()
     },
   });
 });
+
+test('s3 deployment bucket is identical to destination bucket', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+  const bucket = new s3.Bucket(stack, 'Dest');
+
+  // WHEN
+  new s3deploy.BucketDeployment(stack, 'Deployment', {
+    destinationBucket: bucket,
+    sources: [s3deploy.Source.asset(path.join(__dirname, 'my-website'))],
+  });
+
+  // THEN
+  expect(stack).toHaveResourceLike('Custom::CDKBucketDeployment', {
+    // Since this utilizes GetAtt, we know CFN will deploy the bucket first
+    // before deploying other resources that rely call the destination bucket.
+    PassThroughBucketArn: { 'Fn::GetAtt': ['DestC383B82A', 'Arn'] },
+  });
+});
