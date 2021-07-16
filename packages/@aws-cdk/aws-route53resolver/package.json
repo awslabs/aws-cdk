@@ -76,15 +76,22 @@
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "cdk-build-tools": "0.0.0",
+    "cdk-integ-tools": "0.0.0",
     "cfn2ts": "0.0.0",
     "pkglint": "0.0.0",
     "@aws-cdk/assert-internal": "0.0.0"
   },
   "dependencies": {
+    "@aws-cdk/aws-ec2": "0.0.0",
+    "@aws-cdk/aws-s3": "0.0.0",
+    "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
   "peerDependencies": {
+    "@aws-cdk/aws-ec2": "0.0.0",
+    "@aws-cdk/aws-s3": "0.0.0",
+    "@aws-cdk/aws-s3-assets": "0.0.0",
     "@aws-cdk/core": "0.0.0",
     "constructs": "^3.3.69"
   },
@@ -92,7 +99,14 @@
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
   "stability": "experimental",
-  "maturity": "cfn-only",
+  "maturity": "experimental",
+  "awslint": {
+    "exclude": [
+      "props-physical-name:@aws-cdk/aws-route53resolver.FirewallDomainListProps",
+      "props-physical-name:@aws-cdk/aws-route53resolver.FirewallRuleGroupProps",
+      "props-physical-name:@aws-cdk/aws-route53resolver.FirewallRuleGroupAssociationProps"
+    ]
+  },  
   "awscdkio": {
     "announce": false
   },

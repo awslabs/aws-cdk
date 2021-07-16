@@ -1,0 +1,4 @@
+amazon.com
+amazon.co.uk
+amazon.fr
+amazon.de
