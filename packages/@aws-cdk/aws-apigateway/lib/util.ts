@@ -95,7 +95,6 @@ export class JsonSchemaMapper {
   private static readonly SchemaPropsWithPrefix: { [key: string]: string } = {
     schema: '$schema',
     ref: '$ref',
-    id: '$id',
   };
   // The value indicates whether direct children should be key-mapped.
   private static readonly SchemaPropsWithUserDefinedChildren: { [key: string]: boolean } = {

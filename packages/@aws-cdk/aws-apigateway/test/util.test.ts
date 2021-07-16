@@ -1,5 +1,5 @@
 import '@aws-cdk/assert-internal/jest';
-import { JsonSchema, JsonSchemaType } from '../lib';
+import { JsonSchema, JsonSchemaType, JsonSchemaVersion } from '../lib';
 import { JsonSchemaMapper, parseAwsApiCall, parseMethodOptionsPath } from '../lib/util';
 
 describe('util', () => {
@@ -135,6 +135,19 @@ describe('util', () => {
         type: 'string',
         enum: ['green', 'blue', 'red'],
         default: 'blue',
+      });
+    });
+
+    test('"id" maps to "id" when using DRAFT-04', () => {
+      const schema: JsonSchema = {
+        schema: JsonSchemaVersion.DRAFT4,
+        id: 'http://json-schema.org/draft-04/schema#',
+      };
+
+      const actual = JsonSchemaMapper.toCfnJsonSchema(schema);
+      expect(actual).toEqual({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        id: 'http://json-schema.org/draft-04/schema#',
       });
     });
   });
