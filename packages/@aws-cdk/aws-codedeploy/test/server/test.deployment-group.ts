@@ -6,6 +6,7 @@ import * as lbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import * as codedeploy from '../../lib';
+import {TriggerEvent} from '../../lib/trigger-configuration';
 
 /* eslint-disable quote-props */
 
@@ -444,6 +445,62 @@ export = {
       });
 
       test.throws(() => SynthUtils.toCloudFormation(stack), /deploymentInAlarm/);
+      test.done();
+    },
+
+    'trigger configuration is not created if not specified'(test: Test) {
+      const stack = new cdk.Stack();
+
+      new codedeploy.ServerDeploymentGroup(stack, 'DeploymentGroup');
+
+      expect(stack).notTo(haveResource('AWS::CodeDeploy::DeploymentGroup', {
+        'TriggerConfigurations': [],
+      }));
+      test.done();
+    },
+
+    'trigger is created if specified'(test: Test) {
+      const stack = new cdk.Stack();
+
+      new codedeploy.ServerDeploymentGroup(stack, 'DeploymentGroup', {
+        triggerConfigurations: [
+          {
+            triggerName: 'TestTrigger',
+            triggerEvents: [TriggerEvent.DEPLOYMENT_READY],
+            triggerTargetArn: 'SomeValidArn',
+          },
+        ],
+      });
+
+      expect(stack).to(haveResource('AWS::CodeDeploy::DeploymentGroup', {
+        'TriggerConfigurations': [
+          {
+            'TriggerName': 'TestTrigger',
+            'TriggerEvents': [
+              'DeploymentReady',
+            ],
+            'TriggerTargetArn': 'SomeValidArn',
+          },
+        ],
+      }));
+      test.done();
+    },
+
+    'cannot be created if trigger has no events specified'(test: Test) {
+      const stack = new cdk.Stack();
+
+      test.throws(() => {
+        new codedeploy.ServerDeploymentGroup(stack, 'DeploymentGroup', {
+          triggerConfigurations: [
+            {
+              triggerName: 'TestTrigger',
+              triggerEvents: [],
+              triggerTargetArn: 'SomeValidArn',
+            },
+          ],
+        });
+      }, '/specify at least one trigger event/');
+
       test.done();
     },
   },

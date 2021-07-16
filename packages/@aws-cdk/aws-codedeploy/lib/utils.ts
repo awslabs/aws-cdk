@@ -2,6 +2,7 @@ import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import { Aws } from '@aws-cdk/core';
 import { CfnDeploymentGroup } from './codedeploy.generated';
 import { AutoRollbackConfig } from './rollback-config';
+import {TriggerConfiguration, TriggerEvent} from './trigger-configuration';
 
 export function arnForApplication(applicationName: string): string {
   return `arn:${Aws.PARTITION}:codedeploy:${Aws.REGION}:${Aws.ACCOUNT_ID}:application:${applicationName}`;
@@ -64,4 +65,14 @@ CfnDeploymentGroup.AutoRollbackConfigurationProperty | undefined {
       events,
     }
     : undefined;
+}
+
+export function renderTriggerConfiguration(triggerConfiguration: TriggerConfiguration): CfnDeploymentGroup.TriggerConfigProperty {
+  return {
+    triggerEvents: triggerConfiguration.triggerEvents === undefined
+      ? []
+      : triggerConfiguration.triggerEvents.map((te: TriggerEvent) => te.toString()),
+    triggerName: triggerConfiguration.triggerName,
+    triggerTargetArn: triggerConfiguration.triggerTargetArn ? triggerConfiguration.triggerTargetArn.toString() : '',
+  };
 }
