@@ -98,6 +98,47 @@ or you can use the `IStage.addAction()` method to mutate an existing Stage:
 sourceStage.addAction(someAction);
 ```
 
+### Custom Actions
+
+To use a custom action that exists in your AWS Account you must create a
+new class that implmenets the `IAction` interface. 
+
+Here is an example for a build stage action:
+
+```ts
+import * as cpl from '@aws-cdk/aws-codepipeline';
+import * as cdk from '@aws-cdk/core';
+
+export class CustomBuildAction extends cpl.Action {
+    readonly providedActionProperties: cpl.ActionProperties;
+
+    constructor(props: cpl.ActionProperties) {
+        super();
+        this.providedActionProperties = {
+            // Adjust the bounds as supported by the custom action
+            artifactBounds: { minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 1 },
+            actionName: props.actionName,
+            // Change the category to match the custom action
+            category: cpl.ActionCategory.BUILD,
+            inputs: props.inputs,
+            outputs: props.outputs,
+            owner: 'Custom',
+            provider: props.providerName,
+            version: props.providerVersion,
+        }
+    }
+
+    bound(scope: cdk.Construct, stage: cpl.IStage, options: cpl.ActionBindOptions): cpl.ActionConfig {
+        return {
+            // The configuration expected by the custom action.
+            configuration: {
+                ...
+            }
+        };
+    }
+}
+```
+
 ## Cross-account CodePipelines
 
 > Cross-account Pipeline actions require that the Pipeline has *not* been
