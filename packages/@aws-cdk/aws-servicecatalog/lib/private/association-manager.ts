@@ -35,7 +35,7 @@ export class AssociationManager {
     const association = this.associateProductWithPortfolio(portfolio, product);
 
     for (const topic of topics) {
-      const constructId = `LaunchNotificationConstraint${hashValues(association.associationKey, topic.topicArn)}`;
+      const constructId = `LaunchNotificationConstraint${hashValues(topic.node.addr, association.associationKey)}`;
       if (!portfolio.node.tryFindChild(constructId)) {
         const constraint = new CfnLaunchNotificationConstraint(portfolio as unknown as cdk.Resource, constructId, {
           acceptLanguage: options.messageLanguage,
