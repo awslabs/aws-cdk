@@ -1,13 +1,17 @@
 import * as cxapi from '@aws-cdk/cx-api';
+import { CloudFormation } from 'aws-sdk';
 import * as colors from 'colors/safe';
 import * as uuid from 'uuid';
 import { addMetadataAssetsToManifest } from '../assets';
 import { Tag } from '../cdk-toolkit';
+import { printStackDiff } from '../diff';
 import { debug, error, print } from '../logging';
 import { toYAML } from '../serialize';
+import { renderTable } from '../util';
 import { AssetManifestBuilder } from '../util/asset-manifest-builder';
 import { publishAssets } from '../util/asset-publishing';
 import { contentHash } from '../util/content-hash';
+import { confirmChangesOrAbort } from '../util/prompt';
 import { ISDK, SdkProvider } from './aws-auth';
 import { ToolkitInfo } from './toolkit-info';
 import { changeSetHasNoChanges, CloudFormationStack, TemplateParameters, waitForChangeSet, waitForStackDeploy, waitForStackDelete } from './util/cloudformation';
@@ -134,6 +138,13 @@ export interface DeployStackOptions {
    * If not provided, a name will be generated automatically.
    */
   changeSetName?: string;
+
+  /**
+   * Prompt to confirm whether to deploy change set.
+   *
+   * @default false a prompt will not be displayed.
+   */
+  confirmChangeSet?: boolean;
 
   /**
    * The collection of extra parameters
@@ -270,13 +281,22 @@ export async function deployStack(options: DeployStackOptions): Promise<DeploySt
     debug('Termination protection updated to %s for stack %s', terminationProtection, deployName);
   }
 
+  const noChangeReturnValue = { noOp: true, outputs: cloudFormationStack.outputs, stackArn: changeSet.StackId!, stackArtifact };
+
   if (changeSetHasNoChanges(changeSetDescription)) {
     debug('No changes are to be performed on %s.', deployName);
     if (options.execute) {
       debug('Deleting empty change set %s', changeSet.Id);
       await cfn.deleteChangeSet({ StackName: deployName, ChangeSetName: changeSetName }).promise();
     }
-    return { noOp: true, outputs: cloudFormationStack.outputs, stackArn: changeSet.StackId!, stackArtifact };
+    return noChangeReturnValue;
+  }
+
+  printStackDiff(await cloudFormationStack.template(), stackArtifact, false, 5, process.stdout);
+  printChangeSet(changeSetDescription);
+
+  if (options.confirmChangeSet) {
+    await confirmChangesOrAbort();
   }
 
   const execute = options.execute === undefined ? true : options.execute;
@@ -306,6 +326,58 @@ export async function deployStack(options: DeployStackOptions): Promise<DeploySt
 
   return { noOp: false, outputs: cloudFormationStack.outputs, stackArn: changeSet.StackId!, stackArtifact };
 }
+
+function actionColorFunc(actionName: string | undefined) {
+  switch (actionName) {
+    case 'Add':
+      return colors.green;
+    case 'Modify':
+      return colors.yellow;
+    case 'Import':
+      return colors.blue;
+    default:
+      return colors.red;
+  }
+};
+
+function withActionColor(actionName: string, message: string) {
+  return actionColorFunc(actionName)(message);
+};
+
+function changeSetDetails(actionName: string, detail: CloudFormation.ResourceChangeDetail) {
+  const targetName = [detail.Target?.Attribute, detail.Target?.Name].filter(s => s).join('.');
+  let triggeredBy = [detail.ChangeSource, detail.CausingEntity].filter(s => s).join('.');
+  if (detail.Evaluation !== 'Static') {
+    triggeredBy = `${triggeredBy} (${detail.Evaluation})`;
+  }
+  const requiresReplacement = actionName === 'Replace' ?
+    `${detail.Target?.RequiresRecreation} requires re-creation` : undefined;
+  return [
+    targetName,
+    `Triggered by ${triggeredBy}`,
+    requiresReplacement,
+  ].filter(s => s).join('. ');
+};
+
+function printChangeSet(changeSetDescription: CloudFormation.DescribeChangeSetOutput) {
+  print(colors.underline(colors.bold('Changeset')));
+
+  const cells: string[][] = [['Action', 'Resource Type', 'Logical ID', 'Details']];
+  for (const change of changeSetDescription.Changes ?? []) {
+    const resourceChange = change.ResourceChange;
+    if (resourceChange === undefined) continue;
+
+    const actionName = resourceChange.Replacement === 'True' ? 'Replace' : (resourceChange.Action || 'Unknown');
+    const details = (resourceChange.Details ?? []).map(d => changeSetDetails(actionName, d));
+    cells.push([
+      actionName,
+      resourceChange.ResourceType ?? '',
+      resourceChange.LogicalResourceId ?? '',
+      details.join('\n'),
+    ].map(c => withActionColor(actionName, c)));
+  }
+  print(renderTable(cells, undefined));
+};
 
 /**
  * Prepares the body parameter for +CreateChangeSet+.

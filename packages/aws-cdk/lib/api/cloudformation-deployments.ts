@@ -95,6 +95,13 @@ export interface DeployStackOptions {
   changeSetName?: string;
 
   /**
+   * Prompt to confirm whether to deploy change set.
+   *
+   * @default false a prompt will not be displayed.
+   */
+  confirmChangeSet?: boolean;
+
+  /**
    * Force deployment, even if the deployed template is identical to the one we are about to deploy.
    * @default false deployment will be skipped if the template is identical
    */
@@ -199,6 +206,7 @@ export class CloudFormationDeployments {
       tags: options.tags,
       execute: options.execute,
       changeSetName: options.changeSetName,
+      confirmChangeSet: options.confirmChangeSet,
       force: options.force,
       parameters: options.parameters,
       usePreviousParameters: options.usePreviousParameters,

@@ -49,7 +49,20 @@ beforeEach(() => {
     deleteChangeSet: jest.fn((_o) => ({})),
     describeChangeSet: jest.fn((_o) => ({
       Status: 'CREATE_COMPLETE',
-      Changes: [],
+      Changes: [
+        {
+          ResourceChange: {
+            Action: 'Modify',
+            Details: [
+              {
+                CausingEntity: 'BucketName',
+                ChangeSource: 'Properties',
+                Evaluation: 'Static',
+              },
+            ],
+          },
+        },
+      ],
     })),
     executeChangeSet: jest.fn((_o) => ({})),
     deleteStack: jest.fn((_o) => ({})),

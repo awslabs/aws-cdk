@@ -16,6 +16,7 @@ import { data, error, highlight, print, success, warning } from './logging';
 import { deserializeStructure } from './serialize';
 import { Configuration } from './settings';
 import { numberFromBool, partition } from './util';
+import { confirmChangesOrAbort } from './util/prompt';
 
 export interface CdkToolkitProps {
 
@@ -160,16 +161,7 @@ export class CdkToolkit {
       if (requireApproval !== RequireApproval.Never) {
         const currentTemplate = await this.props.cloudFormation.readCurrentTemplate(stack);
         if (printSecurityDiff(currentTemplate, stack, requireApproval)) {
-
-          // only talk to user if STDIN is a terminal (otherwise, fail)
-          if (!process.stdin.isTTY) {
-            throw new Error(
-              '"--require-approval" is enabled and stack includes security-sensitive updates, ' +
-              'but terminal (TTY) is not attached so we are unable to get a confirmation from the user');
-          }
-
-          const confirmed = await promptly.confirm('Do you wish to deploy these changes (y/n)?');
-          if (!confirmed) { throw new Error('Aborted by user'); }
+          await confirmChangesOrAbort();
         }
       }
 
@@ -191,6 +183,7 @@ export class CdkToolkit {
           tags,
           execute: options.execute,
           changeSetName: options.changeSetName,
+          confirmChangeSet: options.confirmChangeSet,
           force: options.force,
           parameters: Object.assign({}, parameterMap['*'], parameterMap[stack.stackName]),
           usePreviousParameters: options.usePreviousParameters,
@@ -560,6 +553,13 @@ export interface DeployOptions {
    * @default RequireApproval.Broadening
    */
   requireApproval?: RequireApproval;
+
+  /**
+   * Prompt to confirm whether to deploy change set.
+   *
+   * @default false a prompt will not be displayed.
+   */
+  confirmChangeSet?: boolean;
 
   /**
    * Reuse the assets with the given asset IDs
