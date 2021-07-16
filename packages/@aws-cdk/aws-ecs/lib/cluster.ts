@@ -333,6 +333,7 @@ export class Cluster extends Resource implements ICluster {
       // Don't enable the instance-draining lifecycle hook if managed termination protection is enabled
       taskDrainTime: provider.enableManagedTerminationProtection ? Duration.seconds(0) : options.taskDrainTime,
     });
+    this.connections.connections.addSecurityGroup(...provider.autoScalingGroup.connections.securityGroups);
 
     this._capacityProviderNames.push(provider.capacityProviderName);
   }
