@@ -330,6 +330,31 @@ const scheduledFargateTask = new ScheduledFargateTask(stack, 'ScheduledFargateTa
 
 In addition to using the constructs, users can also add logic to customize these constructs:
 
+### Configure HTTPS on an ApplicationLoadBalancedFargateService
+
+```ts
+import { ApplicationLoadBalancedFargateService } from './application-load-balanced-fargate-service';
+import { HostedZone } from '@aws-cdk/aws-route53';
+import { Certificate } from '@aws-cdk/aws-certificatemanager';
+import { SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
+
+const domainZone = HostedZone.fromLookup(this, 'Zone', { domainName: 'example.com' });
+const certificate = Certificate.fromCertificateArn(this, 'Cert', 'arn:aws:acm:us-east-1:123456:certificate/abcdefg');
+
+const loadBalancedFargateService = new ApplicationLoadBalancedFargateService(stack, 'Service', {
+  vpc
+  cluster,
+  certificate,
+  sslPolicy: SslPolicy.RECOMMENDED,
+  domainName: 'api.example.com',
+  domainZone,
+  redirectHTTP: true,
+  taskImageOptions: {
+    image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+  },
+});
+```
+
 ### Add Schedule-Based Auto-Scaling to an ApplicationLoadBalancedFargateService
 
 ```ts
