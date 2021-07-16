@@ -20,6 +20,7 @@
 - [HTTP APIs](#http-apis)
   - [Lambda Integration](#lambda)
   - [HTTP Proxy Integration](#http-proxy)
+  - [AWS Service Integration](#aws-service)
   - [Private Integration](#private-integration)
 - [WebSocket APIs](#websocket-apis)
   - [Lambda WebSocket Integration](#lambda-websocket-integration)
@@ -75,6 +76,34 @@ httpApi.addRoutes({
   path: '/books',
   methods: [ HttpMethod.GET ],
   integration: booksIntegration,
+});
+```
+
+### AWS Service
+
+You can integrate your HTTP API with AWS services by using first-class integrations. A first-class integration connects 
+an HTTP API route to an AWS service API. When a client invokes a route that's backed by a first-class integration, 
+API Gateway invokes an AWS service API for you. More information can be found at [Working with AWS service integrations for HTTP APIs]
+(https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-aws-services.html).
+
+The following code configures a route `POST /start` to start execution of Step Functions state machine.
+
+```ts
+const httpApi = new HttpApi(stack, 'HttpApi');
+
+const state = new StateMachine(stack, 'MyStateMachine', {
+  definition: Chain.start(new Pass(stack, 'Pass')),
+  stateMachineType: StateMachineType.STANDARD,
+});
+
+httpApi.addRoutes({
+  path: '/start',
+  methods: [ HttpMethod.POST ],
+  integration: new StepFunctionsStartExecutionIntegration({
+    stateMachine: state,
+    input: '$request.body.input',
+    timeout: Duration.seconds(10),
+  }),
 });
 ```
 

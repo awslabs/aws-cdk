@@ -1,4 +1,4 @@
-import { Resource } from '@aws-cdk/core';
+import { Resource, Duration } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnIntegration } from '../apigatewayv2.generated';
 import { IIntegration } from '../common';
@@ -83,16 +83,53 @@ export interface HttpIntegrationProps {
   readonly httpApi: IHttpApi;
 
   /**
+   * The description of the integration
+   *
+   * @default - undefined
+   */
+  readonly description?: string;
+
+  /**
+   * Specifies the credentials ARN required for the integration, if any.
+   *
+   * @default - undefined
+   */
+  readonly credentials?: string;
+
+  /**
    * Integration type
    */
   readonly integrationType: HttpIntegrationType;
 
   /**
+   * Specifies the AWS service action to invoke.
+   *
+   * @default - undefined
+   */
+  readonly integrationSubtype?: string;
+
+  /**
+   * Custom timeout for HTTP APIs
+   *
+   * @default - undefined
+   */
+  readonly timeout?: Duration;
+
+  /**
+   * Request parameters are a key-value map specifying parameters that are passed to AWS_PROXY integrations.
+   *
+   * @default - undefined
+   */
+  readonly requestParameters?: { [key: string]: any };
+
+  /**
    * Integration URI.
    * This will be the function ARN in the case of `HttpIntegrationType.LAMBDA_PROXY`,
    * or HTTP URL in the case of `HttpIntegrationType.HTTP_PROXY`.
+   *
+   * @default - undefined
    */
-  readonly integrationUri: string;
+  readonly integrationUri?: string;
 
   /**
    * The HTTP method to use when calling the underlying HTTP proxy
@@ -133,14 +170,24 @@ export class HttpIntegration extends Resource implements IHttpIntegration {
 
   constructor(scope: Construct, id: string, props: HttpIntegrationProps) {
     super(scope, id);
+
+    if (props.timeout && (props.timeout.toMilliseconds() < 50 || props.timeout.toMilliseconds() > 30000)) {
+      throw new Error(`The timeout of HTTP integration should be between 50 and 30,000, got ${props.timeout.toMilliseconds()}.`);
+    }
+
     const integ = new CfnIntegration(this, 'Resource', {
       apiId: props.httpApi.apiId,
+      description: props.description,
       integrationType: props.integrationType,
+      integrationSubtype: props.integrationSubtype,
       integrationUri: props.integrationUri,
       integrationMethod: props.method,
+      credentialsArn: props.credentials,
+      requestParameters: props.requestParameters,
       connectionId: props.connectionId,
       connectionType: props.connectionType,
       payloadFormatVersion: props.payloadFormatVersion?.version,
+      timeoutInMillis: props.timeout?.toMilliseconds(),
     });
     this.integrationId = integ.ref;
     this.httpApi = props.httpApi;
@@ -179,14 +226,51 @@ export interface IHttpRouteIntegration {
  */
 export interface HttpRouteIntegrationConfig {
   /**
+   * The description of the integration
+   *
+   * @default - undefined
+   */
+  readonly description?: string;
+
+  /**
    * Integration type.
    */
   readonly type: HttpIntegrationType;
 
   /**
-   * Integration URI
+   * Specifies the credentials ARN required for the integration, if any.
+   *
+   * @default - undefined
    */
-  readonly uri: string;
+  readonly credentials?: string;
+
+  /**
+   * Specifies the AWS service action to invoke.
+   *
+   * @default - undefined
+   */
+  readonly subtype?: string;
+
+  /**
+   * Custom timeout for HTTP APIs
+   *
+   * @default - undefined
+   */
+  readonly timeout?: Duration;
+
+  /**
+   * Request parameters are a key-value map specifying parameters that are passed to AWS_PROXY integrations.
+   *
+   * @default - undefined
+   */
+  readonly requestParameters?: { [key: string]: any };
+
+  /**
+   * Integration URI
+   *
+   * @default - undefined
+   */
+  readonly uri?: string;
 
   /**
    * The HTTP method that must be used to invoke the underlying proxy.

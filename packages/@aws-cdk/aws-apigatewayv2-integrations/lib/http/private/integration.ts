@@ -9,6 +9,8 @@ import {
   IVpcLink,
 } from '@aws-cdk/aws-apigatewayv2';
 import * as ec2 from '@aws-cdk/aws-ec2';
+import { IRole, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
+import { CommonIntegrationProps } from '../base-types';
 
 
 /**
@@ -62,4 +64,66 @@ export abstract class HttpPrivateIntegration implements IHttpRouteIntegration {
   }
 
   public abstract bind(options: HttpRouteIntegrationBindOptions): HttpRouteIntegrationConfig;
+}
+
+/**
+ * Aws Service integration properties
+ *
+ * @internal
+ */
+export interface AwsServiceIntegrationProps extends CommonIntegrationProps {
+}
+
+/**
+ * The Aws Service integration resource for HTTP API
+ *
+ * @internal
+ */
+export abstract class AwsServiceIntegration implements IHttpRouteIntegration {
+
+  constructor(private readonly props: AwsServiceIntegrationProps) {
+  }
+
+  /**
+   *
+   * @internal
+   */
+  protected abstract _fulfillRole(credentialsRole: IRole): void;
+
+  /**
+   *
+   * @internal
+   */
+  protected abstract _buildRequestParameters(): { [key: string]: any };
+
+  /**
+   *
+   * @internal
+   */
+  protected abstract _integrationService(): string;
+
+  /**
+   *
+   * @internal
+   */
+  protected abstract _integrationAction(): string;
+
+  public bind(_options: HttpRouteIntegrationBindOptions): HttpRouteIntegrationConfig {
+
+    const role = new Role(_options.scope, 'Role', {
+      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+    });
+    this._fulfillRole(role);
+
+    return {
+      payloadFormatVersion: PayloadFormatVersion.VERSION_1_0, // 1.0 is required and is the only supported format
+      type: HttpIntegrationType.LAMBDA_PROXY,
+      subtype: `${this._integrationService()}-${this._integrationAction()}`,
+      credentials: role.roleArn,
+      timeout: this.props.timeout,
+      description: this.props.description,
+      requestParameters: this._buildRequestParameters(),
+    };
+  }
+
 }

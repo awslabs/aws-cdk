@@ -298,12 +298,17 @@ abstract class HttpApiBase extends ApiBase implements IHttpApi { // note that th
 
     const integration = new HttpIntegration(scope, `HttpIntegration-${configHash}`, {
       httpApi: this,
+      description: config.description,
       integrationType: config.type,
+      integrationSubtype: config.subtype,
       integrationUri: config.uri,
+      requestParameters: config.requestParameters,
+      credentials: config.credentials,
       method: config.method,
       connectionId: config.connectionId,
       connectionType: config.connectionType,
       payloadFormatVersion: config.payloadFormatVersion,
+      timeout: config.timeout,
     });
     this._integrationCache.saveIntegration(scope, config, integration);
 
