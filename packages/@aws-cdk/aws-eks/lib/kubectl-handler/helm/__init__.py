@@ -39,22 +39,26 @@ def helm_handler(event, context):
     ])
 
     # Write out the values to a file and include them with the install and upgrade
-    values_file = None
+    values_files = []
     if not request_type == "Delete" and not values_text is None:
         values = json.loads(values_text)
-        values_file = os.path.join(outdir, 'values.yaml')
-        with open(values_file, "w") as f:
-            f.write(json.dumps(values, indent=2))
+        if not isinstance(values, list):
+            values = [values]
+        for i, values_content in enumerate(values):
+            values_file = os.path.join(outdir, f'values{i}.yaml')
+            with open(values_file, "w") as f:
+                f.write(json.dumps(values_content, indent=2))
+            values_files.append(values_file)
 
     if request_type == 'Create' or request_type == 'Update':
-        helm('upgrade', release, chart, repository, values_file, namespace, version, wait, timeout, create_namespace)
+        helm('upgrade', release, chart, repository, values_files, namespace, version, wait, timeout, create_namespace)
     elif request_type == "Delete":
         try:
             helm('uninstall', release, namespace=namespace, timeout=timeout)
         except Exception as e:
             logger.info("delete error: %s" % e)
 
-def helm(verb, release, chart = None, repo = None, file = None, namespace = None, version = None, wait = False, timeout = None, create_namespace = None):
+def helm(verb, release, chart = None, repo = None, values_files = None, namespace = None, version = None, wait = False, timeout = None, create_namespace = None):
     import subprocess
 
     cmnd = ['helm', verb, release]
@@ -66,8 +70,9 @@ def helm(verb, release, chart = None, repo = None, file = None, namespace = None
         cmnd.append('--create-namespace')
     if not repo is None:
         cmnd.extend(['--repo', repo])
-    if not file is None:
-        cmnd.extend(['--values', file])
+    if not values_files is None:
+        for values_file in values_files:
+            cmnd.extend(['--values', values_file])
     if not version is None:
         cmnd.extend(['--version', version])
     if not namespace is None:

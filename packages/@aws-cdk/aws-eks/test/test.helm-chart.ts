@@ -52,6 +52,17 @@ export = {
       expect(stack).to(haveResource(eks.HelmChart.RESOURCE_TYPE, { Values: '{\"foo\":123}' }));
       test.done();
     },
+    'with multiple values'(test: Test) {
+      // GIVEN
+      const { stack, cluster } = testFixtureCluster();
+
+      // WHEN
+      new eks.HelmChart(stack, 'MyChart', { cluster, chart: 'chart', values: [{ foo: 123 }, { bar: 456 }] });
+
+      // THEN
+      expect(stack).to(haveResource(eks.HelmChart.RESOURCE_TYPE, { Values: '[{\"foo\":123},{\"bar\":456}]' }));
+      test.done();
+    },
     'should support create namespaces by default'(test: Test) {
       // GIVEN
       const { stack, cluster } = testFixtureCluster();

@@ -975,7 +975,8 @@ cluster.addHelmChart('NginxIngress', {
 Helm charts will be installed and updated using `helm upgrade --install`, where a few parameters
 are being passed down (such as `repo`, `values`, `version`, `namespace`, `wait`, `timeout`, etc).
 This means that if the chart is added to CDK with the same release name, it will try to update
-the chart in the cluster.
+the chart in the cluster. If the object passed to `values` is an array, this will be passed to
+Helm as multiple values files.
 
 Helm charts are implemented as CloudFormation resources in CDK.
 This means that if the chart is deleted from your code (or the stack is

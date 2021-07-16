@@ -45,7 +45,7 @@ export interface HelmChartOptions {
    * The values to be used by the chart.
    * @default - No values are provided to the chart.
    */
-  readonly values?: {[key: string]: any};
+  readonly values?: {[key: string]: any} | Array<{[key: string]: any}>;
 
   /**
    * Whether or not Helm should wait until all Pods, PVCs, Services, and minimum number of Pods of a
