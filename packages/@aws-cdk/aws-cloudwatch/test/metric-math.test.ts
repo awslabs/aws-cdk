@@ -1,6 +1,5 @@
-import { expect, haveResourceLike } from '@aws-cdk/assert-internal';
+import '@aws-cdk/assert-internal/jest';
 import { Duration, Stack } from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Alarm, GraphWidget, IWidget, MathExpression, Metric } from '../lib';
 
 const a = new Metric({ namespace: 'Test', metricName: 'ACount' });
@@ -9,14 +8,13 @@ const c = new Metric({ namespace: 'Test', metricName: 'CCount' });
 const b99 = new Metric({ namespace: 'Test', metricName: 'BCount', statistic: 'p99' });
 
 let stack: Stack;
-export = {
-  'setUp'(cb: () => void) {
+describe('Metric Math', () => {
+  beforeEach(() => {
     stack = new Stack();
-    cb();
-  },
+  });
 
-  'can not use invalid variable names in MathExpression'(test: Test) {
-    test.throws(() => {
+  test('can not use invalid variable names in MathExpression', () => {
+    expect(() => {
       new MathExpression({
         expression: 'HAPPY + JOY',
         usingMetrics: {
@@ -24,14 +22,14 @@ export = {
           JOY: b,
         },
       });
-    }, /Invalid variable names in expression/);
+    }).toThrow(/Invalid variable names in expression/);
 
-    test.done();
-  },
 
-  'cannot reuse variable names in nested MathExpressions'(test: Test) {
+  });
+
+  test('cannot reuse variable names in nested MathExpressions', () => {
     // WHEN
-    test.throws(() => {
+    expect(() => {
       new MathExpression({
         expression: 'a + e',
         usingMetrics: {
@@ -42,37 +40,37 @@ export = {
           }),
         },
       });
-    }, /The ID 'a' used for two metrics in the expression: 'BCount' and 'ACount'. Rename one/);
+    }).toThrow(/The ID 'a' used for two metrics in the expression: 'BCount' and 'ACount'. Rename one/);
 
-    test.done();
-  },
 
-  'can not use invalid period in MathExpression'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('can not use invalid period in MathExpression', () => {
+    expect(() => {
       new MathExpression({
         expression: 'a+b',
         usingMetrics: { a, b },
         period: Duration.seconds(20),
       });
-    }, /'period' must be 1, 5, 10, 30, or a multiple of 60 seconds, received 20/);
+    }).toThrow(/'period' must be 1, 5, 10, 30, or a multiple of 60 seconds, received 20/);
 
-    test.done();
-  },
 
-  'MathExpression optimization: "with" with the same period returns the same object'(test: Test) {
+  });
+
+  test('MathExpression optimization: "with" with the same period returns the same object', () => {
     const m = new MathExpression({ expression: 'SUM(METRICS())', usingMetrics: {}, period: Duration.minutes(10) });
 
     // Note: object equality, NOT deep equality on purpose
-    test.equals(m.with({}), m);
-    test.equals(m.with({ period: Duration.minutes(10) }), m);
+    expect(m.with({})).toEqual(m);
+    expect(m.with({ period: Duration.minutes(10) })).toEqual(m);
 
-    test.notEqual(m.with({ period: Duration.minutes(5) }), m);
+    expect(m.with({ period: Duration.minutes(5) })).not.toEqual(m);
 
-    test.done();
-  },
 
-  'in graphs': {
-    'MathExpressions can be added to a graph'(test: Test) {
+  });
+
+  describe('in graphs', () => {
+    test('MathExpressions can be added to a graph', () => {
       // GIVEN
       const graph = new GraphWidget({
         left: [
@@ -84,16 +82,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ expression: 'a + b', label: 'a + b' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         ['Test', 'BCount', { visible: false, id: 'b' }],
       ]);
 
-      test.done();
-    },
 
-    'can nest MathExpressions in a graph'(test: Test) {
+    });
+
+    test('can nest MathExpressions in a graph', () => {
       // GIVEN
       const graph = new GraphWidget({
         left: [
@@ -111,7 +109,7 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ label: 'a + e', expression: 'a + e' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         [{ expression: 'b + c', visible: false, id: 'e' }],
@@ -119,10 +117,10 @@ export = {
         ['Test', 'CCount', { visible: false, id: 'c' }],
       ]);
 
-      test.done();
-    },
 
-    'can add the same metric under different ids'(test: Test) {
+    });
+
+    test('can add the same metric under different ids', () => {
       const graph = new GraphWidget({
         left: [
           new MathExpression({
@@ -138,7 +136,7 @@ export = {
         ],
       });
 
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ label: 'a + e', expression: 'a + e' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         [{ expression: 'b + c', visible: false, id: 'e' }],
@@ -146,10 +144,10 @@ export = {
         ['Test', 'CCount', { visible: false, id: 'c' }],
       ]);
 
-      test.done();
-    },
 
-    'can reuse identifiers in MathExpressions if metrics are the same'(test: Test) {
+    });
+
+    test('can reuse identifiers in MathExpressions if metrics are the same', () => {
       const graph = new GraphWidget({
         left: [
           new MathExpression({
@@ -166,17 +164,17 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ label: 'a + e', expression: 'a + e' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         [{ expression: 'a + c', visible: false, id: 'e' }],
         ['Test', 'CCount', { visible: false, id: 'c' }],
       ]);
 
-      test.done();
-    },
 
-    'MathExpression and its constituent metrics can both be added to a graph'(test: Test) {
+    });
+
+    test('MathExpression and its constituent metrics can both be added to a graph', () => {
       const graph = new GraphWidget({
         left: [
           a,
@@ -188,15 +186,15 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         ['Test', 'ACount', { id: 'a' }],
         [{ label: 'a + b', expression: 'a + b' }],
         ['Test', 'BCount', { visible: false, id: 'b' }],
       ]);
-      test.done();
-    },
 
-    'MathExpression controls period of metrics directly used in it'(test: Test) {
+    });
+
+    test('MathExpression controls period of metrics directly used in it', () => {
       // Check that if we add A with { period: 10s } to a mathexpression of period 5m
       // then two metric lines are added for A, one at 10s and one at 5m
       const graph = new GraphWidget({
@@ -210,16 +208,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         ['Test', 'ACount', { period: 10 }],
         [{ label: 'a + b', expression: 'a + b' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         ['Test', 'BCount', { visible: false, id: 'b' }],
       ]);
-      test.done();
-    },
 
-    'top level period in a MathExpression is respected in its metrics'(test: Test) {
+    });
+
+    test('top level period in a MathExpression is respected in its metrics', () => {
       const graph = new GraphWidget({
         left: [
           a,
@@ -232,16 +230,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         ['Test', 'ACount'],
         [{ label: 'a + b', expression: 'a + b', period: 60 }],
         ['Test', 'ACount', { visible: false, id: 'a', period: 60 }],
         ['Test', 'BCount', { visible: false, id: 'b', period: 60 }],
       ]);
-      test.done();
-    },
 
-    'MathExpression controls period of metrics transitively used in it'(test: Test) {
+    });
+
+    test('MathExpression controls period of metrics transitively used in it', () => {
       // Same as the previous test, but recursively
 
       const graph = new GraphWidget({
@@ -261,16 +259,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ expression: 'a + e', label: 'a + e' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         [{ expression: 'a + b', visible: false, id: 'e' }],
         ['Test', 'BCount', { visible: false, id: 'b' }],
       ]);
-      test.done();
-    },
 
-    'can use percentiles in expression metrics in graphs'(test: Test) {
+    });
+
+    test('can use percentiles in expression metrics in graphs', () => {
       // GIVEN
       const graph = new GraphWidget({
         left: [
@@ -282,16 +280,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ expression: 'a + b99', label: 'a + b99' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         ['Test', 'BCount', { visible: false, id: 'b99', stat: 'p99' }],
       ]);
 
-      test.done();
-    },
 
-    'can reuse the same metric between left and right axes'(test: Test) {
+    });
+
+    test('can reuse the same metric between left and right axes', () => {
       // GIVEN
       const graph = new GraphWidget({
         left: [
@@ -309,16 +307,16 @@ export = {
       });
 
       // THEN
-      graphMetricsAre(test, graph, [
+      graphMetricsAre(graph, [
         [{ label: 'a + 1', expression: 'a + 1' }],
         ['Test', 'ACount', { visible: false, id: 'a' }],
         [{ label: 'a + 2', expression: 'a + 2', yAxis: 'right' }],
       ]);
 
-      test.done();
-    },
 
-    'detect name conflicts between left and right axes'(test: Test) {
+    });
+
+    test('detect name conflicts between left and right axes', () => {
       // GIVEN
       const graph = new GraphWidget({
         left: [
@@ -336,16 +334,16 @@ export = {
       });
 
       // THEN
-      test.throws(() => {
-        graphMetricsAre(test, graph, []);
-      }, /Cannot have two different metrics share the same id \('m1'\)/);
+      expect(() => {
+        graphMetricsAre(graph, []);
+      }).toThrow(/Cannot have two different metrics share the same id \('m1'\)/);
 
-      test.done();
-    },
-  },
 
-  'in alarms': {
-    'MathExpressions can be used for an alarm'(test: Test) {
+    });
+  });
+
+  describe('in alarms', () => {
+    test('MathExpressions can be used for an alarm', () => {
       // GIVEN
       new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -389,10 +387,10 @@ export = {
 
       ]);
 
-      test.done();
-    },
 
-    'can nest MathExpressions in an alarm'(test: Test) {
+    });
+
+    test('can nest MathExpressions in an alarm', () => {
       // GIVEN
       new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -458,10 +456,10 @@ export = {
         },
       ]);
 
-      test.done();
-    },
 
-    'MathExpression controls period of metrics transitively used in it with alarms'(test: Test) {
+    });
+
+    test('MathExpression controls period of metrics transitively used in it with alarms', () => {
       // GIVEN
       new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -529,10 +527,10 @@ export = {
         },
       ]);
 
-      test.done();
-    },
 
-    'MathExpression without inner metrics emits its own period'(test: Test) {
+    });
+
+    test('MathExpression without inner metrics emits its own period', () => {
       // WHEN
       new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -552,10 +550,10 @@ export = {
         },
       ]);
 
-      test.done();
-    },
 
-    'annotation for a mathexpression alarm is calculated based upon constituent metrics'(test: Test) {
+    });
+
+    test('annotation for a mathexpression alarm is calculated based upon constituent metrics', () => {
       // GIVEN
       const alarm = new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -571,12 +569,12 @@ export = {
       const alarmLabel = alarm.toAnnotation().label;
 
       // THEN
-      test.equals(alarmLabel, 'a + b >= 1 for 1 datapoints within 10 minutes');
+      expect(alarmLabel).toEqual('a + b >= 1 for 1 datapoints within 10 minutes');
 
-      test.done();
-    },
 
-    'can use percentiles in expression metrics in alarms'(test: Test) {
+    });
+
+    test('can use percentiles in expression metrics in alarms', () => {
       // GIVEN
       new Alarm(stack, 'Alarm', {
         threshold: 1,
@@ -619,13 +617,13 @@ export = {
         },
       ]);
 
-      test.done();
-    },
-  },
-};
 
-function graphMetricsAre(test: Test, w: IWidget, metrics: any[]) {
-  test.deepEqual(stack.resolve(w.toJson()), [{
+    });
+  });
+});
+
+function graphMetricsAre(w: IWidget, metrics: any[]) {
+  expect(stack.resolve(w.toJson())).toEqual([{
     type: 'metric',
     width: 6,
     height: 6,
@@ -640,7 +638,7 @@ function graphMetricsAre(test: Test, w: IWidget, metrics: any[]) {
 }
 
 function alarmMetricsAre(metrics: any[]) {
-  expect(stack).to(haveResourceLike('AWS::CloudWatch::Alarm', {
+  expect(stack).toHaveResourceLike('AWS::CloudWatch::Alarm', {
     Metrics: metrics,
-  }));
+  });
 }

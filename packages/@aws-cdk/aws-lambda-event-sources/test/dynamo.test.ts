@@ -1,16 +1,15 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import * as sources from '../lib';
 import { TestFunction } from './test-function';
 
 /* eslint-disable quote-props */
 
-export = {
-  'sufficiently complex example'(test: Test) {
+describe('DynamoEventSource', () => {
+  test('sufficiently complex example', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -28,7 +27,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::IAM::Policy', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::IAM::Policy', {
       'PolicyDocument': {
         'Statement': [
           {
@@ -57,9 +56,9 @@ export = {
       'Roles': [{
         'Ref': 'FnServiceRoleB9001A96',
       }],
-    }));
+    });
 
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -71,12 +70,12 @@ export = {
       },
       'BatchSize': 100,
       'StartingPosition': 'TRIM_HORIZON',
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific tumblingWindow'(test: Test) {
+  });
+
+  test('specific tumblingWindow', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -96,14 +95,14 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       TumblingWindowInSeconds: 60,
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific batch size'(test: Test) {
+  });
+
+  test('specific batch size', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -122,7 +121,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -134,12 +133,12 @@ export = {
       },
       'BatchSize': 50,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'fails if streaming not enabled on table'(test: Test) {
+  });
+
+  test('fails if streaming not enabled on table', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -151,15 +150,15 @@ export = {
     });
 
     // WHEN
-    test.throws(() => fn.addEventSource(new sources.DynamoEventSource(table, {
+    expect(() => fn.addEventSource(new sources.DynamoEventSource(table, {
       batchSize: 50,
       startingPosition: lambda.StartingPosition.LATEST,
-    })), /DynamoDB Streams must be enabled on the table Default\/T/);
+    }))).toThrow(/DynamoDB Streams must be enabled on the table Default\/T/);
 
-    test.done();
-  },
 
-  'fails if batch size < 1'(test: Test) {
+  });
+
+  test('fails if batch size < 1', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -172,15 +171,15 @@ export = {
     });
 
     // WHEN
-    test.throws(() => fn.addEventSource(new sources.DynamoEventSource(table, {
+    expect(() => fn.addEventSource(new sources.DynamoEventSource(table, {
       batchSize: 0,
       startingPosition: lambda.StartingPosition.LATEST,
-    })), /Maximum batch size must be between 1 and 1000 inclusive \(given 0\)/);
+    }))).toThrow(/Maximum batch size must be between 1 and 1000 inclusive \(given 0\)/);
 
-    test.done();
-  },
 
-  'fails if batch size > 1000'(test: Test) {
+  });
+
+  test('fails if batch size > 1000', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -193,15 +192,15 @@ export = {
     });
 
     // WHEN
-    test.throws(() => fn.addEventSource(new sources.DynamoEventSource(table, {
+    expect(() => fn.addEventSource(new sources.DynamoEventSource(table, {
       batchSize: 1001,
       startingPosition: lambda.StartingPosition.LATEST,
-    })), /Maximum batch size must be between 1 and 1000 inclusive \(given 1001\)/);
+    }))).toThrow(/Maximum batch size must be between 1 and 1000 inclusive \(given 1001\)/);
 
-    test.done();
-  },
 
-  'specific maxBatchingWindow'(test: Test) {
+  });
+
+  test('specific maxBatchingWindow', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -220,7 +219,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -232,12 +231,12 @@ export = {
       },
       'MaximumBatchingWindowInSeconds': 120,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'throws if maxBatchingWindow > 300 seconds'(test: Test) {
+  });
+
+  test('throws if maxBatchingWindow > 300 seconds', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -250,16 +249,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         maxBatchingWindow: cdk.Duration.seconds(301),
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /maxBatchingWindow cannot be over 300 seconds/);
+      }))).toThrow(/maxBatchingWindow cannot be over 300 seconds/);
 
-    test.done();
-  },
 
-  'contains eventSourceMappingId after lambda binding'(test: Test) {
+  });
+
+  test('contains eventSourceMappingId after lambda binding', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -278,11 +277,11 @@ export = {
     fn.addEventSource(eventSource);
 
     // THEN
-    test.ok(eventSource.eventSourceMappingId);
-    test.done();
-  },
+    expect(eventSource.eventSourceMappingId).toBeDefined();
 
-  'eventSourceMappingId throws error before binding to lambda'(test: Test) {
+  });
+
+  test('eventSourceMappingId throws error before binding to lambda', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const table = new dynamodb.Table(stack, 'T', {
@@ -297,11 +296,11 @@ export = {
     });
 
     // WHEN/THEN
-    test.throws(() => eventSource.eventSourceMappingId, /DynamoEventSource is not yet bound to an event source mapping/);
-    test.done();
-  },
+    expect(() => eventSource.eventSourceMappingId).toThrow(/DynamoEventSource is not yet bound to an event source mapping/);
 
-  'specific retryAttempts'(test: Test) {
+  });
+
+  test('specific retryAttempts', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -320,7 +319,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -332,12 +331,12 @@ export = {
       },
       'MaximumRetryAttempts': 10,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'fails if retryAttempts < 0'(test: Test) {
+  });
+
+  test('fails if retryAttempts < 0', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -350,16 +349,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         retryAttempts: -1,
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /retryAttempts must be between 0 and 10000 inclusive, got -1/);
+      }))).toThrow(/retryAttempts must be between 0 and 10000 inclusive, got -1/);
 
-    test.done();
-  },
 
-  'fails if retryAttempts > 10000'(test: Test) {
+  });
+
+  test('fails if retryAttempts > 10000', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -372,16 +371,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         retryAttempts: 10001,
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /retryAttempts must be between 0 and 10000 inclusive, got 10001/);
+      }))).toThrow(/retryAttempts must be between 0 and 10000 inclusive, got 10001/);
 
-    test.done();
-  },
 
-  'specific bisectBatchOnFunctionError'(test: Test) {
+  });
+
+  test('specific bisectBatchOnFunctionError', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -400,7 +399,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -412,12 +411,12 @@ export = {
       },
       'BisectBatchOnFunctionError': true,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific parallelizationFactor'(test: Test) {
+  });
+
+  test('specific parallelizationFactor', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -436,7 +435,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -448,12 +447,12 @@ export = {
       },
       'ParallelizationFactor': 5,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'fails if parallelizationFactor < 1'(test: Test) {
+  });
+
+  test('fails if parallelizationFactor < 1', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -466,16 +465,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         parallelizationFactor: 0,
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /parallelizationFactor must be between 1 and 10 inclusive, got 0/);
+      }))).toThrow(/parallelizationFactor must be between 1 and 10 inclusive, got 0/);
 
-    test.done();
-  },
 
-  'fails if parallelizationFactor > 10'(test: Test) {
+  });
+
+  test('fails if parallelizationFactor > 10', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -488,16 +487,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         parallelizationFactor: 11,
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /parallelizationFactor must be between 1 and 10 inclusive, got 11/);
+      }))).toThrow(/parallelizationFactor must be between 1 and 10 inclusive, got 11/);
 
-    test.done();
-  },
 
-  'specific maxRecordAge'(test: Test) {
+  });
+
+  test('specific maxRecordAge', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -516,7 +515,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -528,12 +527,12 @@ export = {
       },
       'MaximumRecordAgeInSeconds': 100,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'fails if maxRecordAge < 60 seconds'(test: Test) {
+  });
+
+  test('fails if maxRecordAge < 60 seconds', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -546,16 +545,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         maxRecordAge: cdk.Duration.seconds(59),
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /maxRecordAge must be between 60 seconds and 7 days inclusive/);
+      }))).toThrow(/maxRecordAge must be between 60 seconds and 7 days inclusive/);
 
-    test.done();
-  },
 
-  'fails if maxRecordAge > 7 days'(test: Test) {
+  });
+
+  test('fails if maxRecordAge > 7 days', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -568,16 +567,16 @@ export = {
     });
 
     // THEN
-    test.throws(() =>
+    expect(() =>
       fn.addEventSource(new sources.DynamoEventSource(table, {
         maxRecordAge: cdk.Duration.seconds(604801),
         startingPosition: lambda.StartingPosition.LATEST,
-      })), /maxRecordAge must be between 60 seconds and 7 days inclusive/);
+      }))).toThrow(/maxRecordAge must be between 60 seconds and 7 days inclusive/);
 
-    test.done();
-  },
 
-  'specific destinationConfig'(test: Test) {
+  });
+
+  test('specific destinationConfig', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -597,7 +596,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -619,12 +618,12 @@ export = {
         },
       },
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific functionResponseTypes'(test: Test) {
+  });
+
+  test('specific functionResponseTypes', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -643,7 +642,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'TD925BC7E',
@@ -655,12 +654,12 @@ export = {
       },
       'StartingPosition': 'LATEST',
       'FunctionResponseTypes': ['ReportBatchItemFailures'],
-    }));
+    });
 
-    test.done();
-  },
 
-  'event source disabled'(test: Test) {
+  });
+
+  test('event source disabled', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -679,10 +678,10 @@ export = {
     }));
 
     //THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'Enabled': false,
-    }));
+    });
 
-    test.done();
-  },
-};
+
+  });
+});

@@ -1,11 +1,10 @@
-import { expect, haveResource, haveResourceLike } from '@aws-cdk/assert-internal';
+import '@aws-cdk/assert-internal/jest';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Alarm, Metric } from '../lib';
 
-export = {
-  'metric grant'(test: Test) {
+describe('Metrics', () => {
+  test('metric grant', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const role = new iam.Role(stack, 'SomeRole', {
@@ -16,7 +15,7 @@ export = {
     Metric.grantPutMetricData(role);
 
     // THEN
-    expect(stack).to(haveResource('AWS::IAM::Policy', {
+    expect(stack).toHaveResource('AWS::IAM::Policy', {
       PolicyDocument: {
         Version: '2012-10-17',
         Statement: [
@@ -27,33 +26,33 @@ export = {
           },
         ],
       },
-    }));
+    });
 
-    test.done();
-  },
 
-  'can not use invalid period in Metric'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('can not use invalid period in Metric', () => {
+    expect(() => {
       new Metric({ namespace: 'Test', metricName: 'ACount', period: cdk.Duration.seconds(20) });
-    }, /'period' must be 1, 5, 10, 30, or a multiple of 60 seconds, received 20/);
+    }).toThrow(/'period' must be 1, 5, 10, 30, or a multiple of 60 seconds, received 20/);
 
-    test.done();
-  },
 
-  'Metric optimization: "with" with the same period returns the same object'(test: Test) {
+  });
+
+  test('Metric optimization: "with" with the same period returns the same object', () => {
     const m = new Metric({ namespace: 'Test', metricName: 'Metric', period: cdk.Duration.minutes(10) });
 
     // Note: object equality, NOT deep equality on purpose
-    test.equals(m.with({}), m);
-    test.equals(m.with({ period: cdk.Duration.minutes(10) }), m);
+    expect(m.with({})).toEqual(m);
+    expect(m.with({ period: cdk.Duration.minutes(10) })).toEqual(m);
 
-    test.notEqual(m.with({ period: cdk.Duration.minutes(5) }), m);
+    expect(m.with({ period: cdk.Duration.minutes(5) })).not.toEqual(m);
 
-    test.done();
-  },
 
-  'cannot use null dimension value'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('cannot use null dimension value', () => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -62,13 +61,13 @@ export = {
           DimensionWithNull: null,
         },
       });
-    }, /Dimension value of 'null' is invalid/);
+    }).toThrow(/Dimension value of 'null' is invalid/);
 
-    test.done();
-  },
 
-  'cannot use undefined dimension value'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('cannot use undefined dimension value', () => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -77,16 +76,16 @@ export = {
           DimensionWithUndefined: undefined,
         },
       });
-    }, /Dimension value of 'undefined' is invalid/);
+    }).toThrow(/Dimension value of 'undefined' is invalid/);
 
-    test.done();
-  },
 
-  'cannot use long dimension values'(test: Test) {
+  });
+
+  test('cannot use long dimension values', () => {
     const arr = new Array(256);
     const invalidDimensionValue = arr.fill('A', 0).join('');
 
-    test.throws(() => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -95,16 +94,16 @@ export = {
           DimensionWithLongValue: invalidDimensionValue,
         },
       });
-    }, `Dimension value must be at least 1 and no more than 255 characters; received ${invalidDimensionValue}`);
+    }).toThrow(`Dimension value must be at least 1 and no more than 255 characters; received ${invalidDimensionValue}`);
 
-    test.done();
-  },
 
-  'cannot use long dimension values in dimensionsMap'(test: Test) {
+  });
+
+  test('cannot use long dimension values in dimensionsMap', () => {
     const arr = new Array(256);
     const invalidDimensionValue = arr.fill('A', 0).join('');
 
-    test.throws(() => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -113,13 +112,13 @@ export = {
           DimensionWithLongValue: invalidDimensionValue,
         },
       });
-    }, `Dimension value must be at least 1 and no more than 255 characters; received ${invalidDimensionValue}`);
+    }).toThrow(`Dimension value must be at least 1 and no more than 255 characters; received ${invalidDimensionValue}`);
 
-    test.done();
-  },
 
-  'throws error when there are more than 10 dimensions'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('throws error when there are more than 10 dimensions', () => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -138,13 +137,13 @@ export = {
           dimensionK: 'value11',
         },
       } );
-    }, /The maximum number of dimensions is 10, received 11/);
+    }).toThrow(/The maximum number of dimensions is 10, received 11/);
 
-    test.done();
-  },
 
-  'throws error when there are more than 10 dimensions in dimensionsMap'(test: Test) {
-    test.throws(() => {
+  });
+
+  test('throws error when there are more than 10 dimensions in dimensionsMap', () => {
+    expect(() => {
       new Metric({
         namespace: 'Test',
         metricName: 'ACount',
@@ -163,12 +162,12 @@ export = {
           dimensionK: 'value11',
         },
       } );
-    }, /The maximum number of dimensions is 10, received 11/);
+    }).toThrow(/The maximum number of dimensions is 10, received 11/);
 
-    test.done();
-  },
 
-  'can create metric with dimensionsMap property'(test: Test) {
+  });
+
+  test('can create metric with dimensionsMap property', () => {
     const stack = new cdk.Stack();
     const metric = new Metric({
       namespace: 'Test',
@@ -185,11 +184,11 @@ export = {
       evaluationPeriods: 1,
     });
 
-    test.deepEqual(metric.dimensions, {
+    expect(metric.dimensions).toEqual({
       dimensionA: 'value1',
       dimensionB: 'value2',
     });
-    expect(stack).to(haveResourceLike('AWS::CloudWatch::Alarm', {
+    expect(stack).toHaveResourceLike('AWS::CloudWatch::Alarm', {
       Namespace: 'Test',
       MetricName: 'Metric',
       Dimensions: [
@@ -204,12 +203,12 @@ export = {
       ],
       Threshold: 10,
       EvaluationPeriods: 1,
-    }));
+    });
 
-    test.done();
-  },
 
-  '"with" with a different dimensions property'(test: Test) {
+  });
+
+  test('"with" with a different dimensions property', () => {
     const dims = {
       dimensionA: 'value1',
     };
@@ -225,20 +224,20 @@ export = {
       dimensionB: 'value2',
     };
 
-    test.deepEqual(metric.with({
+    expect(metric.with({
       dimensionsMap: newDims,
-    }).dimensions, newDims);
+    }).dimensions).toEqual(newDims);
 
-    test.done();
-  },
 
-  'metric accepts a variety of statistics'(test: Test) {
+  });
+
+  test('metric accepts a variety of statistics', () => {
     new Metric({
       namespace: 'Test',
       metricName: 'Metric',
       statistic: 'myCustomStatistic',
     });
 
-    test.done();
-  },
-};
+
+  });
+});

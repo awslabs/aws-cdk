@@ -1,8 +1,7 @@
-import { Test } from 'nodeunit';
 import { Column, IWidget, Row, Spacer, TextWidget } from '../lib';
 
-export = {
-  'row has the height of the tallest element'(test: Test) {
+describe('Layout', () => {
+  test('row has the height of the tallest element', () => {
     // WHEN
     const row = new Row(
       new Spacer({ width: 10, height: 1 }),
@@ -10,24 +9,24 @@ export = {
     );
 
     // THEN
-    test.equal(4, row.height);
-    test.equal(20, row.width);
+    expect(4).toEqual(row.height);
+    expect(20).toEqual(row.width);
 
-    test.done();
-  },
 
-  'spacer has default height and width'(test: Test) {
+  });
+
+  test('spacer has default height and width', () => {
     // WHEN
     const spacer = new Spacer();
 
     // THEN
-    test.equal(1, spacer.height);
-    test.equal(1, spacer.width);
+    expect(1).toEqual(spacer.height);
+    expect(1).toEqual(spacer.width);
 
-    test.done();
-  },
 
-  'column has the width of the tallest element'(test: Test) {
+  });
+
+  test('column has the width of the tallest element', () => {
     // WHEN
     const col = new Column(
       new Spacer({ width: 1, height: 1 }),
@@ -35,13 +34,13 @@ export = {
     );
 
     // THEN
-    test.equal(4, col.width);
-    test.equal(5, col.height);
+    expect(4).toEqual(col.width);
+    expect(5).toEqual(col.height);
 
-    test.done();
-  },
 
-  'row wraps to width of 24, taking tallest widget into account while wrapping'(test: Test) {
+  });
+
+  test('row wraps to width of 24, taking tallest widget into account while wrapping', () => {
     // Try the tall box in all positions
     for (const heights of [[4, 1, 1], [1, 4, 1], [1, 1, 4]]) {
       // GIVEN
@@ -57,13 +56,13 @@ export = {
       row.position(1000, 1000); // Check that we correctly offset all inner widgets
 
       // THEN
-      test.equal(21, row.width);
-      test.equal(5, row.height);
+      expect(21).toEqual(row.width);
+      expect(5).toEqual(row.height);
 
       function assertWidgetPos(x: number, y: number, w: IWidget) {
         const json = w.toJson()[0];
-        test.equal(x, json.x);
-        test.equal(y, json.y);
+        expect(x).toEqual(json.x);
+        expect(y).toEqual(json.y);
       }
 
       assertWidgetPos(1000, 1000, widgets[0]);
@@ -72,10 +71,10 @@ export = {
       assertWidgetPos(1000, 1004, widgets[3]);
     }
 
-    test.done();
-  },
 
-  'row can fit exactly 3 8-wide widgets without wrapping'(test: Test) {
+  });
+
+  test('row can fit exactly 3 8-wide widgets without wrapping', () => {
     // Try the tall box in all positions
     for (const heights of [[4, 1, 1], [1, 4, 1], [1, 1, 4]]) {
       // WHEN
@@ -86,10 +85,10 @@ export = {
       );
 
       // THEN
-      test.equal(24, row.width);
-      test.equal(4, row.height);
+      expect(24).toEqual(row.width);
+      expect(4).toEqual(row.height);
     }
 
-    test.done();
-  },
-};
+
+  });
+});

@@ -1,11 +1,10 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import { Queue } from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import * as sns from '../lib';
 
-export = {
-  'create a subscription'(test: Test) {
+describe('Subscription', () => {
+  test('create a subscription', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
@@ -18,17 +17,17 @@ export = {
     });
 
     // THEN
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       Endpoint: 'endpoint',
       Protocol: 'lambda',
       TopicArn: {
         Ref: 'TopicBFC7AF6E',
       },
-    }));
-    test.done();
-  },
+    });
 
-  'create a subscription with DLQ when client provides DLQ'(test: Test) {
+  });
+
+  test('create a subscription with DLQ when client provides DLQ', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
@@ -46,7 +45,7 @@ export = {
     });
 
     // THEN
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       Endpoint: 'endpoint',
       Protocol: 'lambda',
       TopicArn: {
@@ -60,12 +59,12 @@ export = {
           ],
         },
       },
-    }));
-    expect(stack).to(haveResource('AWS::SQS::Queue', {
+    });
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SQS::Queue', {
       QueueName: 'MySubscription_DLQ',
       MessageRetentionPeriod: 1209600,
-    }));
-    expect(stack).to(haveResource('AWS::SQS::QueuePolicy', {
+    });
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SQS::QueuePolicy', {
       PolicyDocument: {
         Statement: [
           {
@@ -96,11 +95,11 @@ export = {
           Ref: 'DeadLetterQueue9F481546',
         },
       ],
-    }));
-    test.done();
-  },
+    });
 
-  'with filter policy'(test: Test) {
+  });
+
+  test('with filter policy', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
@@ -129,7 +128,7 @@ export = {
     });
 
     // THEN
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       FilterPolicy: {
         color: [
           'red',
@@ -149,11 +148,11 @@ export = {
           { numeric: ['>', 2000, '<', 3000] },
         ],
       },
-    }));
-    test.done();
-  },
+    });
 
-  'with existsFilter'(test: Test) {
+  });
+
+  test('with existsFilter', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
@@ -169,37 +168,37 @@ export = {
     });
 
     // THEN
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       FilterPolicy: {
         size: [{ exists: true }],
       },
-    }));
-    test.done();
-  },
+    });
 
-  'throws with raw delivery for protocol other than http, https or sqs'(test: Test) {
+  });
+
+  test('throws with raw delivery for protocol other than http, https or sqs', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
 
     // THEN
-    test.throws(() => new sns.Subscription(stack, 'Subscription', {
+    expect(() => new sns.Subscription(stack, 'Subscription', {
       endpoint: 'endpoint',
       protocol: sns.SubscriptionProtocol.LAMBDA,
       topic,
       rawMessageDelivery: true,
-    }), /Raw message delivery/);
-    test.done();
-  },
+    })).toThrow(/Raw message delivery/);
 
-  'throws with more than 5 attributes in a filter policy'(test: Test) {
+  });
+
+  test('throws with more than 5 attributes in a filter policy', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
     const cond = { conditions: [] };
 
     // THEN
-    test.throws(() => new sns.Subscription(stack, 'Subscription', {
+    expect(() => new sns.Subscription(stack, 'Subscription', {
       endpoint: 'endpoint',
       protocol: sns.SubscriptionProtocol.LAMBDA,
       topic,
@@ -211,17 +210,17 @@ export = {
         e: cond,
         f: cond,
       },
-    }), /5 attribute names/);
-    test.done();
-  },
+    })).toThrow(/5 attribute names/);
 
-  'throws with more than 100 conditions in a filter policy'(test: Test) {
+  });
+
+  test('throws with more than 100 conditions in a filter policy', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const topic = new sns.Topic(stack, 'Topic');
 
     // THEN
-    test.throws(() => new sns.Subscription(stack, 'Subscription', {
+    expect(() => new sns.Subscription(stack, 'Subscription', {
       endpoint: 'endpoint',
       protocol: sns.SubscriptionProtocol.LAMBDA,
       topic,
@@ -230,7 +229,7 @@ export = {
         b: { conditions: [...Array.from(Array(10).keys())] },
         c: { conditions: [...Array.from(Array(6).keys())] },
       },
-    }), /\(120\) must not exceed 100/);
-    test.done();
-  },
-};
+    })).toThrow(/\(120\) must not exceed 100/);
+
+  });
+});

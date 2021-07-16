@@ -1,10 +1,9 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import '@aws-cdk/assert-internal/jest';
 import { Stack } from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Alarm, AlarmRule, AlarmState, CompositeAlarm, Metric } from '../lib';
 
-export = {
-  'test alarm rule expression builder'(test: Test) {
+describe('CompositeAlarm', () => {
+  test('test alarm rule expression builder', () => {
     const stack = new Stack();
 
     const testMetric = new Metric({
@@ -60,7 +59,7 @@ export = {
       alarmRule,
     });
 
-    expect(stack).to(haveResource('AWS::CloudWatch::CompositeAlarm', {
+    expect(stack).toHaveResource('AWS::CloudWatch::CompositeAlarm', {
       AlarmName: 'CompositeAlarm',
       AlarmRule: {
         'Fn::Join': [
@@ -105,9 +104,9 @@ export = {
           ],
         ],
       },
-    }));
+    });
 
-    test.done();
-  },
 
-};
+  });
+
+});

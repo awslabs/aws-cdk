@@ -1,10 +1,10 @@
-import { expect, haveResource, isSuperObject } from '@aws-cdk/assert-internal';
+import '@aws-cdk/assert-internal/jest';
+import { isSuperObject } from '@aws-cdk/assert-internal';
 import { App, Stack } from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Dashboard, GraphWidget, PeriodOverride, TextWidget } from '../lib';
 
-export = {
-  'widgets in different adds are laid out underneath each other'(test: Test) {
+describe('Dashboard', () => {
+  test('widgets in different adds are laid out underneath each other', () => {
     // GIVEN
     const stack = new Stack();
     const dashboard = new Dashboard(stack, 'Dash');
@@ -27,16 +27,16 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', thatHasWidgets([
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', thatHasWidgets([
       { type: 'text', width: 10, height: 2, x: 0, y: 0, properties: { markdown: 'first' } },
       { type: 'text', width: 1, height: 4, x: 0, y: 2, properties: { markdown: 'second' } },
       { type: 'text', width: 4, height: 1, x: 0, y: 6, properties: { markdown: 'third' } },
-    ])));
+    ]));
 
-    test.done();
-  },
 
-  'widgets in same add are laid out next to each other'(test: Test) {
+  });
+
+  test('widgets in same add are laid out next to each other', () => {
     // GIVEN
     const stack = new Stack();
     const dashboard = new Dashboard(stack, 'Dash');
@@ -61,16 +61,16 @@ export = {
     );
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', thatHasWidgets([
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', thatHasWidgets([
       { type: 'text', width: 10, height: 2, x: 0, y: 0, properties: { markdown: 'first' } },
       { type: 'text', width: 1, height: 4, x: 10, y: 0, properties: { markdown: 'second' } },
       { type: 'text', width: 4, height: 1, x: 11, y: 0, properties: { markdown: 'third' } },
-    ])));
+    ]));
 
-    test.done();
-  },
 
-  'tokens in widgets are retained'(test: Test) {
+  });
+
+  test('tokens in widgets are retained', () => {
     // GIVEN
     const stack = new Stack();
     const dashboard = new Dashboard(stack, 'Dash');
@@ -81,7 +81,7 @@ export = {
     );
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', {
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', {
       DashboardBody: {
         'Fn::Join': ['', [
           '{"widgets":[{"type":"metric","width":1,"height":1,"x":0,"y":0,"properties":{"view":"timeSeries","region":"',
@@ -89,12 +89,12 @@ export = {
           '","yAxis":{}}}]}',
         ]],
       },
-    }));
+    });
 
-    test.done();
-  },
 
-  'dashboard body includes non-widget fields'(test: Test) {
+  });
+
+  test('dashboard body includes non-widget fields', () => {
     // GIVEN
     const stack = new Stack();
     const dashboard = new Dashboard(stack, 'Dash',
@@ -110,7 +110,7 @@ export = {
     );
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', {
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', {
       DashboardBody: {
         'Fn::Join': ['', [
           '{"start":"-9H","end":"2018-12-17T06:00:00.000Z","periodOverride":"inherit",\
@@ -119,12 +119,12 @@ export = {
           '","yAxis":{}}}]}',
         ]],
       },
-    }));
+    });
 
-    test.done();
-  },
 
-  'DashboardName is set when provided'(test: Test) {
+  });
+
+  test('DashboardName is set when provided', () => {
     // GIVEN
     const app = new App();
     const stack = new Stack(app, 'MyStack');
@@ -135,14 +135,14 @@ export = {
     });
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', {
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', {
       DashboardName: 'MyCustomDashboardName',
-    }));
+    });
 
-    test.done();
-  },
 
-  'DashboardName is not generated if not provided'(test: Test) {
+  });
+
+  test('DashboardName is not generated if not provided', () => {
     // GIVEN
     const app = new App();
     const stack = new Stack(app, 'MyStack');
@@ -151,12 +151,12 @@ export = {
     new Dashboard(stack, 'MyDashboard');
 
     // THEN
-    expect(stack).to(haveResource('AWS::CloudWatch::Dashboard', {}));
+    expect(stack).toHaveResource('AWS::CloudWatch::Dashboard', {});
 
-    test.done();
-  },
 
-  'throws if DashboardName is not valid'(test: Test) {
+  });
+
+  test('throws if DashboardName is not valid', () => {
     // GIVEN
     const app = new App();
     const stack = new Stack(app, 'MyStack');
@@ -169,11 +169,11 @@ export = {
     };
 
     // THEN
-    test.throws(() => toThrow(), /field dashboardName contains invalid characters/);
+    expect(() => toThrow()).toThrow(/field dashboardName contains invalid characters/);
 
-    test.done();
-  },
-};
+
+  });
+});
 
 /**
  * Returns a property predicate that checks that the given Dashboard has the indicated widgets

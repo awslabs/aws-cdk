@@ -1,9 +1,8 @@
 import { Duration, Stack } from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Alarm, AlarmWidget, Color, GraphWidget, GraphWidgetView, LegendPosition, LogQueryWidget, Metric, Shading, SingleValueWidget, LogQueryVisualizationType } from '../lib';
 
-export = {
-  'add stacked property to graphs'(test: Test) {
+describe('Graphs', () => {
+  test('add stacked property to graphs', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -12,7 +11,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -25,10 +24,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add metrics to graphs on either axis'(test: Test) {
+  });
+
+  test('add metrics to graphs on either axis', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -42,7 +41,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -58,10 +57,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add metrics to graphs on either axis lazily'(test: Test) {
+  });
+
+  test('add metrics to graphs on either axis lazily', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -71,7 +70,7 @@ export = {
     widget.addRightMetric(new Metric({ namespace: 'CDK', metricName: 'Tast' }));
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -87,10 +86,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'label and color are respected in constructor'(test: Test) {
+  });
+
+  test('label and color are respected in constructor', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -98,7 +97,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -112,10 +111,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'bar view'(test: Test) {
+  });
+
+  test('bar view', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -124,7 +123,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -136,10 +135,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'singlevalue widget'(test: Test) {
+  });
+
+  test('singlevalue widget', () => {
     // GIVEN
     const stack = new Stack();
     const metric = new Metric({ namespace: 'CDK', metricName: 'Test' });
@@ -150,7 +149,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 3,
@@ -163,10 +162,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'query result widget'(test: Test) {
+  });
+
+  test('query result widget', () => {
     // GIVEN
     const stack = new Stack();
     const logGroup = { logGroupName: 'my-log-group' };
@@ -181,7 +180,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'log',
       width: 6,
       height: 6,
@@ -192,10 +191,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'query result widget - bar'(test: Test) {
+  });
+
+  test('query result widget - bar', () => {
     // GIVEN
     const stack = new Stack();
     const logGroup = { logGroupName: 'my-log-group' };
@@ -211,7 +210,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'log',
       width: 6,
       height: 6,
@@ -222,10 +221,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'query result widget - pie'(test: Test) {
+  });
+
+  test('query result widget - pie', () => {
     // GIVEN
     const stack = new Stack();
     const logGroup = { logGroupName: 'my-log-group' };
@@ -241,7 +240,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'log',
       width: 6,
       height: 6,
@@ -252,10 +251,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'query result widget - line'(test: Test) {
+  });
+
+  test('query result widget - line', () => {
     // GIVEN
     const stack = new Stack();
     const logGroup = { logGroupName: 'my-log-group' } ;
@@ -271,7 +270,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'log',
       width: 6,
       height: 6,
@@ -283,10 +282,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'query result widget - stackedarea'(test: Test) {
+  });
+
+  test('query result widget - stackedarea', () => {
     // GIVEN
     const stack = new Stack();
     const logGroup = { logGroupName: 'my-log-group' };
@@ -302,7 +301,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'log',
       width: 6,
       height: 6,
@@ -314,10 +313,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'alarm widget'(test: Test) {
+  });
+
+  test('alarm widget', () => {
     // GIVEN
     const stack = new Stack();
 
@@ -332,7 +331,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -346,10 +345,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add annotations to graph'(test: Test) {
+  });
+
+  test('add annotations to graph', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -366,7 +365,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -390,10 +389,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'convert alarm to annotation'(test: Test) {
+  });
+
+  test('convert alarm to annotation', () => {
     // GIVEN
     const stack = new Stack();
 
@@ -412,7 +411,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -433,10 +432,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add yAxis to graph'(test: Test) {
+  });
+
+  test('add yAxis to graph', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -459,7 +458,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -478,10 +477,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'specify liveData property on graph'(test: Test) {
+  });
+
+  test('specify liveData property on graph', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -493,7 +492,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -509,10 +508,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'can use imported alarm with graph'(test: Test) {
+  });
+
+  test('can use imported alarm with graph', () => {
     // GIVEN
     const stack = new Stack();
     const alarm = Alarm.fromAlarmArn(stack, 'Alarm', 'arn:aws:cloudwatch:region:account-id:alarm:alarm-name');
@@ -525,10 +524,10 @@ export = {
 
     // THEN: Compiles
 
-    test.done();
-  },
 
-  'add setPeriodToTimeRange to singleValueWidget'(test: Test) {
+  });
+
+  test('add setPeriodToTimeRange to singleValueWidget', () => {
     // GIVEN
     const stack = new Stack();
     const metric = new Metric({ namespace: 'CDK', metricName: 'Test' });
@@ -540,7 +539,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 3,
@@ -554,10 +553,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add singleValueFullPrecision to singleValueWidget'(test: Test) {
+  });
+
+  test('add singleValueFullPrecision to singleValueWidget', () => {
     // GIVEN
     const stack = new Stack();
     const metric = new Metric({ namespace: 'CDK', metricName: 'Test' });
@@ -569,7 +568,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 3,
@@ -583,10 +582,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'allows overriding custom values of dashboard widgets'(test: Test) {
+  });
+
+  test('allows overriding custom values of dashboard widgets', () => {
     class HiddenMetric extends Metric {
       public toMetricConfig() {
         const ret = super.toMetricConfig();
@@ -603,16 +602,13 @@ export = {
       ],
     });
 
-    // test.ok(widget.toJson()[0].properties.metrics[0].visible === false);
-    test.deepEqual(
-      stack.resolve(widget.toJson())[0].properties.metrics[0],
-      ['CDK', 'Test', { visible: false }],
-    );
+    expect(stack.resolve(widget.toJson())[0].properties.metrics[0])
+      .toEqual(['CDK', 'Test', { visible: false }]);
 
-    test.done();
-  },
 
-  'GraphColor is correctly converted into the correct hexcode'(test: Test) {
+  });
+
+  test('GraphColor is correctly converted into the correct hexcode', () => {
     // GIVEN
     const stack = new Stack();
     const metric = new Metric({ namespace: 'CDK', metricName: 'Test' });
@@ -627,12 +623,12 @@ export = {
       ],
     });
 
-    test.deepEqual(stack.resolve(widget.toJson())[0].properties.metrics[0], ['CDK', 'Test', { color: '#1f77b4' }]);
-    test.deepEqual(stack.resolve(widget.toJson())[0].properties.annotations.horizontal[0], { yAxis: 'left', value: 100, color: '#d62728' });
-    test.done();
-  },
+    expect(stack.resolve(widget.toJson())[0].properties.metrics[0]).toEqual(['CDK', 'Test', { color: '#1f77b4' }]);
+    expect(stack.resolve(widget.toJson())[0].properties.annotations.horizontal[0]).toEqual({ yAxis: 'left', value: 100, color: '#d62728' });
 
-  'legend position is respected in constructor'(test: Test) {
+  });
+
+  test('legend position is respected in constructor', () => {
     // WHEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -641,7 +637,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -658,10 +654,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'add setPeriodToTimeRange to GraphWidget'(test: Test) {
+  });
+
+  test('add setPeriodToTimeRange to GraphWidget', () => {
     // GIVEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -671,7 +667,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -686,10 +682,10 @@ export = {
       },
     }]);
 
-    test.done();
-  },
 
-  'GraphWidget supports stat and period'(test: Test) {
+  });
+
+  test('GraphWidget supports stat and period', () => {
     // GIVEN
     const stack = new Stack();
     const widget = new GraphWidget({
@@ -699,7 +695,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [{
+    expect(stack.resolve(widget.toJson())).toEqual([{
       type: 'metric',
       width: 6,
       height: 6,
@@ -715,6 +711,6 @@ export = {
       },
     }]);
 
-    test.done();
-  },
-};
+
+  });
+});

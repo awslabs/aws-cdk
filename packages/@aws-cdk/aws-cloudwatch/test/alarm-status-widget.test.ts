@@ -1,8 +1,7 @@
 import { Stack } from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import { Metric, Alarm, AlarmStatusWidget } from '../lib';
-export = {
-  'alarm status widget'(test: Test) {
+describe('Alarm Status Widget', () => {
+  test('alarm status widget', () => {
     // GIVEN
     const stack = new Stack();
     const metric = new Metric({ namespace: 'CDK', metricName: 'Test' });
@@ -18,7 +17,7 @@ export = {
     });
 
     // THEN
-    test.deepEqual(stack.resolve(widget.toJson()), [
+    expect(stack.resolve(widget.toJson())).toEqual([
       {
         type: 'alarm',
         width: 6,
@@ -30,6 +29,6 @@ export = {
       },
     ]);
 
-    test.done();
-  },
-};
+
+  });
+});

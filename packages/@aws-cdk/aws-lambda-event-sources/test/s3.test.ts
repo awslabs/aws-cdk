@@ -1,14 +1,13 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import * as sources from '../lib';
 import { TestFunction } from './test-function';
 
 /* eslint-disable quote-props */
 
-export = {
-  'sufficiently complex example'(test: Test) {
+describe('S3EventSource', () => {
+  test('sufficiently complex example', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -24,7 +23,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('Custom::S3BucketNotifications', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('Custom::S3BucketNotifications', {
       'NotificationConfiguration': {
         'LambdaFunctionConfigurations': [
           {
@@ -79,7 +78,6 @@ export = {
           },
         ],
       },
-    }));
-    test.done();
-  },
-};
+    });
+  });
+});

@@ -1,15 +1,14 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import * as kinesis from '@aws-cdk/aws-kinesis';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import * as sources from '../lib';
 import { TestFunction } from './test-function';
 
 /* eslint-disable quote-props */
 
-export = {
-  'sufficiently complex example'(test: Test) {
+describe('KinesisEventSource', () => {
+  test('sufficiently complex example', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -21,7 +20,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::IAM::Policy', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::IAM::Policy', {
       'PolicyDocument': {
         'Statement': [
           {
@@ -57,9 +56,9 @@ export = {
       'Roles': [{
         'Ref': 'FnServiceRoleB9001A96',
       }],
-    }));
+    });
 
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'S509448A1',
@@ -71,12 +70,12 @@ export = {
       },
       'BatchSize': 100,
       'StartingPosition': 'TRIM_HORIZON',
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific tumblingWindowInSeconds'(test: Test) {
+  });
+
+  test('specific tumblingWindowInSeconds', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -90,7 +89,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'S509448A1',
@@ -103,12 +102,12 @@ export = {
       'BatchSize': 50,
       'StartingPosition': 'LATEST',
       'TumblingWindowInSeconds': 60,
-    }));
+    });
 
-    test.done();
-  },
 
-  'specific batch size'(test: Test) {
+  });
+
+  test('specific batch size', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -121,7 +120,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'S509448A1',
@@ -133,42 +132,42 @@ export = {
       },
       'BatchSize': 50,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'fails if batch size < 1'(test: Test) {
+  });
+
+  test('fails if batch size < 1', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
     const stream = new kinesis.Stream(stack, 'S');
 
     // WHEN
-    test.throws(() => fn.addEventSource(new sources.KinesisEventSource(stream, {
+    expect(() => fn.addEventSource(new sources.KinesisEventSource(stream, {
       batchSize: 0,
       startingPosition: lambda.StartingPosition.LATEST,
-    })), /Maximum batch size must be between 1 and 10000 inclusive \(given 0\)/);
+    }))).toThrow(/Maximum batch size must be between 1 and 10000 inclusive \(given 0\)/);
 
-    test.done();
-  },
 
-  'fails if batch size > 10000'(test: Test) {
+  });
+
+  test('fails if batch size > 10000', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
     const stream = new kinesis.Stream(stack, 'S');
 
     // WHEN
-    test.throws(() => fn.addEventSource(new sources.KinesisEventSource(stream, {
+    expect(() => fn.addEventSource(new sources.KinesisEventSource(stream, {
       batchSize: 10001,
       startingPosition: lambda.StartingPosition.LATEST,
-    })), /Maximum batch size must be between 1 and 10000 inclusive \(given 10001\)/);
+    }))).toThrow(/Maximum batch size must be between 1 and 10000 inclusive \(given 10001\)/);
 
-    test.done();
-  },
 
-  'accepts if batch size is a token'(test: Test) {
+  });
+
+  test('accepts if batch size is a token', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -180,10 +179,10 @@ export = {
       startingPosition: lambda.StartingPosition.LATEST,
     }));
 
-    test.done();
-  },
 
-  'specific maxBatchingWindow'(test: Test) {
+  });
+
+  test('specific maxBatchingWindow', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -196,7 +195,7 @@ export = {
     }));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'EventSourceArn': {
         'Fn::GetAtt': [
           'S509448A1',
@@ -208,12 +207,12 @@ export = {
       },
       'MaximumBatchingWindowInSeconds': 120,
       'StartingPosition': 'LATEST',
-    }));
+    });
 
-    test.done();
-  },
 
-  'contains eventSourceMappingId after lambda binding'(test: Test) {
+  });
+
+  test('contains eventSourceMappingId after lambda binding', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -226,11 +225,11 @@ export = {
     fn.addEventSource(eventSource);
 
     // THEN
-    test.ok(eventSource.eventSourceMappingId);
-    test.done();
-  },
+    expect(eventSource.eventSourceMappingId).toBeDefined();
 
-  'eventSourceMappingId throws error before binding to lambda'(test: Test) {
+  });
+
+  test('eventSourceMappingId throws error before binding to lambda', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const stream = new kinesis.Stream(stack, 'S');
@@ -239,11 +238,11 @@ export = {
     });
 
     // WHEN/THEN
-    test.throws(() => eventSource.eventSourceMappingId, /KinesisEventSource is not yet bound to an event source mapping/);
-    test.done();
-  },
+    expect(() => eventSource.eventSourceMappingId).toThrow(/KinesisEventSource is not yet bound to an event source mapping/);
 
-  'event source disabled'(test: Test) {
+  });
+
+  test('event source disabled', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -257,9 +256,9 @@ export = {
     fn.addEventSource(eventSource);
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::EventSourceMapping', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       'Enabled': false,
-    }));
-    test.done();
-  },
-};
+    });
+
+  });
+});

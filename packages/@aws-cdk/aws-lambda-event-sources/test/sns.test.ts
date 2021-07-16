@@ -1,15 +1,14 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import { TemplateAssertions } from '@aws-cdk/assertions';
 import * as sns from '@aws-cdk/aws-sns';
 import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
-import { Test } from 'nodeunit';
 import * as sources from '../lib';
 import { TestFunction } from './test-function';
 
 /* eslint-disable quote-props */
 
-export = {
-  'sufficiently complex example'(test: Test) {
+describe('SNSEventSource', () => {
+  test('sufficiently complex example', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -19,7 +18,7 @@ export = {
     fn.addEventSource(new sources.SnsEventSource(topic));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::Permission', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::Permission', {
       'Action': 'lambda:InvokeFunction',
       'FunctionName': {
         'Fn::GetAtt': [
@@ -31,9 +30,9 @@ export = {
       'SourceArn': {
         'Ref': 'TD925BC7E',
       },
-    }));
+    });
 
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       'Endpoint': {
         'Fn::GetAtt': [
           'Fn9270CBC0',
@@ -44,12 +43,12 @@ export = {
       'TopicArn': {
         'Ref': 'TD925BC7E',
       },
-    }));
+    });
 
-    test.done();
-  },
 
-  'props are passed to subscription'(test: Test) {
+  });
+
+  test('props are passed to subscription', () => {
     // GIVEN
     const stack = new cdk.Stack();
     const fn = new TestFunction(stack, 'Fn');
@@ -68,7 +67,7 @@ export = {
     fn.addEventSource(new sources.SnsEventSource(topic, props));
 
     // THEN
-    expect(stack).to(haveResource('AWS::Lambda::Permission', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::Lambda::Permission', {
       'Action': 'lambda:InvokeFunction',
       'FunctionName': {
         'Fn::GetAtt': [
@@ -80,9 +79,9 @@ export = {
       'SourceArn': {
         'Ref': 'TD925BC7E',
       },
-    }));
+    });
 
-    expect(stack).to(haveResource('AWS::SNS::Subscription', {
+    TemplateAssertions.fromStack(stack).hasResourceProperties('AWS::SNS::Subscription', {
       'Endpoint': {
         'Fn::GetAtt': [
           'Fn9270CBC0',
@@ -107,8 +106,8 @@ export = {
           ],
         },
       },
-    }));
+    });
 
-    test.done();
-  },
-};
+
+  });
+});

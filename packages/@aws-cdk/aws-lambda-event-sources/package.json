@@ -64,12 +64,12 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/nodeunit": "^0.0.32",
+    "@types/jest": "^26.0.24",
     "cdk-build-tools": "0.0.0",
     "cdk-integ-tools": "0.0.0",
-    "nodeunit": "^0.11.3",
+    "jest": "^26.6.3",
     "pkglint": "0.0.0",
-    "@aws-cdk/assert-internal": "0.0.0"
+    "@aws-cdk/assertions": "0.0.0"
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "0.0.0",
@@ -129,6 +129,7 @@
   },
   "maturity": "stable",
   "cdk-build": {
+    "jest": true,
     "env": {
       "AWSLINT_BASE_CONSTRUCT": true
     }
