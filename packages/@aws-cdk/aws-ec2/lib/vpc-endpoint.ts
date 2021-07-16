@@ -1,6 +1,7 @@
 import * as iam from '@aws-cdk/aws-iam';
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import { Aws, ContextProvider, IResource, Lazy, Resource, Stack, Token } from '@aws-cdk/core';
+import { RegionInfo } from '@aws-cdk/region-info';
 import { Construct } from 'constructs';
 import { Connections, IConnectable } from './connections';
 import { CfnVPCEndpoint } from './ec2.generated';
@@ -252,6 +253,42 @@ export class InterfaceVpcEndpointService implements IInterfaceVpcEndpointService
   }
 }
 
+// The following services need to have their interface endpoints prefixed with 'cn' (before com.amazonaws.{REGION}) for china regions
+const CN_OVERRIDES = ['application-autoscaling',
+  'autoscaling',
+  'awsconnector',
+  'cassandra',
+  'cloudformation',
+  'codedeploy-commands-secure',
+  'dms',
+  'ebs',
+  'ec2',
+  'ecr.api',
+  'ecr.dkr',
+  'elasticbeanstalk',
+  'elasticfilesystem',
+  'elasticfilesystem-fips',
+  'execute-api',
+  'imagebuilder',
+  'iotsitewise.data',
+  'kinesis-streams',
+  'lambda',
+  'license-manager',
+  'monitoring',
+  'rds',
+  'redshift',
+  'redshift-data',
+  's3',
+  'sagemaker.api',
+  'sagemaker.featurestore-runtime',
+  'sagemaker.runtime',
+  'servicecatalog',
+  'sms',
+  'sqs',
+  'states',
+  'sts',
+  'synthetics'];
+
 /**
  * An AWS service for an interface VPC endpoint.
  */
@@ -325,7 +362,8 @@ export class InterfaceVpcEndpointAwsService implements IInterfaceVpcEndpointServ
     const region = Lazy.uncachedString({
       produce: (context) => Stack.of(context.scope).region,
     });
-    this.name = `${prefix || 'com.amazonaws'}.${region}.${name}`;
+    const defaultPrefix = RegionInfo.get(region).partition == 'aws-cn' && CN_OVERRIDES.includes(name) ? 'cn.com.amazonaws' : 'com.amazonaws';
+    this.name = `${prefix || defaultPrefix }.${region}.${name}`;
     this.port = port || 443;
   }
 }
