@@ -17,7 +17,7 @@ App Mesh gives you consistent visibility and network traffic controls for every 
 
 App Mesh supports microservice applications that use service discovery naming for their components. To use App Mesh, you must have an existing application running on AWS Fargate, Amazon ECS, Amazon EKS, Kubernetes on AWS, or Amazon EC2.
 
-For further information on **AWS AppMesh** visit the [AWS Docs for AppMesh](https://docs.aws.amazon.com/app-mesh/index.html).
+For further information on **AWS App Mesh**, visit the [AWS App Mesh Documentation](https://docs.aws.amazon.com/app-mesh/index.html).
 
 ## Create the App and Stack
 
@@ -32,7 +32,7 @@ A service mesh is a logical boundary for network traffic between the services th
 
 After you create your service mesh, you can create virtual services, virtual nodes, virtual routers, and routes to distribute traffic between the applications in your mesh.
 
-The following example creates the `AppMesh` service mesh with the default filter of `DROP_ALL`, see [docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appmesh-mesh-egressfilter.html) here for more info on egress filters.
+The following example creates the `AppMesh` service mesh with the default egress filter of `DROP_ALL`. See [the AWS CloudFormation `EgressFilter` resource](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appmesh-mesh-egressfilter.html) for more info on egress filters.
 
 ```ts
 const mesh = new Mesh(stack, 'AppMesh', {
@@ -40,7 +40,7 @@ const mesh = new Mesh(stack, 'AppMesh', {
 });
 ```
 
-The mesh can also be created with the "ALLOW_ALL" egress filter by overwritting the property.
+The mesh can instead be created with the `ALLOW_ALL` egress filter by providing the `egressFilter` property.
 
 ```ts
 const mesh = new Mesh(stack, 'AppMesh', {
@@ -51,7 +51,7 @@ const mesh = new Mesh(stack, 'AppMesh', {
 
 ## Adding VirtualRouters
 
-The _Mesh_ needs _VirtualRouters_ as logical units to route requests to _VirtualNodes_.
+A _mesh_ uses  _virtual routers_ as logical units to route requests to _virtual nodes_.
 
 Virtual routers handle traffic for one or more virtual services within your mesh.
 After you create a virtual router, you can create and associate routes to your virtual router that direct incoming requests to different virtual nodes.
@@ -62,12 +62,10 @@ const router = mesh.addVirtualRouter('router', {
 });
 ```
 
-Note that creating the router using the `addVirtualRouter()` method places it in the same Stack that the mesh belongs to
-(which might be different from the current Stack).
-The router can also be created using the constructor of `VirtualRouter` and passing in the mesh instead of calling the `addVirtualRouter()` method.
-This is particularly useful when splitting your resources between many Stacks,
-like creating the `mesh` as part of an infrastructure stack,
-but the other resources, such as routers, in the application stack:
+Note that creating the router using the `addVirtualRouter()` method places it in the same stack as the mesh
+(which might be different from the current stack).
+The router can also be created using the `VirtualRouter` constructor (passing in the mesh) instead of calling the `addVirtualRouter()` method.
+This is particularly useful when splitting your resources between many stacks: for example, defining the mesh itself as part of an infrastructure stack, but defining the other resources, such as routers, in the application stack:
 
 ```ts
 const mesh = new Mesh(infraStack, 'AppMesh', {
@@ -83,23 +81,23 @@ const router = new VirtualRouter(appStack, 'router', {
 });
 ```
 
-The same is true for other `add*()` methods in the AppMesh library.
+The same is true for other `add*()` methods in the App Mesh construct library.
 
-The _VirtualRouterListener_ class provides an easy interface for defining new protocol specific listeners.
-The `http()`, `http2()`, `grpc()` and `tcp()` methods are available for use.
-They accept a single port parameter, that is used to define what port to match requests on.
-The port parameter can be omitted, and it will default to port 8080.
+The `VirtualRouterListener` class lets you define protocol-specific listeners.
+The `http()`, `http2()`, `grpc()` and `tcp()` methods create listeners for the named protocols.
+They accept a single parameter that defines the port to on which requests will be matched.
+The port parameter defaults to 8080 if omitted.
 
-## Adding VirtualService
+## Adding a VirtualService
 
-A virtual service is an abstraction of a real service that is provided by a virtual node directly or indirectly by means of a virtual router. Dependent services call your virtual service by its virtualServiceName, and those requests are routed to the virtual node or virtual router that is specified as the provider for the virtual service.
+A _virtual service_ is an abstraction of a real service that is provided by a virtual node directly, or indirectly by means of a virtual router. Dependent services call your virtual service by its `virtualServiceName`, and those requests are routed to the virtual node or virtual router specified as the provider for the virtual service.
 
 We recommend that you use the service discovery name of the real service that you're targeting (such as `my-service.default.svc.cluster.local`).
 
 When creating a virtual service:
 
-- If you want the virtual service to spread traffic across multiple virtual nodes, specify a Virtual router.
-- If you want the virtual service to reach a virtual node directly, without a virtual router, specify a Virtual node.
+- If you want the virtual service to spread traffic across multiple virtual nodes, specify a virtual router.
+- If you want the virtual service to reach a virtual node directly, without a virtual router, specify a virtual node.
 
 Adding a virtual router as the provider:
 
@@ -121,14 +119,14 @@ new appmesh.VirtualService('virtual-service', {
 
 ## Adding a VirtualNode
 
-A `virtual node` acts as a logical pointer to a particular task group, such as an Amazon ECS service or a Kubernetes deployment.
+A _virtual node_ acts as a logical pointer to a particular task group, such as an Amazon ECS service or a Kubernetes deployment.
 
-When you create a `virtual node`, any inbound traffic that your `virtual node` expects should be specified as a listener. Any outbound traffic that your `virtual node` expects to reach should be specified as a backend.
+When you create a virtual node, accept inbound traffic by specifying a *listener*. Outbound traffic that your virtual node expects to send should be specified as a *back end*.
 
-The response metadata for your new `virtual node` contains the Amazon Resource Name (ARN) that is associated with the `virtual node`. Set this value (either the full ARN or the truncated resource name) as the APPMESH_VIRTUAL_NODE_NAME environment variable for your task group's Envoy proxy container in your task definition or pod spec. For example, the value could be mesh/default/virtualNode/simpleapp. This is then mapped to the node.id and node.cluster Envoy parameters.
+The response metadata for your new virtual node contains the Amazon Resource Name (ARN) that is associated with the virtual node. Set this value (either the full ARN or the truncated resource name) as the `APPMESH_VIRTUAL_NODE_NAME` environment variable for your task group's Envoy proxy container in your task definition or pod spec. For example, the value could be `mesh/default/virtualNode/simpleapp`. This is then mapped to the `node.id` and `node.cluster` Envoy parameters.
 
-> Note
-> If you require your Envoy stats or tracing to use a different name, you can override the node.cluster value that is set by APPMESH_VIRTUAL_NODE_NAME with the APPMESH_VIRTUAL_NODE_CLUSTER environment variable.
+> **Note**
+> If you require your Envoy stats or tracing to use a different name, you can override the `node.cluster` value that is set by `APPMESH_VIRTUAL_NODE_NAME` with the `APPMESH_VIRTUAL_NODE_CLUSTER` environment variable.
 
 ```ts
 const vpc = new ec2.Vpc(stack, 'vpc');
@@ -216,22 +214,22 @@ const virtualService = new appmesh.VirtualService(stack, 'service-1', {
 node.addBackend(appmesh.Backend.virtualService(virtualService));
 ```
 
-The `listeners` property can be left blank and added later with the `node.addListener()` method. The `healthcheck` and `timeout` properties are optional but if specifying a listener, the `port` must be added.
+The `listeners` property can be left blank and added later with the `node.addListener()` method. The `healthcheck` and `timeout` properties are optional, but the `port` must be specified when specifying a listener.
 
-The `backends` property can be added with `node.addBackend()`. We define a virtual service and add it to the virtual node to allow egress traffic to other node.
+The `backends` property can be added with `node.addBackend()`. In the example, we define a virtual service and add it to the virtual node to allow egress traffic to other nodes.
 
-The `backendDefaults` property are added to the node while creating the virtual node. These are virtual node's default settings for all backends.
+The `backendDefaults` property is added to the node while creating the virtual node. These are the virtual node's default settings for all backends.
 
 ## Adding TLS to a listener
 
-The `tls` property can be provided when creating a Virtual Node listener, or a Virtual Gateway listener to add TLS configuration. 
-App Mesh allows you to provide the TLS certificate to the proxy in the following ways:
+The `tls` property specifies TLS configuration when creating a listener for a virtual node or a virtual gateway. 
+Provide the TLS certificate to the proxy in one of the following ways:
 
-- A certificate from AWS Certificate Manager (ACM) can be used.
+- A certificate from AWS Certificate Manager (ACM).
 
-- A customer provided certificate can be specified with a `certificateChain` path file and a `privateKey` file path.
+- A customer-provided certificate (specify a `certificateChain` path file and a `privateKey` file path).
 
-- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket can be specified with its `secretName`.
+- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket (specify its `secretName`).
 
 ```typescript
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
@@ -281,16 +279,16 @@ const gateway2 = new appmesh.VirtualGateway(this, 'gateway2', {
 ## Adding mutual TLS authentication
 
 Mutual TLS authentication is an optional component of TLS that offers two-way peer authentication. 
-To enable mutual TLS authentication, 
-add `mutualTlsCertificate` property to TLS Client Policy and/or `mutualTlsValidation` property to TLS Listener.
+To enable mutual TLS authentication, add the `mutualTlsCertificate` property to TLS client policy and/or the `mutualTlsValidation` property to your TLS listener.
 
 `tls.mutualTlsValidation` and `tlsClientPolicy.mutualTlsCertificate` can be sourced from either:
 
-- A customer provided certificate can be specified with a `certificateChain` path file and a `privateKey` file path.
+- A customer-provided certificate (specify a `certificateChain` path file and a `privateKey` file path).
 
-- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket can be specified with its `secretName`.
+- A certificate provided by a Secrets Discovery Service (SDS) endpoint over local Unix Domain Socket (specify its `secretName`).
 
-**Note**: Currently, a certificate from AWS Certificate Manager (ACM) cannot be sourced for above two properties.
+> **Note**
+> Currently, a certificate from AWS Certificate Manager (ACM) cannot be used for mutual TLS authentication.
 
 ```typescript
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
@@ -331,8 +329,8 @@ const node2 = new appmesh.VirtualNode(stack, 'node2', {
 
 ## Adding outlier detection to a Virtual Node listener
 
-The `outlierDetection` property can be added to a Virtual Node listener to add outlier detection. The 4 parameters 
-(`baseEjectionDuration`, `interval`, `maxEjectionPercent`, `maxServerErrors`) are required.
+The `outlierDetection` property adds outlier detection to a Virtual Node listener. The properties 
+`baseEjectionDuration`, `interval`, `maxEjectionPercent`, and `maxServerErrors` are required.
 
 ```typescript
 // Cloud Map service discovery is currently required for host ejection by outlier detection
@@ -356,8 +354,7 @@ const node = mesh.addVirtualNode('virtual-node', {
 
 ## Adding a connection pool to a listener
 
-The `connectionPool` property can be added to a Virtual Node listener or Virtual Gateway listener to add a request connection pool. There are different 
-connection pool properties per listener protocol types.
+The `connectionPool` property can be added to a Virtual Node listener or Virtual Gateway listener to add a request connection pool. Each listener protocol type has its own connection pool properties.
 
 ```typescript
 // A Virtual Node with a gRPC listener with a connection pool set
@@ -392,19 +389,19 @@ const gateway = new appmesh.VirtualGateway(this, 'gateway', {
 
 ## Adding a Route
 
-A `route` is associated with a virtual router, and it's used to match requests for a virtual router and distribute traffic accordingly to its associated virtual nodes.
+A _route_ matches requests with an associated virtual router and distributes traffic to its associated virtual nodes. 
+The route distributes matching requests to one or more target virtual nodes with relative weighting.
 
-If your `route` matches a request, you can distribute traffic to one or more target virtual nodes with relative weighting.
+The `RouteSpec` class lets you define protocol-specific route specifications.
+The `tcp()`, `http()` and `http2()` methods methods create a specification for the named protocols.
 
-The _RouteSpec_ class provides an easy interface for defining new protocol specific route specs.
-The `tcp()`, `http()`, `http2()`, and `grpc()` methods provide the spec necessary to define a protocol specific spec.
+For HTTP-based routes, the match field can match on path (prefix, exact, or regex), HTTP method, scheme, 
+HTTP headers, and query parameters. By default, HTTP-based routes match all requests. 
 
-For HTTP based routes, the match field can be used to match on 
-path (prefix, exact, or regex), HTTP method, scheme, HTTP headers, and query parameters.
-By default, an HTTP based route will match all requests.
+For gRPC-based routes, the match field can  match on service name, method name, and metadata.
+When specifying the method name, the service name must also be specified.
 
-For gRPC based routes, the match field can be used to match on service name, method name, and metadata.
-When specifying the method name, service name must also be specified.
+All types of routes support two different types of timeouts via `idle` and `perRequest`.
 
 For example, here's how to add an HTTP route that matches based on a prefix of the URL path:
 
@@ -452,7 +449,7 @@ router.addRoute('route-http2', {
 });
 ```
 
-Add a single route with multiple targets and split traffic 50/50
+Add a single route with two targets and split traffic 50/50:
 
 ```ts
 router.addRoute('route-http', {
@@ -538,7 +535,7 @@ router.addRoute('route-grpc-retry', {
 });
 ```
 
-Add a gRPC route with time out:
+Add a gRPC route with timeout:
 
 ```ts
 router.addRoute('route-http', {
@@ -561,12 +558,12 @@ router.addRoute('route-http', {
 
 ## Adding a Virtual Gateway
 
-A _virtual gateway_ allows resources outside your mesh to communicate to resources that are inside your mesh.
+A _virtual gateway_ allows resources outside your mesh to communicate with resources inside your mesh.
 The virtual gateway represents an Envoy proxy running in an Amazon ECS task, in a Kubernetes service, or on an Amazon EC2 instance.
-Unlike a virtual node, which represents an Envoy running with an application, a virtual gateway represents Envoy deployed by itself.
+Unlike a virtual node, which represents Envoy running with an application, a virtual gateway represents Envoy deployed by itself.
 
 A virtual gateway is similar to a virtual node in that it has a listener that accepts traffic for a particular port and protocol (HTTP, HTTP2, GRPC).
-The traffic that the virtual gateway receives, is directed to other services in your mesh,
+Traffic recieved by the virtual gateway is directed to other services in your mesh
 using rules defined in gateway routes which can be added to your virtual gateway.
 
 Create a virtual gateway with the constructor:
@@ -611,19 +608,18 @@ const gateway = mesh.addVirtualGateway('gateway', {
 });
 ```
 
-The listeners field can be omitted which will default to an HTTP Listener on port 8080.
+The `listeners` field defaults to an HTTP Listener on port 8080 if omitted.
 A gateway route can be added using the `gateway.addGatewayRoute()` method.
 
-The `backendDefaults` property is added to the node while creating the virtual gateway. These are virtual gateway's default settings for all backends.
+The `backendDefaults` property, provided when creating the virtual gateway, specifies the virtual gateway's default settings for all backends.
 
 ## Adding a Gateway Route
 
-A _gateway route_ is attached to a virtual gateway and routes traffic to an existing virtual service.
-If a route matches a request, it can distribute traffic to a target virtual service.
+A _gateway route_ is attached to a virtual gateway and routes matching traffic to an existing virtual service.
 
-For HTTP based gateway routes, the match field can be used to match on 
+For HTTP-based gateway routes, the `match` field can be used to match on 
 path (prefix, exact, or regex), HTTP method, host name, HTTP headers, and query parameters.
-By default, an HTTP based route will match all requests.
+By default, HTTP-based routes match all requests.
 
 ```ts
 gateway.addGatewayRoute('gateway-route-http', {
@@ -636,7 +632,7 @@ gateway.addGatewayRoute('gateway-route-http', {
 });
 ```
 
-For gRPC based gateway routes, the match field can be used to match on service name, host name, and metadata.
+For gRPC-based gateway routes, the `match` field can be used to match on service name, host name, and metadata.
 
 ```ts
 gateway.addGatewayRoute('gateway-route-grpc', {
@@ -709,9 +705,8 @@ gateway.addGatewayRoute('gateway-route-grpc', {
 
 ## Importing Resources
 
-Each mesh resource comes with two static methods for importing a reference to an existing App Mesh resource.
-These imported resources can be used as references for other resources in your mesh.
-There are two static methods, `from<Resource>Arn` and `from<Resource>Attributes` where the `<Resource>` is replaced with the resource name.
+Each App Mesh resource class comes with two static methods, `from<Resource>Arn` and `from<Resource>Attributes` (where `<Resource>` is replaced with the resource name, such as `VirtualNode`) for importing a reference to an existing App Mesh resource.
+These imported resources can be used with other resources in your mesh as if they were defined directly in your CDK application.
 
 ```ts
 const arn = "arn:aws:appmesh:us-east-1:123456789012:mesh/testMesh/virtualNode/testNode";
@@ -725,7 +720,7 @@ appmesh.VirtualNode.fromVirtualNodeAttributes(stack, 'imported-virtual-node', {
 });
 ```
 
-To import a mesh, there are two static methods, `fromMeshArn` and `fromMeshName`.
+To import a mesh, again there are two static methods, `fromMeshArn` and `fromMeshName`.
 
 ```ts
 const arn = 'arn:aws:appmesh:us-east-1:123456789012:mesh/testMesh';
@@ -738,7 +733,7 @@ appmesh.Mesh.fromMeshName(stack, 'imported-mesh', 'abc');
 
 ## IAM Grants
 
-Virtual Node and Virtual Gateway implement `grantStreamAggregatedResources` that will grant identities that are running 
+`VirtualNode` and `VirtualGateway` provide `grantStreamAggregatedResources` methods that grant identities that are running 
 Envoy access to stream generated config from App Mesh.
 
 ```ts
