@@ -75,12 +75,7 @@ export interface EbsDeviceOptionsBase {
    * @default {@link EbsDeviceVolumeType.GP2}
    */
   readonly volumeType?: EbsDeviceVolumeType;
-}
 
-/**
- * Block device options for an EBS volume
- */
-export interface EbsDeviceOptions extends EbsDeviceOptionsBase {
   /**
    * Specifies whether the EBS volume is encrypted.
    * Encrypted EBS volumes can only be attached to instances that support Amazon EBS encryption
@@ -90,6 +85,34 @@ export interface EbsDeviceOptions extends EbsDeviceOptionsBase {
    * @default false
    */
   readonly encrypted?: boolean;
+
+  /**
+   * The customer-managed encryption key that is used to encrypt the Volume.
+   * If this parameter is not specified and `encrypted` is set to `true`, your AWS managed CMK for EBS is used.
+   *
+   * Note: If using an {@link aws-kms.IKey} created from a {@link aws-kms.Key.fromKeyArn()} here,
+   * then the KMS key **must** have the following in its Key policy; otherwise, the Volume
+   * will fail to create.
+   *
+   *     {
+   *       "Effect": "Allow",
+   *       "Principal": { "AWS": "<arn for your account-user> ex: arn:aws:iam::00000000000:root" },
+   *       "Resource": "*",
+   *       "Action": [
+   *         "kms:DescribeKey",
+   *         "kms:GenerateDataKeyWithoutPlainText",
+   *       ],
+   *       "Condition": {
+   *         "StringEquals": {
+   *           "kms:ViaService": "ec2.<Region>.amazonaws.com", (eg: ec2.us-east-1.amazonaws.com)
+   *           "kms:CallerAccount": "0000000000" (your account ID)
+   *         }
+   *       }
+   *     }
+   *
+   * @default None
+   */
+  readonly kmsKey?: IKey;
 }
 
 /**
@@ -128,7 +151,19 @@ export class BlockDeviceVolume {
    * @param volumeSize The volume size, in Gibibytes (GiB)
    * @param options additional device options
    */
-  public static ebs(volumeSize: number, options: EbsDeviceOptions = {}): BlockDeviceVolume {
+  public static ebs(volumeSize: number, options: EbsDeviceOptionsBase = {}): BlockDeviceVolume {
+    // If KmsKey is specified, the encrypted state must be true.
+    if (options.kmsKey) {
+      if (options.encrypted === false) {
+        throw new Error('`encrypted` must be not false when providing `kmsKey`.');
+      } else {
+        options = {
+          ...options,
+          // Encryption is implied if KMS key is specified.
+          encrypted: true,
+        };
+      }
+    }
     return new this({ ...options, volumeSize });
   }
 

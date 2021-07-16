@@ -868,15 +868,18 @@ with the command `aws ec2-instance-connect send-ssh-public-key` to provide your 
 EBS volume for the bastion host can be encrypted like:
 
 ```ts
-    const host = new ec2.BastionHostLinux(stack, 'BastionHost', {
-      vpc,
-      blockDevices: [{
-        deviceName: 'EBSBastionHost',
-        volume: BlockDeviceVolume.ebs(10, {
-          encrypted: true,
-        }),
-      }],
-    });
+const key = new kms.Key(this, 'CustomKey');
+
+const host = new ec2.BastionHostLinux(stack, 'BastionHost', {
+  vpc,
+  blockDevices: [{
+    deviceName: 'xvdh',
+    volume: BlockDeviceVolume.ebs(10, {
+      encrypted: true,
+      kmsKeyId: key, // optional - will use default EBS CMK if not specified
+    }),
+  }],
+});
 ```
 
 ### Block Devices
