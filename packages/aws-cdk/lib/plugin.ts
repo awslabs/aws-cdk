@@ -1,6 +1,7 @@
 import { green } from 'colors/safe';
 
 import { CredentialProviderSource } from './api/aws-auth/credentials';
+import { DifferenceFormatterSource } from './diff';
 import { error } from './logging';
 
 /**
@@ -14,6 +15,7 @@ import { error } from './logging';
  *
  *     public init(host: PluginHost) {
  *     host.registerCredentialProviderSource(new CustomCredentialProviderSource());
+ *     host.registerDifferenceFormatter(new CustomDifferenceFormatter());
  *     }
  *   }
  *
@@ -46,6 +48,12 @@ export class PluginHost {
    * be registered using the +registerCredentialProviderSource+ method.
    */
   public readonly credentialProviderSources = new Array<CredentialProviderSource>();
+
+  /**
+   * Access the currently registered DifferenceFormatterSources. New sources can
+   * be registered using the +registerDifferenceFormatterSource+ method.
+   */
+  public readonly differenceFormatterSources = new Array<DifferenceFormatterSource>();
 
   constructor() {
     if (PluginHost.instance && PluginHost.instance !== this) {
@@ -85,5 +93,14 @@ export class PluginHost {
    */
   public registerCredentialProviderSource(source: CredentialProviderSource) {
     this.credentialProviderSources.push(source);
+  }
+
+  /**
+   * Allows plug-ins to register new DifferenceFormatterSources.
+   *
+   * @param source a new DifferenceFormatterSource to register.
+   */
+  public registerDifferenceFormatterSource(source: DifferenceFormatterSource) {
+    this.differenceFormatterSources.push(source);
   }
 }

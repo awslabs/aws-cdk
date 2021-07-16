@@ -18,8 +18,13 @@ export interface FormatStream extends NodeJS.WritableStream {
   columns?: number;
 }
 
+/** A map from logical ID to construct path. Useful in case there is no aws:cdk:path metadata in the template. */
+export type LogicalPathMap = {
+  [logicalId: string]: string;
+};
+
 /**
- * Renders template differences to the process' console.
+ * Renders template differences to the given stream using the default formatter.
  *
  * @param stream           The IO stream where to output the rendered diff.
  * @param templateDiff     TemplateDiff to be rendered to the console.
@@ -30,49 +35,123 @@ export interface FormatStream extends NodeJS.WritableStream {
 export function formatDifferences(
   stream: FormatStream,
   templateDiff: TemplateDiff,
-  logicalToPathMap: { [logicalId: string]: string } = { },
-  context: number = 3) {
-  const formatter = new Formatter(stream, logicalToPathMap, templateDiff, context);
-
-  if (templateDiff.awsTemplateFormatVersion || templateDiff.transform || templateDiff.description) {
-    formatter.printSectionHeader('Template');
-    formatter.formatDifference('AWSTemplateFormatVersion', 'AWSTemplateFormatVersion', templateDiff.awsTemplateFormatVersion);
-    formatter.formatDifference('Transform', 'Transform', templateDiff.transform);
-    formatter.formatDifference('Description', 'Description', templateDiff.description);
-    formatter.printSectionFooter();
-  }
-
-  formatSecurityChangesWithBanner(formatter, templateDiff);
-
-  formatter.formatSection('Parameters', 'Parameter', templateDiff.parameters);
-  formatter.formatSection('Metadata', 'Metadata', templateDiff.metadata);
-  formatter.formatSection('Mappings', 'Mapping', templateDiff.mappings);
-  formatter.formatSection('Conditions', 'Condition', templateDiff.conditions);
-  formatter.formatSection('Resources', 'Resource', templateDiff.resources, formatter.formatResourceDifference.bind(formatter));
-  formatter.formatSection('Outputs', 'Output', templateDiff.outputs);
-  formatter.formatSection('Other Changes', 'Unknown', templateDiff.unknown);
+  logicalToPathMap?: LogicalPathMap,
+  context?: number): void {
+  const differ = new BasicDifferenceFormatter(stream, templateDiff, logicalToPathMap, context);
+  differ.formatDifferences();
 }
 
 /**
- * Renders a diff of security changes to the given stream
- */
+* Renders a diff of security changes to the given stream using the default formatter
+*
+* @param stream           The IO stream where to output the rendered diff.
+* @param templateDiff     TemplateDiff to be rendered to the console.
+* @param logicalToPathMap A map from logical ID to construct path.
+* @param context          the number of context lines to use in arbitrary JSON diff (defaults to 3).
+*/
 export function formatSecurityChanges(
-  stream: NodeJS.WriteStream,
+  stream: FormatStream,
   templateDiff: TemplateDiff,
-  logicalToPathMap: {[logicalId: string]: string} = {},
-  context?: number) {
-  const formatter = new Formatter(stream, logicalToPathMap, templateDiff, context);
-
-  formatSecurityChangesWithBanner(formatter, templateDiff);
+  logicalToPathMap?: LogicalPathMap,
+  context?: number): void {
+  const differ = new BasicDifferenceFormatter(stream, templateDiff, logicalToPathMap, context);
+  differ.formatSecurityChanges();
 }
 
-function formatSecurityChangesWithBanner(formatter: Formatter, templateDiff: TemplateDiff) {
-  if (!templateDiff.iamChanges.hasChanges && !templateDiff.securityGroupChanges.hasChanges) { return; }
-  formatter.formatIamChanges(templateDiff.iamChanges);
-  formatter.formatSecurityGroupChanges(templateDiff.securityGroupChanges);
 
-  formatter.warning('(NOTE: There may be security-related changes not in this list. See https://github.com/aws/aws-cdk/issues/1299)');
-  formatter.printSectionFooter();
+/** Implements a strategy to output differences between templates */
+export abstract class DifferenceFormatter {
+
+  /**
+ * @param stream           The IO stream where to output the rendered diff.
+ * @param templateDiff     TemplateDiff to be rendered to the console.
+ * @param logicalToPathMap A map from logical ID to construct path.
+ * @param context          the number of context lines to use in arbitrary JSON diff (defaults to 3).
+ */
+  constructor(protected readonly stream: FormatStream,
+    protected readonly templateDiff: TemplateDiff,
+    protected readonly logicalToPathMap: LogicalPathMap = {},
+    protected readonly context: number = 3) {
+    this.readConstructPaths();
+  }
+
+  /**
+ * Renders `this.templateDiff` to `this.stream`.
+ */
+  abstract formatDifferences(): void;
+
+  /**
+ * Renders security changes of `this.templateDiff` to `this.stream`.
+ */
+  abstract formatSecurityChanges(): void;
+
+  /**
+   * Find 'aws:cdk:path' metadata in the diff and add it to the logicalToPathMap
+   *
+   * There are multiple sources of logicalID -> path mappings: synth metadata
+   * and resource metadata, and we combine all sources into a single map.
+   */
+  public readConstructPaths() {
+    for (const [logicalId, resourceDiff] of Object.entries(this.templateDiff.resources)) {
+      if (!resourceDiff) { continue; }
+
+      const oldPathMetadata = resourceDiff.oldValue && resourceDiff.oldValue.Metadata && resourceDiff.oldValue.Metadata[PATH_METADATA_KEY];
+      if (oldPathMetadata && !(logicalId in this.logicalToPathMap)) {
+        this.logicalToPathMap[logicalId] = oldPathMetadata;
+      }
+
+      const newPathMetadata = resourceDiff.newValue && resourceDiff.newValue.Metadata && resourceDiff.newValue.Metadata[PATH_METADATA_KEY];
+      if (newPathMetadata && !(logicalId in this.logicalToPathMap)) {
+        this.logicalToPathMap[logicalId] = newPathMetadata;
+      }
+    }
+  }
+
+  public deepSubstituteBracedLogicalIds(rows: string[][]): string[][] {
+    return rows.map(row => row.map(this.substituteBracedLogicalIds.bind(this)));
+  }
+
+  /**
+   * Substitute all strings like ${LogId.xxx} with the path instead of the logical ID
+   */
+  public substituteBracedLogicalIds(source: string): string {
+    return source.replace(/\$\{([^.}]+)(.[^}]+)?\}/ig, (_match, logId, suffix) => {
+      return '${' + (this.normalizedLogicalIdPath(logId) || logId) + (suffix || '') + '}';
+    });
+  }
+
+  public normalizedLogicalIdPath(logicalId: string): string | undefined {
+    // if we have a path in the map, return it
+    const path = this.logicalToPathMap[logicalId];
+    return path ? normalizePath(path) : undefined;
+
+    /**
+     * Path is supposed to start with "/stack-name". If this is the case (i.e. path has more than
+     * two components, we remove the first part. Otherwise, we just use the full path.
+     * @param p
+     */
+    function normalizePath(p: string) {
+      if (p.startsWith('/')) {
+        p = p.substr(1);
+      }
+
+      let parts = p.split('/');
+      if (parts.length > 1) {
+        parts = parts.slice(1);
+
+        // remove the last component if it's "Resource" or "Default" (if we have more than a single component)
+        if (parts.length > 1) {
+          const last = parts[parts.length - 1];
+          if (last === 'Resource' || last === 'Default') {
+            parts = parts.slice(0, parts.length - 1);
+          }
+        }
+
+        p = parts.join('/');
+      }
+      return p;
+    }
+  }
 }
 
 const ADDITION = colors.green('[+]');
@@ -80,16 +159,34 @@ const CONTEXT = colors.grey('[ ]');
 const UPDATE = colors.yellow('[~]');
 const REMOVAL = colors.red('[-]');
 
-class Formatter {
-  constructor(
-    private readonly stream: FormatStream,
-    private readonly logicalToPathMap: { [logicalId: string]: string },
-    diff?: TemplateDiff,
-    private readonly context: number = 3) {
-    // Read additional construct paths from the diff if it is supplied
-    if (diff) {
-      this.readConstructPathsFrom(diff);
+export class BasicDifferenceFormatter extends DifferenceFormatter {
+  public formatDifferences() {
+    if (this.templateDiff.awsTemplateFormatVersion || this.templateDiff.transform || this.templateDiff.description) {
+      this.printSectionHeader('Template');
+      this.formatDifference('AWSTemplateFormatVersion', 'AWSTemplateFormatVersion', this.templateDiff.awsTemplateFormatVersion);
+      this.formatDifference('Transform', 'Transform', this.templateDiff.transform);
+      this.formatDifference('Description', 'Description', this.templateDiff.description);
+      this.printSectionFooter();
     }
+
+    this.formatSecurityChanges();
+
+    this.formatSection('Parameters', 'Parameter', this.templateDiff.parameters);
+    this.formatSection('Metadata', 'Metadata', this.templateDiff.metadata);
+    this.formatSection('Mappings', 'Mapping', this.templateDiff.mappings);
+    this.formatSection('Conditions', 'Condition', this.templateDiff.conditions);
+    this.formatSection('Resources', 'Resource', this.templateDiff.resources, this.formatResourceDifference.bind(this));
+    this.formatSection('Outputs', 'Output', this.templateDiff.outputs);
+    this.formatSection('Other Changes', 'Unknown', this.templateDiff.unknown);
+  }
+
+  public formatSecurityChanges() {
+    if (!this.templateDiff.iamChanges.hasChanges && !this.templateDiff.securityGroupChanges.hasChanges) { return; }
+    this.formatIamChanges(this.templateDiff.iamChanges);
+    this.formatSecurityGroupChanges(this.templateDiff.securityGroupChanges);
+
+    this.warning('(NOTE: There may be security-related changes not in this list. See https://github.com/aws/aws-cdk/issues/1299)');
+    this.printSectionFooter();
   }
 
   public print(fmt: string, ...args: any[]) {
@@ -295,28 +392,6 @@ class Formatter {
     }
   }
 
-  /**
-   * Find 'aws:cdk:path' metadata in the diff and add it to the logicalToPathMap
-   *
-   * There are multiple sources of logicalID -> path mappings: synth metadata
-   * and resource metadata, and we combine all sources into a single map.
-   */
-  public readConstructPathsFrom(templateDiff: TemplateDiff) {
-    for (const [logicalId, resourceDiff] of Object.entries(templateDiff.resources)) {
-      if (!resourceDiff) { continue; }
-
-      const oldPathMetadata = resourceDiff.oldValue && resourceDiff.oldValue.Metadata && resourceDiff.oldValue.Metadata[PATH_METADATA_KEY];
-      if (oldPathMetadata && !(logicalId in this.logicalToPathMap)) {
-        this.logicalToPathMap[logicalId] = oldPathMetadata;
-      }
-
-      const newPathMetadata = resourceDiff.newValue && resourceDiff.newValue.Metadata && resourceDiff.newValue.Metadata[PATH_METADATA_KEY];
-      if (newPathMetadata && !(logicalId in this.logicalToPathMap)) {
-        this.logicalToPathMap[logicalId] = newPathMetadata;
-      }
-    }
-  }
-
   public formatLogicalId(logicalId: string) {
     // if we have a path in the map, return it
     const normalized = this.normalizedLogicalIdPath(logicalId);
@@ -326,39 +401,6 @@ class Formatter {
     }
 
     return logicalId;
-  }
-
-  public normalizedLogicalIdPath(logicalId: string): string | undefined {
-    // if we have a path in the map, return it
-    const path = this.logicalToPathMap[logicalId];
-    return path ? normalizePath(path) : undefined;
-
-    /**
-     * Path is supposed to start with "/stack-name". If this is the case (i.e. path has more than
-     * two components, we remove the first part. Otherwise, we just use the full path.
-     * @param p
-     */
-    function normalizePath(p: string) {
-      if (p.startsWith('/')) {
-        p = p.substr(1);
-      }
-
-      let parts = p.split('/');
-      if (parts.length > 1) {
-        parts = parts.slice(1);
-
-        // remove the last component if it's "Resource" or "Default" (if we have more than a single component)
-        if (parts.length > 1) {
-          const last = parts[parts.length - 1];
-          if (last === 'Resource' || last === 'Default') {
-            parts = parts.slice(0, parts.length - 1);
-          }
-        }
-
-        p = parts.join('/');
-      }
-      return p;
-    }
   }
 
   public formatIamChanges(changes: IamChanges) {
@@ -380,19 +422,6 @@ class Formatter {
 
     this.printSectionHeader('Security Group Changes');
     this.print(formatTable(this.deepSubstituteBracedLogicalIds(changes.summarize()), this.stream.columns));
-  }
-
-  public deepSubstituteBracedLogicalIds(rows: string[][]): string[][] {
-    return rows.map(row => row.map(this.substituteBracedLogicalIds.bind(this)));
-  }
-
-  /**
-   * Substitute all strings like ${LogId.xxx} with the path instead of the logical ID
-   */
-  public substituteBracedLogicalIds(source: string): string {
-    return source.replace(/\$\{([^.}]+)(.[^}]+)?\}/ig, (_match, logId, suffix) => {
-      return '${' + (this.normalizedLogicalIdPath(logId) || logId) + (suffix || '') + '}';
-    });
   }
 }
 

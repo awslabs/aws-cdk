@@ -1,8 +1,29 @@
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import * as cfnDiff from '@aws-cdk/cloudformation-diff';
+import { FormatStream, TemplateDiff, LogicalPathMap, DifferenceFormatter } from '@aws-cdk/cloudformation-diff';
 import * as cxapi from '@aws-cdk/cx-api';
 import * as colors from 'colors/safe';
 import { print, warning } from './logging';
+import { PluginHost } from './plugin';
+
+/** Provide a source for a stack diff output formatter */
+export interface DifferenceFormatterSource {
+
+  name: string;
+
+  /**
+ * Construct an instance of a DifferenceFormatter to generate output to the stream
+ *
+ * @param stream           The IO stream where to output the rendered diff.
+ * @param templateDiff     TemplateDiff to be rendered to the console.
+ * @param logicalToPathMap A map from logical ID to construct path.
+ * @param context          the number of context lines to use in arbitrary JSON diff (defaults to 3).
+ */
+  getFormatter(stream: FormatStream,
+    templateDiff: TemplateDiff,
+    logicalToPathMap?: LogicalPathMap,
+    context?: number): DifferenceFormatter;
+}
 
 /**
  * Pretty-prints the differences between two template states to the console.
@@ -34,7 +55,14 @@ export function printStackDiff(
   }
 
   if (!diff.isEmpty) {
-    cfnDiff.formatDifferences(stream || process.stderr, diff, buildLogicalToPathMap(newTemplate), context);
+    if (PluginHost.instance.differenceFormatterSources.length > 0) {
+      PluginHost.instance.differenceFormatterSources.forEach(source =>
+        source
+          .getFormatter(stream || process.stderr, diff, buildLogicalToPathMap(newTemplate), context)
+          .formatDifferences());
+    } else {
+      cfnDiff.formatDifferences(stream || process.stderr, diff, buildLogicalToPathMap(newTemplate), context);
+    }
   } else {
     print(colors.green('There were no differences'));
   }
@@ -63,7 +91,14 @@ export function printSecurityDiff(oldTemplate: any, newTemplate: cxapi.CloudForm
     warning(`This deployment will make potentially sensitive changes according to your current security approval level (--require-approval ${requireApproval}).`);
     warning('Please confirm you intend to make the following modifications:\n');
 
-    cfnDiff.formatSecurityChanges(process.stdout, diff, buildLogicalToPathMap(newTemplate));
+    if (PluginHost.instance.differenceFormatterSources.length > 0) {
+      PluginHost.instance.differenceFormatterSources.forEach(source =>
+        source
+          .getFormatter(process.stdout, diff, buildLogicalToPathMap(newTemplate))
+          .formatSecurityChanges());
+    } else {
+      cfnDiff.formatSecurityChanges(process.stdout, diff, buildLogicalToPathMap(newTemplate));
+    }
     return true;
   }
   return false;

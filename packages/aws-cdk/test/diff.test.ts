@@ -1,14 +1,32 @@
 import { Writable } from 'stream';
 import { NodeStringDecoder, StringDecoder } from 'string_decoder';
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
+import { FormatStream, TemplateDiff, LogicalPathMap, DifferenceFormatter } from '@aws-cdk/cloudformation-diff';
 import { CloudFormationStackArtifact } from '@aws-cdk/cx-api';
+import { PluginHost } from '../lib';
 import { CloudFormationDeployments } from '../lib/api/cloudformation-deployments';
 import { CdkToolkit } from '../lib/cdk-toolkit';
+import { DifferenceFormatterSource } from '../lib/diff';
 import { instanceMockFrom, MockCloudExecutable } from './util';
+
+class TestDifferenceFormatter extends DifferenceFormatter {
+  formatDifferences(): void {
+    this.formatSecurityChanges();
+    this.stream.write('This is TestDifferenceFormatter.formatDifferences');
+    this.stream.write(JSON.stringify(this.templateDiff));
+    this.stream.write(JSON.stringify(this.logicalToPathMap));
+    this.stream.write(JSON.stringify(this.context));
+  }
+  formatSecurityChanges(): void {
+    this.stream.write('This is TestDifferenceFormatter.formatSecurityChanges');
+  }
+}
 
 let cloudExecutable: MockCloudExecutable;
 let cloudFormation: jest.Mocked<CloudFormationDeployments>;
 let toolkit: CdkToolkit;
+let differenceFormatterSource: DifferenceFormatterSource;
+
 beforeEach(() => {
   cloudExecutable = new MockCloudExecutable({
     stacks: [{
@@ -48,6 +66,16 @@ beforeEach(() => {
     sdkProvider: cloudExecutable.sdkProvider,
   });
 
+  differenceFormatterSource = {
+    name: 'cool-test',
+    getFormatter(stream: FormatStream,
+      templateDiff: TemplateDiff,
+      logicalToPathMap?: LogicalPathMap,
+      context?: number) {
+      return new TestDifferenceFormatter(stream, templateDiff, logicalToPathMap, context);
+    },
+  };
+
   // Default implementations
   cloudFormation.readCurrentTemplate.mockImplementation((stackArtifact: CloudFormationStackArtifact) => {
     if (stackArtifact.stackName === 'D') {
@@ -77,6 +105,28 @@ test('diff can diff multiple stacks', async () => {
   const plainTextOutput = buffer.data.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
   expect(plainTextOutput).toContain('Stack A');
   expect(plainTextOutput).toContain('Stack B');
+
+  expect(exitCode).toBe(0);
+});
+
+test('diff can diff multiple stacks with custom formatter', async () => {
+  // GIVEN
+  const buffer = new StringWritable();
+  PluginHost.instance.registerDifferenceFormatterSource(differenceFormatterSource);
+
+  // WHEN
+  const exitCode = await toolkit.diff({
+    stackNames: ['B'],
+    stream: buffer,
+
+  });
+
+  // THEN
+  const plainTextOutput = buffer.data.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+  expect(plainTextOutput).toContain('Stack A');
+  expect(plainTextOutput).toContain('Stack B');
+  expect(plainTextOutput).toContain('This is TestDifferenceFormatter.formatDifferences');
+  expect(plainTextOutput).toContain('This is TestDifferenceFormatter.formatSecurityChanges');
 
   expect(exitCode).toBe(0);
 });
