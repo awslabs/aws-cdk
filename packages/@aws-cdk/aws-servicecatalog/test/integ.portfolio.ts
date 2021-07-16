@@ -1,4 +1,5 @@
 import * as iam from '@aws-cdk/aws-iam';
+import * as sns from '@aws-cdk/aws-sns';
 import { App, Stack } from '@aws-cdk/core';
 import * as servicecatalog from '../lib';
 
@@ -38,5 +39,18 @@ const product = new servicecatalog.CloudFormationProduct(stack, 'TestProduct', {
 portfolio.addProduct(product);
 
 portfolio.constrainTagUpdates(product);
+
+const topics = [
+  new sns.Topic(stack, 'Topic1'),
+  new sns.Topic(stack, 'Topic2'),
+  new sns.Topic(stack, 'Topic3'),
+];
+const specialTopic = new sns.Topic(stack, 'specialTopic');
+
+portfolio.addEventNotifications(product, topics);
+portfolio.addEventNotifications(product, [specialTopic], {
+  description: 'special topic description',
+  messageLanguage: servicecatalog.MessageLanguage.EN,
+});
 
 app.synth();

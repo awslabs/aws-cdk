@@ -109,6 +109,84 @@
         "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
       ]
     },
+    "TestPortfolioLaunchNotificationConstraint8b431e01a3f3076FB87E": {
+      "Type": "AWS::ServiceCatalog::LaunchNotificationConstraint",
+      "Properties": {
+        "NotificationArns": [
+          {
+            "Ref": "Topic198E71B3E"
+          }
+        ],
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "ProductId": {
+          "Ref": "TestProduct7606930B"
+        }
+      },
+      "DependsOn": [
+        "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
+      ]
+    },
+    "TestPortfolioLaunchNotificationConstraintc01a6eca6ea484971746": {
+      "Type": "AWS::ServiceCatalog::LaunchNotificationConstraint",
+      "Properties": {
+        "NotificationArns": [
+          {
+            "Ref": "Topic269377B75"
+          }
+        ],
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "ProductId": {
+          "Ref": "TestProduct7606930B"
+        }
+      },
+      "DependsOn": [
+        "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
+      ]
+    },
+    "TestPortfolioLaunchNotificationConstraint55a499ca598e15062D5C": {
+      "Type": "AWS::ServiceCatalog::LaunchNotificationConstraint",
+      "Properties": {
+        "NotificationArns": [
+          {
+            "Ref": "Topic3DEAE47A7"
+          }
+        ],
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "ProductId": {
+          "Ref": "TestProduct7606930B"
+        }
+      },
+      "DependsOn": [
+        "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
+      ]
+    },
+    "TestPortfolioLaunchNotificationConstrainta09c16b10ee950CD3F1E": {
+      "Type": "AWS::ServiceCatalog::LaunchNotificationConstraint",
+      "Properties": {
+        "NotificationArns": [
+          {
+            "Ref": "specialTopic7664DE4C"
+          }
+        ],
+        "PortfolioId": {
+          "Ref": "TestPortfolio4AC794EB"
+        },
+        "ProductId": {
+          "Ref": "TestProduct7606930B"
+        },
+        "AcceptLanguage": "en",
+        "Description": "special topic description"
+      },
+      "DependsOn": [
+        "TestPortfolioPortfolioProductAssociationa0185761d231B0D998A7"
+      ]
+    },
     "TestProduct7606930B": {
       "Type": "AWS::ServiceCatalog::CloudFormationProduct",
       "Properties": {
@@ -123,6 +201,18 @@
           }
         ]
       }
+    },
+    "Topic198E71B3E": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "Topic269377B75": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "Topic3DEAE47A7": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "specialTopic7664DE4C": {
+      "Type": "AWS::SNS::Topic"
     }
   }
 }

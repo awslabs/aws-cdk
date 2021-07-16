@@ -1,5 +1,6 @@
 import '@aws-cdk/assert-internal/jest';
 import * as iam from '@aws-cdk/aws-iam';
+import * as sns from '@aws-cdk/aws-sns';
 import * as cdk from '@aws-cdk/core';
 import * as servicecatalog from '../lib';
 
@@ -333,5 +334,55 @@ describe('portfolio associations and product constraints', () => {
         description: 'another test constraint description',
       });
     }).toThrowError(/Cannot have multiple tag update constraints for association/);
+  }),
+
+  test('add event notification constraint', () => {
+    portfolio.addProduct(product);
+
+    const topic = new sns.Topic(stack, 'Topic');
+    const description = 'event notification constraint description';
+
+    portfolio.addEventNotifications(product, [topic], {
+      description: description,
+    });
+
+    expect(stack).toHaveResource('AWS::ServiceCatalog::LaunchNotificationConstraint', {
+      NotificationArns: [{ Ref: 'TopicBFC7AF6E' }],
+      Description: description,
+      PortfolioId: { Ref: 'MyPortfolio59CCA9C9' },
+      ProductId: { Ref: 'MyProduct49A3C587' },
+    });
+  }),
+
+  test('event notification constraint will still add without explicit association', () => {
+    const topics = [
+      new sns.Topic(stack, 'Topic1'),
+      new sns.Topic(stack, 'Topic2'),
+      new sns.Topic(stack, 'Topic3'),
+    ];
+
+    portfolio.addEventNotifications(product, topics);
+
+    expect(stack).toCountResources('AWS::ServiceCatalog::LaunchNotificationConstraint', 3);
+  }),
+
+  test('fails to create event notification constraint with empty topic list', () => {
+    expect(() => {
+      portfolio.addEventNotifications(product, []);
+    }).toThrowError(/No topics provided for launch notifications for association/);
+  }),
+
+  test('fails to add same topic multiple times in event notification constraint', () => {
+    const topics = [
+      new sns.Topic(stack, 'Topic1'),
+      new sns.Topic(stack, 'Topic2'),
+      new sns.Topic(stack, 'Topic3'),
+    ];
+
+    portfolio.addEventNotifications(product, topics);
+
+    expect(() => {
+      portfolio.addEventNotifications(product, [topics[2]]);
+    }).toThrowError(`Topic ${topics[2]} is already subscribed to association`);
   });
 });
