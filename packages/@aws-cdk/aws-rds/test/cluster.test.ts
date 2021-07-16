@@ -721,6 +721,36 @@ describe('cluster', () => {
 
   });
 
+  test('add single user rotation for additional secret which is master secret', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      credentials: { username: 'admin' },
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpc,
+      },
+    });
+
+    // WHEN
+    cluster.addRotationSingleUser({ secret: cluster.secret });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'DatabaseSecretAttachmentE5D1B020',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'DatabaseRotationSingleUser65F55654',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+  });
+
   test('throws when trying to add rotation to a cluster without secret', () => {
     // GIVEN
     const stack = new cdk.Stack();
@@ -740,9 +770,9 @@ describe('cluster', () => {
     });
 
     // THEN
-    expect(() => cluster.addRotationSingleUser()).toThrow(/without secret/);
-
-
+    expect(() => {
+      cluster.addRotationSingleUser();
+    }).toThrow(/without master secret/);
   });
 
   test('throws when trying to add single user rotation multiple times', () => {
@@ -762,9 +792,103 @@ describe('cluster', () => {
     cluster.addRotationSingleUser();
 
     // THEN
-    expect(() => cluster.addRotationSingleUser()).toThrow(/A single user rotation was already added to this cluster/);
+    expect(() => {
+      cluster.addRotationSingleUser();
+    }).toThrow(/Single user rotation was already enabled for the master secret of this cluster/);
+  });
 
+  test('throws when trying to add single user rotation for additional secret which is master secret', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      credentials: { username: 'admin' },
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpc,
+      },
+    });
 
+    // WHEN
+    cluster.addRotationSingleUser();
+
+    // THEN
+    expect(() => {
+      cluster.addRotationSingleUser({ secret: cluster.secret });
+    }).toThrow(/Single user rotation was already enabled for the master secret of this cluster/);
+  });
+
+  test('add single user rotation for two additional secrets', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      credentials: { username: 'admin' },
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpc,
+      },
+    });
+    const secret1 = new DatabaseSecret(stack, 'MySecret1', { username: 'user1' });
+    secret1.attach(cluster);
+    const secret2 = new DatabaseSecret(stack, 'MySecret2', { username: 'user2' });
+    secret2.attach(cluster);
+
+    // WHEN
+    cluster.addRotationSingleUser({ secret: secret1 });
+    cluster.addRotationSingleUser({ secret: secret2 });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'MySecret1E18D875B',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'MySecret1RotationSingleUser7D84B21E',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'MySecret225E18D70',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'MySecret2RotationSingleUser2903C638',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+  });
+
+  test('throws when trying to add single user rotation for additional secret multiple times', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      credentials: { username: 'admin' },
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+        vpc,
+      },
+    });
+    const secret = new DatabaseSecret(stack, 'MySecret', {
+      username: 'myuser',
+    });
+    secret.attach(cluster);
+
+    // WHEN
+    cluster.addRotationSingleUser({ secret });
+
+    // THEN
+    expect(() => {
+      cluster.addRotationSingleUser({ secret });
+    }).toThrow(/Single user rotation was already enabled for the secret 'Default\/MySecret' of this cluster/);
   });
 
   test('create a cluster with s3 import role', () => {

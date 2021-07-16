@@ -232,7 +232,22 @@ instance.addRotationSingleUser({
 });
 ```
 
-[example of setting up master password rotation for a cluster](test/integ.cluster-rotation.lit.ts)
+It's also possible to create user credentials together with the instance/cluster and add single-user rotation:
+
+```ts
+const myUserSecret = new rds.DatabaseSecret(this, 'MyUserSecret', {
+  username: 'myuser',
+  secretName: 'my-user-secret', // optional, defaults to a CloudFormation-generated name
+  excludeCharacters: '{}[]()\'"/\\', // defaults to the set " %+~`#$&*()|[]{}:;<>?!'/@\"\\"
+});
+const myUserSecretAttached = myUserSecret.attach(instance); // Adds DB connections information in the secret
+
+instance.addRotationSingleUser('MyUser', { // Add rotation using the single user scheme
+  secret: myUserSecretAttached,
+});
+```
+
+examples of setting up single user password rotations for an [instance](test/integ.instance-rotation.lit.ts) and a [cluster](test/integ.cluster-rotation.lit.ts)
 
 The multi user rotation scheme is also available:
 
@@ -242,7 +257,7 @@ instance.addRotationMultiUser('MyUser', {
 });
 ```
 
-It's also possible to create user credentials together with the instance/cluster and add rotation:
+It's also possible to create user credentials together with the instance/cluster and add multi-user rotation:
 
 ```ts
 const myUserSecret = new rds.DatabaseSecret(this, 'MyUserSecret', {

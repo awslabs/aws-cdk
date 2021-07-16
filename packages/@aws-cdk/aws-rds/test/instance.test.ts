@@ -692,7 +692,32 @@ describe('instance', () => {
 
   });
 
-  test('throws when trying to add rotation to an instance without secret', () => {
+  test('add single user rotation for additional secret which is master secret', () => {
+    const instance = new rds.DatabaseInstance(stack, 'Database', {
+      engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      credentials: rds.Credentials.fromUsername('syscdk'),
+      vpc,
+    });
+
+    // WHEN
+    instance.addRotationSingleUser({ secret: instance.secret });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'DatabaseSecretAttachmentE5D1B020',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'DatabaseRotationSingleUser65F55654',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+  });
+
+  test('throws when trying to add rotation to an instance without master secret', () => {
     const instance = new rds.DatabaseInstance(stack, 'Database', {
       engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
       credentials: rds.Credentials.fromUsername('syscdk', { password: cdk.SecretValue.plainText('tooshort') }),
@@ -700,12 +725,12 @@ describe('instance', () => {
     });
 
     // THEN
-    expect(() => instance.addRotationSingleUser()).toThrow(/without secret/);
-
-
+    expect(() => {
+      instance.addRotationSingleUser();
+    }).toThrow(/without master secret/);
   });
 
-  test('throws when trying to add single user rotation multiple times', () => {
+  test('throws when trying to add single user rotation for master secret multiple times', () => {
     const instance = new rds.DatabaseInstance(stack, 'Database', {
       engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
@@ -717,9 +742,88 @@ describe('instance', () => {
     instance.addRotationSingleUser();
 
     // THEN
-    expect(() => instance.addRotationSingleUser()).toThrow(/A single user rotation was already added to this instance/);
+    expect(() => {
+      instance.addRotationSingleUser();
+    }).toThrow(/Single user rotation was already enabled for the master secret of this instance/);
+  });
 
+  test('throws when trying to add single user rotation for additional secret which is master secret', () => {
+    const instance = new rds.DatabaseInstance(stack, 'Database', {
+      engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      credentials: rds.Credentials.fromUsername('syscdk'),
+      vpc,
+    });
 
+    // WHEN
+    instance.addRotationSingleUser();
+
+    // THEN
+    expect(() => {
+      instance.addRotationSingleUser({ secret: instance.secret });
+    }).toThrow(/Single user rotation was already enabled for the master secret of this instance/);
+  });
+
+  test('add single user rotation for two additional secrets', () => {
+    const instance = new rds.DatabaseInstance(stack, 'Database', {
+      engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      credentials: rds.Credentials.fromUsername('syscdk'),
+      vpc,
+    });
+    const secret1 = new rds.DatabaseSecret(stack, 'MySecret1', { username: 'user1' });
+    secret1.attach(instance);
+    const secret2 = new rds.DatabaseSecret(stack, 'MySecret2', { username: 'user2' });
+    secret2.attach(instance);
+
+    // WHEN
+    instance.addRotationSingleUser({ secret: secret1 });
+    instance.addRotationSingleUser({ secret: secret2 });
+
+    // THEN
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'MySecret1E18D875B',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'MySecret1RotationSingleUser7D84B21E',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+    expect(stack).toHaveResource('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'MySecret225E18D70',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'MySecret2RotationSingleUser2903C638',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+    });
+  });
+
+  test('throws when trying to add single user rotation for additional secret multiple times', () => {
+    const instance = new rds.DatabaseInstance(stack, 'Database', {
+      engine: rds.DatabaseInstanceEngine.SQL_SERVER_EE,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
+      credentials: rds.Credentials.fromUsername('syscdk'),
+      vpc,
+    });
+    const secret = new rds.DatabaseSecret(stack, 'MySecret', {
+      username: 'myuser',
+    });
+    secret.attach(instance);
+
+    // WHEN
+    instance.addRotationSingleUser({ secret });
+
+    // THEN
+    expect(() => {
+      instance.addRotationSingleUser({ secret });
+    }).toThrow(/Single user rotation was already enabled for the secret 'Default\/MySecret' of this instance/);
   });
 
   test('throws when timezone is set for non-sqlserver database engine', () => {

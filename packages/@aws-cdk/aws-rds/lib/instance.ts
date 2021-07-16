@@ -7,7 +7,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import { ArnComponents, Duration, FeatureFlags, IResource, Lazy, RemovalPolicy, Resource, Stack, Token } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
-import { Construct } from 'constructs';
+import { Construct, Node } from 'constructs';
 import { DatabaseSecret } from './database-secret';
 import { Endpoint } from './endpoint';
 import { IInstanceEngine } from './instance-engine';
@@ -897,25 +897,9 @@ abstract class DatabaseInstanceSource extends DatabaseInstanceNew implements IDa
    *                if you want to override the defaults
    */
   public addRotationSingleUser(options: RotationSingleUserOptions = {}): secretsmanager.SecretRotation {
-    if (!this.secret) {
-      throw new Error('Cannot add single user rotation for an instance without secret.');
-    }
-
-    const id = 'RotationSingleUser';
-    const existing = this.node.tryFindChild(id);
-    if (existing) {
-      throw new Error('A single user rotation was already added to this instance.');
-    }
-
-    return new secretsmanager.SecretRotation(this, id, {
-      secret: this.secret,
-      application: this.singleUserRotationApplication,
-      vpc: this.vpc,
-      vpcSubnets: this.vpcPlacement,
-      target: this,
-      ...options,
-      excludeCharacters: options.excludeCharacters ?? DEFAULT_PASSWORD_EXCLUDE_CHARS,
-    });
+    return !options.secret || options.secret === this.secret
+      ? this.addSingleUserRotationForMasterSecret(options)
+      : this.addSingleUserRotationForSecret(options.secret as unknown as Construct, 'RotationSingleUser', options.secret, options);
   }
 
   /**
@@ -933,6 +917,33 @@ abstract class DatabaseInstanceSource extends DatabaseInstanceNew implements IDa
       vpc: this.vpc,
       vpcSubnets: this.vpcPlacement,
       target: this,
+    });
+  }
+
+  private addSingleUserRotationForMasterSecret(options: RotationSingleUserOptions): secretsmanager.SecretRotation {
+    if (!this.secret) {
+      throw new Error('Cannot add single user rotation for an instance without master secret.');
+    }
+
+    return this.addSingleUserRotationForSecret(this, 'RotationSingleUser', this.secret, options);
+  }
+
+  private addSingleUserRotationForSecret(
+    scope: Construct, id: string, secret: secretsmanager.ISecret, options: RotationSingleUserOptions,
+  ): secretsmanager.SecretRotation {
+    if (Node.of(scope).tryFindChild(id)) {
+      const secretDescription = this === scope ? 'master secret' : `secret '${Node.of(secret).path}'`;
+      throw new Error(`Single user rotation was already enabled for the ${secretDescription} of this instance.`);
+    }
+
+    return new secretsmanager.SecretRotation(scope, id, {
+      application: this.singleUserRotationApplication,
+      vpc: this.vpc,
+      vpcSubnets: this.vpcPlacement,
+      target: this,
+      ...options,
+      secret: secret,
+      excludeCharacters: options.excludeCharacters ?? DEFAULT_PASSWORD_EXCLUDE_CHARS,
     });
   }
 }

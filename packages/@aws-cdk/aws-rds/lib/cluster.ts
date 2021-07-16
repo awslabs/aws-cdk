@@ -6,7 +6,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import { Annotations, Duration, FeatureFlags, RemovalPolicy, Resource, Token } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
-import { Construct } from 'constructs';
+import { Construct, Node } from 'constructs';
 import { IClusterEngine } from './cluster-engine';
 import { DatabaseClusterAttributes, IDatabaseCluster } from './cluster-ref';
 import { Endpoint } from './endpoint';
@@ -542,25 +542,9 @@ export class DatabaseCluster extends DatabaseClusterNew {
    * Adds the single user rotation of the master password to this cluster.
    */
   public addRotationSingleUser(options: RotationSingleUserOptions = {}): secretsmanager.SecretRotation {
-    if (!this.secret) {
-      throw new Error('Cannot add single user rotation for a cluster without secret.');
-    }
-
-    const id = 'RotationSingleUser';
-    const existing = this.node.tryFindChild(id);
-    if (existing) {
-      throw new Error('A single user rotation was already added to this cluster.');
-    }
-
-    return new secretsmanager.SecretRotation(this, id, {
-      secret: this.secret,
-      application: this.singleUserRotationApplication,
-      vpc: this.vpc,
-      vpcSubnets: this.vpcSubnets,
-      target: this,
-      ...options,
-      excludeCharacters: options.excludeCharacters ?? DEFAULT_PASSWORD_EXCLUDE_CHARS,
-    });
+    return !options.secret || options.secret === this.secret
+      ? this.addSingleUserRotationForMasterSecret(options)
+      : this.addSingleUserRotationForSecret(options.secret as unknown as Construct, 'RotationSingleUser', options.secret, options);
   }
 
   /**
@@ -570,6 +554,7 @@ export class DatabaseCluster extends DatabaseClusterNew {
     if (!this.secret) {
       throw new Error('Cannot add multi user rotation for a cluster without secret.');
     }
+
     return new secretsmanager.SecretRotation(this, id, {
       ...options,
       excludeCharacters: options.excludeCharacters ?? DEFAULT_PASSWORD_EXCLUDE_CHARS,
@@ -578,6 +563,34 @@ export class DatabaseCluster extends DatabaseClusterNew {
       vpc: this.vpc,
       vpcSubnets: this.vpcSubnets,
       target: this,
+    });
+  }
+
+  private addSingleUserRotationForMasterSecret(options: RotationSingleUserOptions): secretsmanager.SecretRotation {
+    if (!this.secret) {
+      throw new Error('Cannot add single user rotation for a cluster without master secret.');
+    }
+
+    const id = 'RotationSingleUser';
+    return this.addSingleUserRotationForSecret(this, id, this.secret, options);
+  }
+
+  private addSingleUserRotationForSecret(
+    scope: Construct, id: string, secret: secretsmanager.ISecret, options: RotationSingleUserOptions,
+  ): secretsmanager.SecretRotation {
+    if (Node.of(scope).tryFindChild(id)) {
+      const secretDescription = this === scope ? 'master secret' : `secret '${Node.of(secret).path}'`;
+      throw new Error(`Single user rotation was already enabled for the ${secretDescription} of this cluster!`);
+    }
+
+    return new secretsmanager.SecretRotation(scope, id, {
+      application: this.singleUserRotationApplication,
+      vpc: this.vpc,
+      vpcSubnets: this.vpcSubnets,
+      target: this,
+      ...options,
+      secret: secret,
+      excludeCharacters: options.excludeCharacters ?? DEFAULT_PASSWORD_EXCLUDE_CHARS,
     });
   }
 }
