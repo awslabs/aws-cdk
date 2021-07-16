@@ -165,8 +165,8 @@ export class PrincipalWithConditions implements IPrincipal {
    * Add a condition to the principal
    */
   public addCondition(key: string, value: Condition) {
-    const existingValue = this.conditions[key];
-    this.conditions[key] = existingValue ? { ...existingValue, ...value } : value;
+    const existingValue = this.additionalConditions[key];
+    this.additionalConditions[key] = existingValue ? { ...existingValue, ...value } : value;
   }
 
   /**
