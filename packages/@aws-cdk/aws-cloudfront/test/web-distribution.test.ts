@@ -957,6 +957,41 @@ added the ellipsis so a user would know there was more to ...`,
 
         test.done();
       },
+      'modern usage'(test: Test) {
+        const stack = new cdk.Stack();
+        const sourceBucket = new s3.Bucket(stack, 'Bucket');
+
+        const certificate = new certificatemanager.Certificate(stack, 'cert', {
+          domainName: 'example.com',
+        });
+
+        new CloudFrontWebDistribution(stack, 'WebsiteUsingModernTLS', {
+          originConfigs: [{
+            s3OriginSource: { s3BucketSource: sourceBucket },
+            behaviors: [{ isDefaultBehavior: true }],
+          }],
+          viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate, {
+            securityPolicy: SecurityPolicyProtocol.TLS_V1_2_2021,
+            sslMethod: SSLMethod.SNI,
+            aliases: ['example.com', 'www.example.com'],
+          }),
+        });
+
+        expect(stack).to(haveResourceLike('AWS::CloudFront::Distribution', {
+          'DistributionConfig': {
+            'Aliases': ['example.com', 'www.example.com'],
+            'ViewerCertificate': {
+              'AcmCertificateArn': {
+                'Ref': 'cert56CA94EB',
+              },
+              'MinimumProtocolVersion': 'TLSv1.2_2021',
+              'SslSupportMethod': 'sni-only',
+            },
+          },
+        }));
+
+        test.done();
+      },
     },
     'iamCertificate': {
       'base usage'(test: Test) {

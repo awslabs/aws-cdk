@@ -109,7 +109,7 @@ new cloudfront.Distribution(this, 'myDist', {
 });
 ```
 
-However, you can customize the minimum protocol version for the certificate while creating the distribution using `minimumProtocolVersion` property.
+However, you can customize the minimum protocol version for the certificate while creating the distribution using `minimumProtocolVersion` property. See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html for more details about protocol versions.
 
 ```ts
 new cloudfront.Distribution(this, 'myDist', {
