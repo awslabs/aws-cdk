@@ -39,6 +39,7 @@
           "Statement": [
             {
               "Action": [
+                "kinesis:DescribeStream",
                 "kinesis:DescribeStreamSummary",
                 "kinesis:GetRecords",
                 "kinesis:GetShardIterator",
