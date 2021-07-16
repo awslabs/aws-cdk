@@ -161,6 +161,12 @@ new rds.DatabaseCluster(stack, 'DatabaseCluster', {
 });
 ```
 
+## Copying Tags From the DB Instance to the DB Snapshot
+
+You can enable or disable this for the database instance or cluster using the `copyTagsToSnapshot` property.
+If you specify `true`, tags will be copied from the database instance or cluster to snapshots of the DB instance.
+If you specify `false`, tags will not be copied.
+
 ## Instance events
 
 To define Amazon CloudWatch event rules for database instances, use the `onEvent`

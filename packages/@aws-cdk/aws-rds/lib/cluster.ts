@@ -733,6 +733,7 @@ function createInstances(cluster: DatabaseClusterNew, props: DatabaseClusterBase
       autoMinorVersionUpgrade: props.instanceProps.autoMinorVersionUpgrade,
       allowMajorVersionUpgrade: props.instanceProps.allowMajorVersionUpgrade,
       deleteAutomatedBackups: props.instanceProps.deleteAutomatedBackups,
+      copyTagsToSnapshot: props.instanceProps.copyTagsToSnapshot,
     });
 
     // For instances that are part of a cluster:

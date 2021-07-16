@@ -1948,6 +1948,44 @@ describe('cluster', () => {
       DBClusterIdentifier: clusterIdentifier,
     });
   });
+
+  test('cluster with copyTagsToSnapshot disabled', () => {
+    // GIVEN
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+
+    // WHEN
+    new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA,
+      instanceProps: {
+        copyTagsToSnapshot: false,
+        vpc,
+      },
+    });
+
+    expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
+      CopyTagsToSnapshot: false,
+    });
+  });
+
+  test('cluster with copyTagsToSnapshot enabled', () => {
+    // GIVEN
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+
+    // WHEN
+    new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA,
+      instanceProps: {
+        copyTagsToSnapshot: true,
+        vpc,
+      },
+    });
+
+    expect(stack).toHaveResourceLike('AWS::RDS::DBInstance', {
+      CopyTagsToSnapshot: true,
+    });
+  });
 });
 
 test.each([

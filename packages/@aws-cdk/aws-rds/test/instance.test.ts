@@ -1337,6 +1337,33 @@ describe('instance', () => {
     });
   });
 
+  test('can initialize copyTagsToSnapshot to true', () => {
+    new rds.DatabaseInstance(stack, 'Instance', {
+      engine: rds.DatabaseInstanceEngine.mysql({
+        version: rds.MysqlEngineVersion.VER_8_0_19,
+      }),
+      vpc,
+      copyTagsToSnapshot: true,
+    });
+
+    expect(stack).toHaveResource('AWS::RDS::DBInstance', {
+      CopyTagsToSnapshot: true,
+    });
+  });
+
+  test('can initialize copyTagsToSnapshot to false', () => {
+    new rds.DatabaseInstance(stack, 'Instance', {
+      engine: rds.DatabaseInstanceEngine.mysql({
+        version: rds.MysqlEngineVersion.VER_8_0_19,
+      }),
+      vpc,
+      copyTagsToSnapshot: false,
+    });
+
+    expect(stack).toHaveResource('AWS::RDS::DBInstance', {
+      CopyTagsToSnapshot: false,
+    });
+  });
 });
 
 test.each([
