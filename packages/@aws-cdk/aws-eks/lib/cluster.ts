@@ -17,7 +17,7 @@ import { INSTANCE_TYPES } from './instance-types';
 import { KubernetesManifest } from './k8s-manifest';
 import { KubernetesObjectValue } from './k8s-object-value';
 import { KubernetesPatch } from './k8s-patch';
-import { KubectlProvider } from './kubectl-provider';
+import { IKubectlProvider, KubectlProvider } from './kubectl-provider';
 import { Nodegroup, NodegroupOptions } from './managed-nodegroup';
 import { OpenIdConnectProvider } from './oidc-provider';
 import { BottleRocketImage } from './private/bottlerocket';
@@ -123,6 +123,13 @@ export interface ICluster extends IResource, ec2.IConnectable {
    * If not defined, a default layer will be used.
    */
   readonly kubectlLayer?: lambda.ILayerVersion;
+
+  /**
+   * Kubectl Provider for issuing kubectl commands against it
+   *
+   * If not defined, the cdk will create one
+   */
+  readonly kubectlProvider?: IKubectlProvider;
 
   /**
    * Amount of memory to allocate to the provider's lambda function.
@@ -273,6 +280,13 @@ export interface ClusterAttributes {
    * @default - a layer bundled with this module.
    */
   readonly kubectlLayer?: lambda.ILayerVersion;
+
+  /**
+   * KubectlProvider for issuing kubectl commands.
+   *
+   * @default - undefined. if undefined - create new
+   */
+  readonly kubectlProvider?: IKubectlProvider;
 
   /**
    * Amount of memory to allocate to the provider's lambda function.
@@ -1730,6 +1744,7 @@ class ImportedCluster extends ClusterBase {
   public readonly kubectlSecurityGroup?: ec2.ISecurityGroup | undefined;
   public readonly kubectlPrivateSubnets?: ec2.ISubnet[] | undefined;
   public readonly kubectlLayer?: lambda.ILayerVersion;
+  public readonly kubectlProvider?: IKubectlProvider;
   public readonly kubectlMemory?: Size;
   public readonly prune: boolean;
 
@@ -1747,6 +1762,7 @@ class ImportedCluster extends ClusterBase {
     this.kubectlEnvironment = props.kubectlEnvironment;
     this.kubectlPrivateSubnets = props.kubectlPrivateSubnetIds ? props.kubectlPrivateSubnetIds.map((subnetid, index) => ec2.Subnet.fromSubnetId(this, `KubectlSubnet${index}`, subnetid)) : undefined;
     this.kubectlLayer = props.kubectlLayer;
+    this.kubectlProvider = props.kubectlProvider;
     this.kubectlMemory = props.kubectlMemory;
     this.prune = props.prune ?? true;
 

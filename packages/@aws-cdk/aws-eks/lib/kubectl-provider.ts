@@ -19,7 +19,41 @@ export interface KubectlProviderProps {
   readonly cluster: ICluster;
 }
 
-export class KubectlProvider extends NestedStack {
+export interface KubectlProviderAttributes {
+  /**
+   * The kubectl provider lambda arn
+   */
+  functionArn: string;
+
+  /**
+   * The IAM role to assume in order to perform kubectl operations against this cluster.
+   */
+  kubectlRoleArn: string;
+
+  /**
+   * The IAM execution role of the handler. This role must be able to assume kubectlRoleArn
+   */
+  handlerRole: iam.Role;
+}
+
+export interface IKubectlProvider {
+  /**
+   * The custom resource provider's service token.
+   */
+  readonly serviceToken: string;
+
+  /**
+   * The IAM role to assume in order to perform kubectl operations against this cluster.
+   */
+  readonly roleArn: string;
+
+  /**
+   * The IAM execution role of the handler.
+   */
+  readonly handlerRole: iam.IRole;
+}
+
+export class KubectlProvider extends NestedStack implements IKubectlProvider {
 
   public static getOrCreate(scope: Construct, cluster: ICluster) {
     // if this is an "owned" cluster, it has a provider associated with it
@@ -37,6 +71,10 @@ export class KubectlProvider extends NestedStack {
     }
 
     return provider;
+  }
+
+  public static fromKubectlProviderAttributes(scope: Construct, id: string, attrs: KubectlProviderAttributes) {
+    return new ImportedKubectlProvider(scope, id, attrs);
   }
 
   /**
@@ -113,4 +151,30 @@ export class KubectlProvider extends NestedStack {
     this.roleArn = cluster.kubectlRole.roleArn;
   }
 
+}
+
+class ImportedKubectlProvider extends NestedStack implements IKubectlProvider {
+
+  /**
+   * The custom resource provider's service token.
+   */
+  public readonly serviceToken: string;
+
+  /**
+   * The IAM role to assume in order to perform kubectl operations against this cluster.
+   */
+  public readonly roleArn: string;
+
+  /**
+   * The IAM execution role of the handler.
+   */
+  public readonly handlerRole: iam.IRole;
+
+  constructor(scope: Construct, id: string, props: KubectlProviderAttributes) {
+    super(scope, id);
+
+    this.serviceToken = props.functionArn;
+    this.roleArn = props.kubectlRoleArn;
+    this.handlerRole = props.handlerRole;
+  }
 }
