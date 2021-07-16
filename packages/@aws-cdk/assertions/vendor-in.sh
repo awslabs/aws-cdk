@@ -21,17 +21,20 @@ set -euo pipefail
 dest="lib/vendored"
 mkdir -p $dest
 
+repo_root=${scriptdir}/../../..
+packages_root=${repo_root}/packages/"@aws-cdk"
+
 # cfnspec
 mkdir -p $dest/cfnspec
-rsync -a --exclude '*.d.ts' --exclude '*.js' ../cfnspec/lib/ $dest/cfnspec/lib
-rsync -a ../cfnspec/spec/ $dest/cfnspec/spec
+rsync -a --exclude '*.d.ts' --exclude '*.js' $packages_root/cfnspec/lib/ $dest/cfnspec/lib
+rsync -a $packages_root/cfnspec/spec/ $dest/cfnspec/spec
 
 # cloudformation-diff
-rsync -a --exclude '*.d.ts' --exclude '*.js' ../cloudformation-diff/lib/ $dest/cloudformation-diff
+rsync -a --exclude '*.d.ts' --exclude '*.js' $packages_root/cloudformation-diff/lib/ $dest/cloudformation-diff
 find $dest/cloudformation-diff -name '*.ts' | xargs -n1 bash -c 'porta_sed "$@"' _ '@aws-cdk/cfnspec' '../../cfnspec/lib'
 
 # assert-internal
-rsync -a --exclude '*.d.ts' --exclude '*.js' ../assert-internal/lib/ $dest/assert
+rsync -a --exclude '*.d.ts' --exclude '*.js' $packages_root/assert-internal/lib/ $dest/assert
 find $dest/assert -name '*.ts' | xargs -n1 bash -c 'porta_sed "$@"' _ '@aws-cdk/cloudformation-diff' '../../cloudformation-diff'
 
 # readme

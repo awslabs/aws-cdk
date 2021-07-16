@@ -164,7 +164,7 @@ export function findUpward(dir: string, pred: (x: string) => boolean): string | 
 }
 
 export function monoRepoRoot() {
-  const ret = findUpward(process.cwd(), d => fs.existsSync(path.join(d, 'yarn.lock')) || fs.existsSync(path.join(d, '.nzmroot')));
+  const ret = findUpward(process.cwd(), d => fs.existsSync(path.join(d, 'release.json')) || fs.existsSync(path.join(d, '.nzmroot')));
   if (!ret) {
     throw new Error('Could not find lerna.json');
   }
