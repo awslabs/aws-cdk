@@ -21,7 +21,7 @@ export interface IFunction extends IResource, ec2.IConnectable, iam.IGrantable {
   readonly functionName: string;
 
   /**
-   * The ARN fo the function.
+   * The ARN of the function.
    *
    * @attribute
    */
