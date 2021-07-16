@@ -205,6 +205,29 @@ const submitJob = new tasks.LambdaInvoke(this, 'Invoke Handler', {
 });
 ```
 
+You can also use [intrinsic functions](https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-intrinsic-functions.html) with `JsonPath.stringAt()`. 
+Here is an exmaple of starting an Athena query:
+
+```ts
+const startQueryExecutionJob = new tasks.AthenaStartQueryExecution(this, 'Athena Start Query', {
+  queryString: sfn.JsonPath.stringAt("States.Format('select contacts where year={};', $.year)"),
+),
+  queryExecutionContext: {
+    databaseName: 'interactions',
+  },
+  resultConfiguration: {
+    encryptionConfiguration: {
+      encryptionOption: tasks.EncryptionOption.S3_MANAGED,
+    },
+    outputLocation: {
+      bucketName: 'mybucket',
+      objectKey: 'myprefix',
+    },
+  },
+  integrationPattern: sfn.IntegrationPattern.RUN_JOB,
+});
+```
+
 Each service integration has its own set of parameters that can be supplied.
 
 ## Evaluate Expression
