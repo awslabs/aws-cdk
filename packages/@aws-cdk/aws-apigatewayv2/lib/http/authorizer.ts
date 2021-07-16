@@ -223,6 +223,7 @@ export interface HttpRouteAuthorizerConfig {
    * Possible values are:
    * - JWT - JSON Web Token Authorizer
    * - CUSTOM - Lambda Authorizer
+   * - AWS_IAM - IAM Polices
    * - NONE - No Authorization
    */
   readonly authorizationType: string;

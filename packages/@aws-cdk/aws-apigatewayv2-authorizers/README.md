@@ -25,6 +25,7 @@
 - [JWT Authorizers](#jwt-authorizers)
   - [User Pool Authorizer](#user-pool-authorizer)
 - [Lambda Authorizers](#lambda-authorizers)
+- [IAM Authorizers](#iam-authorizers)
 
 ## Introduction
 
@@ -181,6 +182,28 @@ const authorizer = new HttpLambdaAuthorizer({
   responseTypes: [HttpLambdaResponseType.SIMPLE] // Define if returns simple and/or iam response
   handler: authHandler,
 });
+
+const api = new HttpApi(stack, 'HttpApi');
+
+api.addRoutes({
+  integration: new HttpProxyIntegration({
+    url: 'https://get-books-proxy.myproxy.internal',
+  }),
+  path: '/books',
+  authorizer,
+});
+```
+
+## IAM Authorizers
+
+IAM Authorizers allow and restrict clients from accessing HTTP APIs by using IAM Policies. Unlike the other authorizers, the IAM Authorizer doesn't create a new resource in your stack, but configures the route(s) to use IAM authorization.
+
+Clients are actual users defined in the IAM console with generated AWS Credentials. When enabled for a route, clients must use [Signature Version 4](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html) to sign their requests with AWS credentials.
+
+Using this authorizer requires assigning the relevant policies for each client. Here are some [examples](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html).
+
+```ts
+const authorizer = new HttpIamAuthorizer();
 
 const api = new HttpApi(stack, 'HttpApi');
 

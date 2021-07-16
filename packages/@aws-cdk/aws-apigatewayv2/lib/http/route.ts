@@ -130,6 +130,9 @@ enum HttpRouteAuthorizationType {
   /** Lambda Authorizer */
   CUSTOM = 'CUSTOM',
 
+  /** IAM Authorization */
+  AWS_IAM = 'AWS_IAM',
+
   /** No authorizer */
   NONE = 'NONE'
 }
@@ -162,7 +165,7 @@ export class HttpRoute extends Resource implements IHttpRoute {
     }) : undefined;
 
     if (authBindResult && !(authBindResult.authorizationType in HttpRouteAuthorizationType)) {
-      throw new Error('authorizationType should either be JWT, CUSTOM, or NONE');
+      throw new Error('authorizationType should either be JWT, CUSTOM, AWS_IAM, or NONE');
     }
 
     let authorizationScopes = authBindResult?.authorizationScopes;

@@ -1,0 +1,10 @@
+{
+  "name": "sig-v4-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "aws-v4": "^1.0.0",
+    "dotenv": "^10.0.0"
+  }
+}
