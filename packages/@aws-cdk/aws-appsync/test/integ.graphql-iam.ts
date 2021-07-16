@@ -95,14 +95,14 @@ api.grant(lambdaIAM, IamResource.ofType('test'), 'appsync:GraphQL');
 api.grantMutation(lambdaIAM, 'addTest');
 
 new Function(stack, 'testQuery', {
-  code: Code.fromAsset('verify'),
+  code: Code.fromAsset(join(__dirname, 'verify/iam-query')),
   handler: 'iam-query.handler',
   runtime: Runtime.NODEJS_12_X,
   environment: { APPSYNC_ENDPOINT: api.graphqlUrl },
   role: lambdaIAM,
 });
 new Function(stack, 'testFail', {
-  code: Code.fromAsset('verify'),
+  code: Code.fromAsset(join(__dirname, 'verify/iam-query')),
   handler: 'iam-query.handler',
   runtime: Runtime.NODEJS_12_X,
   environment: { APPSYNC_ENDPOINT: api.graphqlUrl },

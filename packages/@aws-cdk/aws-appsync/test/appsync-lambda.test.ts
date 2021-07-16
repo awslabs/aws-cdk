@@ -20,7 +20,7 @@ describe('Lambda Data Source configuration', () => {
   let func: lambda.Function;
   beforeEach(() => {
     func = new lambda.Function(stack, 'func', {
-      code: lambda.Code.fromAsset('test/verify'),
+      code: lambda.Code.fromAsset(path.join(__dirname, 'verify/iam-query')),
       handler: 'iam-query.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
     });
@@ -94,7 +94,7 @@ describe('adding lambda data source from imported api', () => {
   let func: lambda.Function;
   beforeEach(() => {
     func = new lambda.Function(stack, 'func', {
-      code: lambda.Code.fromAsset('test/verify'),
+      code: lambda.Code.fromAsset(path.join(__dirname, 'verify/iam-query')),
       handler: 'iam-query.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
     });

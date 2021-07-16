@@ -196,7 +196,6 @@ describe('testing Object Type properties', () => {
       },
     });
     test.addField({ fieldName: 'resolve', field });
-    // test.addField('resolve', field);
     test.addField({ fieldName: 'dynamic', field: t.string });
 
     api.addType(test);
