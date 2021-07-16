@@ -7,11 +7,6 @@ import * as assembly from './cloud-assembly';
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-// this prefix is used by the CLI to identify this specific error.
-// in which case we want to instruct the user to upgrade his CLI.
-// see exec.ts#createAssembly
-export const VERSION_MISMATCH: string = 'Cloud assembly schema version mismatch';
-
 const ASSETS_SCHEMA = require('../schema/assets.schema.json');
 
 const ASSEMBLY_SCHEMA = require('../schema/cloud-assembly.schema.json');
@@ -20,6 +15,16 @@ const ASSEMBLY_SCHEMA = require('../schema/cloud-assembly.schema.json');
  * Version is shared for both manifests
  */
 const SCHEMA_VERSION = require('../schema/cloud-assembly.version.json').version;
+
+/**
+ * VersionMismatchError error is thrown when there is CloudAssembly scheme mismatch between the CLI and the framework
+ */
+export class VersionMismatchError extends Error { 
+  constructor() {
+    super();
+    Object.setPrototypeOf(this, VersionMismatchError.prototype);
+  }
+}
 
 /**
  * Protocol utility class.
@@ -97,9 +102,7 @@ export class Manifest {
 
     // first validate the version should be accepted.
     if (semver.gt(actual, maxSupported)) {
-      // we use a well known error prefix so that the CLI can identify this specific error
-      // and print some more context to the user.
-      throw new Error(`${VERSION_MISMATCH}: Maximum schema version supported is ${maxSupported}, but found ${actual}`);
+      throw new VersionMismatchError();
     }
 
     // now validate the format is good.
