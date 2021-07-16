@@ -27,6 +27,7 @@ export interface BackupPlanProps {
    * @default - A CDK generated name
    */
   readonly backupPlanName?: string;
+  readonly backupOptions? : object;
 
   /**
    * The backup vault where backups are stored
@@ -125,6 +126,7 @@ export class BackupPlan extends Resource implements IBackupPlan {
     const plan = new CfnBackupPlan(this, 'Resource', {
       backupPlan: {
         backupPlanName: props.backupPlanName || id,
+        backupOptions: props.backupOptions || {},
         backupPlanRule: Lazy.any({ produce: () => this.rules }, { omitEmptyArray: true }),
       },
     });
