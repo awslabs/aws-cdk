@@ -1688,6 +1688,66 @@ nodeunitShim({
       }));
       test.done();
     },
+
+    'can filter by Subnet Ids'(test: Test) {
+      // GIVEN
+      const stack = getTestStack();
+
+      const vpc = Vpc.fromVpcAttributes(stack, 'VPC', {
+        vpcId: 'vpc-1234',
+        vpcCidrBlock: '192.168.0.0/16',
+        availabilityZones: ['dummy1a', 'dummy1b', 'dummy1c'],
+        privateSubnetIds: ['priv-1', 'priv-2', 'priv-3'],
+      });
+
+      // WHEN
+      new InterfaceVpcEndpoint(stack, 'VPC Endpoint', {
+        vpc,
+        service: new InterfaceVpcEndpointService('com.amazonaws.vpce.us-east-1.vpce-svc-uuddlrlrbastrtsvc', 443),
+        subnets: {
+          subnetFilters: [SubnetFilter.byIds(['priv-1', 'priv-2'])],
+        },
+      });
+
+      // THEN
+      cdkExpect(stack).to(haveResource('AWS::EC2::VPCEndpoint', {
+        ServiceName: 'com.amazonaws.vpce.us-east-1.vpce-svc-uuddlrlrbastrtsvc',
+        SubnetIds: ['priv-1', 'priv-2'],
+      }));
+      test.done();
+    },
+
+    'can filter by Cidr Netmask'(test: Test) {
+      // GIVEN
+      const stack = getTestStack();
+      const vpc = new Vpc(stack, 'VpcNetwork', {
+        maxAzs: 1,
+        subnetConfiguration: [
+          { name: 'normalSn1', subnetType: SubnetType.PUBLIC, cidrMask: 20 },
+          { name: 'normalSn2', subnetType: SubnetType.PUBLIC, cidrMask: 20 },
+          { name: 'smallSn', subnetType: SubnetType.PUBLIC, cidrMask: 28 },
+        ],
+      });
+
+      // WHEN
+      const { subnetIds } = vpc.selectSubnets(
+        { subnetFilters: [SubnetFilter.byCidrMask(20)] },
+      );
+
+      // THEN
+      test.deepEqual(subnetIds.length, 2);
+      const expected = vpc.publicSubnets.filter(s => s.ipv4CidrBlock.endsWith('/20'));
+      test.deepEqual(subnetIds, expected.map(s => s.subnetId));
+      test.done();
+    },
+
+    'cannot filter by Cidr Netmask with invalid range'(test: Test) {
+      expect(() => SubnetFilter.byCidrMask(15))
+        .toThrow('x.x.x.x/15 is not a valid VPC CIDR range (must be between /16 and /28)');
+      expect(() => SubnetFilter.byCidrMask(29))
+        .toThrow('x.x.x.x/29 is not a valid VPC CIDR range (must be between /16 and /28)');
+      test.done();
+    },
   },
 });
 
