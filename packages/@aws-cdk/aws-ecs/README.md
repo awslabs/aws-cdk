@@ -226,6 +226,17 @@ const fargateTaskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef', {
 });
 ```
 
+On Fargate Platform Version 1.4.0 or later, you may specify up to 200GiB of
+[ephemeral storage](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-task-storage.html#fargate-task-storage-pv14):
+
+```ts
+const fargateTaskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef', {
+  memoryLimitMiB: 512,
+  cpu: 256,
+  ephemeralStorageGiB: 100
+});
+```
+
 To add containers to a task definition, call `addContainer()`:
 
 ```ts

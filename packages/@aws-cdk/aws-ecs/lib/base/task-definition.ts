@@ -199,6 +199,15 @@ export interface TaskDefinitionProps extends CommonTaskDefinitionProps {
    * @default - No inference accelerators.
    */
   readonly inferenceAccelerators?: InferenceAccelerator[];
+
+  /**
+   * The amount (in GiB) of ephemeral storage to be allocated to the task.
+   *
+   * Only supported in Fargate platform version 1.4.0 or later.
+   *
+   * @default - 20GiB
+   */
+  readonly ephemeralStorageGiB?: number;
 }
 
 /**
@@ -330,6 +339,13 @@ export class TaskDefinition extends TaskDefinitionBase {
   public readonly compatibility: Compatibility;
 
   /**
+   * The amount (in GiB) of ephemeral storage to be allocated to the task.
+   *
+   * Only supported in Fargate platform version 1.4.0 or later.
+   */
+  public readonly ephemeralStorageGiB?: number;
+
+  /**
    * The container definitions.
    */
   protected readonly containers = new Array<ContainerDefinition>();
@@ -399,6 +415,8 @@ export class TaskDefinition extends TaskDefinitionBase {
       props.inferenceAccelerators.forEach(ia => this.addInferenceAccelerator(ia));
     }
 
+    this.ephemeralStorageGiB = props.ephemeralStorageGiB;
+
     const taskDef = new CfnTaskDefinition(this, 'Resource', {
       containerDefinitions: Lazy.any({ produce: () => this.renderContainers() }, { omitEmptyArray: true }),
       volumes: Lazy.any({ produce: () => this.renderVolumes() }, { omitEmptyArray: true }),
@@ -424,6 +442,9 @@ export class TaskDefinition extends TaskDefinitionBase {
         produce: () =>
           !isFargateCompatible(this.compatibility) ? this.renderInferenceAccelerators() : undefined,
       }, { omitEmptyArray: true }),
+      ephemeralStorage: this.ephemeralStorageGiB ? {
+        sizeInGiB: this.ephemeralStorageGiB,
+      } : undefined,
     });
 
     if (props.placementConstraints) {

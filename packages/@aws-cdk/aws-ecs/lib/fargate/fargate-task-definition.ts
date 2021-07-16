@@ -50,6 +50,15 @@ export interface FargateTaskDefinitionProps extends CommonTaskDefinitionProps {
    * @default 512
    */
   readonly memoryLimitMiB?: number;
+
+  /**
+   * The amount (in GiB) of ephemeral storage to be allocated to the task. The maximum supported value is 200 GiB.
+   *
+   * NOTE: This parameter is only supported for tasks hosted on AWS Fargate using platform version 1.4.0 or later.
+   *
+   * @default 20
+   */
+  readonly ephemeralStorageGiB?: number;
 }
 
 /**
@@ -105,6 +114,11 @@ export class FargateTaskDefinition extends TaskDefinition implements IFargateTas
   // the import being generated in the .d.ts file.
 
   /**
+   * The amount (in GiB) of ephemeral storage to be allocated to the task.
+   */
+  public readonly ephemeralStorageGiB?: number;
+
+  /**
    * Constructs a new instance of the FargateTaskDefinition class.
    */
   constructor(scope: Construct, id: string, props: FargateTaskDefinitionProps = {}) {
@@ -115,5 +129,11 @@ export class FargateTaskDefinition extends TaskDefinition implements IFargateTas
       compatibility: Compatibility.FARGATE,
       networkMode: NetworkMode.AWS_VPC,
     });
+
+    if (props.ephemeralStorageGiB && (props.ephemeralStorageGiB < 20 || props.ephemeralStorageGiB > 200)) {
+      throw new Error('Ephemeral storage size must be between 21GiB and 200GiB');
+    }
+
+    this.ephemeralStorageGiB = props.ephemeralStorageGiB;
   }
 }
