@@ -60,6 +60,12 @@
       "AWSLINT_BASE_CONSTRUCT": true
     }
   },
+  "awslint": {
+    "exclude": [
+      "props-physical-name:@aws-cdk/aws-elasticache.ParameterGroupProps",
+      "docs-public-apis:@aws-cdk/aws-elasticache.CacheParameterGroupFamily"
+    ]
+  },
   "keywords": [
     "aws",
     "cdk",
@@ -92,7 +98,7 @@
     "node": ">= 10.13.0 <13 || >=13.7.0"
   },
   "stability": "experimental",
-  "maturity": "cfn-only",
+  "maturity": "experimental",
   "awscdkio": {
     "announce": false
   },
