@@ -2,18 +2,19 @@ import { green } from 'colors/safe';
 
 import { CredentialProviderSource } from './api/aws-auth/credentials';
 import { error } from './logging';
+import { Configuration } from './settings';
 
 /**
  * The basic contract for plug-ins to adhere to::
  *
- *   import { Plugin, PluginHost } from 'aws-cdk';
+ *   import { Configuration, Plugin, PluginHost } from 'aws-cdk';
  *   import { CustomCredentialProviderSource } from './custom-credential-provider-source';
  *
  *   export default class FooCDKPlugIn implements PluginHost {
  *     public readonly version = '1';
  *
- *     public init(host: PluginHost) {
- *     host.registerCredentialProviderSource(new CustomCredentialProviderSource());
+ *     public init(host: PluginHost, config: Configuration) {
+ *       host.registerCredentialProviderSource(new CustomCredentialProviderSource(config));
  *     }
  *   }
  *
@@ -31,7 +32,7 @@ export interface Plugin {
    * ``PluginHost`` instance it receives to register new ``CredentialProviderSource``
    * instances.
    */
-  init?: (host: PluginHost) => void;
+  init?: (host: PluginHost, config: Configuration) => void;
 }
 
 /**
@@ -58,7 +59,7 @@ export class PluginHost {
    *
    * @param moduleSpec the specification (path or name) of the plug-in module to be loaded.
    */
-  public load(moduleSpec: string) {
+  public load(moduleSpec: string, config: Configuration) {
     try {
       /* eslint-disable @typescript-eslint/no-require-imports */
       const plugin = require(moduleSpec);
@@ -67,7 +68,7 @@ export class PluginHost {
         error(`Module ${green(moduleSpec)} is not a valid plug-in, or has an unsupported version.`);
         throw new Error(`Module ${moduleSpec} does not define a valid plug-in.`);
       }
-      if (plugin.init) { plugin.init(PluginHost.instance); }
+      if (plugin.init) { plugin.init(PluginHost.instance, config); }
     } catch (e) {
       error(`Unable to load ${green(moduleSpec)}: ${e.stack}`);
       throw new Error(`Unable to load plug-in: ${moduleSpec}`);

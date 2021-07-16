@@ -173,15 +173,16 @@ async function initCommandLine() {
   });
 
   /** Function to load plug-ins, using configurations additively. */
-  function loadPlugins(...settings: Settings[]) {
+  function loadPlugins(config: Configuration) {
     const loaded = new Set<string>();
+    const settings: Settings[] = new Array(config.settings);
     for (const source of settings) {
       const plugins: string[] = source.get(['plugin']) || [];
       for (const plugin of plugins) {
         const resolved = tryResolve(plugin);
         if (loaded.has(resolved)) { continue; }
         debug(`Loading plug-in: ${colors.green(plugin)} from ${colors.blue(resolved)}`);
-        PluginHost.instance.load(plugin);
+        PluginHost.instance.load(plugin, config);
         loaded.add(resolved);
       }
     }
@@ -196,7 +197,7 @@ async function initCommandLine() {
     }
   }
 
-  loadPlugins(configuration.settings);
+  loadPlugins(configuration);
 
   const cmd = argv._[0];
 
