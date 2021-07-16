@@ -410,6 +410,7 @@ export interface DomainProps {
   /**
    * Additional options to specify for the Amazon ES domain.
    *
+   * @see https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-createupdatedomains.html#es-createdomain-configure-advanced-options
    * @default - no advanced options are specified
    */
   readonly advancedOptions?: { [key: string]: (string) };
@@ -1682,6 +1683,7 @@ export class Domain extends DomainBase implements IDomain, ec2.IConnectable {
           },
         }
         : undefined,
+      advancedOptions: props.advancedOptions,
     });
     this.domain.applyRemovalPolicy(props.removalPolicy);
 

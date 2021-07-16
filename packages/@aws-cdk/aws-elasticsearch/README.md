@@ -290,3 +290,16 @@ new Domain(stack, 'Domain', {
 It is also possible to specify a custom certificate instead of the auto-generated one.
 
 Additionally, an automatic CNAME-Record is created if a hosted zone is provided for the custom endpoint
+
+## Advanced options
+
+[Advanced options](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-createupdatedomains.html#es-createdomain-configure-advanced-options) can used to configure additional options.
+
+```ts
+new Domain(stack, 'Domain', {
+    version: ElasticsearchVersion.V7_7,
+    advancedOptions: {
+        'rest.action.multi.allow_explicit_index': 'false',
+    },
+});
+```
