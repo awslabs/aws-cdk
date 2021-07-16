@@ -1948,6 +1948,29 @@ describe('cluster', () => {
       DBClusterIdentifier: clusterIdentifier,
     });
   });
+
+  test('can set copytagstosnapshot to true for database cluster with instances', () => {
+    // GIVEN
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+
+    // WHEN
+    new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA,
+      instanceProps: {
+        vpc,
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+        copyTagsToSnapshot: true,
+      },
+    });
+    // THEN
+    expect(stack).toHaveResource('AWS::RDS::DBInstance', {
+      Engine: 'aurora',
+      CopyTagsToSnapshot: true,
+    });
+  });
 });
 
 test.each([
