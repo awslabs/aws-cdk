@@ -372,6 +372,18 @@ const asg = new ec2.AutoScalingGroup(...);
 cluster.connectAutoScalingGroupCapacity(asg);
 ```
 
+To connect a self-managed node group to imported cluster, use the `cluster.connectAutoScalingGroupCapacity()` method:
+
+```ts
+const importedCluster = eks.Cluster.fromClusterAttributes(stack, 'ImportedCluster', {
+  clusterName: cluster.clusterName,
+  clusterSecurityGroupId: cluster.clusterSecurityGroupId,
+});
+
+const asg = new ec2.AutoScalingGroup(...);
+importedCluster.connectAutoScalingGroupCapacity(asg);
+```
+
 In both cases, the [cluster security group](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html#cluster-sg) will be automatically attached to
 the auto-scaling group, allowing for traffic to flow freely between managed and self-managed nodes.
 

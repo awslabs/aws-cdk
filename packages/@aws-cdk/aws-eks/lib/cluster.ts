@@ -174,6 +174,27 @@ export interface ICluster extends IResource, ec2.IConnectable {
    */
   addCdk8sChart(id: string, chart: Construct): KubernetesManifest;
 
+  /**
+   * Connect capacity in the form of an existing AutoScalingGroup to the EKS cluster.
+   *
+   * The AutoScalingGroup must be running an EKS-optimized AMI containing the
+   * /etc/eks/bootstrap.sh script. This method will configure Security Groups,
+   * add the right policies to the instance role, apply the right tags, and add
+   * the required user data to the instance's launch configuration.
+   *
+   * Spot instances will be labeled `lifecycle=Ec2Spot` and tainted with `PreferNoSchedule`.
+   * If kubectl is enabled, the
+   * [spot interrupt handler](https://github.com/awslabs/ec2-spot-labs/tree/master/ec2-spot-eks-solution/spot-termination-handler)
+   * daemon will be installed on all spot instances to handle
+   * [EC2 Spot Instance Termination Notices](https://aws.amazon.com/blogs/aws/new-ec2-spot-instance-termination-notices/).
+   *
+   * Prefer to use `addAutoScalingGroupCapacity` if possible.
+   *
+   * @see https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
+   * @param autoScalingGroup [disable-awslint:ref-via-interface]
+   * @param options options for adding auto scaling groups, like customizing the bootstrap script
+   */
+  connectAutoScalingGroupCapacity(autoScalingGroup: autoscaling.AutoScalingGroup, options: AutoScalingGroupOptions): void;
 }
 
 /**
@@ -674,6 +695,15 @@ abstract class ClusterBase extends Resource implements ICluster {
   public abstract readonly prune: boolean;
   public abstract readonly openIdConnectProvider: iam.IOpenIdConnectProvider;
 
+  private _spotInterruptHandler?: HelmChart;
+
+  /**
+   * Manages the aws-auth config map.
+   *
+   * @internal
+   */
+  protected _awsAuth?: AwsAuth;
+
   /**
    * Defines a Kubernetes resource in this cluster.
    *
@@ -722,6 +752,123 @@ abstract class ClusterBase extends Resource implements ICluster {
       ...options,
       cluster: this,
     });
+  }
+
+  /**
+   * Installs the AWS spot instance interrupt handler on the cluster if it's not
+   * already added.
+   */
+  private addSpotInterruptHandler() {
+    if (!this._spotInterruptHandler) {
+      this._spotInterruptHandler = this.addHelmChart('spot-interrupt-handler', {
+        chart: 'aws-node-termination-handler',
+        version: '0.13.2',
+        repository: 'https://aws.github.io/eks-charts',
+        namespace: 'kube-system',
+        values: {
+          nodeSelector: {
+            lifecycle: LifecycleLabel.SPOT,
+          },
+        },
+      });
+    }
+
+    return this._spotInterruptHandler;
+  }
+
+  /**
+   * Connect capacity in the form of an existing AutoScalingGroup to the EKS cluster.
+   *
+   * The AutoScalingGroup must be running an EKS-optimized AMI containing the
+   * /etc/eks/bootstrap.sh script. This method will configure Security Groups,
+   * add the right policies to the instance role, apply the right tags, and add
+   * the required user data to the instance's launch configuration.
+   *
+   * Spot instances will be labeled `lifecycle=Ec2Spot` and tainted with `PreferNoSchedule`.
+   * If kubectl is enabled, the
+   * [spot interrupt handler](https://github.com/awslabs/ec2-spot-labs/tree/master/ec2-spot-eks-solution/spot-termination-handler)
+   * daemon will be installed on all spot instances to handle
+   * [EC2 Spot Instance Termination Notices](https://aws.amazon.com/blogs/aws/new-ec2-spot-instance-termination-notices/).
+   *
+   * Prefer to use `addAutoScalingGroupCapacity` if possible.
+   *
+   * @see https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
+   * @param autoScalingGroup [disable-awslint:ref-via-interface]
+   * @param options options for adding auto scaling groups, like customizing the bootstrap script
+   */
+  public connectAutoScalingGroupCapacity(autoScalingGroup: autoscaling.AutoScalingGroup, options: AutoScalingGroupOptions) {
+    // self rules
+    autoScalingGroup.connections.allowInternally(ec2.Port.allTraffic());
+
+    // Cluster to:nodes rules
+    autoScalingGroup.connections.allowFrom(this, ec2.Port.tcp(443));
+    autoScalingGroup.connections.allowFrom(this, ec2.Port.tcpRange(1025, 65535));
+
+    // Allow HTTPS from Nodes to Cluster
+    autoScalingGroup.connections.allowTo(this, ec2.Port.tcp(443));
+
+    // Allow all node outbound traffic
+    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allTcp());
+    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allUdp());
+    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allIcmp());
+
+    // allow traffic to/from managed node groups (eks attaches this security group to the managed nodes)
+    autoScalingGroup.addSecurityGroup(this.clusterSecurityGroup);
+
+    const bootstrapEnabled = options.bootstrapEnabled ?? true;
+    if (options.bootstrapOptions && !bootstrapEnabled) {
+      throw new Error('Cannot specify "bootstrapOptions" if "bootstrapEnabled" is false');
+    }
+
+    if (bootstrapEnabled) {
+      const userData = options.machineImageType === MachineImageType.BOTTLEROCKET ?
+        renderBottlerocketUserData(this) :
+        renderAmazonLinuxUserData(this, autoScalingGroup, options.bootstrapOptions);
+      autoScalingGroup.addUserData(...userData);
+    }
+
+    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'));
+    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'));
+    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'));
+
+    // EKS Required Tags
+    // https://docs.aws.amazon.com/eks/latest/userguide/worker.html
+    Tags.of(autoScalingGroup).add(`kubernetes.io/cluster/${this.clusterName}`, 'owned', {
+      applyToLaunchedInstances: true,
+      // exclude security groups to avoid multiple "owned" security groups.
+      // (the cluster security group already has this tag)
+      excludeResourceTypes: ['AWS::EC2::SecurityGroup'],
+    });
+
+    // do not attempt to map the role if `kubectl` is not enabled for this
+    // cluster or if `mapRole` is set to false. By default this should happen.
+    let mapRole = options.mapRole ?? true;
+    if (mapRole && !this._awsAuth) {
+      Annotations.of(autoScalingGroup).addWarning('Auto-mapping aws-auth role for imported cluster is not supported, please map role manually');
+      mapRole = false;
+    }
+    if (mapRole) {
+      // see https://docs.aws.amazon.com/en_us/eks/latest/userguide/add-user-role.html
+      this._awsAuth?.addRoleMapping(autoScalingGroup.role, {
+        username: 'system:node:{{EC2PrivateDNSName}}',
+        groups: [
+          'system:bootstrappers',
+          'system:nodes',
+        ],
+      });
+    } else {
+      // since we are not mapping the instance role to RBAC, synthesize an
+      // output so it can be pasted into `aws-auth-cm.yaml`
+      new CfnOutput(autoScalingGroup, 'InstanceRoleARN', {
+        value: autoScalingGroup.role.roleArn,
+      });
+    }
+
+    const addSpotInterruptHandler = options.spotInterruptHandler ?? true;
+    // if this is an ASG with spot instances, install the spot interrupt handler (only if kubectl is enabled).
+    if (autoScalingGroup.spotPrice && addSpotInterruptHandler) {
+      this.addSpotInterruptHandler();
+    }
   }
 }
 
@@ -904,13 +1051,6 @@ export class Cluster extends ClusterBase {
    * stock `CfnCluster`), this is `undefined`.
    */
   private readonly _clusterResource: ClusterResource;
-
-  /**
-   * Manages the aws-auth config map.
-   */
-  private _awsAuth?: AwsAuth;
-
-  private _spotInterruptHandler?: HelmChart;
 
   private _neuronDevicePlugin?: KubernetesManifest;
 
@@ -1223,97 +1363,6 @@ export class Cluster extends ClusterBase {
   }
 
   /**
-   * Connect capacity in the form of an existing AutoScalingGroup to the EKS cluster.
-   *
-   * The AutoScalingGroup must be running an EKS-optimized AMI containing the
-   * /etc/eks/bootstrap.sh script. This method will configure Security Groups,
-   * add the right policies to the instance role, apply the right tags, and add
-   * the required user data to the instance's launch configuration.
-   *
-   * Spot instances will be labeled `lifecycle=Ec2Spot` and tainted with `PreferNoSchedule`.
-   * If kubectl is enabled, the
-   * [spot interrupt handler](https://github.com/awslabs/ec2-spot-labs/tree/master/ec2-spot-eks-solution/spot-termination-handler)
-   * daemon will be installed on all spot instances to handle
-   * [EC2 Spot Instance Termination Notices](https://aws.amazon.com/blogs/aws/new-ec2-spot-instance-termination-notices/).
-   *
-   * Prefer to use `addAutoScalingGroupCapacity` if possible.
-   *
-   * @see https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
-   * @param autoScalingGroup [disable-awslint:ref-via-interface]
-   * @param options options for adding auto scaling groups, like customizing the bootstrap script
-   */
-  public connectAutoScalingGroupCapacity(autoScalingGroup: autoscaling.AutoScalingGroup, options: AutoScalingGroupOptions) {
-    // self rules
-    autoScalingGroup.connections.allowInternally(ec2.Port.allTraffic());
-
-    // Cluster to:nodes rules
-    autoScalingGroup.connections.allowFrom(this, ec2.Port.tcp(443));
-    autoScalingGroup.connections.allowFrom(this, ec2.Port.tcpRange(1025, 65535));
-
-    // Allow HTTPS from Nodes to Cluster
-    autoScalingGroup.connections.allowTo(this, ec2.Port.tcp(443));
-
-    // Allow all node outbound traffic
-    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allTcp());
-    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allUdp());
-    autoScalingGroup.connections.allowToAnyIpv4(ec2.Port.allIcmp());
-
-    // allow traffic to/from managed node groups (eks attaches this security group to the managed nodes)
-    autoScalingGroup.addSecurityGroup(this.clusterSecurityGroup);
-
-    const bootstrapEnabled = options.bootstrapEnabled ?? true;
-    if (options.bootstrapOptions && !bootstrapEnabled) {
-      throw new Error('Cannot specify "bootstrapOptions" if "bootstrapEnabled" is false');
-    }
-
-    if (bootstrapEnabled) {
-      const userData = options.machineImageType === MachineImageType.BOTTLEROCKET ?
-        renderBottlerocketUserData(this) :
-        renderAmazonLinuxUserData(this, autoScalingGroup, options.bootstrapOptions);
-      autoScalingGroup.addUserData(...userData);
-    }
-
-    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'));
-    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'));
-    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'));
-
-    // EKS Required Tags
-    // https://docs.aws.amazon.com/eks/latest/userguide/worker.html
-    Tags.of(autoScalingGroup).add(`kubernetes.io/cluster/${this.clusterName}`, 'owned', {
-      applyToLaunchedInstances: true,
-      // exclude security groups to avoid multiple "owned" security groups.
-      // (the cluster security group already has this tag)
-      excludeResourceTypes: ['AWS::EC2::SecurityGroup'],
-    });
-
-    // do not attempt to map the role if `kubectl` is not enabled for this
-    // cluster or if `mapRole` is set to false. By default this should happen.
-    const mapRole = options.mapRole ?? true;
-    if (mapRole) {
-      // see https://docs.aws.amazon.com/en_us/eks/latest/userguide/add-user-role.html
-      this.awsAuth.addRoleMapping(autoScalingGroup.role, {
-        username: 'system:node:{{EC2PrivateDNSName}}',
-        groups: [
-          'system:bootstrappers',
-          'system:nodes',
-        ],
-      });
-    } else {
-      // since we are not mapping the instance role to RBAC, synthesize an
-      // output so it can be pasted into `aws-auth-cm.yaml`
-      new CfnOutput(autoScalingGroup, 'InstanceRoleARN', {
-        value: autoScalingGroup.role.roleArn,
-      });
-    }
-
-    const addSpotInterruptHandler = options.spotInterruptHandler ?? true;
-    // if this is an ASG with spot instances, install the spot interrupt handler (only if kubectl is enabled).
-    if (autoScalingGroup.spotPrice && addSpotInterruptHandler) {
-      this.addSpotInterruptHandler();
-    }
-  }
-
-  /**
    * Lazily creates the AwsAuth resource, which manages AWS authentication mapping.
    */
   public get awsAuth() {
@@ -1451,28 +1500,6 @@ export class Cluster extends ClusterBase {
     }
 
     return privateSubnets;
-  }
-
-  /**
-   * Installs the AWS spot instance interrupt handler on the cluster if it's not
-   * already added.
-   */
-  private addSpotInterruptHandler() {
-    if (!this._spotInterruptHandler) {
-      this._spotInterruptHandler = this.addHelmChart('spot-interrupt-handler', {
-        chart: 'aws-node-termination-handler',
-        version: '0.13.2',
-        repository: 'https://aws.github.io/eks-charts',
-        namespace: 'kube-system',
-        values: {
-          nodeSelector: {
-            lifecycle: LifecycleLabel.SPOT,
-          },
-        },
-      });
-    }
-
-    return this._spotInterruptHandler;
   }
 
   /**

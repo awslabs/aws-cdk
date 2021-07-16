@@ -40,6 +40,70 @@ export = {
     test.done();
   },
 
+  'imported cluster without clusterEndpoint'(test: Test) {
+    // GIVEN
+    const { asg, stack, cluster } = newFixtures();
+
+    const importedCluster = Cluster.fromClusterAttributes(stack, 'ImportedCluster', {
+      clusterName: cluster.clusterName,
+      openIdConnectProvider: cluster.openIdConnectProvider,
+      clusterCertificateAuthorityData: cluster.clusterCertificateAuthorityData,
+    });
+
+    // WHEN
+    const userData = stack.resolve(renderAmazonLinuxUserData(importedCluster, asg));
+
+    // THEN
+    test.deepEqual(userData, [
+      'set -o xtrace',
+      {
+        'Fn::Join': [
+          '',
+          [
+            '/etc/eks/bootstrap.sh ',
+            { Ref: 'clusterC5B25D0D' },
+            ' --kubelet-extra-args "--node-labels lifecycle=OnDemand" --use-max-pods true',
+          ],
+        ],
+      },
+      '/opt/aws/bin/cfn-signal --exit-code $? --stack my-stack --resource ASG46ED3070 --region us-west-33',
+    ]);
+
+    test.done();
+  },
+
+  'imported cluster without clusterCertificateAuthorityData'(test: Test) {
+    // GIVEN
+    const { asg, stack, cluster } = newFixtures();
+
+    const importedCluster = Cluster.fromClusterAttributes(stack, 'ImportedCluster', {
+      clusterName: cluster.clusterName,
+      openIdConnectProvider: cluster.openIdConnectProvider,
+      clusterEndpoint: cluster.clusterEndpoint,
+    });
+
+    // WHEN
+    const userData = stack.resolve(renderAmazonLinuxUserData(importedCluster, asg));
+
+    // THEN
+    test.deepEqual(userData, [
+      'set -o xtrace',
+      {
+        'Fn::Join': [
+          '',
+          [
+            '/etc/eks/bootstrap.sh ',
+            { Ref: 'clusterC5B25D0D' },
+            ' --kubelet-extra-args "--node-labels lifecycle=OnDemand" --use-max-pods true',
+          ],
+        ],
+      },
+      '/opt/aws/bin/cfn-signal --exit-code $? --stack my-stack --resource ASG46ED3070 --region us-west-33',
+    ]);
+
+    test.done();
+  },
+
   '--use-max-pods=true'(test: Test) {
     // GIVEN
     const { asg, stack, cluster } = newFixtures();

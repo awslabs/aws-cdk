@@ -222,6 +222,39 @@ export = {
 
   },
 
+  'connect autoscaling group with imported cluster'(test: Test) {
+
+    // GIVEN
+    const { stack, vpc } = testFixture();
+    const cluster = new eks.Cluster(stack, 'Cluster', {
+      vpc,
+      defaultCapacity: 0,
+      version: CLUSTER_VERSION,
+      prune: false,
+    });
+
+    const importedCluster = eks.Cluster.fromClusterAttributes(stack, 'ImportedCluster', {
+      clusterName: cluster.clusterName,
+      clusterSecurityGroupId: cluster.clusterSecurityGroupId,
+    });
+
+    const selfManaged = new asg.AutoScalingGroup(stack, 'self-managed', {
+      instanceType: new ec2.InstanceType('t2.medium'),
+      vpc: vpc,
+      machineImage: new ec2.AmazonLinuxImage(),
+    });
+
+    // WHEN
+    importedCluster.connectAutoScalingGroupCapacity(selfManaged, {});
+
+    test.deepEqual(expect(stack).value.Resources.selfmanagedLaunchConfigD41289EB.Properties.SecurityGroups, [
+      { 'Fn::GetAtt': ['selfmanagedInstanceSecurityGroupEA6D80C9', 'GroupId'] },
+      { 'Fn::GetAtt': ['Cluster9EE0221C', 'ClusterSecurityGroupId'] },
+    ]);
+    test.done();
+
+  },
+
   'cluster security group is attached when connecting self-managed nodes'(test: Test) {
 
     // GIVEN

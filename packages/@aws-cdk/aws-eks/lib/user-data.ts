@@ -1,9 +1,9 @@
 import * as autoscaling from '@aws-cdk/aws-autoscaling';
 import { Stack } from '@aws-cdk/core';
-import { BootstrapOptions, ICluster, Cluster } from './cluster';
+import { BootstrapOptions, ICluster } from './cluster';
 
 // eslint-disable-next-line max-len
-export function renderAmazonLinuxUserData(cluster: Cluster, autoScalingGroup: autoscaling.AutoScalingGroup, options: BootstrapOptions = {}): string[] {
+export function renderAmazonLinuxUserData(cluster: ICluster, autoScalingGroup: autoscaling.AutoScalingGroup, options: BootstrapOptions = {}): string[] {
 
   const stack = Stack.of(autoScalingGroup);
 
@@ -13,8 +13,15 @@ export function renderAmazonLinuxUserData(cluster: Cluster, autoScalingGroup: au
 
   const extraArgs = new Array<string>();
 
-  extraArgs.push(`--apiserver-endpoint '${cluster.clusterEndpoint}'`);
-  extraArgs.push(`--b64-cluster-ca '${cluster.clusterCertificateAuthorityData}'`);
+  try {
+    const clusterEndpoint = cluster.clusterEndpoint;
+    const clusterCertificateAuthorityData =
+      cluster.clusterCertificateAuthorityData;
+    extraArgs.push(`--apiserver-endpoint '${clusterEndpoint}'`);
+    extraArgs.push(`--b64-cluster-ca '${clusterCertificateAuthorityData}'`);
+  } catch (e) {
+    // ignore
+  }
 
   extraArgs.push(`--use-max-pods ${options.useMaxPods ?? true}`);
 
