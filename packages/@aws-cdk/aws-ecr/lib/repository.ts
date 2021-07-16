@@ -362,6 +362,14 @@ export interface RepositoryProps {
    *  @default TagMutability.MUTABLE
    */
   readonly imageTagMutability?: TagMutability;
+
+  /**
+   * The encryption configuration for the repository. This determines how the contents of your repository are encrypted at rest.
+   *
+   * @default server side encryption with AES256 algorithm
+   */
+  readonly encryptionConfiguration?: EncryptionConfigurationProperty;
+
 }
 
 export interface RepositoryAttributes {
@@ -488,6 +496,7 @@ export class Repository extends RepositoryBase {
         scanOnPush: true,
       },
       imageTagMutability: props.imageTagMutability || undefined,
+      encryptionConfiguration: props.encryptionConfiguration || undefined,
     });
 
     resource.applyRemovalPolicy(props.removalPolicy);
@@ -661,4 +670,36 @@ export enum TagMutability {
    */
   IMMUTABLE = 'IMMUTABLE',
 
+}
+
+/**
+ * The encryption type for your repository.
+ */
+export enum EncryptionType {
+  /**
+   * AES256 encryption type.
+   */
+  AES256 = 'AES256',
+
+  /**
+   * KMS encryption type.
+   */
+  KMS = 'KMS'
+}
+
+/**
+ * The encryption configuration setting for your repository.
+ */
+export interface EncryptionConfigurationProperty {
+  /**
+   * The encryption type to use.
+   */
+  readonly encryptionType: EncryptionType;
+
+  /**
+   * The CMK to use for encryption, if encryption type is KMS else ignored.
+   *
+   * @default - AWS managed CMK for Amazon ECR will be used.
+   */
+  readonly kmsKey?: string;
 }

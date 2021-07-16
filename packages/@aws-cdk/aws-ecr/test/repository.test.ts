@@ -329,7 +329,22 @@ describe('repository', () => {
     // THEN
     expect(() => app.synth()).toThrow(/A PolicyStatement used in a resource-based policy must specify at least one IAM principal/);
   });
-
+  test('repository with encryptionConfiguration', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    // WHEN
+    new ecr.Repository(stack, 'Repo', {
+      'encryptionConfiguration': {
+        'encryptionType': ecr.EncryptionType.AES256,
+      },
+    });
+    // THEN
+    expectCDK(stack).to(haveResource('AWS::ECR::Repository', {
+      'EncryptionConfiguration': {
+        'EncryptionType': ecr.EncryptionType.AES256,
+      },
+    }));
+  });
   describe('events', () => {
     test('onImagePushed without imageTag creates the correct event', () => {
       const stack = new cdk.Stack();
