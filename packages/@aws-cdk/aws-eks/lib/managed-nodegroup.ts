@@ -1,6 +1,6 @@
 import { InstanceType, ISecurityGroup, SubnetSelection } from '@aws-cdk/aws-ec2';
 import { IRole, ManagedPolicy, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
-import { IResource, Resource, Annotations } from '@aws-cdk/core';
+import { IResource, Resource, Annotations, withResolved } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { Cluster, ICluster } from './cluster';
 import { CfnNodegroup } from './eks.generated';
@@ -321,12 +321,19 @@ export class Nodegroup extends Resource implements INodegroup {
     this.maxSize = props.maxSize ?? this.desiredSize;
     this.minSize = props.minSize ?? 1;
 
-    if (this.desiredSize > this.maxSize) {
-      throw new Error(`Desired capacity ${this.desiredSize} can't be greater than max size ${this.maxSize}`);
-    }
-    if (this.desiredSize < this.minSize) {
-      throw new Error(`Minimum capacity ${this.minSize} can't be greater than desired size ${this.desiredSize}`);
-    }
+    withResolved(this.desiredSize, this.maxSize, (desired, max) => {
+      if (desired === undefined) {return ;}
+      if (desired > max) {
+        throw new Error(`Desired capacity ${desired} can't be greater than max size ${max}`);
+      }
+    });
+
+    withResolved(this.desiredSize, this.minSize, (desired, min) => {
+      if (desired === undefined) {return ;}
+      if (desired < min) {
+        throw new Error(`Minimum capacity ${min} can't be greater than desired size ${desired}`);
+      }
+    });
 
     if (props.launchTemplateSpec && props.diskSize) {
       // see - https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html
