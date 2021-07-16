@@ -36,6 +36,32 @@ new PythonFunction(this, 'MyFunction', {
 });
 ```
 
+Custom Docker images for bundling dependencies can be specified by specifying additional `buildImageOptions`. If using a custom Docker image, please ensure that the dependencies are stored at `/var/dependencies` within the Docker image for them to be bundled into the Lambda asset.
+
+A different bundling Docker image `Dockerfile.build` can be specified as:
+
+```ts
+new PythonFunction(this, 'MyFunction', {
+   ...
+   dockerBuildImageOptions: {
+     file: "Dockerfile.build",
+   },
+});
+```
+
+All bundling images are passed in the `IMAGE` Docker build arg that specifies the correct AWS SAM build image based on the runtime of the function. Additional build args can be specified as:
+
+```ts
+new PythonFunction(this, 'MyFunction', {
+  ...
+  dockerBuildImageOptions: {
+    buildArgs: {
+      HTTPS_PROXY: 'https://127.0.0.1:3001',
+    },
+  },
+});
+```
+
 All other properties of `lambda.Function` are supported, see also the [AWS Lambda construct library](https://github.com/aws/aws-cdk/tree/master/packages/%40aws-cdk/aws-lambda).
 
 ## Module Dependencies
@@ -44,9 +70,9 @@ If `requirements.txt` or `Pipfile` exists at the entry path, the construct will 
 all required modules in a [Lambda compatible Docker container](https://gallery.ecr.aws/sam/build-python3.7)
 according to the `runtime`.
 
-Python bundles are only recreated and published when a file in a source directory has changed. 
+Python bundles are only recreated and published when a file in a source directory has changed.
 Therefore (and as a general best-practice), it is highly recommended to commit a lockfile with a
-list of all transitive dependencies and their exact versions. 
+list of all transitive dependencies and their exact versions.
 This will ensure that when any dependency version is updated, the bundle asset is recreated and uploaded.
 
 To that end, we recommend using [`pipenv`] or [`poetry`] which has lockfile support.

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Code, Runtime } from '@aws-cdk/aws-lambda';
-import { FileSystem } from '@aws-cdk/core';
+import { DockerImage, FileSystem } from '@aws-cdk/core';
 import { stageDependencies, bundle } from '../lib/bundling';
 
 jest.mock('@aws-cdk/aws-lambda');
@@ -19,8 +19,17 @@ jest.mock('child_process', () => ({
   }),
 }));
 
+// Mock DockerImage.fromAsset() to avoid building the image
+let fromBuildMock: jest.SpyInstance<DockerImage>;
 beforeEach(() => {
   jest.clearAllMocks();
+
+  fromBuildMock = jest.spyOn(DockerImage, 'fromBuild').mockReturnValue({
+    image: 'built-image',
+    cp: () => 'dest-path',
+    run: () => {},
+    toJSON: () => 'built-image',
+  });
 });
 
 test('Bundling a function without dependencies', () => {
@@ -138,4 +147,30 @@ describe('Dependency detection', () => {
     const sourcedir = FileSystem.mkdtemp('source-');
     expect(stageDependencies(sourcedir, '/dummy')).toEqual(false);
   });
+});
+
+test('Bundling Docker with custom bundling image', () => {
+  const entry = path.join(__dirname, 'lambda-handler-custom-build-docker-image');
+  bundle({
+    entry,
+    runtime: Runtime.PYTHON_3_7,
+    outputPathSuffix: '.',
+    buildImageOptions: {
+      buildArgs: {
+        HELLO: 'WORLD',
+        IMAGE: Runtime.PYTHON_3_7.bundlingImage.image,
+      },
+      file: 'Dockerfile.build',
+    },
+  });
+
+  expect(fromBuildMock).toHaveBeenCalledWith(expect.stringContaining('python-bundling'),
+    expect.objectContaining({
+      buildArgs: expect.objectContaining({
+        HELLO: 'WORLD',
+        IMAGE: Runtime.PYTHON_3_7.bundlingImage.image,
+      }),
+      file: expect.stringContaining('Dockerfile.build'),
+    }),
+  );
 });

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
-import { AssetHashType } from '@aws-cdk/core';
+import { AssetHashType, DockerBuildOptions } from '@aws-cdk/core';
 import { bundle } from './bundling';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
@@ -77,6 +77,12 @@ export interface PythonFunctionProps extends lambda.FunctionOptions {
    * @default - based on `assetHashType`
    */
   readonly assetHash?: string;
+
+  /** Custom build options for the bundling Docker image.
+   *
+   * @default - uses default bundling image and options.
+   */
+  readonly dockerBuildImageOptions?: DockerBuildOptions;
 }
 
 /**
@@ -112,6 +118,7 @@ export class PythonFunction extends lambda.Function {
         outputPathSuffix: '.',
         assetHashType: props.assetHashType,
         assetHash: props.assetHash,
+        buildImageOptions: props.dockerBuildImageOptions,
       }),
       handler: `${index.slice(0, -3)}.${handler}`,
     });

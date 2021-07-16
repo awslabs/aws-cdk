@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as lambda from '@aws-cdk/aws-lambda';
+import { DockerBuildOptions } from '@aws-cdk/core';
 import { bundle } from './bundling';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
@@ -21,6 +22,12 @@ export interface PythonLayerVersionProps extends lambda.LayerVersionOptions {
    * @default - All runtimes are supported.
    */
   readonly compatibleRuntimes?: lambda.Runtime[];
+
+  /** Custom build options for the bundling Docker image.
+   *
+   * @default - uses default bundling image and options.
+   */
+  readonly dockerBuildImageOptions?: DockerBuildOptions;
 }
 
 /**
@@ -50,6 +57,7 @@ export class PythonLayerVersion extends lambda.LayerVersion {
         entry,
         runtime,
         outputPathSuffix: 'python',
+        buildImageOptions: props.dockerBuildImageOptions,
       }),
     });
   }
