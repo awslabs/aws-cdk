@@ -378,6 +378,21 @@ new autoscaling.AutoScalingGroup(stack, 'ASG', {
 });
 ```
 
+## Enable EC2 IMDS V2
+
+To enable EC2 IMDS V2 support, specify `metadataOptions` property for the `AutoscalingGroup` resource.
+See [MetadataOptions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-launchconfig-metadataoptions.html) for the list of the available options.
+
+```ts
+new autoscaling.AutoScalingGroup(stack, 'ASG', {
+  metadataOptions: {
+    httpTokens: 'required',
+    httpEndpoint: 'enabled'
+  },
+  // ...
+});
+```
+
 ## Future work
 
 * [ ] CloudWatch Events (impossible to add currently as the AutoScalingGroup ARN is

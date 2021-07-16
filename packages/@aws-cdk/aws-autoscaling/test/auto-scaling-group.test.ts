@@ -1364,6 +1364,33 @@ nodeunitShim({
 
     test.done();
   },
+
+  'can configure metadataOptions'(test: Test) {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = mockVpc(stack);
+    new autoscaling.AutoScalingGroup(stack, 'MyStack', {
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.MICRO),
+      machineImage: new ec2.AmazonLinuxImage(),
+      vpc,
+      metadataOptions: {
+        httpPutResponseHopLimit: 2,
+        httpTokens: 'required',
+        httpEndpoint: 'enabled',
+      },
+    });
+
+    // THEN
+    expect(stack).to(haveResource('AWS::AutoScaling::LaunchConfiguration', {
+      MetadataOptions: {
+        HttpPutResponseHopLimit: 2,
+        HttpTokens: 'required',
+        HttpEndpoint: 'enabled',
+      },
+    }));
+
+    test.done();
+  },
 });
 
 function mockVpc(stack: cdk.Stack) {
