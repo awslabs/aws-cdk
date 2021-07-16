@@ -957,6 +957,11 @@ new tasks.SageMakerCreateTransformJob(this, 'Batch Inference', {
   transformResources: {
     instanceCount: 1,
     instanceType: ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.XLARGE),
+  },
+  dataProcessing: {
+    inputFilter: '$[1:]',
+    joinSource: 'Input',
+    outputFilter: '$[0,-1]'
   }
 });
 

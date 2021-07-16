@@ -831,6 +831,37 @@ export class AcceleratorType {
 }
 
 /**
+ * Specifies the data to be used for inference,
+ * and to associate the data that is relevant to the prediction results in the output.
+ *
+ * @see https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_DataProcessing.html
+ * @experimental
+ */
+export interface DataProcessing {
+  /**
+   * JSONPath expression used to select a portion of the input data to pass to the algorithm.
+   *
+   * @default - $
+   */
+  readonly inputFilter?: string;
+
+  /**
+   * Specifies the source of the data to join with the transformed data.
+   *
+   * @default - None
+   */
+  readonly joinSource?: 'Input' | 'None';
+
+  /**
+   * JSONPath expression used to select a portion of the joined dataset to save in the output
+   * file for a batch transform job.
+   *
+   * @default - $
+   */
+  readonly outputFilter?: string;
+}
+
+/**
  * Specifies the number of records to include in a mini-batch for an HTTP inference request.
  *
  */

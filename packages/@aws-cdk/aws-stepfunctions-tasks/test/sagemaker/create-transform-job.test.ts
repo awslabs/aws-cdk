@@ -134,6 +134,11 @@ test('create complex transform job', () => {
     },
     maxConcurrentTransforms: 3,
     maxPayload: cdk.Size.mebibytes(100),
+    dataProcessing: {
+      inputFilter: '$[1:]',
+      joinSource: 'Input',
+      outputFilter: '$[0,-1]',
+    },
   });
 
   // THEN
@@ -181,6 +186,11 @@ test('create complex transform job', () => {
       ],
       MaxConcurrentTransforms: 3,
       MaxPayloadInMB: 100,
+      DataProcessing: {
+        InputFilter: '$[1:]',
+        JoinSource: 'Input',
+        OutputFilter: '$[0,-1]',
+      },
       Environment: {
         SOMEVAR: 'myvalue',
       },

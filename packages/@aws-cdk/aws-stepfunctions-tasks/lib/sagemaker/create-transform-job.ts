@@ -4,7 +4,7 @@ import * as sfn from '@aws-cdk/aws-stepfunctions';
 import { Size, Stack, Token } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { integrationResourceArn, validatePatternSupported } from '../private/task-utils';
-import { BatchStrategy, ModelClientOptions, S3DataType, TransformInput, TransformOutput, TransformResources } from './base-types';
+import { BatchStrategy, DataProcessing, ModelClientOptions, S3DataType, TransformInput, TransformOutput, TransformResources } from './base-types';
 import { renderTags } from './private/utils';
 
 /**
@@ -30,6 +30,14 @@ export interface SageMakerCreateTransformJobProps extends sfn.TaskStateBaseProps
    * @default - No batch strategy
    */
   readonly batchStrategy?: BatchStrategy;
+
+  /**
+   * Specifies the data to be used for inference,
+   * and to associate the data that is relevant to the prediction results in the output.
+   *
+   * @default - No data processing attributes
+   */
+  readonly dataProcessing?: DataProcessing;
 
   /**
    * Environment variables to set in the Docker container.
@@ -166,6 +174,7 @@ export class SageMakerCreateTransformJob extends sfn.TaskStateBase {
   private renderParameters(): { [key: string]: any } {
     return {
       ...(this.props.batchStrategy ? { BatchStrategy: this.props.batchStrategy } : {}),
+      ...(this.props.dataProcessing ? this.renderDataProcessing(this.props.dataProcessing) : {}),
       ...this.renderEnvironment(this.props.environment),
       ...(this.props.maxConcurrentTransforms ? { MaxConcurrentTransforms: this.props.maxConcurrentTransforms } : {}),
       ...(this.props.maxPayload ? { MaxPayloadInMB: this.props.maxPayload.toMebibytes() } : {}),
@@ -176,6 +185,16 @@ export class SageMakerCreateTransformJob extends sfn.TaskStateBase {
       TransformJobName: this.props.transformJobName,
       ...this.renderTransformOutput(this.props.transformOutput),
       ...this.renderTransformResources(this.transformResources),
+    };
+  }
+
+  private renderDataProcessing(dataProcessing: DataProcessing): { [key: string]: any } {
+    return {
+      DataProcessing: {
+        InputFilter: dataProcessing.inputFilter,
+        JoinSource: dataProcessing.joinSource,
+        OutputFilter: dataProcessing.outputFilter,
+      },
     };
   }
 
