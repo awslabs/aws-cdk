@@ -4,6 +4,7 @@ import * as sfn from '@aws-cdk/aws-stepfunctions';
 import { Construct } from 'constructs';
 import { integrationResourceArn, validatePatternSupported } from '../private/task-utils';
 
+
 /**
  * Properties for publishing a message to an SNS topic
  */
@@ -22,6 +23,17 @@ export interface SnsPublishProps extends sfn.TaskStateBaseProps {
    * For SMS, each message can contain up to 140 characters.
    */
   readonly message: sfn.TaskInput;
+
+  /**
+   * Add message attributes when publishing.
+   *
+   * For example, these attributes can carry additional metadata and may be used
+   * for SNS Filter Subscriptions.
+   *
+   * @see https://docs.aws.amazon.com/sns/latest/api/API_Publish.html#API_Publish_RequestParameters
+   * @default []
+   */
+  readonly messageAttributes?: { [key: string]: any };
 
   /**
    * Send different messages for each transport protocol.
@@ -92,14 +104,72 @@ export class SnsPublish extends sfn.TaskStateBase {
    * @internal
    */
   protected _renderTask(): any {
+
     return {
       Resource: integrationResourceArn('sns', 'publish', this.integrationPattern),
       Parameters: sfn.FieldUtils.renderObject({
         TopicArn: this.props.topic.topicArn,
         Message: this.props.message.value,
         MessageStructure: this.props.messagePerSubscriptionType ? 'json' : undefined,
+        MessageAttributes: renderMessageAttributes(this.props.messageAttributes),
         Subject: this.props.subject,
       }),
     };
   }
+}
+
+function renderMessageAttributes(attributes?: { [key: string]: any }): any {
+  if (attributes === undefined) { return undefined; }
+  const attrs: { [key: string]: messageAttributeValue } = {};
+  for (const name of Object.keys(attributes)) {
+    const value = handleMessageAttributeValue(attributes[name]);
+    attrs[name] = value;
+  };
+  return sfn.TaskInput.fromObject(attrs).value;
+}
+
+interface messageAttributeValue {
+  DataType: string;
+  StringValue?: string;
+  BinaryValue?: string;
+};
+
+const STRING = 'String';
+const STRING_ARRAY = 'String.Array';
+const NUMBER = 'Number';
+const BINARY = 'Binary';
+
+function handleMessageAttributeValue(attributeValue: any): messageAttributeValue {
+  if (attributeValue instanceof sfn.TaskInput) {
+    return { DataType: STRING, StringValue: attributeValue.value };
+  }
+  if (isByteArray(attributeValue)) {
+    return { DataType: BINARY, BinaryValue: '' };
+  }
+  if (Array.isArray(attributeValue)) {
+    // validates the primitives
+    attributeValue.forEach(v => handlePrimitiveValues(v));
+    return { DataType: STRING_ARRAY, StringValue: JSON.stringify(attributeValue) };
+  }
+  return handlePrimitiveValues(attributeValue);
+}
+
+function handlePrimitiveValues(attributeValue: any): messageAttributeValue {
+  if (attributeValue === null) {
+    return { DataType: STRING, StringValue: attributeValue.value };
+  }
+  switch (typeof attributeValue) {
+    case 'string':
+      return { DataType: STRING, StringValue: attributeValue };
+    case 'number':
+      return { DataType: NUMBER, StringValue: attributeValue.toString() };
+    case 'boolean':
+      return { DataType: STRING, StringValue: attributeValue.toString() };
+    default:
+      throw new Error(`sns message attributes does not support this type: ${attributeValue}`);
+  }
+}
+
+function isByteArray(array: any): array is ArrayBuffer {
+  return array.BYTES_PER_ELEMENT;
 }

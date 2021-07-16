@@ -1028,7 +1028,16 @@ const topic = new sns.Topic(this, 'Topic');
 const task1 = new tasks.SnsPublish(this, 'Publish1', {
   topic,
   integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
-  message: sfn.TaskInput.fromJsonPathAt('$.state.message'),
+  message: sfn.TaskInput.fromDataAt('$.state.message'),
+  messageAttributes: {
+    place: {
+      type: SnsMessageAttributeType.STRING,
+      value: sfn.TaskInput.fromText('dessert point'),
+    },
+    pic: {
+      type: SnsMessageAttributeType.BINARY,
+      value: sfn.TaskInput.fromDataAt('$.pic'),
+    },
 });
 
 // Combine a field from the execution data with

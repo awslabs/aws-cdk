@@ -38,6 +38,63 @@ describe('Publish', () => {
       },
     });
   });
+  test('with message attributes', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const topic = new sns.Topic(stack, 'Topic');
+
+    // WHEN
+    const task = new SnsPublish(stack, 'Publish', {
+      topic,
+      message: sfn.TaskInput.fromText('Publish this message'),
+      messageAttributes: {
+        cake: 'chocolate',
+        cakePic: new Uint8Array(16),
+        cakeCount: 2,
+        vendors: ['Great Cakes', 'Cakes R Us', 'Local Cakes'],
+      },
+    });
+
+    // THEN
+    expect(stack.resolve(task.toStateJson())).toEqual({
+      Type: 'Task',
+      Resource: {
+        'Fn::Join': [
+          '',
+          [
+            'arn:',
+            {
+              Ref: 'AWS::Partition',
+            },
+            ':states:::sns:publish',
+          ],
+        ],
+      },
+      End: true,
+      Parameters: {
+        TopicArn: { Ref: 'TopicBFC7AF6E' },
+        Message: 'Publish this message',
+        MessageAttributes: {
+          cake: {
+            DataType: 'String',
+            StringValue: 'chocolate',
+          },
+          cakePic: {
+            DataType: 'Binary',
+            BinaryValue: '',
+          },
+          cakeCount: {
+            DataType: 'Number',
+            StringValue: '2',
+          },
+          vendors: {
+            DataType: 'String.Array',
+            StringValue: '["Great Cakes","Cakes R Us","Local Cakes"]',
+          },
+        },
+      },
+    });
+  });
 
   test('publish SNS message and wait for task token', () => {
     // GIVEN
