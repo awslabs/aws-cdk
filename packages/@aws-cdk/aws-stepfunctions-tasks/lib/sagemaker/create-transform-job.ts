@@ -4,7 +4,7 @@ import * as sfn from '@aws-cdk/aws-stepfunctions';
 import { Size, Stack, Token } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { integrationResourceArn, validatePatternSupported } from '../private/task-utils';
-import { BatchStrategy, ModelClientOptions, S3DataType, TransformInput, TransformOutput, TransformResources } from './base-types';
+import { BatchStrategy, ModelClientOptions, S3DataType, TransformInput, TransformOutput, TransformResources, InstanceType } from './base-types';
 import { renderTags } from './private/utils';
 
 /**
@@ -135,7 +135,7 @@ export class SageMakerCreateTransformJob extends sfn.TaskStateBase {
     // set the default value for the transform resources
     this.transformResources = props.transformResources || {
       instanceCount: 1,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.XLARGE),
+      instanceType: InstanceType.fromEc2InstanceType(ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.XLARGE)),
     };
 
     this.taskPolicies = this.makePolicyStatements();
@@ -227,7 +227,7 @@ export class SageMakerCreateTransformJob extends sfn.TaskStateBase {
     return {
       TransformResources: {
         InstanceCount: resources.instanceCount,
-        InstanceType: 'ml.' + resources.instanceType,
+        InstanceType: `${resources.instanceType}`,
         ...(resources.volumeEncryptionKey ? { VolumeKmsKeyId: resources.volumeEncryptionKey.keyArn } : {}),
       },
     };

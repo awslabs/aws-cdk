@@ -615,7 +615,7 @@ export interface TransformResources {
   /**
    * ML compute instance type for the transform job.
    */
-  readonly instanceType: ec2.InstanceType;
+  readonly instanceType: InstanceType;
 
   /**
    * AWS KMS key that Amazon SageMaker uses to encrypt data on the storage volume attached to the ML compute instance(s).
@@ -956,5 +956,38 @@ class StandardS3Location extends S3Location {
       task.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({ actions, resources: ['*'] }));
     }
     return { uri: this.uri };
+  }
+}
+
+/**
+ * ML compute instance type for the transform job.
+ */
+export class InstanceType {
+  /**
+   * Specify the instance type from a EC2 instance type
+   *
+   * @param instanceType - a EC2 instance type
+  */
+  public static fromEc2InstanceType(instanceType: ec2.InstanceType) {
+    return new InstanceType(`ml.${instanceType}`);
+  }
+
+  /**
+   * Specify the instance type from a string
+   *
+   * @param instanceType - a string for the instance type. For example, "ml.p2.xlarge"
+  */
+  public static fromString(instanceType: string) {
+    return new InstanceType(instanceType);
+  }
+
+  constructor(private readonly instanceType: string) {
+  }
+
+  /**
+   * Return the instance type as a string
+   */
+  public toString(): string {
+    return this.instanceType;
   }
 }

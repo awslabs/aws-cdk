@@ -122,7 +122,7 @@ test('create complex transform job', () => {
     },
     transformResources: {
       instanceCount: 1,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE2),
+      instanceType: tasks.InstanceType.fromEc2InstanceType(ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE2)),
       volumeEncryptionKey: kmsKey,
     },
     tags: {
@@ -208,7 +208,7 @@ test('pass param to transform job', () => {
     },
     transformResources: {
       instanceCount: 1,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE2),
+      instanceType: tasks.InstanceType.fromEc2InstanceType(ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE2)),
     },
   });
 
@@ -245,6 +245,65 @@ test('pass param to transform job', () => {
       'TransformResources': {
         InstanceCount: 1,
         InstanceType: 'ml.p3.2xlarge',
+      },
+    },
+  });
+});
+
+test('create transform job with instance type supplied as JsonPath', () => {
+  // WHEN
+  const task = new SageMakerCreateTransformJob(stack, 'TransformTask', {
+    transformJobName: 'MyTransformJob',
+    modelName: 'MyModelName',
+    transformInput: {
+      transformDataSource: {
+        s3DataSource: {
+          s3Uri: 's3://inputbucket/prefix',
+        },
+      },
+    },
+    transformOutput: {
+      s3OutputPath: 's3://outputbucket/prefix',
+    },
+    transformResources: {
+      instanceCount: 1,
+      instanceType: tasks.InstanceType.fromString(sfn.JsonPath.stringAt('$.InstanceType')),
+    },
+  });
+
+  // THEN
+  expect(stack.resolve(task.toStateJson())).toEqual({
+    Type: 'Task',
+    Resource: {
+      'Fn::Join': [
+        '',
+        [
+          'arn:',
+          {
+            Ref: 'AWS::Partition',
+          },
+          ':states:::sagemaker:createTransformJob',
+        ],
+      ],
+    },
+    End: true,
+    Parameters: {
+      TransformJobName: 'MyTransformJob',
+      ModelName: 'MyModelName',
+      TransformInput: {
+        DataSource: {
+          S3DataSource: {
+            S3Uri: 's3://inputbucket/prefix',
+            S3DataType: 'S3Prefix',
+          },
+        },
+      },
+      TransformOutput: {
+        S3OutputPath: 's3://outputbucket/prefix',
+      },
+      TransformResources: {
+        'InstanceCount': 1,
+        'InstanceType.$': '$.InstanceType',
       },
     },
   });

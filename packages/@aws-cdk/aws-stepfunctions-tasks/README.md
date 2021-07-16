@@ -956,11 +956,15 @@ new tasks.SageMakerCreateTransformJob(this, 'Batch Inference', {
   },
   transformResources: {
     instanceCount: 1,
-    instanceType: ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.XLARGE),
+    instanceType: InstanceType.fromEc2InstanceType(ec2.InstanceType.of(ec2.InstanceClass.M4, ec2.InstanceSize.XLARGE)),
   }
 });
 
 ```
+
+The `instanceType` field can be constructed from a EC2 instance type (in the above example) or a `JsonPath`. To specify it by a 
+`JsonPath`, set it to `InstanceType.fromString(sfn.JsonPath.stringAt('$.InstanceType'))`, then it will be rendered as 
+`'InstanceType.$': '$.InstanceType'` in the final CloudFormation template.
 
 ### Create Endpoint
 
