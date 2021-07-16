@@ -201,6 +201,84 @@ nodeunitShim({
     test.done();
   },
 
+  'can disable distribution'(test: Test) {
+    const stack = new cdk.Stack();
+    const sourceBucket = new s3.Bucket(stack, 'Bucket');
+
+    new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
+      enabled: false,
+      originConfigs: [
+        {
+          s3OriginSource: {
+            s3BucketSource: sourceBucket,
+          },
+          behaviors: [
+            {
+              isDefaultBehavior: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(stack).toMatch({
+      'Resources': {
+        'Bucket83908E77': {
+          'Type': 'AWS::S3::Bucket',
+          'DeletionPolicy': 'Retain',
+          'UpdateReplacePolicy': 'Retain',
+        },
+        'AnAmazingWebsiteProbablyCFDistribution47E3983B': {
+          'Type': 'AWS::CloudFront::Distribution',
+          'Properties': {
+            'DistributionConfig': {
+              'DefaultRootObject': 'index.html',
+              'Origins': [
+                {
+                  'ConnectionAttempts': 3,
+                  'ConnectionTimeout': 10,
+                  'DomainName': {
+                    'Fn::GetAtt': [
+                      'Bucket83908E77',
+                      'RegionalDomainName',
+                    ],
+                  },
+                  'Id': 'origin1',
+                  'S3OriginConfig': {},
+                },
+              ],
+              'ViewerCertificate': {
+                'CloudFrontDefaultCertificate': true,
+              },
+              'PriceClass': 'PriceClass_100',
+              'DefaultCacheBehavior': {
+                'AllowedMethods': [
+                  'GET',
+                  'HEAD',
+                ],
+                'CachedMethods': [
+                  'GET',
+                  'HEAD',
+                ],
+                'TargetOriginId': 'origin1',
+                'ViewerProtocolPolicy': 'redirect-to-https',
+                'ForwardedValues': {
+                  'QueryString': false,
+                  'Cookies': { 'Forward': 'none' },
+                },
+                'Compress': true,
+              },
+              'Enabled': false,
+              'IPV6Enabled': true,
+              'HttpVersion': 'http2',
+            },
+          },
+        },
+      },
+    });
+    test.done();
+  },
+
   'ensure long comments will not break the distribution'(test: Test) {
     const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
