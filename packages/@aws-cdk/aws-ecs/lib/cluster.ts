@@ -299,7 +299,9 @@ export class Cluster extends Resource implements ICluster {
     }
 
     const machineImage = options.machineImage ?? options.machineImageType === MachineImageType.BOTTLEROCKET ?
-      new BottleRocketImage() : new EcsOptimizedAmi();
+      new BottleRocketImage({
+        architecture: options.instanceType.architecture,
+      }) : new EcsOptimizedAmi();
 
     const autoScalingGroup = new autoscaling.AutoScalingGroup(this, id, {
       vpc: this.vpc,
@@ -766,6 +768,13 @@ export interface BottleRocketImageProps {
    * @default - BottlerocketEcsVariant.AWS_ECS_1
    */
   readonly variant?: BottlerocketEcsVariant;
+
+  /**
+   * The CPU architecture
+   *
+   * @default - x86_64
+  */
+  readonly architecture?: ec2.InstanceArchitecture;
 }
 
 /**
@@ -779,13 +788,19 @@ export class BottleRocketImage implements ec2.IMachineImage {
   private readonly variant: string;
 
   /**
+   * Instance architecture
+   */
+  private readonly architecture: ec2.InstanceArchitecture;
+
+  /**
    * Constructs a new instance of the BottleRocketImage class.
    */
   public constructor(props: BottleRocketImageProps = {}) {
     this.variant = props.variant ?? BottlerocketEcsVariant.AWS_ECS_1;
+    this.architecture = props.architecture ?? ec2.InstanceArchitecture.X86_64;
 
     // set the SSM parameter name
-    this.amiParameterName = `/aws/service/bottlerocket/${this.variant}/x86_64/latest/image_id`;
+    this.amiParameterName = `/aws/service/bottlerocket/${this.variant}/${this.architecture}/latest/image_id`;
   }
 
   /**

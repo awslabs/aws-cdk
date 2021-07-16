@@ -137,8 +137,6 @@ If you omit the property `vpc`, the construct will create a new VPC with two AZs
 [Bottlerocket](https://aws.amazon.com/bottlerocket/) is a Linux-based open source operating system that is
 purpose-built by AWS for running containers. You can launch Amazon ECS container instances with the Bottlerocket AMI.
 
-> **NOTICE**: The Bottlerocket AMI is in developer preview release for Amazon ECS and is subject to change.
-
 The following example will create a capacity with self-managed Amazon EC2 capacity of 2 `c5.large` Linux instances running with `Bottlerocket` AMI.
 
 Note that you must specify either a `machineImage` or `machineImageType`, at least one, not both.
@@ -166,7 +164,16 @@ cluster.addCapacity('graviton-cluster', {
   instanceType: new ec2.InstanceType('c6g.large'),
   machineImage: ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM),
 });
+```
 
+Bottlerocket is also supported:
+
+```ts
+cluster.addCapacity('graviton-cluster', {
+  minCapacity: 2,
+  instanceType: new ec2.InstanceType('c6g.large'),
+  machineImage: ecs.MachineImageType.BOTTLEROCKET,
+});
 ```
 
 ### Spot Instances

@@ -1682,6 +1682,35 @@ nodeunitShim({
     test.done();
   },
 
+  'correct bottlerocket AMI for ARM64 architecture'(test: Test) {
+    // GIVEN
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const cluster = new ecs.Cluster(stack, 'EcsCluster');
+    cluster.addCapacity('bottlerocket-asg', {
+      instanceType: new ec2.InstanceType('m6g.large'),
+      machineImageType: ecs.MachineImageType.BOTTLEROCKET,
+    });
+
+    // THEN
+    expect(stack).to(haveResource('AWS::AutoScaling::LaunchConfiguration', {
+      ImageId: {
+        Ref: 'SsmParameterValueawsservicebottlerocketawsecs1arm64latestimageidC96584B6F00A464EAD1953AFF4B05118Parameter',
+      },
+    }));
+
+    const assembly = app.synth();
+    const template = assembly.getStackByName(stack.stackName).template;
+    test.deepEqual(template.Parameters, {
+      SsmParameterValueawsservicebottlerocketawsecs1arm64latestimageidC96584B6F00A464EAD1953AFF4B05118Parameter: {
+        Type: 'AWS::SSM::Parameter::Value<String>',
+        Default: '/aws/service/bottlerocket/aws-ecs-1/arm64/latest/image_id',
+      },
+    });
+    test.done();
+  },
+
   'throws when machineImage and machineImageType both specified'(test: Test) {
     // GIVEN
     const app = new cdk.App();
