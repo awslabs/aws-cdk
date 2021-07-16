@@ -603,6 +603,17 @@ pool.addClient('app-client', {
 });
 ```
 
+[Token revocation](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html
+) can be configured to be able to revoke refresh tokens in app clients. By default, token revocation is enabled for new user pools. The property can be used to enable the token revocation in existing app clients or to change the default behavior.
+
+```ts
+const pool = new cognito.UserPool(this, 'Pool');
+pool.addClient('app-client', {
+  // ...
+  enableTokenRevocation: true,
+});
+``` 
+
 ### Resource Servers
 
 A resource server is a server for access-protected resources. It handles authenticated requests from an app that has an
