@@ -548,6 +548,8 @@ This package contains the following CloudFormation actions:
   to manually verify the changes that are being staged, or if you want to separate the people (or system) preparing the
   changes from the people (or system) applying the changes.
 * **CloudFormationExecuteChangeSetAction** - Execute a change set prepared previously.
+* **CloudFormationStackSetAction** - Deploy a CloudFormation StackSet directly from the pipeline. The indicated StackSet is created,
+  or updated if it already exists.
 
 #### Lambda deployed through CodePipeline
 

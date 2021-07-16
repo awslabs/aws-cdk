@@ -514,6 +514,478 @@ export class CloudFormationDeleteStackAction extends CloudFormationDeployAction 
 }
 
 /**
+ * Determines how IAM roles are created and managed.
+ */
+export enum StackSetPermissionModel {
+  /**
+   * You must create administrator and execution roles to deploy to target accounts.
+   */
+  SELF_MANAGED = 'SELF_MANAGED',
+
+  /**
+   * AWS CloudFormation StackSets automatically creates the IAM roles required to deploy to accounts managed by AWS Organizations.
+   * This requires an account to be a member of an Organization.
+   */
+  SERVICE_MANAGED = 'SERVICE_MANAGED'
+}
+
+/**
+ * Describes whether AWS CloudFormation StackSets automatically deploys to AWS Organizations accounts that are added to a target organization or
+ * organizational unit (OU).
+ */
+export enum StackSetOrganizationsAutoDeployment {
+  /**
+   * StackSets automatically deploys additional stack instances to AWS Organizations accounts that are added to a target organization or
+   * organizational unit (OU) in the specified Regions. If an account is removed from a target organization or OU, AWS CloudFormation StackSets
+   * deletes stack instances from the account in the specified Regions.
+   */
+  ENABLED = 'Enabled',
+
+  /**
+   * StackSets does not automatically deploy additional stack instances to AWS Organizations accounts that are added to a target organization or
+   * organizational unit (OU) in the specified Regions.
+   */
+  DISABLED = 'Disabled',
+
+  /**
+   * Stack resources are retained when an account is removed from a target organization or OU.
+   */
+  ENABLED_WITH_STACK_RETENTION = 'EnabledWithStackRetention'
+}
+
+/**
+ * Literal StackSet parameter type. null/undefined will translate to UsePreviousValue. Other values will be used as-is.
+ */
+export interface StackSetLiteralParameters {
+  [parameterName: string]: string | null | undefined
+}
+
+/**
+ * StackSet parameters container.
+ */
+export class StackSetParameters {
+  /**
+   * A list of template parameters for your stack set that update during a deployment.
+   * You can provide parameters as a dictionary:
+   *
+   * The following example shows a parameter named BucketName with the value my-bucket.
+   *
+   * {
+   *     BucketName: "my-bucket"
+   * }
+   *
+   * The following example shows an entry with multiple parameters:
+   *
+   * {
+   *     BucketName: "my-bucket",
+   *     Asset1: "true",
+   *     Asset2: "true"
+   * }
+   *
+   */
+  public static fromLiteral(parameters: StackSetLiteralParameters): StackSetParameters {
+    return new StackSetParameters(parameters);
+  }
+
+  /**
+   * Parameters from a CodePipeline artifact path.
+   *
+   * The following example shows the file contents for parameters.txt `sourceArtifact.atPath("parameters.txt")`, where sourceArtifact is a
+   * CodePipeline Artifact.
+   *
+   * [
+   *     {
+   *         "ParameterKey": "KeyName",
+   *         "ParameterValue": "true"
+   *     },
+   *     {
+   *         "ParameterKey": "KeyName",
+   *         "ParameterValue": "true"
+   *     }
+   * ]
+   *
+   * @default No parameters will be used (unless parameters is used)
+   */
+  public static fromArtifactPath(artifactPath: codepipeline.ArtifactPath): StackSetParameters {
+    return new StackSetParameters(undefined, artifactPath);
+  }
+
+  private constructor(
+    private readonly parameters?: StackSetLiteralParameters,
+    private readonly artifactPath?: codepipeline.ArtifactPath,
+  ) {
+  }
+
+  /**
+   * An array of artifacts associated with these parameters.
+   */
+  public get artifacts(): codepipeline.Artifact[] {
+    if (this.artifactPath !== undefined) {
+      return [this.artifactPath.artifact];
+    }
+
+    return [];
+  }
+
+  /**
+   * Converts Parameters to a string.
+   */
+  public toString(): string {
+    if (this.artifactPath !== undefined) {
+      return this.artifactPath.location;
+    }
+
+    const parameters = this.parameters || {};
+    return Object.keys(parameters).map((key) => {
+      const value = parameters[ key ];
+
+      let ret = 'ParameterKey=' + key;
+      if (value !== undefined && value !== null) {
+        ret += ',ParameterValue=' + value;
+      } else {
+        ret += ',UsePreviousValue=true';
+      }
+
+      return ret;
+    }).join(' ');
+  }
+}
+/**
+ * Properties for the CloudFormationStackSetAction
+ */
+export interface CloudFormationStackSetActionProps extends codepipeline.CommonAwsActionProps {
+  /**
+   * The AWS region the given Action resides in.
+   * Note that a cross-region Pipeline requires replication buckets to function correctly.
+   * You can provide their names with the {@link PipelineProps#crossRegionReplicationBuckets} property.
+   * If you don't, the CodePipeline Construct will create new Stacks in your CDK app containing those buckets,
+   * that you will need to `cdk deploy` before deploying the main, Pipeline-containing Stack.
+   *
+   * @default the Action resides in the same region as the Pipeline
+   */
+  readonly region?: string;
+
+  /**
+   * The name to associate with the stack set. This name must be unique in the Region where it is created.
+   *
+   * The name may only contain alphanumeric and hyphen characters. It must begin with an alphabetic character and be 128 characters or fewer.
+   */
+  readonly stackSetName: string;
+
+  /**
+   * A description of the stack set. You can use this to describe the stack set’s purpose or other relevant information.
+   *
+   * @default No description
+   */
+  readonly description?: string;
+
+  /**
+   * The location of the template that defines the resources in the stack set.
+   * This must point to a template with a maximum size of 460,800 bytes.
+   *
+   * Enter the path to the source artifact name and template file.
+   */
+  readonly templatePath: codepipeline.ArtifactPath;
+
+  /**
+   * The template parameters for your stack set that update during a deployment.
+   *
+   * @default No parameters will be used.
+   */
+  readonly parameters?: StackSetParameters;
+
+  /**
+   * Indicates that the template can create and update resources, depending on the types of resources in the template.
+   *
+   * You must use this property if you have IAM resources in your stack template or you create a stack directly from a template containing macros.
+   *
+   * @default The StackSet will have no IAM capabilities.
+   */
+  readonly cfnCapabilities?: cdk.CfnCapabilities[];
+
+  /**
+   * Determines how IAM roles are created and managed.
+   * If the field is not specified, the default is used. For information, see Permissions models for stack set operations.
+   *
+   * Note
+   * This parameter can only be changed when no stack instances exist in the stack set.
+   *
+   * @default SELF_MANAGED
+   */
+  readonly permissionModel?: StackSetPermissionModel;
+
+  /**
+   * Note
+   * Because AWS CloudFormation StackSets performs operations across multiple accounts, you must define the necessary permissions in those accounts
+   * before you can create the stack set.
+   *
+   * Note
+   * This parameter is optional for the SELF_MANAGED permissions model and is not used for the SERVICE_MANAGED permissions model.
+   *
+   * The IAM role in the administrator account used to perform stack set operations.
+   *
+   * If you do not specify the role, it is set to AWSCloudFormationStackSetAdministrationRole.
+   * If you specify ServiceManaged, you must not define a role name.
+   *
+   * @default AWSCloudFormationStackSetAdministrationRole
+   */
+  readonly administrationRole?: iam.IRole;
+
+  /**
+   * Note
+   * Because AWS CloudFormation StackSets performs operations across multiple accounts, you must define the necessary permissions in those accounts
+   * before you can create the stack set.
+   *
+   * Note
+   * This parameter is optional for the SELF_MANAGED permissions model and is not used for the SERVICE_MANAGED permissions model.
+   *
+   * The name of the IAM role in the target accounts used to perform stack set operations. The name may contain alphanumeric characters, any of the
+   * following characters: _+=,.@-, and no spaces. The name is not case sensitive. This role name must be a minimum length of 1 character and maximum
+   * length of 64 characters. Role names must be unique within the account. The role name specified here must be an existing role name. Do not specify
+   * this role if you are using customized execution roles. If you do not specify the role name, it is set to AWSCloudFormationStackSetExecutionRole.
+   * If you set Service_Managed to true, you must not define a role name.
+   *
+   * @default AWSCloudFormationStackSetExecutionRole
+   */
+  readonly executionRoleName?: string;
+
+  /**
+   * Note
+   * This parameter is optional for the SERVICE_MANAGED permissions model and is not used for the SELF_MANAGED permissions model.
+   *
+   * Describes whether AWS CloudFormation StackSets automatically deploys to AWS Organizations accounts that are added to a target organization or
+   * organizational unit (OU). If OrganizationsAutoDeployment is specified, do not specify DeploymentTargets and Regions.
+   *
+   * Note
+   * If no input is provided for OrganizationsAutoDeployment, then the default value is Disabled.
+   *
+   * @default Disabled
+   */
+  readonly organizationsAutoDeployment?: StackSetOrganizationsAutoDeployment;
+
+  /**
+   * Note
+   * For the SERVICE_MANAGED permissions model, you can provide either accounts or organizational Unit IDs for deployment targets. For the
+   * SELF_MANAGED permissions model, you can only provide accounts.
+   *
+   * Note
+   * When this parameter is selected, you must also select Regions.
+   *
+   * A list of AWS accounts or organizational unit IDs where stack set instances should be created/updated.
+   *
+   * Accounts:
+   *
+   * Example:
+   *
+   * 111111222222,333333444444
+   *
+   *
+   * OrganizationalUnitIds:
+   *
+   * Note
+   * This parameter is optional for the SERVICE_MANAGED permissions model and is not used for the SELF_MANAGED permissions model. Do not use this if
+   * you select OrganizationsAutoDeployment.
+   *
+   * The AWS organizational units in which to update associated stack instances.
+   *
+   * Example:
+   *
+   * ou-examplerootid111-exampleouid111,ou-examplerootid222-exampleouid222
+   *
+   * One of deploymentTargets or deploymentTargetsPath is required, but not both.
+   *
+   * @default No deployment target. This or deploymentTargetsPath is required.
+   */
+  readonly deploymentTargets?: string[];
+
+  /**
+   * Note
+   * For the SERVICE_MANAGED permissions model, you can provide either accounts or organizational Unit IDs for deployment targets. For the
+   * SELF_MANAGED permissions model, you can only provide accounts.
+   *
+   * Note
+   * When this parameter is selected, you must also select Regions.
+   *
+   * A list of AWS accounts or organizational unit IDs where stack set instances should be created/updated.
+   *
+   * Accounts:
+   *
+   * The following example shows the file contents for accounts.txt `sourceArtifact.atPath("accounts.txt")`, where sourceArtifact is a
+   * CodePipeline Artifact.
+   *
+   * [
+   *     "111111222222"
+   * ]
+   *
+   *
+   *
+   * OrganizationalUnitIds:
+   *
+   * Note
+   * This parameter is optional for the SERVICE_MANAGED permissions model and is not used for the SELF_MANAGED permissions model. Do not use this if
+   * you select OrganizationsAutoDeployment.
+   *
+   * The AWS organizational units in which to update associated stack instances.
+   * You can provide organizational unit IDs as an Array, a literal list or a file path:
+   *
+   * The following example shows the file contents for accounts.txt `sourceArtifact.atPath("OU-IDs.txt")`, where sourceArtifact is a
+   * CodePipeline Artifact.
+   *
+   * [
+   *     "ou-examplerootid111-exampleouid111",
+   *     "ou-examplerootid222-exampleouid222"
+   * ]
+   *
+   * One of deploymentTargets or deploymentTargetsPath is required, but not both.
+   *
+   * @default No deployment target. This or deploymentTargets is required.
+   */
+  readonly deploymentTargetsPath?: codepipeline.ArtifactPath;
+
+  /**
+   * Note
+   * When this parameter is selected, you must also select DeploymentTargets.
+   *
+   * A list of AWS Regions where stack set instances are created or updated. Regions are updated in the order in which they are entered.
+   *
+   * Enter a list of valid AWS Regions in the format Region1,Region2, as shown in the following example.
+   *
+   * [ "us-west-2", "us-east-1" ]
+   */
+  readonly regions: string[];
+
+  /**
+   * The percentage of accounts per Region for which this stack operation can fail before AWS CloudFormation stops the operation in that Region. If
+   * the operation is stopped in a Region, AWS CloudFormation doesn't attempt the operation in subsequent Regions. When calculating the number
+   * of accounts based on the specified percentage, AWS CloudFormation rounds down to the next whole number.
+   *
+   * @default 0
+   */
+  readonly failureTolerancePercentage?: number;
+
+  /**
+   * The maximum percentage of accounts in which to perform this operation at one time. When calculating the number of accounts based on the specified
+   * percentage, AWS CloudFormation rounds down to the next whole number. If rounding down would result in zero, AWS CloudFormation sets the number as
+   * one instead. Although you use this setting to specify the maximum, for large deployments the actual number of accounts acted upon concurrently
+   * may be lower due to service throttling.
+   *
+   * @default 1
+   */
+  readonly maxConcurrentPercentage?: number;
+}
+
+/**
+ * CodePipeline action to deploy a stackset.
+ *
+ * CodePipeline offers the ability to perform AWS CloudFormation StackSets operations as part of your CI/CD process. You use a stack set to create
+ * stacks in AWS accounts across AWS Regions by using a single AWS CloudFormation template. All the resources included in each stack are defined by
+ * the stack set’s AWS CloudFormation template. When you create the stack set, you specify the template to use, as well as any parameters and
+ * capabilities that the template requires.
+ *
+ * For more information about concepts for AWS CloudFormation StackSets, see StackSets concepts in the AWS CloudFormation User Guide.
+ */
+export class CloudFormationStackSetAction extends Action {
+  private static getArtifacts(props: CloudFormationStackSetActionProps) {
+    const artifacts: codepipeline.Artifact[] = [props.templatePath.artifact];
+
+    if (props.parameters !== undefined) {
+      artifacts.push(...props.parameters.artifacts);
+    }
+    if (props.deploymentTargetsPath !== undefined) {
+      artifacts.push(props.deploymentTargetsPath.artifact);
+    }
+
+    return artifacts;
+  }
+
+  private readonly props: CloudFormationStackSetActionProps;
+
+  constructor(props: CloudFormationStackSetActionProps) {
+    super({
+      ...props,
+      provider: 'CloudFormationStackSet',
+      category: codepipeline.ActionCategory.DEPLOY,
+      artifactBounds: {
+        minInputs: 1,
+        maxInputs: 3,
+        minOutputs: 0,
+        maxOutputs: 0,
+      },
+      inputs: CloudFormationStackSetAction.getArtifacts(props),
+    });
+
+    this.props = props;
+  }
+
+  protected bound(scope: Construct, _stage: codepipeline.IStage, options: codepipeline.ActionBindOptions): codepipeline.ActionConfig {
+    const singletonPolicy = SingletonPolicy.forRole(options.role);
+    singletonPolicy.grantCreateUpdateStackSet(this.props);
+
+    if (this.props.administrationRole !== undefined) {
+      singletonPolicy.grantPassRole(this.props.administrationRole);
+    } else if (this.props.permissionModel !== StackSetPermissionModel.SERVICE_MANAGED) {
+      singletonPolicy.grantPassRole(cdk.Stack.of(scope).formatArn({
+        region: '',
+        service: 'iam',
+        resource: 'role',
+        resourceName: 'AWSCloudFormationStackSetAdministrationRole',
+      }));
+    }
+
+    if ((this.actionProperties.inputs || []).length > 0) {
+      options.bucket.grantRead(singletonPolicy);
+    }
+
+    const templatePath = this.props.templatePath.location;
+
+    const parameters = this.props.parameters;
+
+    const regions = this.props.regions.join(',');
+
+    const deploymentTargets = this.deploymentTargets;
+
+    const adminRoleArn = this.props.administrationRole !== undefined ? this.props.administrationRole.roleArn : undefined;
+
+    return {
+      configuration: {
+        StackSetName: this.props.stackSetName,
+        Description: this.props.description,
+        TemplatePath: templatePath,
+        Parameters: parameters !== undefined ? parameters.toString() : undefined,
+        Capabilities: parseCapabilities(this.props.cfnCapabilities),
+        PermissionModel: this.props.permissionModel,
+        AdministrationRoleArn: adminRoleArn,
+        ExecutionRoleName: this.props.executionRoleName,
+        OrganizationsAutoDeployment: this.props.organizationsAutoDeployment,
+        DeploymentTargets: deploymentTargets,
+        FailureTolerancePercentage: this.props.failureTolerancePercentage,
+        MaxConcurrentPercentage: this.props.maxConcurrentPercentage,
+        Regions: regions,
+      },
+    };
+  }
+
+  private get deploymentTargets(): string {
+    const deploymentTargets = this.props.deploymentTargets;
+    const deploymentTargetsPath = this.props.deploymentTargetsPath;
+
+    if (deploymentTargets === undefined && deploymentTargetsPath === undefined) {
+      throw new Error('One of deploymentTargets xor deploymentTargetsPath is required.');
+    }
+
+    if (deploymentTargets !== undefined && deploymentTargetsPath !== undefined) {
+      throw new Error('deploymentTargets or deploymentTargetsPath is required.');
+    }
+
+    if (deploymentTargetsPath !== undefined) {
+      return deploymentTargetsPath.location;
+    }
+
+    return (deploymentTargets || []).join(',');
+  }
+}
+
+/**
  * Manages a bunch of singleton-y statements on the policy of an IAM Role.
  * Dedicated methods can be used to add specific permissions to the role policy
  * using as few statements as possible (adding resources to existing compatible
@@ -583,6 +1055,18 @@ class SingletonPolicy extends Construct implements iam.IGrantable {
     this.statementFor({ actions }).addResources(this.stackArnFromProps(props));
   }
 
+  public grantCreateUpdateStackSet(props: { stackSetName: string, region?: string }): void {
+    const actions = [
+      'cloudformation:CreateStackSet',
+      'cloudformation:UpdateStackSet',
+      'cloudformation:DescribeStackSet',
+      'cloudformation:DescribeStackSetOperation',
+      'cloudformation:ListStackInstances',
+      'cloudformation:CreateStackInstances',
+    ];
+    this.statementFor({ actions }).addResources(this.stackSetArnFromProps(props));
+  }
+
   public grantDeleteStack(props: { stackName: string, region?: string }): void {
     this.statementFor({
       actions: [
@@ -592,8 +1076,8 @@ class SingletonPolicy extends Construct implements iam.IGrantable {
     }).addResources(this.stackArnFromProps(props));
   }
 
-  public grantPassRole(role: iam.IRole): void {
-    this.statementFor({ actions: ['iam:PassRole'] }).addResources(role.roleArn);
+  public grantPassRole(role: iam.IRole | string): void {
+    this.statementFor({ actions: ['iam:PassRole'] }).addResources(typeof role === 'string' ? role : role.roleArn);
   }
 
   private statementFor(template: StatementTemplate): iam.PolicyStatement {
@@ -634,6 +1118,15 @@ class SingletonPolicy extends Construct implements iam.IGrantable {
       service: 'cloudformation',
       resource: 'stack',
       resourceName: `${props.stackName}/*`,
+    });
+  }
+
+  private stackSetArnFromProps(props: { stackSetName: string, region?: string }): string {
+    return cdk.Stack.of(this).formatArn({
+      region: props.region,
+      service: 'cloudformation',
+      resource: 'stackset',
+      resourceName: `${props.stackSetName}:*`,
     });
   }
 }
