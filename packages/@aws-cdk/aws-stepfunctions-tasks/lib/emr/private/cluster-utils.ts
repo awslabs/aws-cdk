@@ -116,17 +116,45 @@ export function InstanceTypeConfigPropertyToJson(property: EmrCreateCluster.Inst
 }
 
 /**
+ * Render the SpotProvisioningSpecificationProperty to JSON
+ *
+ * @param property
+ */
+export function SpotProvisioningSpecificationPropertyToJson(property: EmrCreateCluster.SpotProvisioningSpecificationProperty) {
+  return {
+    AllocationStrategy: cdk.stringToCloudFormation(property.allocationStrategy?.name),
+    BlockDurationMinutes: cdk.numberToCloudFormation(property.blockDurationMinutes),
+    TimeoutAction: cdk.stringToCloudFormation(property.timeoutAction?.valueOf()),
+    TimeoutDurationMinutes: cdk.numberToCloudFormation(property.timeoutDurationMinutes),
+  };
+}
+
+/**
+ * Render the SpotProvisioningSpecificationProperty to JSON
+ *
+ * @param property
+ */
+export function OnDemandProvisioningSpecificationPropertyToJson(property: EmrCreateCluster.OnDemandProvisioningSpecificationProperty) {
+  return {
+    AllocationStrategy: cdk.stringToCloudFormation(property.allocationStrategy?.name),
+  };
+}
+
+/**
  * Render the InstanceFleetProvisioningSpecificationsProperty to JSON
  *
  * @param property
  */
 export function InstanceFleetProvisioningSpecificationsPropertyToJson(property: EmrCreateCluster.InstanceFleetProvisioningSpecificationsProperty) {
   return {
-    SpotSpecification: {
-      BlockDurationMinutes: cdk.numberToCloudFormation(property.spotSpecification.blockDurationMinutes),
-      TimeoutAction: cdk.stringToCloudFormation(property.spotSpecification.timeoutAction?.valueOf()),
-      TimeoutDurationMinutes: cdk.numberToCloudFormation(property.spotSpecification.timeoutDurationMinutes),
-    },
+    SpotSpecification:
+      property.spotSpecification === undefined
+        ? property.spotSpecification
+        : SpotProvisioningSpecificationPropertyToJson(property.spotSpecification),
+    OnDemandSpecification:
+      property.onDemandSpecification === undefined
+        ? property.onDemandSpecification
+        : OnDemandProvisioningSpecificationPropertyToJson(property.onDemandSpecification),
   };
 }
 
